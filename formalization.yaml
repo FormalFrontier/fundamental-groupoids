@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/99c678e569c7c4c0772db297c5ddd5e4c9b6322e/schema/v0.4.schema.json
+version: "v0.4"
+project:
+  name: Fundamental Groupoids
+  description: >-
+    Endomorphism transport, chosen-vertex equivalences and connectedness of
+    fundamental groupoids, with small-path generation and constructed strict
+    descent along arbitrary indexed open covers into arbitrary categories.
+  authors:
+    - Formal Frontier Agents
+  responsible_maintainers:
+    - Formal Frontier source maintainers
+  license: Apache-2.0
+sources:
+  - title: A Concise Course in Algebraic Topology
+    authors:
+      - J. Peter May
+    id: https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf
+    type: book
+    location: Revised author PDF, Chapter 1 §3 and Chapter 2 §§5, 7; printed p. 17
+    relationship: adapts
+    note: >-
+      The book is published by the University of Chicago Press. Basepoint
+      change, chosen-vertex equivalence and the groupoid colimit
+      argument motivate the results. Transport is stated categorically and
+      descent permits arbitrary indexed open covers and arbitrary target
+      categories, beyond the connectedness and intersection conditions in
+      the source's diagram.
+related_formalizations:
+  - id: https://github.com/leanprover-community/mathlib4
+    relationship: builds-on
+    note: >-
+      Uses the canonical endomorphism, conjugation, one-object category,
+      connectedness, fundamental-groupoid, subdivision, open-cover,
+      morphism-property, pairwise-diagram and colimit APIs.
+automation:
+  methods:
+    - method: agent
+      framework: Formal Frontier agents and Lean 4
+      tool_setup: AI-assisted Lean formalization and mathematical documentation.
+status:
+  scope: >-
+    In an arbitrary category, equality of isomorphism-induced endomorphism
+    transports is characterized by centrality of the relative loop.
+    In a groupoid, independence from every isomorphism to a fixed explicitly
+    isomorphic target characterizes commutativity. A chosen vertex functor is
+    full and faithful in any category and an equivalence in a preconnected
+    groupoid. Path connectedness agrees with connectedness of the fundamental
+    groupoid, including nonemptiness. Small-path generation needs only
+    composition stability, and local naturality extends to a unique natural
+    transformation. Strictly compatible chart functors descend uniquely by
+    equality; characteristic object and morphism equations include equality
+    transport. Space, index, target-object and target-hom universes are
+    independent. Inclusion cocones are colimits in Grpd and Cat at their
+    fixed bundled sizes. No connectedness, inhabited intersections,
+    nonempty target or faithful inclusion is required for descent.
+    The interface concerns all-point groupoids, not a based GrpCat pushout,
+    wedge calculation or covering-space classification.
+review:
+  status: unchecked
+alignment:
+  note: Public mathematical interfaces; the source references describe motivation and generalizations.
+  statements:
+    - lean: CategoryTheory.Iso.conj_eq_iff_mem_center
+      module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
+    - lean: CategoryTheory.Iso.forall_conj_eq_iff_isMulCommutative
+      module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
+    - lean: CategoryTheory.SingleObj.isEquivalence_functor_id
+      module: FundamentalGroupoids/CategoryTheory/SingleObj.lean
+    - lean: FundamentalGroupoid.pathConnectedSpace_iff_isConnected
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean
+    - lean: FundamentalGroupoid.morphismProperty_of_isOpenCover
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean
+    - lean: FundamentalGroupoid.natTransOfIsOpenCover
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean
+    - lean: FundamentalGroupoid.descOfIsOpenCover
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean
+    - lean: FundamentalGroupoid.descOfIsOpenCover_unique
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean
+    - lean: FundamentalGroupoid.isColimitOpenCoverCocone
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean
+    - lean: FundamentalGroupoid.isColimitOpenCoverCatCocone
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean
+acknowledgements: >-
+  Formal Frontier agents contributed Lean formalization, examples and documentation.
+  May and Mathlib are credited in the module references and CONTRIBUTORS.md,
+  including the Mathlib contributors whose subdivision and generation APIs are used.

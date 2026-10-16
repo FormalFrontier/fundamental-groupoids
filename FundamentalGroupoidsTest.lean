@@ -1,0 +1,10 @@
+/-
+SPDX-License-Identifier: Apache-2.0
+Authors: Formal Frontier Agents
+-/
+module
+
+import FundamentalGroupoidsTest.CategoryTheory.Endomorphism.Conjugation
+import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.Connected
+import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.OpenCover
+import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
