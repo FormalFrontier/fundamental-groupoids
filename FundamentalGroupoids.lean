@@ -11,6 +11,7 @@ public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCov
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Product
 public import FundamentalGroupoids.CategoryTheory.Endomorphism.Conjugation
+public import FundamentalGroupoids.CategoryTheory.Groupoid.Covering
 public import FundamentalGroupoids.CategoryTheory.SingleObj
 public import FundamentalGroupoids.FundamentalGroup
 public import FundamentalGroupoids.Topology.Covering.Cardinality
