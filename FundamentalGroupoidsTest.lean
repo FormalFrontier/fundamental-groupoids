@@ -11,3 +11,8 @@ import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.OpenCover
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.Product
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.OpenCover
+import FundamentalGroupoidsTest.Topology.Covering.Lifting
+import FundamentalGroupoidsTest.Topology.Covering.Equivalence
+import FundamentalGroupoidsTest.Topology.Covering.Monodromy
+import FundamentalGroupoidsTest.Topology.Covering.DeckGroup
+import FundamentalGroupoidsTest.Topology.Covering.Morphisms

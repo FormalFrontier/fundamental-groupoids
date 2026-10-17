@@ -4,6 +4,8 @@ Fundamental groupoids, categorical endomorphism transport, strict descent along
 indexed open covers, and based van Kampen for two open subsets in Lean. The library
 extends Mathlib's categories, path-homotopy classes and open-cover APIs; it introduces
 no replacement fundamental group, fundamental groupoid or one-object category.
+It also extends Mathlib's covering-space APIs with based lifting, monodromy,
+maps of covers and deck-group comparisons.
 
 ## Headline results
 
@@ -77,6 +79,56 @@ intersection before restricting to based loops. No global path-connectedness or
 local path-connectedness hypothesis is imposed; global path connectedness follows
 from the cover, the path connectedness of the two opens and the common point.
 
+### Covering spaces
+
+- **Based lifting and equivalence of covers**
+  ([`Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean),
+  [`Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean)).
+  For a continuous map from a path-connected, locally path-connected domain and
+  a prescribed lift of its basepoint, a unique based lift exists exactly when
+  its induced fundamental-group image lies in the covering map's image, using
+  the basepoint equality to compare them.
+  For two covers of a fixed base with path-connected total spaces, equality of
+  their fundamental-group images at points over the same basepoint constructs
+  a homeomorphism over the base taking one point to the other. Only the source
+  total space must be locally path connected. Neither result requires base
+  connectedness or global surjectivity of the covers.
+- **Monodromy stabilizers, joinedness and fiber maps**
+  ([`Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean)).
+  A loop fixes a fiber point exactly when it lies in the based total-space
+  fundamental-group image; two fiber points share a monodromy orbit exactly
+  when they are joined by a path. These statements need no connectedness or
+  local path connectedness. Over a path-connected base, path connectedness of
+  the total space is equivalent to nonemptiness and pretransitive monodromy.
+  Continuous maps over the base restrict to equivariant fiber maps
+  (`IsCoveringMap.fiberMap`), without connectivity assumptions, preserving
+  identities and composition.
+- **Maps of covers from equivariant fiber maps**
+  ([`DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean)).
+  Restriction to a chosen fiber identifies continuous over-maps with Mathlib's
+  `MulActionHom`s when the base is path connected and the source is locally
+  path connected, allowing empty or disconnected source total spaces. Alternatively, a supplied
+  source point and a path-connected, locally path-connected source suffice,
+  without base connectedness. Neither version requires connectivity or local
+  path connectedness of the target. These are equivalences of map spaces;
+  individual fiber maps need not be bijections.
+- **Deck actions and fixed-point rigidity**
+  ([`DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean)).
+  The deck group acts on every point fiber. For a separated, locally injective
+  map with preconnected total space, evaluation at a supplied point embeds the
+  deck group into its fiber, so a deck transformation fixing a point is the
+  identity. No topology on the codomain is needed, and evaluation is not
+  asserted to be surjective.
+- **Deck groups as monodromy centralizers**
+  ([`DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean)).
+  Restriction to a chosen fiber gives a homomorphism to the centralizer of the
+  monodromy image in its permutation group, without connectivity assumptions.
+  It is injective over a path-connected base, without local path connectedness.
+  If the total space is also locally path connected, it is a multiplicative
+  equivalence, including empty or disconnected total spaces. The alternative
+  with path-connected, locally path-connected total space uses the fiber over
+  a supplied point's image and needs no base connectedness.
+
 ## Using the library
 
 The Lake package is `fundamental-groupoids`. Import the complete interface with:
@@ -132,6 +184,24 @@ restriction equations above. For categorical use, apply
 its `IsPushout` interface. The [circle-cylinder example](FundamentalGroupoidsTest/AlgebraicTopology/FundamentalGroup/OpenCover.lean)
 illustrates both formulations.
 
+### Covering imports and compatibility with sphere-topology
+
+Import the covering modules individually as
+`FundamentalGroupoids.Topology.Covering.Lifting`, `Equivalence`, `Monodromy`,
+`DeckGroup` or `DeckMonodromy`, with the same prefix for each. They extend
+Mathlib's covering maps, monodromy actions and deck groups rather than defining
+replacement structures.
+
+The generic covering API was relocated from
+[sphere-topology](https://github.com/FormalFrontier/sphere-topology), with
+**the same declaration names**. A Fundamental Groupoids release containing these
+modules **cannot be co-imported with a legacy sphere-topology release that still
+defines its own copies**. Joint consumers must use the subsequent sphere-topology
+shim release, whose old covering modules publicly import the new modules, and a
+compatible `fundamental-groupoids` pin **together**. Release order does not make
+arbitrary version pairs compatible; existing dependency pins are not upgraded
+automatically.
+
 ## Building
 
 Lean is pinned to `leanprover/lean4:v4.34.0-rc2`; Mathlib is pinned to
@@ -158,6 +228,11 @@ verification examples, not additional prerequisites for the library.
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean) | Small-path generation and construction of natural transformations |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Two-open based van Kampen: unique compatible homomorphisms and the `GrpCat` pushout |
+| [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
+| [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
+| [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity and equivariant fiber restriction with identity/composition laws |
+| [`Topology.Covering.DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean) | Fiber actions, evaluation embeddings and fixed-point rigidity for separated, locally injective maps with preconnected total space |
+| [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
 
 ## Examples and boundaries
 
@@ -201,6 +276,7 @@ exercise the advertised interfaces:
 Production declarations retain Mathlib's mathematical namespaces
 `CategoryTheory.Iso`, `CategoryTheory.SingleObj`, `FundamentalGroupoid` and
 `FundamentalGroup`.
+The covering modules use `IsCoveringMap`, `IsQuotientCoveringMap` and `deck`.
 For an arrow in one chart, the descent map is the local map conjugated by
 `eqToHom` of its object-value equalities. Chart compatibility is strict;
 compatibility given only by natural isomorphisms is not an input to this API.
@@ -217,6 +293,9 @@ are restricted to the two-open hypotheses stated above, not arbitrary covers of
 based groups. No wedge calculation or covering-space classification is asserted.
 The small-path module on its own proves generation and naturality, not functor
 descent. The translation example does not assert nonidentity chart-object casts.
+A monodromy point stabilizer is not generally the kernel of its permutation
+representation. The deck centralizer is a subgroup of the permutation group of
+a fiber, not a group structure on that fiber.
 
 ## References
 
@@ -227,9 +306,11 @@ descent. The translation example does not assert nonidentity chart-object casts.
   results and the arbitrary-cover, arbitrary-category descent statements
   generalize the corresponding topological results; the based van Kampen
   statements specialize the based-group colimit theorem to two opens.
+  Chapter 3, §§2–4, 7 supplies the covering-space lifting and monodromy arguments.
 - [Mathlib](https://github.com/leanprover-community/mathlib4), especially its
   fundamental groupoid, conjugation, one-object category, open-cover,
-  interval-subdivision, subpath, morphism-property and colimit APIs.
+  interval-subdivision, subpath, morphism-property and colimit APIs, as well as
+  covering maps, lifting, monodromy, deck groups and equivariant maps.
 
 ## Credits and license
 
@@ -238,4 +319,9 @@ examples and mathematical documentation. May supplies mathematical motivation
 and arguments; Mathlib supplies the underlying constructions and APIs.
 Individual Mathlib contributions used in the proofs are credited in the module
 documentation and [CONTRIBUTORS.md](CONTRIBUTORS.md).
+The covering-space formalizations originate in
+[sphere-topology](https://github.com/FormalFrontier/sphere-topology) by Formal
+Frontier Agents, retaining their Apache-2.0 and authorship notices. They build on
+Junyan Xu's covering-space lifting and monodromy and Kim Morrison's deck-group
+formalizations in Mathlib, with further credits in the module documentation.
 Licensed under Apache-2.0; see [LICENSE](LICENSE).

@@ -8,7 +8,8 @@ project:
     descent along arbitrary indexed open covers into arbitrary categories.
     Based van Kampen for two-open covers with a common basepoint and
     path-connected opens and intersection, as a unique-homomorphism universal
-    property and a pushout of groups.
+    property and a pushout of groups. Generic covering-map lifting and based
+    equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -20,7 +21,9 @@ sources:
       - J. Peter May
     id: https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf
     type: book
-    location: Revised author PDF, Chapter 1 §3 and Chapter 2 §§5, 7; printed pp. 17–19
+    location: >-
+      Revised author PDF, Chapter 1 §3 and Chapter 2 §§5, 7; printed pp. 17–19.
+      Chapter 3 §§2–4, 7 for covering-space monodromy, lifting and maps of covers.
     relationship: adapts
     note: >-
       The book is published by the University of Chicago Press. Basepoint
@@ -28,14 +31,25 @@ sources:
       argument motivate the results. Transport is stated categorically and
       descent permits arbitrary indexed open covers and arbitrary target
       categories, beyond the connectedness and intersection conditions in
-      the source's diagram.
+      the source's diagram. The covering modules use the based lifting,
+      monodromy and over-base comparison arguments, with the asymmetric
+      connectivity and local path connectedness hypotheses stated below.
 related_formalizations:
   - id: https://github.com/leanprover-community/mathlib4
     relationship: builds-on
     note: >-
       Uses the canonical endomorphism, conjugation, one-object category,
       connectedness, fundamental-groupoid, subdivision, open-cover,
-      morphism-property, pairwise-diagram and colimit APIs.
+      morphism-property, pairwise-diagram and colimit APIs, together with
+      covering maps, lifting, monodromy, deck groups and equivariant maps.
+  - id: https://github.com/FormalFrontier/sphere-topology
+    relationship: builds-on
+    note: >-
+      The generic covering formalizations originate in sphere-topology by
+      Formal Frontier Agents. The modules CoveringLifting, CoveringEquivalence,
+      CoveringMonodromy, DeckGroup and DeckMonodromy supply the covering APIs
+      now under FundamentalGroupoids.Topology.Covering, with the same
+      declaration names and retained Apache-2.0 and authorship notices.
 automation:
   methods:
     - method: agent
@@ -68,6 +82,37 @@ status:
     path connectedness nor local path connectedness is an extra hypothesis.
     No arbitrary-cover based-group theorem, wedge calculation or covering-space
     classification is asserted.
+    For a continuous map with path-connected, locally path-connected domain
+    and a prescribed lift of its basepoint, unique based lifting is equivalent
+    to containment of fundamental-group images, compared by the basepoint
+    equality. Equal based images for two covers of a fixed base give a
+    homeomorphism over that base when both total spaces are path connected
+    and the source is locally path connected; no base connectedness or global
+    surjectivity is required for these results.
+    Monodromy fixes a fiber point exactly on its based total-space
+    fundamental-group image, and two fiber points share an orbit exactly when
+    joined by a path, without connectivity or local path connectedness.
+    Over a path-connected base, the total space is path connected exactly
+    when it is nonempty and monodromy is pretransitive.
+    Continuous over-maps restrict to equivariant fiber maps without connectivity
+    hypotheses. Restriction is an equivalence of map spaces for path-connected
+    base and locally path-connected source, including empty or disconnected
+    source; alternatively, a path-connected, locally path-connected source and
+    a supplied point suffice without base connectedness. Neither comparison
+    requires connectivity or local path connectedness of the target, and
+    individual fiber maps need not be bijective.
+    The deck group acts on every point fiber. For a separated, locally
+    injective map with preconnected total space, evaluation at a supplied point
+    is injective. No codomain topology is needed, and surjectivity of evaluation
+    is not asserted. Deck restriction to a chosen fiber is a homomorphism into the monodromy
+    centralizer in that fiber's permutation group. It is injective over a
+    path-connected base, without local path connectedness, and a multiplicative
+    equivalence if the total space is also locally path connected, allowing
+    empty or disconnected total spaces. The occupied-fiber equivalence instead
+    needs path-connected, locally path-connected total space and a supplied
+    point, without base connectedness. A point stabilizer is not generally
+    the monodromy permutation kernel, and the centralizer is not a group
+    structure on the fiber.
 review:
   status: unchecked
 alignment:
@@ -97,7 +142,36 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
     - lean: FundamentalGroup.isPushout_of_isOpenCover
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
+    - lean: IsCoveringMap.existsUnique_continuousMap_lifts_iff_range_le
+      module: FundamentalGroupoids/Topology/Covering/Lifting.lean
+    - lean: IsCoveringMap.homeomorphOfRangeEq
+      module: FundamentalGroupoids/Topology/Covering/Equivalence.lean
+    - lean: IsCoveringMap.monodromy_eq_self_iff_mem_range
+      module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
+    - lean: IsCoveringMap.exists_monodromy_eq_iff_joined
+      module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
+    - lean: IsCoveringMap.pathConnectedSpace_iff_nonempty_and_monodromy_isPretransitive
+      module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
+    - lean: IsCoveringMap.fiberMap
+      module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
+    - lean: deck.evalEmbedding
+      module: FundamentalGroupoids/Topology/Covering/DeckGroup.lean
+    - lean: IsCoveringMap.fiberMapEquiv
+      module: FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean
+    - lean: IsCoveringMap.fiberMapEquivOfPathConnected
+      module: FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean
+    - lean: IsCoveringMap.deckMonodromyHom
+      module: FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean
+    - lean: IsCoveringMap.deckMonodromyEquiv
+      module: FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean
+    - lean: IsCoveringMap.deckMonodromyEquivOfPathConnected
+      module: FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean
 acknowledgements: >-
   Formal Frontier agents contributed Lean formalization, examples and documentation.
   May and Mathlib are credited in the module references and CONTRIBUTORS.md,
   including the Mathlib contributors whose subdivision and generation APIs are used.
+  The generic covering formalizations originate in sphere-topology by Formal
+  Frontier Agents, with retained Apache-2.0 and authorship notices. Their module
+  references credit Junyan Xu's covering-space lifting, monodromy and separated-map
+  uniqueness, Kim Morrison's deck group, Kenny Lau and Antoine Chambert-Loir's
+  equivariant maps, and Chris Hughes and Yury Kudryashov's pretransitive actions.
