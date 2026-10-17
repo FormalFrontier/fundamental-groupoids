@@ -6,6 +6,9 @@ project:
     Endomorphism transport, chosen-vertex equivalences and connectedness of
     fundamental groupoids, with small-path generation and constructed strict
     descent along arbitrary indexed open covers into arbitrary categories.
+    Based van Kampen for two-open covers with a common basepoint and
+    path-connected opens and intersection, as a unique-homomorphism universal
+    property and a pushout of groups.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -17,7 +20,7 @@ sources:
       - J. Peter May
     id: https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf
     type: book
-    location: Revised author PDF, Chapter 1 §3 and Chapter 2 §§5, 7; printed p. 17
+    location: Revised author PDF, Chapter 1 §3 and Chapter 2 §§5, 7; printed pp. 17–19
     relationship: adapts
     note: >-
       The book is published by the University of Chicago Press. Basepoint
@@ -54,8 +57,17 @@ status:
     independent. Inclusion cocones are colimits in Grpd and Cat at their
     fixed bundled sizes. No connectedness, inhabited intersections,
     nonempty target or faithful inclusion is required for descent.
-    The interface concerns all-point groupoids, not a based GrpCat pushout,
-    wedge calculation or covering-space classification.
+    For X : Type u, two opens U and V with U ⊔ V = ⊤, set path connectedness
+    of U, V and their intersection, and a common point p, compatible
+    homomorphisms from the two based fundamental groups into any G : Type v
+    with Group G extend uniquely to the fundamental group of X at p.
+    The extension satisfies both inclusion-composition equations; u and v are
+    independent. The same four inclusion homomorphisms form an IsPushout
+    square in GrpCat.{u}. These are two-open specializations of the based-group
+    colimit theorem, obtained using strict groupoid descent. Neither global
+    path connectedness nor local path connectedness is an extra hypothesis.
+    No arbitrary-cover based-group theorem, wedge calculation or covering-space
+    classification is asserted.
 review:
   status: unchecked
 alignment:
@@ -81,6 +93,10 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean
     - lean: FundamentalGroupoid.isColimitOpenCoverCatCocone
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean
+    - lean: FundamentalGroup.existsUnique_hom_of_isOpenCover
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
+    - lean: FundamentalGroup.isPushout_of_isOpenCover
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
 acknowledgements: >-
   Formal Frontier agents contributed Lean formalization, examples and documentation.
   May and Mathlib are credited in the module references and CONTRIBUTORS.md,

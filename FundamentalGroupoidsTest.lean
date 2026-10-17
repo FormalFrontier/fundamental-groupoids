@@ -4,7 +4,9 @@ Authors: Formal Frontier Agents
 -/
 module
 
+import FundamentalGroupoidsTest.FundamentalGroup
 import FundamentalGroupoidsTest.CategoryTheory.Endomorphism.Conjugation
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.Connected
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.OpenCover
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
+import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.OpenCover
