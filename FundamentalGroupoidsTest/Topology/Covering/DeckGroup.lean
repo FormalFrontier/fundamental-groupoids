@@ -4,6 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
+import FundamentalGroupoids.Topology.Covering.Components
 import FundamentalGroupoids.Topology.Covering.DeckGroup
 import FundamentalGroupoids.Topology.Covering.DeckMonodromy
 
@@ -30,6 +31,9 @@ recovers it from its nontrivial centralizer permutation. On the three-sheet cove
 the transposition of one and two fixes zero but remains nonidentity; the comparison
 recovers this permutation without requiring connected total space. An empty cover
 and a disconnected-base cover record the nonemptiness and faithfulness boundaries.
+On `Bool × Bool → Bool`, the component-fiber embedding distinguishes the two points
+over `false`, without a path-connected base. Constant and empty-total covers also
+instantiate the embedding when the chosen raw fiber is empty.
 
 ## References
 
@@ -270,6 +274,49 @@ private def twoFiberProjection : Bool × Bool → Bool := Prod.fst
 
 private theorem twoFiberProjection_covering : IsCoveringMap twoFiberProjection :=
   IsCoveringMap.of_discreteTopology _
+
+/-- Orbit classes over `false` map into the component-map fiber, not all total components. -/
+private noncomputable def falseFiberComponentEmbedding :=
+  twoFiberProjection_covering.monodromyOrbitEmbeddingZerothHomotopyFiber false
+
+private theorem falseFiberComponentEmbedding_apply (s : Bool) :
+    (falseFiberComponentEmbedding
+      (Quotient.mk _ ⟨(false, s), rfl⟩)).val = ZerothHomotopy.mk (false, s) :=
+  twoFiberProjection_covering.monodromyOrbitEmbeddingZerothHomotopyFiber_val_apply false
+    ⟨(false, s), rfl⟩
+
+/-- The two points over `false` have distinct component-fiber images. -/
+private theorem falseFiberComponentEmbedding_distinct :
+    falseFiberComponentEmbedding (Quotient.mk _ ⟨(false, false), rfl⟩) ≠
+      falseFiberComponentEmbedding (Quotient.mk _ ⟨(false, true), rfl⟩) := by
+  intro h
+  have hc := congrArg Subtype.val h
+  rw [falseFiberComponentEmbedding_apply, falseFiberComponentEmbedding_apply] at hc
+  obtain ⟨γ⟩ := Quotient.exact hc
+  have he : γ 0 = γ 1 := PreconnectedSpace.constant inferInstance γ.continuous
+  have hbad : (false, false) = (false, true) := γ.source.symm.trans (he.trans γ.target)
+  cases congrArg Prod.snd hbad
+
+/-- Every component over the component of `false` comes from a fiber-point orbit. -/
+private theorem falseFiberComponentEmbedding_surjective :
+    Function.Surjective falseFiberComponentEmbedding :=
+  twoFiberProjection_covering.monodromyOrbitEmbeddingZerothHomotopyFiber_surjective false
+
+/-- The canonical cover maps the path component of a point onto its image component. -/
+private theorem twoFiberProjection_image_pathComponent :
+    twoFiberProjection '' pathComponent (false, false) =
+      pathComponent (twoFiberProjection (false, false)) :=
+  twoFiberProjection_covering.image_pathComponent (false, false)
+
+/-- The total space is nonempty, but the point fiber over `true` is empty. -/
+private noncomputable def emptyImageComponentEmbedding :=
+  IsCoveringMap.monodromyOrbitEmbeddingZerothHomotopyFiber
+    (IsCoveringMap.of_discreteTopology (fun _ : Bool ↦ false)) true
+
+/-- An empty total space still has its canonical orbit-to-component-fiber embedding. -/
+private noncomputable def emptyTotalComponentEmbedding :=
+  IsCoveringMap.monodromyOrbitEmbeddingZerothHomotopyFiber
+    (IsCoveringMap.of_isEmpty (Empty.elim : Empty → Bool)) false
 
 /-- Swap only the points over true, leaving the entire false fiber fixed. -/
 private def trueFiberTransposition : deck twoFiberProjection :=
