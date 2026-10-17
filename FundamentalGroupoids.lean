@@ -4,17 +4,19 @@ Authors: Formal Frontier Agents
 -/
 module
 
-public import FundamentalGroupoids.CategoryTheory.Endomorphism.Conjugation
-public import FundamentalGroupoids.CategoryTheory.SingleObj
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Product
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Connected
-public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Product
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Product
+public import FundamentalGroupoids.CategoryTheory.Endomorphism.Conjugation
+public import FundamentalGroupoids.CategoryTheory.SingleObj
 public import FundamentalGroupoids.FundamentalGroup
-public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover
-public import FundamentalGroupoids.Topology.Covering.Lifting
-public import FundamentalGroupoids.Topology.Covering.Equivalence
-public import FundamentalGroupoids.Topology.Covering.Monodromy
+public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.DeckGroup
 public import FundamentalGroupoids.Topology.Covering.DeckMonodromy
+public import FundamentalGroupoids.Topology.Covering.Equivalence
+public import FundamentalGroupoids.Topology.Covering.Lifting
+public import FundamentalGroupoids.Topology.Covering.Monodromy

@@ -39,6 +39,16 @@ maps of covers and deck-group comparisons.
   its inverse is the family of coordinate projection functors `piProj`.
   For `X : I → TopCat.{u}`, projection, assembly and the isomorphism agree
   by equality with Mathlib's `proj`, `piToPiTop` and `piIso`, respectively.
+- **Fundamental groups of arbitrary dependent products**
+  ([`FundamentalGroup.piMulEquiv`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean)).
+  For `I : Type u`, spaces `X i : Type v` and basepoints `p i`, with independent
+  universes, the fundamental group of `∀ i, X i` is multiplicatively equivalent
+  to `∀ i, FundamentalGroup (X i) (p i)`. Coordinate maps are induced by
+  evaluation, and the inverse assembles loop classes. Characteristic equations
+  describe both directions on loop representatives, with the original
+  endomorphism and pointwise group operations. The equivalence commutes with
+  families of continuous maps and arbitrary reindexing functions, using image
+  basepoints. No finiteness, nonempty-index or connectedness hypothesis is required.
 - **Generation by small paths**
   ([`FundamentalGroupoid.morphismProperty_of_isOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean)).
   For an indexed open cover, a composition-stable morphism property holding on
@@ -167,6 +177,22 @@ hypotheses, and the index type need not be finite.
   with path-connected, locally path-connected total space uses the fiber over
   a supplied point's image and needs no base connectedness.
 
+#### Cardinalities of fibers
+
+The [`Cardinality`](FundamentalGroupoids/Topology/Covering/Cardinality.lean) module
+contains `IsCoveringMap.isLocallyConstant_cardinalMk_fiber`:
+for a covering map `p : E → B`, the function
+`fun b : B ↦ Cardinal.mk (p ⁻¹' {b})` is locally constant. The total and base
+universes are independent. The statement uses the point fibers and
+preserves infinite and empty cardinalities, without finiteness, path connectedness,
+local path connectedness, surjectivity or nonempty-total assumptions.
+
+For the constancy consequences on a preconnected subset or base, Mathlib already
+provides `IsLocallyConstant.apply_eq_of_isPreconnected`,
+`IsLocallyConstant.apply_eq_of_preconnectedSpace` and `IsLocallyConstant.eq_const`.
+Local constancy does not assert equality of all fiber cardinalities over an
+arbitrary disconnected base.
+
 ## Using the library
 
 The Lake package is `fundamental-groupoids`. Import the complete interface with:
@@ -190,6 +216,15 @@ homotopy `H`, `fundamentalGroupMulEquivOfPath_map_of_homotopy` compares the maps
 by transport along `H.evalAt x`; its homomorphism form is
 `fundamentalGroupMulEquivOfPath_comp_map_of_homotopy`. These comparisons impose
 no basedness or connectedness condition.
+
+For pointed products, import
+`FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Product` and use
+`FundamentalGroup.piMulEquiv p`. The lemmas `piMulEquiv_apply` and
+`piMulEquiv_symm_apply` compute coordinate evaluation and loop assembly;
+`piMulEquiv_fromPath` and `piMulEquiv_symm_fromPath` give their equations on
+loop representatives. Use `piMulEquiv_naturality` for families of continuous
+maps and `piMulEquiv_reindex` for arbitrary reindexing functions, with image
+basepoints as displayed in their statements.
 
 For a path-connected space and chosen point `x`, apply `Functor.asEquivalence` to
 `SingleObj.functor (MonoidHom.id (End (FundamentalGroupoid.mk x)))`.
@@ -231,7 +266,7 @@ illustrates both formulations.
 
 Import the covering modules individually as
 `FundamentalGroupoids.Topology.Covering.Lifting`, `Equivalence`, `Monodromy`,
-`Components`, `DeckGroup` or `DeckMonodromy`, with the same prefix for each. They extend
+`Components`, `Cardinality`, `DeckGroup` or `DeckMonodromy`, with the same prefix for each. They extend
 Mathlib's covering maps, monodromy actions and deck groups rather than defining
 replacement structures.
 
@@ -283,12 +318,14 @@ verification examples, not additional prerequisites for the library.
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean) | Small-path generation and construction of natural transformations |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
+| [`AlgebraicTopology.FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean) | Fundamental-group product equivalence, coordinate and assembled-loop equations |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts |
 | [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
 | [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity and equivariant fiber restriction with identity/composition laws |
 | [`Topology.Covering.Components`](FundamentalGroupoids/Topology/Covering/Components.lean) | Orbit equivalence with the path-component-map fiber; path-component image equality; equivalence to all total-space components over a path-connected base |
+| [`Topology.Covering.Cardinality`](FundamentalGroupoids/Topology/Covering/Cardinality.lean) | Local constancy of point-fiber cardinalities |
 | [`Topology.Covering.DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean) | Fiber actions, evaluation embeddings and fixed-point rigidity for separated, locally injective maps with preconnected total space |
 | [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
 
