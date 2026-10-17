@@ -7,6 +7,7 @@ module
 public import FundamentalGroupoids.CategoryTheory.Endomorphism.Conjugation
 public import FundamentalGroupoids.CategoryTheory.SingleObj
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Connected
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Product
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
 public import FundamentalGroupoids.FundamentalGroup

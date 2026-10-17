@@ -26,6 +26,16 @@ no replacement fundamental group, fundamental groupoid or one-object category.
   A topological space is path connected if and only if its fundamental groupoid
   is connected, with nonemptiness on both sides. No local path connectedness or
   separation condition is needed.
+- **Fundamental groupoids of arbitrary dependent products**
+  ([`FundamentalGroupoidFunctor.piProductIso`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean)).
+  For `I : Type u` and `X : I → TopCat.{v}` with independent universes,
+  there is an isomorphism in `Grpd` from
+  `Grpd.of (∀ i, FundamentalGroupoid (X i))` to
+  `Grpd.of (FundamentalGroupoid (∀ i, X i))`.
+  Its forward functor `piAssembly` assembles coordinate points and path classes;
+  its inverse is the family of coordinate projection functors `piProj`.
+  For `X : I → TopCat.{u}`, projection, assembly and the isomorphism agree
+  by equality with Mathlib's `proj`, `piToPiTop` and `piIso`, respectively.
 - **Generation by small paths**
   ([`FundamentalGroupoid.morphismProperty_of_isOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean)).
   For an indexed open cover, a composition-stable morphism property holding on
@@ -144,6 +154,7 @@ verification examples, not additional prerequisites for the library.
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
 | [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Path connectedness and connected groupoids |
+| [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean) | Small-path generation and construction of natural transformations |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Two-open based van Kampen: unique compatible homomorphisms and the `GrpCat` pushout |
