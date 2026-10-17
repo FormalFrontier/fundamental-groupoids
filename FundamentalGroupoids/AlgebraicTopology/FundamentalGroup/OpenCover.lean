@@ -8,12 +8,17 @@ public import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup
 public import Mathlib.Algebra.Category.Grp.Basic
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
 public import Mathlib.Topology.Sets.Opens
+public import Mathlib.Topology.Sets.OpenCover
+public import Mathlib.CategoryTheory.InducedCategory
+public import Mathlib.Order.SupClosed
 public import FundamentalGroupoids.FundamentalGroup
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenNhds
 import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
+import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Connected
 import Mathlib.CategoryTheory.SingleObj
 
 /-!
-# Fundamental groups of two path-connected open subsets
+# Fundamental groups of path-connected open covers
 
 For two open subsets covering a space, a point in their intersection determines an
 inclusion square of fundamental groups. Path connectedness of the two subsets and
@@ -27,6 +32,14 @@ homotopy quotient, and extended to both charts using those same intersection pat
 This is the finite compatible-choice step in the passage from strict fundamental-
 groupoid descent to the based-group theorem. No global path-connectedness hypothesis
 or local path-connectedness hypothesis is added.
+
+Intersection-closed families of open neighborhoods give inclusion-indexed cocones of
+fundamental groups. The indexing presentation may repeat an open set: the induced
+category retains all inclusion arrows between the presented neighborhoods. Binary
+intersection closure, expressed by `InfClosed`, also gives closure under every
+nonempty finite intersection, without requiring the whole space to be a member.
+The homomorphism form quantifies a target-group universe independent of both the
+space and the indexing type.
 
 ## References
 
@@ -44,7 +57,7 @@ or local path-connectedness hypothesis is added.
 
 noncomputable section
 
-universe u v
+universe u v w
 
 open CategoryTheory CategoryTheory.Limits TopologicalSpace
 
@@ -575,5 +588,480 @@ theorem isPushout_of_isOpenCover
   exact
     { w := inclusion_square U V p
       isColimit' := ⟨hc⟩ }
+
+-- Normalizing a frame by its value at the vertex avoids any equality test on objects.
+private def normalizedFrame {C : Type*} [Groupoid C] [IsPreconnected C]
+    (p : C) (y : C) : p ⟶ y :=
+  inv (Classical.choice (inferInstance : Nonempty (p ⟶ p))) ≫
+    Classical.choice (inferInstance : Nonempty (p ⟶ y))
+
+private theorem normalizedFrame_unit {C : Type*} [Groupoid C] [IsPreconnected C]
+    (p : C) : normalizedFrame p p = 𝟙 p := by
+  simp [normalizedFrame]
+
+-- Read back an arrow through the canonical endomorphism equivalence before
+-- simplifying, so that scalar calculations use the supplied monoid structure.
+private theorem singleObj_toEnd_symm_apply {M : Type*} [Monoid M] (m : M) :
+    (SingleObj.toEnd M).symm m = m := by
+  simpa only [SingleObj.toEnd_def] using (SingleObj.toEnd M).symm_apply_apply m
+
+-- Equality of vertex homomorphisms is equality of the corresponding one-object
+-- functors, whose transport has identity component at the vertex.
+private def vertexNatTrans {C : Type*} [Category C] (p : C)
+    {G : Type w} [Group G] (F H : C ⥤ SingleObj G)
+    (h : vertexHom p F = vertexHom p H) :
+    SingleObj.functor (MonoidHom.id (End p)) ⋙ F ⟶
+      SingleObj.functor (MonoidHom.id (End p)) ⋙ H :=
+  eqToHom ((SingleObj.mapHom (End p) G).symm.injective h)
+
+private theorem vertexNatTrans_app {C : Type*} [Category C] (p : C)
+    {G : Type w} [Group G] (F H : C ⥤ SingleObj G)
+    (h : vertexHom p F = vertexHom p H) (a : SingleObj (End p)) :
+    @Eq G ((vertexNatTrans p F H h).app a) (1 : G) := by
+  simp only [vertexNatTrans, eqToHom_app, singleObj_eqToHom]
+
+-- Full precomposition extends the vertex transformation; faithful precomposition
+-- makes the extension unique. In particular no compatible choices of frames are inputs.
+private def vertexIso {C : Type*} [Groupoid C] [IsPreconnected C] (p : C)
+    {G : Type w} [Group G] (F H : C ⥤ SingleObj G)
+    (h : vertexHom p F = vertexHom p H) : F ≅ H := by
+  let J := SingleObj.functor (C := C) (X := p) (MonoidHom.id (End p))
+  let P := (Functor.whiskeringLeft (SingleObj (End p)) C (SingleObj G)).obj J
+  let t := vertexNatTrans p F H h
+  letI : IsIso t := NatIso.isIso_of_isIso_app t
+  exact P.preimageIso (asIso t)
+
+private theorem vertexIso_base {C : Type*} [Groupoid C] [IsPreconnected C] (p : C)
+    {G : Type w} [Group G] (F H : C ⥤ SingleObj G)
+    (h : vertexHom p F = vertexHom p H) :
+    ((vertexIso p F H h).hom.app p : G) = 1 := by
+  let J := SingleObj.functor (C := C) (X := p) (MonoidHom.id (End p))
+  let P := (Functor.whiskeringLeft (SingleObj (End p)) C (SingleObj G)).obj J
+  have hJ : J.obj (SingleObj.star (End p)) = p :=
+    SingleObj.functor_obj (X := p) (MonoidHom.id (End p)) _
+  apply (SingleObj.toEnd G).symm.injective
+  have ht :
+      @Eq G ((P.preimage (vertexNatTrans p F H h)).app (J.obj (SingleObj.star (End p))))
+        ((vertexNatTrans p F H h).app (SingleObj.star (End p))) := by
+    have ht := congrArg
+      (fun t => (SingleObj.toEnd G).symm (t.app (SingleObj.star (End p))))
+      (P.map_preimage (vertexNatTrans p F H h))
+    simpa only [P, Functor.whiskeringLeft_obj_map, Functor.whiskerLeft_app,
+      singleObj_toEnd_symm_apply] using ht
+  rw [hJ, vertexNatTrans_app] at ht
+  simpa only [vertexIso, Functor.preimageIso_hom, asIso_hom,
+    singleObj_toEnd_symm_apply] using ht
+
+-- This component formula is also a convenient way to use uniqueness after
+-- restriction: a path in a smaller connected neighborhood computes every comparison.
+private theorem normalizedNatTrans_app {C : Type*} [Category C] (p : C)
+    {G : Type w} [Group G] {F H : C ⥤ SingleObj G} (α : F ⟶ H)
+    (hα : (α.app p : G) = 1) {y : C} (q : p ⟶ y) :
+    @Eq G (α.app y)
+      (@Mul.mul G inferInstance (H.map q) (@Inv.inv G inferInstance (F.map q))) := by
+  have h := congrArg (SingleObj.toEnd G).symm (α.naturality q)
+  have hp := congrArg (SingleObj.toEnd G).symm hα
+  simp only [singleObj_toEnd_symm_apply, SingleObj.comp_as_mul] at h
+  simp only [singleObj_toEnd_symm_apply] at hp
+  rw [hp, mul_one] at h
+  exact (@eq_mul_inv_iff_mul_eq G inferInstance (α.app y) (H.map q) (F.map q)).2 h
+
+private theorem groupoid_map_obj {Y : Type*} [TopologicalSpace Y]
+    (f : C(X, Y)) (a : FundamentalGroupoid X) :
+    (FundamentalGroupoid.map f).obj a = FundamentalGroupoid.mk (f a.as) := by
+  apply FundamentalGroupoid.ext
+  exact FundamentalGroupoid.map_obj_as f a
+
+-- These isomorphisms merely view elements as arrows of the existing SingleObj groupoid.
+private def singleObjIso {G : Type w} [Group G] {a b : SingleObj G} (g : G) : a ≅ b :=
+  asIso (g : a ⟶ b)
+
+private theorem singleObj_copyObj_map {C : Type*} [Category C]
+    {G : Type w} [Group G] (F : C ⥤ SingleObj G) (obj : C → SingleObj G)
+    (e : C → G) {a b : C} (f : a ⟶ b) :
+    @Eq G ((F.copyObj obj (fun y => singleObjIso (e y))).map f)
+      (e b * F.map f * (e a)⁻¹) := by
+  have h := congrArg (SingleObj.toEnd G).symm
+    ((F.isoCopyObj obj (fun y => singleObjIso (e y))).hom.naturality f)
+  simp only [singleObj_toEnd_symm_apply, Functor.isoCopyObj_hom_app, singleObjIso,
+    asIso_hom, SingleObj.comp_as_mul] at h
+  exact (@eq_mul_inv_iff_mul_eq G inferInstance
+    ((F.copyObj obj (fun y => singleObjIso (e y))).map f) (e b * F.map f) (e a)).2 h.symm
+
+private theorem vertexHom_copyObj {C : Type*} [Category C] (p : C)
+    {G : Type w} [Group G] (F : C ⥤ SingleObj G) (obj : C → SingleObj G)
+    (e : C → G) (he : e p = 1) :
+    vertexHom p (F.copyObj obj (fun y => singleObjIso (e y))) = vertexHom p F := by
+  apply MonoidHom.ext
+  intro f
+  simp only [vertexHom_apply, singleObj_copyObj_map, he, inv_one, one_mul, mul_one]
+
+-- An intersection represented elsewhere in the family gives agreement on the
+-- intersection itself, not just on a chosen presentation of it.
+private theorem homs_agree_on_inf (x : X)
+    (A B C : OpenNhds (X := TopCat.of X) x) (hCA : C ≤ A) (hCB : C ≤ B)
+    (hC : C = A ⊓ B)
+    {G : Type w} [Group G]
+    (fA : FundamentalGroup A.1 ⟨x, A.2⟩ →* G)
+    (fB : FundamentalGroup B.1 ⟨x, B.2⟩ →* G)
+    (fC : FundamentalGroup C.1 ⟨x, C.2⟩ →* G)
+    (hA : fA.comp (((openNhdsFunctor x).map (homOfLE hCA)).hom) = fC)
+    (hB : fB.comp (((openNhdsFunctor x).map (homOfLE hCB)).hom) = fC) :
+    fA.comp (map (ContinuousMap.inclusion
+        (s := (↑(A.1 ⊓ B.1) : Set X)) (t := (A.1 : Set X)) Set.inter_subset_left)
+        ⟨x, A.2, B.2⟩) =
+      fB.comp (map (ContinuousMap.inclusion
+        (s := (↑(A.1 ⊓ B.1) : Set X)) (t := (B.1 : Set X)) Set.inter_subset_right)
+        ⟨x, A.2, B.2⟩) := by
+  subst C
+  exact hA.trans hB.symm
+
+section IndexedCover
+
+variable {ι : Type v}
+
+private theorem indexedCover_nonempty
+    (x : X) (U : ι → OpenNhds (X := TopCat.of X) x)
+    (hcover : IsOpenCover (fun i => (U i).1)) : Nonempty ι := by
+  obtain ⟨i, _⟩ := hcover.exists_mem x
+  exact ⟨i⟩
+
+private theorem indexedCover_pathConnectedSpace
+    (x : X) (U : ι → OpenNhds (X := TopCat.of X) x)
+    (hcover : IsOpenCover (fun i => (U i).1))
+    (hpc : ∀ i, IsPathConnected ((U i).1 : Set X)) : PathConnectedSpace X := by
+  apply pathConnectedSpace_iff_univ.mpr
+  refine ⟨x, Set.mem_univ x, ?_⟩
+  intro y _
+  obtain ⟨i, hi⟩ := hcover.exists_mem y
+  exact ((hpc i).joinedIn x (U i).2 y hi).mono (Set.subset_univ _)
+
+private theorem indexedCover_inf_pathConnected
+    (x : X) (U : ι → OpenNhds (X := TopCat.of X) x)
+    (hpc : ∀ i, IsPathConnected ((U i).1 : Set X))
+    (hclosed : InfClosed (Set.range U)) (i j : ι) :
+    IsPathConnected (↑((U i).1 ⊓ (U j).1) : Set X) := by
+  obtain ⟨k, hk⟩ := hclosed (Set.mem_range_self i) (Set.mem_range_self j)
+  have hk' : (U k).1 = (U i).1 ⊓ (U j).1 := congrArg Subtype.val hk
+  rw [← hk']
+  exact hpc k
+
+private theorem indexedCover_inf_inf_pathConnected
+    (x : X) (U : ι → OpenNhds (X := TopCat.of X) x)
+    (hpc : ∀ i, IsPathConnected ((U i).1 : Set X))
+    (hclosed : InfClosed (Set.range U)) (i j k : ι) :
+    IsPathConnected (↑(((U i).1 ⊓ (U j).1) ⊓ (U k).1) : Set X) := by
+  obtain ⟨l, hl⟩ := hclosed (Set.mem_range_self i) (Set.mem_range_self j)
+  have hl' : (U l).1 = (U i).1 ⊓ (U j).1 := congrArg Subtype.val hl
+  rw [← hl']
+  exact indexedCover_inf_pathConnected x U hpc hclosed l k
+
+/-- The homomorphism universal property for an intersection-closed open cover at a common point.
+
+The neighborhoods are path connected and cover the space. Closure under binary intersections
+is equivalent here to closure under nonempty finite intersections; neither index finiteness nor
+membership of the whole space is required. Compatibility is imposed along every inclusion of
+presented neighborhoods, including inclusions between repeated presentations of the same open.
+The target group may lie in a universe independent of the space and the index type.
+
+See May, *A Concise Course in Algebraic Topology*, Chapter 2, §7. -/
+theorem existsUnique_hom_of_isOpenCover_of_infClosed
+    (x : X) (U : ι → OpenNhds (X := TopCat.of X) x)
+    (hcover : IsOpenCover (fun i => (U i).1))
+    (hpc : ∀ i, IsPathConnected ((U i).1 : Set X))
+    (hclosed : InfClosed (Set.range U))
+    (G : Type w) [Group G]
+    (φ : ∀ i, FundamentalGroup (U i).1 ⟨x, (U i).2⟩ →* G)
+    (hφ : ∀ (i j : ι) (hij : U i ≤ U j),
+      (φ j).comp (((openNhdsFunctor x).map (homOfLE hij)).hom) = φ i) :
+    ∃! ψ : FundamentalGroup X x →* G,
+      ∀ i, ψ.comp (((openNhdsCocone x).ι.app (U i)).hom) = φ i := by
+  classical
+  let V : ι → Opens X := fun i => (U i).1
+  let p (i : ι) : V i := ⟨x, (U i).2⟩
+  let : PathConnectedSpace X := indexedCover_pathConnectedSpace x U hcover hpc
+  let (i : ι) : PathConnectedSpace (V i) :=
+    isPathConnected_iff_pathConnectedSpace.mp (hpc i)
+  let T (i : ι) : FundamentalGroupoid (V i) ⥤ SingleObj G :=
+    frameHomFunctor (FundamentalGroupoid.mk (p i))
+      (normalizedFrame (FundamentalGroupoid.mk (p i))) (φ i)
+  have hT (i : ι) : vertexHom (FundamentalGroupoid.mk (p i)) (T i) = φ i :=
+    vertexHom_frameHomFunctor _ _ (normalizedFrame_unit _) _
+  let l (i j : ι) : C(↑(V i ⊓ V j), V i) :=
+    ContinuousMap.inclusion Set.inter_subset_left
+  let r (i j : ι) : C(↑(V i ⊓ V j), V j) :=
+    ContinuousMap.inclusion Set.inter_subset_right
+  let b (i j : ι) : ↑(V i ⊓ V j) := ⟨x, (U i).2, (U j).2⟩
+  have hpair (i j : ι) :
+      (φ i).comp (map (l i j) (b i j)) = (φ j).comp (map (r i j) (b i j)) := by
+    obtain ⟨k, hk⟩ := hclosed (Set.mem_range_self i) (Set.mem_range_self j)
+    have hki : U k ≤ U i := by rw [hk]; exact inf_le_left
+    have hkj : U k ≤ U j := by rw [hk]; exact inf_le_right
+    exact homs_agree_on_inf x (U i) (U j) (U k) hki hkj hk
+      (φ i) (φ j) (φ k) (hφ k i hki) (hφ k j hkj)
+  have hvertex (i j : ι) :
+      vertexHom (FundamentalGroupoid.mk (b i j)) (FundamentalGroupoid.map (l i j) ⋙ T i) =
+        vertexHom (FundamentalGroupoid.mk (b i j))
+          (FundamentalGroupoid.map (r i j) ⋙ T j) := by
+    calc
+      _ = (vertexHom (FundamentalGroupoid.mk (p i)) (T i)).comp
+          (map (l i j) (b i j)) := (vertexHom_comp _ _ _).symm
+      _ = (vertexHom (FundamentalGroupoid.mk (p j)) (T j)).comp
+          (map (r i j) (b i j)) := by rw [hT i, hT j]; exact hpair i j
+      _ = _ := vertexHom_comp _ _ _
+  let α (i j : ι) : FundamentalGroupoid.map (l i j) ⋙ T i ≅
+      FundamentalGroupoid.map (r i j) ⋙ T j := by
+    letI : PathConnectedSpace ↑(V i ⊓ V j) :=
+      isPathConnected_iff_pathConnectedSpace.mp
+        (indexedCover_inf_pathConnected x U hpc hclosed i j)
+    exact vertexIso (FundamentalGroupoid.mk (b i j)) _ _ (hvertex i j)
+  have hα (i j : ι) : ((α i j).hom.app (FundamentalGroupoid.mk (b i j)) : G) = 1 := by
+    let : PathConnectedSpace ↑(V i ⊓ V j) :=
+      isPathConnected_iff_pathConnectedSpace.mp
+        (indexedCover_inf_pathConnected x U hpc hclosed i j)
+    exact vertexIso_base _ _ _ (hvertex i j)
+  -- A single path in the triple intersection computes all three comparisons.
+  -- Their normalized components consequently satisfy the cocycle equation.
+  have hcocycle (i j k : ι) (y : X) (hi : y ∈ V i) (hj : y ∈ V j) (hk : y ∈ V k) :
+      ((α j k).hom.app (FundamentalGroupoid.mk ⟨y, hj, hk⟩) : G) *
+          (α i j).hom.app (FundamentalGroupoid.mk ⟨y, hi, hj⟩) =
+        (α i k).hom.app (FundamentalGroupoid.mk ⟨y, hi, hk⟩) := by
+    let W : Opens X := (V i ⊓ V j) ⊓ V k
+    let : PathConnectedSpace W := isPathConnected_iff_pathConnectedSpace.mp
+      (indexedCover_inf_inf_pathConnected x U hpc hclosed i j k)
+    let a : W := ⟨x, ⟨(U i).2, (U j).2⟩, (U k).2⟩
+    let z : W := ⟨y, ⟨hi, hj⟩, hk⟩
+    let q : FundamentalGroupoid.mk a ⟶ FundamentalGroupoid.mk z :=
+      Path.Homotopic.Quotient.mk (PathConnectedSpace.somePath a z)
+    let qi : C(W, V i) := ContinuousMap.inclusion (fun _ h => h.1.1)
+    let qj : C(W, V j) := ContinuousMap.inclusion (fun _ h => h.1.2)
+    let qk : C(W, V k) := ContinuousMap.inclusion (fun _ h => h.2)
+    let qij : C(W, ↑(V i ⊓ V j)) := ContinuousMap.inclusion (fun _ h => h.1)
+    let qjk : C(W, ↑(V j ⊓ V k)) := ContinuousMap.inclusion (fun _ h => ⟨h.1.2, h.2⟩)
+    let qik : C(W, ↑(V i ⊓ V k)) := ContinuousMap.inclusion (fun _ h => ⟨h.1.1, h.2⟩)
+    let ti : G := (T i).map ((FundamentalGroupoid.map qi).map q)
+    let tj : G := (T j).map ((FundamentalGroupoid.map qj).map q)
+    let tk : G := (T k).map ((FundamentalGroupoid.map qk).map q)
+    have hij : ((α i j).hom.app (FundamentalGroupoid.mk ⟨y, hi, hj⟩) : G) = tj * ti⁻¹ := by
+      have h := normalizedNatTrans_app (FundamentalGroupoid.mk (b i j))
+        (α i j).hom (hα i j) ((FundamentalGroupoid.map qij).map q)
+      change @Eq G _ _ at h
+      simp only [FundamentalGroupoid.map_map, l, r, qij] at h
+      change @Eq G ((α i j).hom.app (FundamentalGroupoid.mk ⟨y, hi, hj⟩))
+        (tj * ti⁻¹) at h
+      exact h
+    have hjk : ((α j k).hom.app (FundamentalGroupoid.mk ⟨y, hj, hk⟩) : G) = tk * tj⁻¹ := by
+      have h := normalizedNatTrans_app (FundamentalGroupoid.mk (b j k))
+        (α j k).hom (hα j k) ((FundamentalGroupoid.map qjk).map q)
+      change @Eq G _ _ at h
+      simp only [FundamentalGroupoid.map_map, l, r, qjk] at h
+      change @Eq G ((α j k).hom.app (FundamentalGroupoid.mk ⟨y, hj, hk⟩))
+        (tk * tj⁻¹) at h
+      exact h
+    have hik : ((α i k).hom.app (FundamentalGroupoid.mk ⟨y, hi, hk⟩) : G) = tk * ti⁻¹ := by
+      have h := normalizedNatTrans_app (FundamentalGroupoid.mk (b i k))
+        (α i k).hom (hα i k) ((FundamentalGroupoid.map qik).map q)
+      change @Eq G _ _ at h
+      simp only [FundamentalGroupoid.map_map, l, r, qik] at h
+      change @Eq G ((α i k).hom.app (FundamentalGroupoid.mk ⟨y, hi, hk⟩))
+        (tk * ti⁻¹) at h
+      exact h
+    rw [hij, hjk, hik]
+    simp [mul_assoc]
+  choose c hc using (fun y : X => hcover.exists_mem y)
+  let e (i : ι) (y : FundamentalGroupoid (V i)) : G :=
+    (α i (c y.as.1)).hom.app (FundamentalGroupoid.mk ⟨y.as.1, y.as.2, hc y.as.1⟩)
+  have he (i j : ι) (y : ↑(V i ⊓ V j)) :
+      e i (FundamentalGroupoid.mk ⟨y.1, y.2.1⟩) =
+        e j (FundamentalGroupoid.mk ⟨y.1, y.2.2⟩) *
+          (α i j).hom.app (FundamentalGroupoid.mk y) :=
+    (hcocycle i j (c y.1) y.1 y.2.1 y.2.2 (hc y.1)).symm
+  have he_base (i : ι) : e i (FundamentalGroupoid.mk (p i)) = 1 := hα i (c x)
+  let T' (i : ι) : FundamentalGroupoid (V i) ⥤ SingleObj G :=
+    (T i).copyObj (fun _ => SingleObj.star G) (fun y => singleObjIso (e i y))
+  have hT' (i : ι) : vertexHom (FundamentalGroupoid.mk (p i)) (T' i) = φ i :=
+    (vertexHom_copyObj _ _ _ _ (he_base i)).trans (hT i)
+  have hstrict : ∀ i j,
+      (FundamentalGroupoid.openCoverDiagram V).map (Pairwise.Hom.left i j) ⋙ T' i =
+        (FundamentalGroupoid.openCoverDiagram V).map (Pairwise.Hom.right i j) ⋙ T' j := by
+    intro i j
+    rw [FundamentalGroupoid.openCoverDiagram_map_left,
+      FundamentalGroupoid.openCoverDiagram_map_right]
+    change (FundamentalGroupoid.map (l i j) ⋙ T' i :
+      FundamentalGroupoid ↑(V i ⊓ V j) ⥤ SingleObj G) =
+        FundamentalGroupoid.map (r i j) ⋙ T' j
+    apply singleObjFunctor_ext (C := FundamentalGroupoid ↑(V i ⊓ V j))
+    intro a z f
+    change @Eq G ((T' i).map ((FundamentalGroupoid.map (l i j)).map f))
+      ((T' j).map ((FundamentalGroupoid.map (r i j)).map f))
+    simp only [T', singleObj_copyObj_map, groupoid_map_obj]
+    change @Eq G
+      (e i (FundamentalGroupoid.mk ⟨z.as.1, z.as.2.1⟩) *
+        ((T i).map ((FundamentalGroupoid.map (l i j)).map f) : G) *
+        (e i (FundamentalGroupoid.mk ⟨a.as.1, a.as.2.1⟩))⁻¹)
+      (e j (FundamentalGroupoid.mk ⟨z.as.1, z.as.2.2⟩) *
+        ((T j).map ((FundamentalGroupoid.map (r i j)).map f) : G) *
+        (e j (FundamentalGroupoid.mk ⟨a.as.1, a.as.2.2⟩))⁻¹)
+    rw [he i j z.as, he i j a.as]
+    have hn := (α i j).hom.naturality f
+    change ((α i j).hom.app z : G) * (T i).map ((FundamentalGroupoid.map (l i j)).map f) =
+      (T j).map ((FundamentalGroupoid.map (r i j)).map f) * (α i j).hom.app a at hn
+    calc
+      _ = e j (FundamentalGroupoid.mk ⟨z.as.1, z.as.2.2⟩) *
+          ((α i j).hom.app z * (T i).map ((FundamentalGroupoid.map (l i j)).map f)) *
+          ((α i j).hom.app a)⁻¹ * (e j (FundamentalGroupoid.mk ⟨a.as.1, a.as.2.2⟩))⁻¹ := by
+        simp [mul_assoc, mul_inv_rev]
+      _ = _ := by rw [hn]; simp [mul_assoc]
+  let D := FundamentalGroupoid.descOfIsOpenCover hcover T' hstrict
+  let ψ : FundamentalGroup X x →* G := vertexHom (FundamentalGroupoid.mk x) D
+  have hψ (i : ι) : ψ.comp (((openNhdsCocone x).ι.app (U i)).hom) = φ i := by
+    calc
+      _ = vertexHom (FundamentalGroupoid.mk (p i))
+          (FundamentalGroupoid.map (ContinuousMap.subtypeVal (V i : Set X)) ⋙ D) :=
+        vertexHom_comp _ _ _
+      _ = vertexHom (FundamentalGroupoid.mk (p i)) (T' i) :=
+        congrArg (vertexHom (FundamentalGroupoid.mk (p i)))
+          (FundamentalGroupoid.inclusion_comp_descOfIsOpenCover hcover T' hstrict i)
+      _ = φ i := hT' i
+  refine ⟨ψ, hψ, ?_⟩
+  intro χ hχ
+  let K : FundamentalGroupoid X ⥤ SingleObj G :=
+    frameHomFunctor (FundamentalGroupoid.mk x) (normalizedFrame (FundamentalGroupoid.mk x)) χ
+  have hK : vertexHom (FundamentalGroupoid.mk x) K = χ :=
+    vertexHom_frameHomFunctor _ _ (normalizedFrame_unit _) _
+  let J (i : ι) := FundamentalGroupoid.map (ContinuousMap.subtypeVal (V i : Set X))
+  have hlocal (i : ι) :
+      vertexHom (FundamentalGroupoid.mk (p i)) (J i ⋙ K) =
+        vertexHom (FundamentalGroupoid.mk (p i)) (J i ⋙ D) := by
+    calc
+      _ = (vertexHom (FundamentalGroupoid.mk x) K).comp
+          (map (ContinuousMap.subtypeVal (V i : Set X)) (p i)) :=
+        (vertexHom_comp _ _ _).symm
+      _ = φ i := by rw [hK]; exact hχ i
+      _ = ψ.comp (map (ContinuousMap.subtypeVal (V i : Set X)) (p i)) := (hψ i).symm
+      _ = _ := vertexHom_comp _ _ _
+  let β (i : ι) : J i ⋙ K ≅ J i ⋙ D :=
+    vertexIso (FundamentalGroupoid.mk (p i)) _ _ (hlocal i)
+  have hβ (i : ι) : ((β i).hom.app (FundamentalGroupoid.mk (p i)) : G) = 1 :=
+    vertexIso_base _ _ _ (hlocal i)
+  -- On an overlap both comparisons are determined by the image of a path in
+  -- that overlap, whose two images in the ambient space are equal.
+  have hβ_overlap (i j : ι) (y : ↑(V i ⊓ V j)) :
+      ((β i).hom.app (FundamentalGroupoid.mk ⟨y.1, y.2.1⟩) : G) =
+        (β j).hom.app (FundamentalGroupoid.mk ⟨y.1, y.2.2⟩) := by
+    let : PathConnectedSpace ↑(V i ⊓ V j) :=
+      isPathConnected_iff_pathConnectedSpace.mp
+        (indexedCover_inf_pathConnected x U hpc hclosed i j)
+    let q : FundamentalGroupoid.mk (b i j) ⟶ FundamentalGroupoid.mk y :=
+      Path.Homotopic.Quotient.mk (PathConnectedSpace.somePath (b i j) y)
+    let dq : G := D.map ((FundamentalGroupoid.map
+      (ContinuousMap.subtypeVal (↑(V i ⊓ V j) : Set X))).map q)
+    let kq : G := K.map ((FundamentalGroupoid.map
+      (ContinuousMap.subtypeVal (↑(V i ⊓ V j) : Set X))).map q)
+    have hi := normalizedNatTrans_app (FundamentalGroupoid.mk (p i))
+      (β i).hom (hβ i) ((FundamentalGroupoid.map (l i j)).map q)
+    have hj := normalizedNatTrans_app (FundamentalGroupoid.mk (p j))
+      (β j).hom (hβ j) ((FundamentalGroupoid.map (r i j)).map q)
+    change @Eq G _ _ at hi
+    simp only [FundamentalGroupoid.map_map, J, l] at hi
+    change @Eq G ((β i).hom.app (FundamentalGroupoid.mk ⟨y.1, y.2.1⟩))
+      (dq * kq⁻¹) at hi
+    change @Eq G _ _ at hj
+    simp only [FundamentalGroupoid.map_map, J, r] at hj
+    change @Eq G ((β j).hom.app (FundamentalGroupoid.mk ⟨y.1, y.2.2⟩))
+      (dq * kq⁻¹) at hj
+    exact hi.trans hj.symm
+  let d (y : FundamentalGroupoid X) : G :=
+    (β (c y.as)).hom.app (FundamentalGroupoid.mk ⟨y.as, hc y.as⟩)
+  have hd (i : ι) (y : FundamentalGroupoid (V i)) :
+      d ((J i).obj y) = (β i).hom.app y :=
+    (hβ_overlap i (c y.as.1) ⟨y.as.1, y.as.2, hc y.as.1⟩).symm
+  have hd_base : d (FundamentalGroupoid.mk x) = 1 := hβ (c x)
+  let K' : FundamentalGroupoid X ⥤ SingleObj G :=
+    K.copyObj D.obj (fun y => singleObjIso (d y))
+  have hK' (i : ι) : J i ⋙ K' = T' i := by
+    have hKD : J i ⋙ K' = J i ⋙ D := by
+      apply singleObjFunctor_ext
+      intro a z f
+      change ((K').map ((J i).map f) : G) = D.map ((J i).map f)
+      simp only [K', singleObj_copyObj_map, hd i]
+      have hn := (β i).hom.naturality f
+      change ((β i).hom.app z : G) * K.map ((J i).map f) =
+        D.map ((J i).map f) * (β i).hom.app a at hn
+      rw [hn]
+      simp [mul_assoc]
+    exact hKD.trans (FundamentalGroupoid.inclusion_comp_descOfIsOpenCover hcover T' hstrict i)
+  calc
+    χ = vertexHom (FundamentalGroupoid.mk x) K := hK.symm
+    _ = vertexHom (FundamentalGroupoid.mk x) K' :=
+      (vertexHom_copyObj _ _ _ _ hd_base).symm
+    _ = vertexHom (FundamentalGroupoid.mk x) D :=
+      congrArg (vertexHom (FundamentalGroupoid.mk x))
+        (FundamentalGroupoid.descOfIsOpenCover_unique hcover T' hstrict K' hK')
+    _ = ψ := rfl
+
+/-- The inclusion cocone of an intersection-closed path-connected open cover is a colimit.
+
+The diagram is the restriction of the fundamental-group functor on neighborhoods along the
+induced inclusion category. Its homomorphism universal property, including target groups
+in an independent universe, is `existsUnique_hom_of_isOpenCover_of_infClosed`.
+
+See May, *A Concise Course in Algebraic Topology*, Chapter 2, §7. -/
+noncomputable def isColimit_of_isOpenCover
+    (x : X) (U : ι → OpenNhds (X := TopCat.of X) x)
+    (hcover : IsOpenCover (fun i => (U i).1))
+    (hpc : ∀ i, IsPathConnected ((U i).1 : Set X))
+    (hclosed : InfClosed (Set.range U)) :
+    IsColimit ((openNhdsCocone x).whisker (inducedFunctor U)) := by
+  classical
+  have hup : ∀ s : Cocone (inducedFunctor U ⋙ openNhdsFunctor x),
+      ∃! ψ : FundamentalGroup X x →* (s.pt : Type u),
+        ∀ i, ψ.comp (((openNhdsCocone x).ι.app (U i)).hom) = (s.ι.app i).hom := by
+    intro s
+    apply existsUnique_hom_of_isOpenCover_of_infClosed x U hcover hpc hclosed
+      (s.pt : Type u) (fun i => (s.ι.app i).hom)
+    intro i j hij
+    have hw := congrArg GrpCat.Hom.hom
+      (s.w (InducedCategory.homMk (homOfLE hij)))
+    -- Normalize the source groups as well as the maps in the cocone identity.
+    dsimp only [Functor.comp_obj, inducedFunctor_obj, openNhdsFunctor_obj,
+      Functor.comp_map, inducedFunctor_map, InducedCategory.homMk_hom,
+      GrpCat.hom_comp, openNhdsFunctor_map_hom] at hw ⊢
+    change
+      ((s.ι.app j).hom :
+        FundamentalGroup (U j).1 ⟨x, (U j).2⟩ →* (s.pt : Type u)).comp
+          (map (ContinuousMap.inclusion (s := ((U i).1 : Set X))
+            (t := ((U j).1 : Set X)) hij) ⟨x, (U i).2⟩) =
+        (s.ι.app i).hom at hw
+    exact hw
+  refine
+    { desc := fun s => GrpCat.ofHom (Classical.choose (hup s))
+      fac := ?_
+      uniq := ?_ }
+  · intro s i
+    apply GrpCat.hom_ext
+    have hfac := (Classical.choose_spec (hup s)).1 i
+    dsimp only [Functor.comp_obj, inducedFunctor_obj, openNhdsFunctor_obj,
+      Cocone.whisker_pt, Cocone.whisker_ι, Functor.whiskerLeft_app,
+      openNhdsCocone_pt, GrpCat.hom_comp, GrpCat.hom_ofHom,
+      openNhdsCocone_ι_app_hom] at hfac ⊢
+    change (Classical.choose (hup s)).comp
+        (map (ContinuousMap.subtypeVal ((U i).1 : Set X)) ⟨x, (U i).2⟩) =
+      (s.ι.app i).hom at hfac
+    exact hfac
+  · intro s m hm
+    apply GrpCat.hom_ext
+    apply (Classical.choose_spec (hup s)).2 m.hom
+    intro i
+    have hfac := congrArg GrpCat.Hom.hom (hm i)
+    dsimp only [Functor.comp_obj, inducedFunctor_obj, openNhdsFunctor_obj,
+      Cocone.whisker_pt, Cocone.whisker_ι, Functor.whiskerLeft_app,
+      openNhdsCocone_pt, GrpCat.hom_comp, openNhdsCocone_ι_app_hom] at hfac ⊢
+    change (m.hom : FundamentalGroup X x →* (s.pt : Type u)).comp
+        (map (ContinuousMap.subtypeVal ((U i).1 : Set X)) ⟨x, (U i).2⟩) =
+      (s.ι.app i).hom at hfac
+    exact hfac
+
+end IndexedCover
 
 end FundamentalGroup

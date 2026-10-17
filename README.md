@@ -1,9 +1,10 @@
 # Fundamental Groupoids
 
 Fundamental groupoids, categorical endomorphism transport, strict descent along
-indexed open covers, and based van Kampen for two open subsets in Lean. The library
-extends Mathlib's categories, path-homotopy classes and open-cover APIs; it introduces
-no replacement fundamental group, fundamental groupoid or one-object category.
+indexed open covers, and based van Kampen for intersection-closed indexed covers in
+Lean. The library extends Mathlib's categories, path-homotopy classes and open-cover
+APIs; it introduces no replacement fundamental group, fundamental groupoid or
+one-object category.
 It also extends Mathlib's covering-space APIs with based lifting, monodromy,
 maps of covers and deck-group comparisons.
 
@@ -52,7 +53,24 @@ maps of covers and deck-group comparisons.
   extend to a uniquely determined global functor into any category.
   Restriction and uniqueness are equalities, not merely natural isomorphisms.
   The inclusion cocones are colimits in Mathlib's `Grpd` and `Cat`.
-- **Based van Kampen: unique compatible homomorphism**
+- **Based van Kampen for indexed covers: unique compatible homomorphism**
+  ([`FundamentalGroup.existsUnique_hom_of_isOpenCover_of_infClosed`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean)).
+  Let `U` be an arbitrarily indexed cover of `X` by open neighborhoods of a
+  common point `x`, with `X : Type u` and index type `I : Type v`. Assume each
+  member is path connected and `InfClosed (Set.range U)`. This means closure
+  under binary, equivalently nonempty finite, intersections, without requiring
+  `X` itself in the range. For any group `G : Type w`, with `u`, `v` and `w`
+  independent, compatible `MonoidHom`s from the local fundamental groups extend
+  uniquely to a `MonoidHom` from `π₁(X, x)`. Compatibility is along every
+  inclusion between presented neighborhoods, including repeated opens.
+- **Based van Kampen for indexed covers: colimit of groups**
+  ([`FundamentalGroup.isColimit_of_isOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean)).
+  Under the same hypotheses, the inclusion cocone is a colimit in `GrpCat.{u}`.
+  The family diagram is the precomposition of the canonical
+  [`FundamentalGroup.openNhdsFunctor x`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean)
+  with `CategoryTheory.inducedFunctor U`; its cocone is obtained by whiskering
+  `FundamentalGroup.openNhdsCocone x` along that functor.
+- **Based van Kampen for two opens: unique compatible homomorphism**
   ([`FundamentalGroup.existsUnique_hom_of_isOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean)).
   Let `X : Type u` be a topological space, `U V : Opens X`, `U ⊔ V = ⊤`,
   and `p : ↑(U ⊓ V)`. Assume the sets `U`, `V` and `U ∩ V` are each
@@ -65,7 +83,7 @@ maps of covers and deck-group comparisons.
   `φ.comp (jU_*) = φU` and `φ.comp (jV_*) = φV`.
   Here `π₁` is Mathlib's `FundamentalGroup`, homomorphisms are `MonoidHom`s,
   and `f_*` is `FundamentalGroup.map f` at the displayed basepoint.
-- **Based van Kampen: pushout of groups**
+- **Based van Kampen for two opens: pushout of groups**
   ([`FundamentalGroup.isPushout_of_isOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean)).
   Under the same cover, set path-connectedness and common-basepoint hypotheses,
   the same four induced inclusion homomorphisms, bundled by `GrpCat.ofHom`,
@@ -73,11 +91,13 @@ maps of covers and deck-group comparisons.
   `π₁(U ∩ V, p) → π₁(U, pU)` and `π₁(V, pV) → π₁(X, p.1)`
   are its horizontal maps, with vertical maps induced by `iV` and `jU`.
 
-The based results are the two-open specialization of the based-group colimit
-theorem. They reuse strict groupoid descent by choosing paths compatibly on the
-intersection before restricting to based loops. No global path-connectedness or
-local path-connectedness hypothesis is imposed; global path connectedness follows
-from the cover, the path connectedness of the two opens and the common point.
+The two-open results specialize the based-group colimit theorem. They reuse
+strict groupoid descent by choosing paths compatibly on the intersection before
+restricting to based loops. Neither the two-open nor the indexed results assume
+ambient or local path connectedness; ambient path connectedness follows from the
+cover hypotheses. For the indexed results, nonemptiness of the index type and
+path connectedness of pairwise intersections are also consequences of the
+hypotheses, and the index type need not be finite.
 
 ### Covering spaces
 
@@ -194,7 +214,12 @@ For bundled cocones use `isColimitOpenCoverCocone` or
 
 For based van Kampen, import
 `FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover`.
-Supply the cover equation, the three set path-connectedness proofs and `p` to
+For an intersection-closed indexed cover, use
+`FundamentalGroup.existsUnique_hom_of_isOpenCover_of_infClosed` for `MonoidHom`s,
+or `FundamentalGroup.isColimit_of_isOpenCover` for the whiskered inclusion cocone
+and its `IsColimit.desc`, `fac` and `uniq` interface.
+For the two-open formulation, supply the cover equation, the three set
+path-connectedness proofs and `p` to
 `FundamentalGroup.existsUnique_hom_of_isOpenCover`, followed by `G`, `φU`, `φV`
 and their compatibility equation. Its unique homomorphism satisfies the two
 restriction equations above. For categorical use, apply
@@ -258,7 +283,8 @@ verification examples, not additional prerequisites for the library.
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean) | Small-path generation and construction of natural transformations |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
-| [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Two-open based van Kampen: unique compatible homomorphisms and the `GrpCat` pushout |
+| [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
+| [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts |
 | [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
 | [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity and equivariant fiber restriction with identity/composition laws |
@@ -320,9 +346,11 @@ ordered pairwise-intersection objects, including empty intersections, but no
 object for an intersection of the empty family. No connectedness,
 inhabited-intersection, nonempty-target or faithful-inclusion condition is assumed.
 
-Arbitrary-cover descent concerns all-point groupoids; the based-group results
-are restricted to the two-open hypotheses stated above, not arbitrary covers of
-based groups. No wedge calculation or covering-space classification is asserted.
+Arbitrary-cover descent concerns all-point groupoids without connectedness
+conditions. The indexed based-group results require a common basepoint,
+path-connected members and an intersection-closed range; they do not assert a
+based-group colimit for arbitrary open covers. No wedge calculation or
+covering-space classification is asserted.
 The small-path module on its own proves generation and naturality, not functor
 descent. The translation example does not assert nonidentity chart-object casts.
 A monodromy point stabilizer is not generally the kernel of its permutation
@@ -336,8 +364,9 @@ a fiber, not a group structure on that fiber.
   discussions are on printed pp. 17–19). [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
   Published by the University of Chicago Press. The categorical transport
   results and the arbitrary-cover, arbitrary-category descent statements
-  generalize the corresponding topological results; the based van Kampen
-  statements specialize the based-group colimit theorem to two opens.
+  generalize the corresponding topological results. The indexed based van Kampen
+  statements give the common-basepoint, intersection-closed formulation, with the
+  two-open pushout as a specialization.
   Chapter 3, §§2–4, 7 supplies the covering-space lifting and monodromy arguments.
 - [Mathlib](https://github.com/leanprover-community/mathlib4), especially its
   fundamental groupoid, conjugation, one-object category, open-cover,
