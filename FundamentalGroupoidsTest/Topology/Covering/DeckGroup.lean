@@ -302,6 +302,41 @@ private theorem falseFiberComponentEmbedding_surjective :
     Function.Surjective falseFiberComponentEmbedding :=
   twoFiberProjection_covering.monodromyOrbitEmbeddingZerothHomotopyFiber_surjective false
 
+/-- Orbit classes over `false` are equivalent to the fiber of the component map. -/
+private noncomputable def falseFiberComponentEquiv :
+    @MulAction.orbitRel.Quotient (FundamentalGroup Bool false)
+      (twoFiberProjection ⁻¹' {false}) _
+      (twoFiberProjection_covering.fundamentalGroupMulAction false) ≃
+      {c : ZerothHomotopy (Bool × Bool) //
+        @Quotient.map (Bool × Bool) Bool (pathSetoid (Bool × Bool)) (pathSetoid Bool)
+          twoFiberProjection
+          (fun _ _ h ↦ h.map twoFiberProjection_covering.continuous) c =
+            ZerothHomotopy.mk false} :=
+  twoFiberProjection_covering.monodromyOrbitEquivZerothHomotopyFiber false
+
+/-- The forward and inverse maps recover the two specified sheets by representatives. -/
+example :
+    falseFiberComponentEquiv (Quotient.mk _ ⟨(false, false), rfl⟩) =
+      ⟨ZerothHomotopy.mk (false, false), rfl⟩ ∧
+    falseFiberComponentEquiv.symm ⟨ZerothHomotopy.mk (false, true), rfl⟩ =
+      Quotient.mk _ ⟨(false, true), rfl⟩ := by
+  constructor
+  · exact twoFiberProjection_covering.monodromyOrbitEquivZerothHomotopyFiber_apply false
+      ⟨(false, false), rfl⟩
+  · exact twoFiberProjection_covering.monodromyOrbitEquivZerothHomotopyFiber_symm_apply false
+      ⟨(false, true), rfl⟩
+
+/-- The equivalence retains the two distinct images of the component-fiber embedding. -/
+private theorem falseFiberComponentEquiv_distinct :
+    falseFiberComponentEquiv (Quotient.mk _ ⟨(false, false), rfl⟩) ≠
+      falseFiberComponentEquiv (Quotient.mk _ ⟨(false, true), rfl⟩) := by
+  have hforward : falseFiberComponentEquiv.toEmbedding = falseFiberComponentEmbedding :=
+    twoFiberProjection_covering.monodromyOrbitEquivZerothHomotopyFiber_toEmbedding false
+  intro h
+  apply falseFiberComponentEmbedding_distinct
+  rw [← hforward]
+  exact h
+
 /-- The canonical cover maps the path component of a point onto its image component. -/
 private theorem twoFiberProjection_image_pathComponent :
     twoFiberProjection '' pathComponent (false, false) =
@@ -317,6 +352,33 @@ private noncomputable def emptyImageComponentEmbedding :=
 private noncomputable def emptyTotalComponentEmbedding :=
   IsCoveringMap.monodromyOrbitEmbeddingZerothHomotopyFiber
     (IsCoveringMap.of_isEmpty (Empty.elim : Empty → Bool)) false
+
+/-- An empty point fiber and an empty total space both give empty component-map fibers. -/
+example :
+    IsEmpty {c : ZerothHomotopy Bool //
+      @Quotient.map Bool Bool (pathSetoid Bool) (pathSetoid Bool) (fun _ ↦ false)
+        (fun _ _ h ↦ h.map
+          (IsCoveringMap.of_discreteTopology (fun _ : Bool ↦ false)).continuous) c =
+            ZerothHomotopy.mk true} ∧
+    IsEmpty {c : ZerothHomotopy Empty //
+      @Quotient.map Empty Bool (pathSetoid Empty) (pathSetoid Bool) Empty.elim
+        (fun _ _ h ↦ h.map
+          (IsCoveringMap.of_isEmpty (Empty.elim : Empty → Bool)).continuous) c =
+            ZerothHomotopy.mk false} := by
+  constructor
+  · refine ⟨fun c ↦ ?_⟩
+    have q := (IsCoveringMap.monodromyOrbitEquivZerothHomotopyFiber
+      (IsCoveringMap.of_discreteTopology (fun _ : Bool ↦ false)) true).symm c
+    refine Quotient.inductionOn q ?_
+    rintro ⟨e, he⟩
+    have h : false = true := he
+    cases h
+  · refine ⟨fun c ↦ ?_⟩
+    have q := (IsCoveringMap.monodromyOrbitEquivZerothHomotopyFiber
+      (IsCoveringMap.of_isEmpty (Empty.elim : Empty → Bool)) false).symm c
+    refine Quotient.inductionOn q ?_
+    rintro ⟨e, _⟩
+    exact Empty.elim e
 
 /-- Swap only the points over true, leaving the entire false fiber fixed. -/
 private def trueFiberTransposition : deck twoFiberProjection :=

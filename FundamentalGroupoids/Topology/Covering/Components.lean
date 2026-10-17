@@ -11,12 +11,12 @@ public import Mathlib.Logic.Embedding.Basic
 /-!
 # Monodromy orbit classes and path components
 
-Monodromy orbit classes of a point fiber of a covering map embed surjectively into the
+Monodromy orbit classes of a point fiber of a covering map are equivalent to the
 fiber of the induced map on path components. The induced map is Mathlib's
-`Quotient.map` on the path setoids, and the embedding sends the class of a fiber point
-`e` to `ZerothHomotopy.mk e.val`. No path-connectedness of the base or total space is
-needed. For every point `e`, the covering map also satisfies
-`p '' pathComponent e = pathComponent (p e)`.
+`Quotient.map` on the path setoids, and the equivalence sends the class of a fiber point
+`e` to its component `ZerothHomotopy.mk e.val`, with the fiber-membership proof.
+No path-connectedness of the base or total space is needed. For every point `e`, the
+covering map also satisfies `p '' pathComponent e = pathComponent (p e)`.
 
 Over a path-connected base, the orbit classes are equivalent to all path components of
 the total space. The total space need not be nonempty or locally path-connected, and
@@ -29,7 +29,9 @@ follows from the inverse laws for equivalences.
 The embedding uses the orbit–path correspondence in
 `IsCoveringMap.exists_monodromy_eq_iff_joined`, followed by the quotient-kernel-to-range
 equivalence. Membership in the component-map fiber follows from a point-fiber
-representative. The equivalence over a path-connected base additionally uses
+representative. The component-map-fiber equivalence upgrades this embedding using
+its surjectivity and `Function.Embedding.equivOfSurjective`. The equivalence over a
+path-connected base additionally uses
 `IsCoveringMap.comp_subtypeVal_pathComponent_surjective`. The action, orbit quotient and
 path-component carrier are Mathlib's constructions.
 
@@ -189,6 +191,54 @@ theorem monodromyOrbitEmbeddingZerothHomotopyFiber_surjective (b : B) :
   apply Subtype.ext
   rw [cov.monodromyOrbitEmbeddingZerothHomotopyFiber_val_apply]
   exact Quotient.sound hΓ.symm
+
+/-- Monodromy orbit classes in a point fiber of a covering map correspond to the fiber
+of the induced map on path components over the basepoint component. The action is the
+covering map's canonical fundamental-group action, and the induced map is `Quotient.map`
+on the path setoids. No path-connectedness, local path-connectedness or surjectivity
+assumption is required. -/
+noncomputable def monodromyOrbitEquivZerothHomotopyFiber (b : B) :
+    @MulAction.orbitRel.Quotient (FundamentalGroup B b) (p ⁻¹' {b}) _
+      (cov.fundamentalGroupMulAction b) ≃
+      {c : ZerothHomotopy E //
+        @Quotient.map E B (pathSetoid E) (pathSetoid B) p
+          (fun _ _ h ↦ h.map cov.continuous) c = ZerothHomotopy.mk b} :=
+  (cov.monodromyOrbitEmbeddingZerothHomotopyFiber b).equivOfSurjective
+    (cov.monodromyOrbitEmbeddingZerothHomotopyFiber_surjective b)
+
+/-- The equivalence retains the monodromy orbit embedding as its forward embedding. -/
+@[simp] theorem monodromyOrbitEquivZerothHomotopyFiber_toEmbedding (b : B) :
+    (cov.monodromyOrbitEquivZerothHomotopyFiber b).toEmbedding =
+      cov.monodromyOrbitEmbeddingZerothHomotopyFiber b := rfl
+
+/-- The underlying component of a fiber-point orbit is the component of that point. -/
+@[simp] theorem monodromyOrbitEquivZerothHomotopyFiber_val_apply (b : B)
+    (e : p ⁻¹' {b}) :
+    (cov.monodromyOrbitEquivZerothHomotopyFiber b
+      (Quotient.mk (@MulAction.orbitRel (FundamentalGroup B b) (p ⁻¹' {b}) _
+        (cov.fundamentalGroupMulAction b)) e)).val = ZerothHomotopy.mk e.val :=
+  cov.monodromyOrbitEmbeddingZerothHomotopyFiber_val_apply b e
+
+/-- The orbit class of a fiber point maps to its component in the component-map fiber. -/
+@[simp] theorem monodromyOrbitEquivZerothHomotopyFiber_apply (b : B)
+    (e : p ⁻¹' {b}) :
+    cov.monodromyOrbitEquivZerothHomotopyFiber b
+      (Quotient.mk (@MulAction.orbitRel (FundamentalGroup B b) (p ⁻¹' {b}) _
+        (cov.fundamentalGroupMulAction b)) e) =
+      ⟨ZerothHomotopy.mk e.val, by
+        exact congrArg ZerothHomotopy.mk e.property⟩ :=
+  cov.monodromyOrbitEmbeddingZerothHomotopyFiber_apply b e
+
+/-- The component of a fiber point maps back to its monodromy orbit class. -/
+@[simp] theorem monodromyOrbitEquivZerothHomotopyFiber_symm_apply (b : B)
+    (e : p ⁻¹' {b}) :
+    (cov.monodromyOrbitEquivZerothHomotopyFiber b).symm
+      ⟨ZerothHomotopy.mk e.val, by
+        exact congrArg ZerothHomotopy.mk e.property⟩ =
+      Quotient.mk (@MulAction.orbitRel (FundamentalGroup B b) (p ⁻¹' {b}) _
+        (cov.fundamentalGroupMulAction b)) e := by
+  rw [← cov.monodromyOrbitEquivZerothHomotopyFiber_apply b e]
+  exact (cov.monodromyOrbitEquivZerothHomotopyFiber b).symm_apply_apply _
 
 include cov in
 /-- A covering map sends the path component of a point onto the path component of its image. -/

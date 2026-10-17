@@ -105,10 +105,12 @@ from the cover, the path connectedness of the two opens and the common point.
   identities and composition.
 - **Monodromy orbit classes and path components**
   ([`Components`](FundamentalGroupoids/Topology/Covering/Components.lean)).
-  For any covering map `p : E → B` and `b : B`,
-  `IsCoveringMap.monodromyOrbitEmbeddingZerothHomotopyFiber b` is a surjective
-  embedding from monodromy orbit classes in `p ⁻¹' {b}` into the fiber of
+  For any `cov : IsCoveringMap p` with `p : E → B` and `b : B`,
+  `cov.monodromyOrbitEquivZerothHomotopyFiber b` identifies monodromy orbit
+  classes in `p ⁻¹' {b}` with the fiber of
   `π₀(p) : ZerothHomotopy E → ZerothHomotopy B` over `ZerothHomotopy.mk b`.
+  It sends the class of a fiber point to its component, retaining
+  `cov.monodromyOrbitEmbeddingZerothHomotopyFiber b` as its forward embedding.
   Here `π₀(p)` is Mathlib's `Quotient.map` on the path setoids.
   No base or total-space path connectedness is needed. Moreover,
   `IsCoveringMap.image_pathComponent` gives
@@ -209,11 +211,13 @@ Mathlib's covering maps, monodromy actions and deck groups rather than defining
 replacement structures.
 
 Without base path connectedness, use
-`cov.monodromyOrbitEmbeddingZerothHomotopyFiber b` to map orbit classes into the
-fiber of the induced path-component map over `ZerothHomotopy.mk b`. Its
-`_surjective` theorem covers that entire fiber, and `_val_apply` computes the
-underlying component on fiber-point representatives. Use `cov.image_pathComponent e`
-for the equality `p '' pathComponent e = pathComponent (p e)`.
+`cov.monodromyOrbitEquivZerothHomotopyFiber b` to identify orbit classes with the
+fiber of the induced path-component map over `ZerothHomotopy.mk b`. Its `_apply`
+and `_symm_apply` lemmas compute both directions on fiber-point representatives;
+`_val_apply` gives the underlying component. The `_toEmbedding` lemma identifies
+its forward embedding with `cov.monodromyOrbitEmbeddingZerothHomotopyFiber b`.
+Use `cov.image_pathComponent e` for
+`p '' pathComponent e = pathComponent (p e)`.
 
 For a path-connected base, use `cov.monodromyOrbitEquivZerothHomotopy b` to
 compare orbit classes and path components. Its `_apply` and `_symm_apply` lemmas
@@ -258,7 +262,7 @@ verification examples, not additional prerequisites for the library.
 | [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
 | [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity and equivariant fiber restriction with identity/composition laws |
-| [`Topology.Covering.Components`](FundamentalGroupoids/Topology/Covering/Components.lean) | Surjective orbit embedding into the path-component-map fiber; path-component image equality; equivalence to all total-space components over a path-connected base |
+| [`Topology.Covering.Components`](FundamentalGroupoids/Topology/Covering/Components.lean) | Orbit equivalence with the path-component-map fiber; path-component image equality; equivalence to all total-space components over a path-connected base |
 | [`Topology.Covering.DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean) | Fiber actions, evaluation embeddings and fixed-point rigidity for separated, locally injective maps with preconnected total space |
 | [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
 
