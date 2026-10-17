@@ -15,5 +15,6 @@ public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover
 public import FundamentalGroupoids.Topology.Covering.Lifting
 public import FundamentalGroupoids.Topology.Covering.Equivalence
 public import FundamentalGroupoids.Topology.Covering.Monodromy
+public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.DeckGroup
 public import FundamentalGroupoids.Topology.Covering.DeckMonodromy

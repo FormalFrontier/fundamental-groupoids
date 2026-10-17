@@ -103,6 +103,14 @@ from the cover, the path connectedness of the two opens and the common point.
   Continuous maps over the base restrict to equivariant fiber maps
   (`IsCoveringMap.fiberMap`), without connectivity assumptions, preserving
   identities and composition.
+- **Monodromy orbit classes and path components**
+  ([`Components`](FundamentalGroupoids/Topology/Covering/Components.lean)).
+  For a covering map `p : E → B` over a path-connected base and `b : B`,
+  `IsCoveringMap.monodromyOrbitEquivZerothHomotopy` identifies the monodromy orbit
+  quotient of `p ⁻¹' {b}` with `ZerothHomotopy E`, sending the class of a fiber
+  point to its path component. The total and base universes are independent;
+  the total space may be empty, with no local path connectedness or global
+  surjectivity assumption on the covering map.
 - **Maps of covers from equivariant fiber maps**
   ([`DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean)).
   Restriction to a chosen fiber identifies continuous over-maps with Mathlib's
@@ -188,9 +196,13 @@ illustrates both formulations.
 
 Import the covering modules individually as
 `FundamentalGroupoids.Topology.Covering.Lifting`, `Equivalence`, `Monodromy`,
-`DeckGroup` or `DeckMonodromy`, with the same prefix for each. They extend
+`Components`, `DeckGroup` or `DeckMonodromy`, with the same prefix for each. They extend
 Mathlib's covering maps, monodromy actions and deck groups rather than defining
 replacement structures.
+
+For a path-connected base, use `cov.monodromyOrbitEquivZerothHomotopy b` to
+compare orbit classes and path components. Its `_apply` and `_symm_apply` lemmas
+compute both directions on fiber-point representatives.
 
 The generic covering API was relocated from
 [sphere-topology](https://github.com/FormalFrontier/sphere-topology), with
@@ -231,6 +243,7 @@ verification examples, not additional prerequisites for the library.
 | [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
 | [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity and equivariant fiber restriction with identity/composition laws |
+| [`Topology.Covering.Components`](FundamentalGroupoids/Topology/Covering/Components.lean) | Equivalence between monodromy orbit classes and path components over a path-connected base |
 | [`Topology.Covering.DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean) | Fiber actions, evaluation embeddings and fixed-point rigidity for separated, locally injective maps with preconnected total space |
 | [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
 

@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 import FundamentalGroupoids.Topology.Covering.DeckMonodromy
+import FundamentalGroupoids.Topology.Covering.Components
 import Mathlib.Analysis.LocallyConvex.WithSeminorms
 import Mathlib.Topology.Covering.AddCircle
 import Mathlib.Topology.Instances.AddCircle.Real
@@ -140,3 +141,15 @@ private theorem emptyFull_forward :
     emptyCover.fiberMapEquiv emptyCover () emptyOverMap = emptyFiberHom := by
   apply (emptyCover.fiberMapEquiv_apply_eq_iff emptyCover () emptyOverMap emptyFiberHom).mpr
   exact fun e ↦ Empty.elim e.val
+
+/-- On the empty cover the orbit-component equivalence agrees with every equivalence
+between these empty carriers, without choosing a point in the total space. -/
+private theorem emptyOrbitComponents_eq
+    (e : @MulAction.orbitRel.Quotient (FundamentalGroup Unit ())
+      (emptyProjection ⁻¹' {()}) _ (emptyCover.fundamentalGroupMulAction ()) ≃
+        ZerothHomotopy Empty) :
+    emptyCover.monodromyOrbitEquivZerothHomotopy ()
+      (hB := ⟨⟨()⟩, fun x y ↦ by cases x; cases y; exact ⟨Path.refl ()⟩⟩) = e := by
+  apply Equiv.ext
+  intro x
+  exact Quotient.inductionOn x (fun a ↦ Empty.elim a.val)

@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Covering.Monodromy
+import FundamentalGroupoids.Topology.Covering.Components
 import Mathlib.Algebra.Group.Action.Pretransitive
 import Mathlib.Topology.Covering.AddCircle
 import Mathlib.Topology.Instances.ZMultiples
@@ -83,6 +84,21 @@ example : PathConnectedSpace ℝ ↔ Nonempty ℝ ∧
   exact IsCoveringMap.pathConnectedSpace_iff_nonempty_and_monodromy_isPretransitive
     (AddCircle.isCoveringMap_coe (1 : ℝ)) 0
 
+/-- Distinct lifts moved by circle monodromy have the same component image. -/
+private theorem realCircle_exists_distinct_lifts_same_component_image :
+    ∃ e e' : ((↑) : ℝ → AddCircle (1 : ℝ)) ⁻¹' {0}, e ≠ e' ∧
+      (AddCircle.isCoveringMap_coe (1 : ℝ)).monodromyOrbitEquivZerothHomotopy 0
+        (hB := realCircle_pathConnected_pretransitive_moving_monodromy.2.1) ⟦e⟧ =
+      (AddCircle.isCoveringMap_coe (1 : ℝ)).monodromyOrbitEquivZerothHomotopy 0
+        (hB := realCircle_pathConnected_pretransitive_moving_monodromy.2.1) ⟦e'⟧ := by
+  let cov := AddCircle.isCoveringMap_coe (1 : ℝ)
+  have : PathConnectedSpace (AddCircle (1 : ℝ)) :=
+    realCircle_pathConnected_pretransitive_moving_monodromy.2.1
+  obtain ⟨e, e', γ, hne, hγ, _⟩ := realCircle_exists_moving_monodromy
+  refine ⟨e, e', hne, ?_⟩
+  simp only [IsCoveringMap.monodromyOrbitEquivZerothHomotopy_apply]
+  exact Quotient.sound ((cov.exists_monodromy_eq_iff_joined e e').mp ⟨γ, hγ⟩)
+
 /-- A two-point discrete fiber over a point need not be a single monodromy orbit. -/
 private theorem discreteCover_exists_distinct_monodromy_orbits :
     ∃ e e' : (Prod.snd : Bool × Unit → Unit) ⁻¹' {()},
@@ -120,3 +136,20 @@ private theorem discreteCover_not_pretransitive_not_pathConnected :
     exact hne ((IsCoveringMap.exists_monodromy_eq_iff_joined
       (IsCoveringMap.of_discreteTopology (Prod.snd : Bool × Unit → Unit)) e e').mpr
       (PathConnectedSpace.joined _ _))
+
+/-- The two distinct monodromy orbits of the two-sheet cover have distinct component images. -/
+private theorem discreteCover_exists_distinct_component_images :
+    ∃ e e' : (Prod.snd : Bool × Unit → Unit) ⁻¹' {()},
+      (IsCoveringMap.of_discreteTopology
+        (Prod.snd : Bool × Unit → Unit)).monodromyOrbitEquivZerothHomotopy ()
+          (hB := discreteCover_not_pretransitive_not_pathConnected.1) ⟦e⟧ ≠
+      (IsCoveringMap.of_discreteTopology
+        (Prod.snd : Bool × Unit → Unit)).monodromyOrbitEquivZerothHomotopy ()
+          (hB := discreteCover_not_pretransitive_not_pathConnected.1) ⟦e'⟧ := by
+  let cov := IsCoveringMap.of_discreteTopology (Prod.snd : Bool × Unit → Unit)
+  have : PathConnectedSpace Unit := discreteCover_not_pretransitive_not_pathConnected.1
+  obtain ⟨e, e', hne⟩ := discreteCover_exists_distinct_monodromy_orbits
+  refine ⟨e, e', ?_⟩
+  intro h
+  have hq := (cov.monodromyOrbitEquivZerothHomotopy ()).injective h
+  exact hne (Quotient.exact hq.symm)
