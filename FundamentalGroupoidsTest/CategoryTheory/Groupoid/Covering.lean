@@ -118,4 +118,72 @@ private theorem emptyProjection_covering_empty_fiber :
   intro e
   exact Empty.elim e.1.back
 
+private theorem boolFiber_eq_false_or_true
+    (x : boolProjection.Fiber (SingleObj.star (Equiv.Perm Bool))) :
+    x = falseFiber ∨ x = trueFiber := by
+  cases h : x.1.back with
+  | false =>
+    left
+    apply Subtype.ext
+    apply (objEquiv (Equiv.Perm Bool) Bool).symm.injective
+    change x.1.back = false
+    exact h
+  | true =>
+    right
+    apply Subtype.ext
+    apply (objEquiv (Equiv.Perm Bool) Bool).symm.injective
+    change x.1.back = true
+    exact h
+
+/-- The canonical monodromy on the strict Bool fiber is pretransitive: every point is
+either the false point or its image under the transposition. The orbit criterion
+`MulAction.IsPretransitive.of_orbit` is from Chris Hughes and Yury Kudryashov's
+`Mathlib.Algebra.Group.Action.Pretransitive`. -/
+private theorem boolProjection_monodromy_isPretransitive
+    (hP : (π (Equiv.Perm Bool) Bool).toPrefunctor.IsCovering) :
+    @MulAction.IsPretransitive (Aut (SingleObj.star (Equiv.Perm Bool)))
+      ((π (Equiv.Perm Bool) Bool).Fiber (SingleObj.star (Equiv.Perm Bool)))
+      (((π (Equiv.Perm Bool) Bool).monodromyMulAction hP
+        (SingleObj.star (Equiv.Perm Bool))).toSemigroupAction.toSMul) := by
+  let : MulAction (Aut (SingleObj.star (Equiv.Perm Bool)))
+      (boolProjection.Fiber (SingleObj.star (Equiv.Perm Bool))) :=
+    boolProjection.monodromyMulAction hP (SingleObj.star (Equiv.Perm Bool))
+  apply MulAction.IsPretransitive.of_orbit (x₀ := falseFiber)
+  intro x
+  rcases boolFiber_eq_false_or_true x with rfl | rfl
+  · exact ⟨1, by simp only [one_smul]⟩
+  · exact ⟨swapLoop, boolMonodromy_swap⟩
+
+/-- The canonical monodromy on the strict fiber of the permutation action on `Empty`
+is pretransitive, since that fiber has no points. -/
+private theorem emptyProjection_monodromy_isPretransitive
+    (hP : (π (Equiv.Perm Empty) Empty).toPrefunctor.IsCovering) :
+    @MulAction.IsPretransitive (Aut (SingleObj.star (Equiv.Perm Empty)))
+      ((π (Equiv.Perm Empty) Empty).Fiber (SingleObj.star (Equiv.Perm Empty)))
+      (((π (Equiv.Perm Empty) Empty).monodromyMulAction hP
+        (SingleObj.star (Equiv.Perm Empty))).toSemigroupAction.toSMul) := by
+  rw [MulAction.isPretransitive_iff]
+  intro x y
+  exact Empty.elim x.1.back
+
+/-- Pretransitive monodromy on the two-point fiber gives preconnectedness of the
+permutation action category. -/
+private theorem boolActionCategory_isPreconnected :
+    IsPreconnected (ActionCategory (Equiv.Perm Bool) Bool) := by
+  have hP : (π (Equiv.Perm Bool) Bool).toPrefunctor.IsCovering :=
+    projection_isCovering (Equiv.Perm Bool) Bool
+  exact CategoryTheory.Functor.isPreconnected_of_monodromyMulAction_isPretransitive
+    (π (Equiv.Perm Bool) Bool) hP (SingleObj.star (Equiv.Perm Bool))
+    (boolProjection_monodromy_isPretransitive hP)
+
+/-- Pretransitive monodromy on the empty fiber gives preconnectedness of the empty
+permutation action category, without a nonemptiness assumption. -/
+private theorem emptyActionCategory_isPreconnected :
+    IsPreconnected (ActionCategory (Equiv.Perm Empty) Empty) := by
+  have hP : (π (Equiv.Perm Empty) Empty).toPrefunctor.IsCovering :=
+    projection_isCovering (Equiv.Perm Empty) Empty
+  exact CategoryTheory.Functor.isPreconnected_of_monodromyMulAction_isPretransitive
+    (π (Equiv.Perm Empty) Empty) hP (SingleObj.star (Equiv.Perm Empty))
+    (emptyProjection_monodromy_isPretransitive hP)
+
 end CategoryTheory.ActionCategory

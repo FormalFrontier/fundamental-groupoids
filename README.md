@@ -33,6 +33,14 @@ maps of covers and deck-group comparisons.
   preconnected groupoid, the action is pretransitive; `B` need only be a category.
   All four object and morphism universes of `E` and `B` are independent.
   No nonempty-fiber, object-surjectivity or base-connectedness assumption is needed.
+- **Preconnectedness from categorical monodromy**
+  ([`CategoryTheory.Functor.isPreconnected_of_monodromyMulAction_isPretransitive`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean)).
+  For a functor `P : E ⥤ G` with `P.toPrefunctor.IsCovering` and preconnected
+  groupoid base `G`, pretransitivity of the canonical `Aut g` action on one
+  specified object fiber `P.Fiber g` implies `IsPreconnected E`. The total
+  category needs only its original category structure. All four object and
+  morphism universes are independent; no nonempty-total, nonempty-fiber or
+  object-surjectivity assumption is required.
 - **The category-of-elements projection is a quiver covering**
   ([`CategoryTheory.Functor.Elements.π_isCovering`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean)).
   For any `F : G ⥤ Type w` with `[Category.{v} G]` and `[IsGroupoid G]`,
@@ -368,7 +376,7 @@ verification examples, not additional prerequisites for the library.
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced maps, path transport and homotopy comparisons |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
-| [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy for covering functors; pretransitivity for preconnected total groupoids |
+| [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy; pretransitivity for preconnected total groupoids and total preconnectedness from pretransitivity over a preconnected groupoid base |
 | [`CategoryTheory.Groupoid.Elements`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean) | The category-of-elements projection of a type-valued functor on a groupoid is a quiver covering |
 | [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Path connectedness and connected groupoids |
 | [`AlgebraicTopology.FundamentalGroupoid.Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean) | Canonical sigma comparison equivalence, restriction isomorphism and object bijectivity |
@@ -462,6 +470,8 @@ a fiber, not a group structure on that fiber.
   statements give the common-basepoint, intersection-closed formulation, with the
   two-open pushout as a specialization.
   Chapter 3, §§2–4, 7 supplies the covering-space lifting and monodromy arguments.
+  The categorical preconnectedness criterion is a derived consequence of the
+  fiber-translation argument in §4, rather than a theorem stated there.
 - [Mathlib](https://github.com/leanprover-community/mathlib4), especially its
   fundamental groupoid, conjugation, one-object category, open-cover,
   interval-subdivision, subpath, morphism-property and colimit APIs, as well as

@@ -21,17 +21,25 @@ of its map on outgoing stars lifts an arrow from any object over its source.
 Lifting automorphisms of `b` gives `Functor.monodromyMulAction`, a left action of
 `Aut b` on `F.Fiber b`. Multiplication in `Aut b` composes the right factor first,
 so this action uses the automorphism's hom without an inverse or an opposite.
-The construction works for categories. The pretransitivity statement requires
-`E` to be a preconnected groupoid, but imposes no further condition on `B`;
+The construction works for categories. The forward pretransitivity statement
+requires `E` to be a preconnected groupoid, but imposes no further condition on
+`B`. Conversely, over a preconnected groupoid `B`, pretransitivity on one
+specified fiber implies that `E` is preconnected, with no groupoid structure
+assumed on `E`. The proof lifts arrows into that fiber and a monodromy loop to
+join any two objects by a zigzag. Both statements use pairwise connectedness;
 neither surjectivity on objects nor nonemptiness of a fiber is required.
 
 ## References
 
 * J. P. May, *A Concise Course in Algebraic Topology*, Chapter 3, §§3–4:
   translation of fibers of a groupoid covering and its monodromy action.
+  The preconnectedness criterion is a derived consequence of the fiber-translation
+  argument of §4, rather than a theorem stated there.
 * `Mathlib.Combinatorics.Quiver.Covering` supplies stars and covering prefunctors.
 * `Mathlib.CategoryTheory.FiberedCategory.Fiber` supplies object fibers, and
   `Mathlib.CategoryTheory.Endomorphism` supplies automorphism groups.
+* `Mathlib.CategoryTheory.IsConnected` supplies zigzags and preconnectedness, and
+  `Mathlib.CategoryTheory.Groupoid` supplies groupoids on existing categories.
 -/
 
 @[expose] public section
@@ -215,5 +223,37 @@ theorem monodromyMulAction_isPretransitive [IsPreconnected E] (b : B) :
   exact (F.coveringLiftTarget_val hF a.hom x).trans (congrArg Sigma.fst hg).symm
 
 end Groupoid
+
+universe uG vG
+
+/-- A covering functor to a preconnected groupoid has preconnected total category
+if its canonical monodromy action on one specified object fiber is pretransitive.
+The total category is not assumed to be a groupoid. Preconnectedness and
+pretransitivity are pairwise, so the total category and the fiber may be empty.
+This is a derived consequence of the fiber-translation argument in May,
+Chapter 3, §4, rather than a theorem stated there. -/
+theorem isPreconnected_of_monodromyMulAction_isPretransitive
+    {E : Type uE} {G : Type uG} [Category.{vE} E] [Category.{vG} G]
+    [IsGroupoid G] [IsPreconnected G]
+    (P : E ⥤ G) (hP : P.toPrefunctor.IsCovering) (g : G)
+    (htrans : @MulAction.IsPretransitive (Aut g) (P.Fiber g)
+      (P.monodromyMulAction hP g).toSemigroupAction.toSMul) : IsPreconnected E := by
+  let baseGroupoid : Groupoid.{vG} G := Groupoid.ofIsGroupoid
+  have hbase : ∀ b b' : G, Nonempty (b ⟶ b') :=
+    @nonempty_hom_of_preconnected_groupoid G baseGroupoid ‹IsPreconnected G›
+  apply zigzag_isPreconnected
+  intro x y
+  obtain ⟨f⟩ := hbase (P.obj x) g
+  obtain ⟨k⟩ := hbase (P.obj y) g
+  let xg : P.Fiber g := P.coveringLiftTarget hP f ⟨x, rfl⟩
+  let yg : P.Fiber g := P.coveringLiftTarget hP k ⟨y, rfl⟩
+  obtain ⟨a, ha⟩ := htrans.exists_smul_eq xg yg
+  have htarget : P.coveringLiftTarget hP a.hom xg = yg :=
+    (P.monodromyMulAction_smul hP a xg).symm.trans ha
+  exact (Zigzag.of_hom_hom
+      (P.coveringLiftHom hP f ⟨x, rfl⟩)
+      (P.coveringLiftHom hP a.hom xg ≫
+        eqToHom (congrArg Subtype.val htarget))).trans
+    (Zigzag.of_inv (P.coveringLiftHom hP k ⟨y, rfl⟩))
 
 end CategoryTheory.Functor
