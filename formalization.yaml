@@ -10,6 +10,9 @@ project:
     path-connected opens and intersection, as a unique-homomorphism universal
     property and a pushout of groups. Generic covering-map lifting and based
     equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
+    The canonical comparison from the categorical coproduct of fundamental
+    groupoids to the fundamental groupoid of the topological coproduct is an
+    equivalence, for arbitrary families without connectivity assumptions.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -34,6 +37,10 @@ sources:
       the source's diagram. The covering modules use the based lifting,
       monodromy and over-base comparison arguments, with the asymmetric
       connectivity and local path connectedness hypotheses stated below.
+      The coproduct comparison is derived support for the all-points groupoid
+      and disjoint-union viewpoint of Chapter 2 §§5–6, not a named theorem
+      quoted from the book. No open redistribution license is inferred for
+      the author-hosted PDF, and no book excerpts or PDF assets are included.
 related_formalizations:
   - id: https://github.com/leanprover-community/mathlib4
     relationship: builds-on
@@ -113,10 +120,27 @@ status:
     point, without base connectedness. A point stabilizer is not generally
     the monodromy permutation kernel, and the centralizer is not a group
     structure on the fiber.
+    For arbitrary independent universes, the canonical functor from the stock
+    categorical sigma of the original fundamental groupoids to the fundamental
+    groupoid of the original topological sigma is constructed by Sigma.desc
+    of the inclusion-induced maps. Object and component-arrow equations,
+    the restriction natural isomorphism and carrier-level object bijectivity
+    are proved. No connectedness, nonemptiness, local path connectedness,
+    finiteness, separation, compact-generation or basepoint assumptions are
+    imposed on the summands. The ordinary theorem sigmaComparison_isEquivalence
+    follows from full faithfulness on the original path-homotopy quotients and
+    object surjectivity. Mathlib's connected-source sigma factorization applies
+    to the interval and its square, with endpoint and relative-boundary equations
+    recovered using injectivity of the summand inclusion. The theorem is not
+    registered as an instance; Mathlib's Functor.asEquivalence supplies equivalence
+    data after installing it locally. No coproduct naturality theorem is asserted.
 review:
   status: unchecked
 alignment:
-  note: Public mathematical interfaces; the source references describe motivation and generalizations.
+  note: >-
+    Public mathematical interfaces; the source references describe motivation
+    and generalizations. The arbitrary-family coproduct comparison equivalence
+    is derived support for the all-points groupoid and disjoint-union viewpoint.
   statements:
     - lean: CategoryTheory.Iso.conj_eq_iff_mem_center
       module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
@@ -126,6 +150,14 @@ alignment:
       module: FundamentalGroupoids/CategoryTheory/SingleObj.lean
     - lean: FundamentalGroupoid.pathConnectedSpace_iff_isConnected
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean
+    - lean: FundamentalGroupoidFunctor.sigmaComparison
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean
+    - lean: FundamentalGroupoidFunctor.sigmaComparisonInclIso
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean
+    - lean: FundamentalGroupoidFunctor.sigmaComparison_obj_bijective
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean
+    - lean: FundamentalGroupoidFunctor.sigmaComparison_isEquivalence
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean
     - lean: FundamentalGroupoid.morphismProperty_of_isOpenCover
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean
     - lean: FundamentalGroupoid.natTransOfIsOpenCover
@@ -175,3 +207,10 @@ acknowledgements: >-
   references credit Junyan Xu's covering-space lifting, monodromy and separated-map
   uniqueness, Kim Morrison's deck group, Kenny Lau and Antoine Chambert-Loir's
   equivariant maps, and Chris Hughes and Yury Kudryashov's pretransitive actions.
+  The coproduct proof uses Johannes Hölzl, Mario Carneiro and Yury Kudryashov's
+  connected-source sigma factorization in Mathlib. The comparison reuses Bhavik
+  Mehta's categorical sigma descent,
+  Shing Tak Lam's fundamental groupoid and induced maps, Nicolò Cavalleri's
+  continuous-map API, and Johannes Hölzl, Mario Carneiro and Patrick Massot's
+  topology constructions in Mathlib, together with existing underlying-type
+  equivalences for object bijectivity.

@@ -7,6 +7,7 @@ module
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Product
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Connected
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Coproduct
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Product

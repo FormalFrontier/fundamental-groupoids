@@ -45,6 +45,12 @@ maps of covers and deck-group comparisons.
   A topological space is path connected if and only if its fundamental groupoid
   is connected, with nonemptiness on both sides. No local path connectedness or
   separation condition is needed.
+- **Fundamental groupoids of arbitrary topological coproducts**
+  ([`FundamentalGroupoidFunctor.sigmaComparison_isEquivalence`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean)).
+  The inclusion-induced comparison from `Σ i, FundamentalGroupoid (X i)` to
+  `FundamentalGroupoid (Σ i, X i)` is an equivalence of categories.
+  The index and space universes are independent; no connectedness,
+  local path connectedness or nonempty-summand assumptions are needed.
 - **Fundamental groupoids of arbitrary dependent products**
   ([`FundamentalGroupoidFunctor.piProductIso`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean)).
   For `I : Type u` and `X : I → TopCat.{v}` with independent universes,
@@ -209,6 +215,38 @@ provides `IsLocallyConstant.apply_eq_of_isPreconnected`,
 Local constancy does not assert equality of all fiber cardinalities over an
 arbitrary disconnected base.
 
+## Fundamental groupoids of topological coproducts
+
+The [`Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean)
+module constructs `FundamentalGroupoidFunctor.sigmaComparison X` for arbitrary
+`ι : Type v` and `X : ι → Type u` with supplied topologies and independent
+universes. Its source is the stock categorical sigma
+`Σ i, FundamentalGroupoid (X i)`; its target is the original fundamental
+groupoid of the topological sigma `Σ i, X i`. The functor is exactly
+`CategoryTheory.Sigma.desc` of
+`FundamentalGroupoid.map (ContinuousMap.sigmaMk i)`.
+
+The object and component-arrow equations are `sigmaComparison_obj` and
+`sigmaComparison_map_mk`. The restriction natural isomorphism
+`sigmaComparisonInclIso` reuses `CategoryTheory.Sigma.inclDesc`, and
+`sigmaComparison_obj_bijective` proves bijectivity on the original object
+carriers. Functor identity and composition laws come from the existing descent
+and induced-map constructions. There is no connectedness, local path
+connectedness, nonemptiness, finiteness, separation, compact-generation or
+basepoint hypothesis; empty indices and empty summands are allowed.
+
+The theorem `sigmaComparison_isEquivalence` establishes that this canonical
+comparison is an equivalence. Mathlib's connected-source factorization into a
+sigma type applies to the interval and its square: every path lies in one
+summand, and a homotopy between paths in a summand stays in that summand.
+Recovering the endpoints and relative boundary gives fullness and faithfulness
+on the original path-homotopy quotients. Object surjectivity then completes the
+proof. The theorem is not a registered instance; after installing it locally,
+Mathlib's `Functor.asEquivalence` supplies equivalence data. No coproduct
+naturality theorem is asserted. The comparison is derived support for May's
+all-points groupoid and disjoint-union viewpoint (Chapter 2, §§5–6), not a named
+theorem quoted from his book.
+
 ## Using the library
 
 The Lake package is `fundamental-groupoids`. Import the complete interface with:
@@ -333,6 +371,7 @@ verification examples, not additional prerequisites for the library.
 | [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy for covering functors; pretransitivity for preconnected total groupoids |
 | [`CategoryTheory.Groupoid.Elements`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean) | The category-of-elements projection of a type-valued functor on a groupoid is a quiver covering |
 | [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Path connectedness and connected groupoids |
+| [`AlgebraicTopology.FundamentalGroupoid.Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean) | Canonical sigma comparison equivalence, restriction isomorphism and object bijectivity |
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean) | Small-path generation and construction of natural transformations |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
@@ -440,4 +479,13 @@ The covering-space formalizations originate in
 Frontier Agents, retaining their Apache-2.0 and authorship notices. They build on
 Junyan Xu's covering-space lifting and monodromy and Kim Morrison's deck-group
 formalizations in Mathlib, with further credits in the module documentation.
+The coproduct proof uses Johannes Hölzl, Mario Carneiro and Yury Kudryashov's
+connected-source sigma factorization in Mathlib. The comparison reuses Bhavik
+Mehta's categorical sigma descent,
+Shing Tak Lam's fundamental groupoid and induced maps, Nicolò Cavalleri's
+continuous-map API, and the topology constructions of Johannes Hölzl, Mario
+Carneiro and Patrick Massot in Mathlib. Its object bijectivity uses existing
+underlying-type equivalences, not a new categorical equivalence construction.
+No open redistribution license is inferred for May's author-hosted book; no
+book excerpts or PDF assets are included.
 Licensed under Apache-2.0; see [LICENSE](LICENSE).

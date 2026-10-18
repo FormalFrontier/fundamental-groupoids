@@ -37,6 +37,9 @@ open subspaces, equality transport and colimits rather than defining replacement
 The source modules retain the following specific credits:
 
 - Shing Tak Lam: Mathlib's fundamental groupoids.
+- Bhavik Mehta: categorical sigma descent and restriction isomorphisms.
+- Johannes Hölzl, Mario Carneiro and Yury Kudryashov: connected-source
+  factorization through a summand of a topological sigma type.
 - Kim Morrison: pairwise diagrams, open-subspace functors and deck transformations.
 - David Loeffler: open covers.
 - Patrick Massot and Kim Morrison: interval subdivision.
