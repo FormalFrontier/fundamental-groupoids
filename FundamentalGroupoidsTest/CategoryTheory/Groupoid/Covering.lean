@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 import FundamentalGroupoids.CategoryTheory.Groupoid.Covering
+import FundamentalGroupoids.CategoryTheory.Groupoid.Elements
 import Mathlib.Algebra.Group.Action.End
 import Mathlib.CategoryTheory.Action
 import Mathlib.CategoryTheory.FiberedCategory.Fiber
@@ -34,37 +35,7 @@ namespace CategoryTheory.ActionCategory
 then gives the corresponding bijection on incoming arrows. -/
 private theorem projection_isCovering.{uG, uX} (G : Type uG) (X : Type uX)
     [Group G] [MulAction G X] : (π G X).toPrefunctor.IsCovering := by
-  let baseGroupoid : Groupoid.{uG} (SingleObj G) := SingleObj.groupoid G
-  let actionGroupoid : Groupoid.{uG} (ActionCategory G X) :=
-    @Functor.Elements.groupoid (SingleObj G) baseGroupoid (actionAsFunctor G X)
-  refine @Prefunctor.isCovering_of_bijective_star
-    (ActionCategory G X) actionGroupoid.toCategory.toCategoryStruct.toQuiver
-    (SingleObj G) baseGroupoid.toCategory.toCategoryStruct.toQuiver
-    (π G X).toPrefunctor
-    (@groupoidHasInvolutiveReverse (ActionCategory G X) actionGroupoid)
-    (@groupoidHasInvolutiveReverse (SingleObj G) baseGroupoid)
-    (@functorMapReverse (ActionCategory G X) actionGroupoid
-      (SingleObj G) baseGroupoid (π G X)) ?_
-  intro x
-  constructor
-  · rintro ⟨y, f⟩ ⟨z, g⟩ h
-    have hfg : f.hom = g.hom :=
-      congrArg (fun s : Quiver.Star ((π G X).obj x) => (show G from s.2)) h
-    have hyz : y = z := by
-      apply (objEquiv G X).symm.injective
-      change y.back = z.back
-      calc
-        y.back = f.hom • x.back := f.map_val.symm
-        _ = g.hom • x.back := congrArg (fun a : G => a • x.back) hfg
-        _ = z.back := g.map_val
-    subst z
-    have hhom : f = g := Functor.Elements.hom_ext hfg
-    cases hhom
-    rfl
-  · rintro ⟨b, g⟩
-    cases b
-    refine ⟨⟨(g • x.back : X), Functor.Elements.homMk g rfl⟩, ?_⟩
-    rfl
+  exact Functor.Elements.π_isCovering (actionAsFunctor G X)
 
 private abbrev boolProjection :
     ActionCategory (Equiv.Perm Bool) Bool ⥤ SingleObj (Equiv.Perm Bool) :=

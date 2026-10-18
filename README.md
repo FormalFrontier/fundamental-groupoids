@@ -33,6 +33,13 @@ maps of covers and deck-group comparisons.
   preconnected groupoid, the action is pretransitive; `B` need only be a category.
   All four object and morphism universes of `E` and `B` are independent.
   No nonempty-fiber, object-surjectivity or base-connectedness assumption is needed.
+- **The category-of-elements projection is a quiver covering**
+  ([`CategoryTheory.Functor.Elements.π_isCovering`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean)).
+  For any `F : G ⥤ Type w` with `[Category.{v} G]` and `[IsGroupoid G]`,
+  Mathlib's projection `Functor.Elements.π F` is a covering of the underlying
+  quivers. The object universe of `G`, its morphism universe and `w` are
+  independent. No nonemptiness, connectedness or object-surjectivity hypothesis
+  is required.
 - **Path connectedness and categorical connectedness**
   ([`FundamentalGroupoid.pathConnectedSpace_iff_isConnected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean)).
   A topological space is path connected if and only if its fundamental groupoid
@@ -324,6 +331,7 @@ verification examples, not additional prerequisites for the library.
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
 | [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy for covering functors; pretransitivity for preconnected total groupoids |
+| [`CategoryTheory.Groupoid.Elements`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean) | The category-of-elements projection of a type-valued functor on a groupoid is a quiver covering |
 | [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Path connectedness and connected groupoids |
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean) | Small-path generation and construction of natural transformations |
