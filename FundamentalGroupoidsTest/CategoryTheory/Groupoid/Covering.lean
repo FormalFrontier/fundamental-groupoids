@@ -187,3 +187,95 @@ private theorem emptyActionCategory_isPreconnected :
     (emptyProjection_monodromy_isPretransitive hP)
 
 end CategoryTheory.ActionCategory
+
+/-!
+## Recovering values in the original fibers
+
+The characteristic API of `fiberEquiv` recovers the two Boolean values. The lift
+and monodromy comparisons send the false fiber point along the transposition to
+the true value and also specialize to the empty permutation action. Neither
+connectedness nor pretransitivity is a premise of these comparisons.
+-/
+
+namespace CategoryTheory.ActionCategory
+
+/-- Recovering the value of the original false fiber point. -/
+private theorem falseFiber_fiberEquiv :
+    Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Bool) Bool)
+      (SingleObj.star (Equiv.Perm Bool)) falseFiber = false := by
+  erw [Functor.Elements.fiberEquiv_apply]
+  exact (objEquiv (Equiv.Perm Bool) Bool).symm_apply_apply false
+
+/-- Recovering the value of the original true fiber point. -/
+private theorem trueFiber_fiberEquiv :
+    Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Bool) Bool)
+      (SingleObj.star (Equiv.Perm Bool)) trueFiber = true := by
+  erw [Functor.Elements.fiberEquiv_apply]
+  exact (objEquiv (Equiv.Perm Bool) Bool).symm_apply_apply true
+
+/-- Both comparisons send the original false fiber
+point along the original transposition to the value `true`. The scalar map is
+computed from the original arrow label, not assumed as a recovery law. -/
+private theorem boolFiberEquiv_swap :
+    Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Bool) Bool)
+        (SingleObj.star (Equiv.Perm Bool))
+        (boolProjection.coveringLiftTarget boolProjection_isCovering
+          swapLoop.hom falseFiber) = true ∧
+      Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Bool) Bool)
+        (SingleObj.star (Equiv.Perm Bool))
+        (@SMul.smul (Aut (SingleObj.star (Equiv.Perm Bool)))
+          (boolProjection.Fiber (SingleObj.star (Equiv.Perm Bool)))
+          (boolProjection.monodromyMulAction boolProjection_isCovering
+            (SingleObj.star (Equiv.Perm Bool))).toSemigroupAction.toSMul
+          swapLoop falseFiber) = true := by
+  have hmap :
+      (actionAsFunctor (Equiv.Perm Bool) Bool).map swapLoop.hom
+        (Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Bool) Bool)
+          (SingleObj.star (Equiv.Perm Bool)) falseFiber) = true := by
+    rw [falseFiber_fiberEquiv, ← swapArrow_projection]
+    change (show Equiv.Perm Bool from swapArrow.hom) false = true
+    rw [swapArrow_label]
+    exact Equiv.swap_apply_left false true
+  constructor
+  · exact (Functor.Elements.fiberEquiv_coveringLiftTarget
+      (actionAsFunctor (Equiv.Perm Bool) Bool) boolProjection_isCovering
+      swapLoop.hom falseFiber).trans hmap
+  · exact (Functor.Elements.fiberEquiv_monodromyMulAction_smul
+      (actionAsFunctor (Equiv.Perm Bool) Bool) boolProjection_isCovering
+      (SingleObj.star (Equiv.Perm Bool)) swapLoop falseFiber).trans hmap
+
+/-- Both comparisons specialize universally to the
+original empty permutation model, using its canonical covering supplier. No point
+of the empty fiber, or nonemptiness hypothesis, is supplied. -/
+private theorem emptyFiberEquiv_lift_monodromy
+    (f : SingleObj.star (Equiv.Perm Empty) ⟶ SingleObj.star (Equiv.Perm Empty))
+    (a : Aut (SingleObj.star (Equiv.Perm Empty)))
+    (x : (π (Equiv.Perm Empty) Empty).Fiber (SingleObj.star (Equiv.Perm Empty))) :
+    Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Empty) Empty)
+        (SingleObj.star (Equiv.Perm Empty))
+        ((π (Equiv.Perm Empty) Empty).coveringLiftTarget
+          (Functor.Elements.π_isCovering (actionAsFunctor (Equiv.Perm Empty) Empty))
+          f x) =
+      (actionAsFunctor (Equiv.Perm Empty) Empty).map f
+        (Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Empty) Empty)
+          (SingleObj.star (Equiv.Perm Empty)) x) ∧
+      Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Empty) Empty)
+        (SingleObj.star (Equiv.Perm Empty))
+        (@SMul.smul (Aut (SingleObj.star (Equiv.Perm Empty)))
+          ((π (Equiv.Perm Empty) Empty).Fiber (SingleObj.star (Equiv.Perm Empty)))
+          ((π (Equiv.Perm Empty) Empty).monodromyMulAction
+            (Functor.Elements.π_isCovering (actionAsFunctor (Equiv.Perm Empty) Empty))
+            (SingleObj.star (Equiv.Perm Empty))).toSemigroupAction.toSMul a x) =
+      (actionAsFunctor (Equiv.Perm Empty) Empty).map a.hom
+        (Functor.Elements.fiberEquiv (actionAsFunctor (Equiv.Perm Empty) Empty)
+          (SingleObj.star (Equiv.Perm Empty)) x) := by
+  constructor
+  · exact Functor.Elements.fiberEquiv_coveringLiftTarget
+      (actionAsFunctor (Equiv.Perm Empty) Empty)
+      (Functor.Elements.π_isCovering (actionAsFunctor (Equiv.Perm Empty) Empty)) f x
+  · exact Functor.Elements.fiberEquiv_monodromyMulAction_smul
+      (actionAsFunctor (Equiv.Perm Empty) Empty)
+      (Functor.Elements.π_isCovering (actionAsFunctor (Equiv.Perm Empty) Empty))
+      (SingleObj.star (Equiv.Perm Empty)) a x
+
+end CategoryTheory.ActionCategory

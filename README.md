@@ -48,6 +48,14 @@ maps of covers and deck-group comparisons.
   quivers. The object universe of `G`, its morphism universe and `w` are
   independent. No nonemptiness, connectedness or object-surjectivity hypothesis
   is required.
+- **Fibers of a category-of-elements projection recover functor values**
+  ([`CategoryTheory.Functor.Elements.fiberEquiv`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean)).
+  For a type-valued functor on any category, the strict object fiber over `g` is
+  equivalent to `F.obj g`. Given a covering proof for the projection,
+  `fiberEquiv_coveringLiftTarget` identifies canonical lift targets with `F.map f`,
+  and `fiberEquiv_monodromyMulAction_smul` identifies its canonical left monodromy
+  with `F.map a.hom`. The three universes are independent; no nonemptiness or
+  connectedness assumption is required.
 - **Path connectedness and categorical connectedness**
   ([`FundamentalGroupoid.pathConnectedSpace_iff_isConnected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean)).
   A topological space is path connected if and only if its fundamental groupoid
@@ -377,7 +385,7 @@ verification examples, not additional prerequisites for the library.
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
 | [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy; pretransitivity for preconnected total groupoids and total preconnectedness from pretransitivity over a preconnected groupoid base |
-| [`CategoryTheory.Groupoid.Elements`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean) | The category-of-elements projection of a type-valued functor on a groupoid is a quiver covering |
+| [`CategoryTheory.Groupoid.Elements`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean) | Fiber-value equivalence, compatibility with lifts and monodromy, and covering projections on groupoids |
 | [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Path connectedness and connected groupoids |
 | [`AlgebraicTopology.FundamentalGroupoid.Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean) | Canonical sigma comparison equivalence, restriction isomorphism and object bijectivity |
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |
