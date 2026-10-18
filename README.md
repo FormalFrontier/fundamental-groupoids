@@ -56,6 +56,16 @@ maps of covers and deck-group comparisons.
   and `fiberEquiv_monodromyMulAction_smul` identifies its canonical left monodromy
   with `F.map a.hom`. The three universes are independent; no nonemptiness or
   connectedness assumption is required.
+- **Components of categories of elements as type colimits**
+  ([`CategoryTheory.Functor.elementsConnectedComponentsEquivColimitType`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean)).
+  For any `X : C ⥤ Type w` on a category `[Category.{v} C]` with `C : Type u`,
+  `ConnectedComponents X.Elements ≃ X.ColimitType`. The object, morphism and
+  value universes are independent; no smallness, nonemptiness or connectedness
+  assumption is needed. Both directions compute on representatives and the
+  equivalence is natural in `X`. When `[Limits.HasColimit X]` is supplied,
+  `elementsConnectedComponentsEquivColimit` instead identifies the components
+  with `Limits.colimit X` in `Type w`, with the same representative equations
+  and naturality for diagrams having individual colimits.
 - **Path connectedness and categorical connectedness**
   ([`FundamentalGroupoid.pathConnectedSpace_iff_isConnected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean)).
   A topological space is path connected if and only if its fundamental groupoid
@@ -296,6 +306,17 @@ loop representatives. Use `piMulEquiv_naturality` for families of continuous
 maps and `piMulEquiv_reindex` for arbitrary reindexing functions, with image
 basepoints as displayed in their statements.
 
+For a type-valued diagram on any category, import
+`FundamentalGroupoids.CategoryTheory.Elements.ConnectedComponents` and use
+`X.elementsConnectedComponentsEquivColimitType`. Its `_apply` and `_symm_apply`
+lemmas compute the two representative maps. `NatTrans.mapColimitType` has
+`_ι`, `_id` and `_comp` lemmas, and
+`Functor.elementsConnectedComponentsEquivColimitType_natural` compares it with
+Mathlib's `NatTrans.mapElements` followed by `Functor.mapConnectedComponents`.
+With an individual colimit instance, use `X.elementsConnectedComponentsEquivColimit`
+and its representative and naturality lemmas. These are equivalences of types,
+not equivalences of the elements category with a discrete category.
+
 For a path-connected space and chosen point `x`, apply `Functor.asEquivalence` to
 `SingleObj.functor (MonoidHom.id (End (FundamentalGroupoid.mk x)))`.
 The [interval client](FundamentalGroupoidsTest/AlgebraicTopology/FundamentalGroupoid/Connected.lean)
@@ -382,6 +403,7 @@ verification examples, not additional prerequisites for the library.
 | Module under `FundamentalGroupoids` | Contents |
 | --- | --- |
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced maps, path transport and homotopy comparisons |
+| [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
 | [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy; pretransitivity for preconnected total groupoids and total preconnectedness from pretransitivity over a preconnected groupoid base |
@@ -407,6 +429,11 @@ verification examples, not additional prerequisites for the library.
 The clients under [`FundamentalGroupoidsTest`](FundamentalGroupoidsTest.lean)
 exercise the advertised interfaces:
 
+- For the constant `Bool` functor on `Discrete PUnit`, the two values determine
+  distinct components of its category of elements despite having the same
+  underlying base object. A `Bool`-valued cocone and the components/type-colimit
+  equivalence distinguish them. Diagrams on `Discrete PEmpty` have empty
+  components and empty quotient-type colimits; no nonemptiness is required.
 - On `AddCircle (1 : ℝ)`, translation by half a period moves the basepoint
   through a homotopy. A nonidentity loop chosen through Mathlib's covering-group
   coordinate remains nonidentity under the transport and map comparisons. This
@@ -504,6 +531,10 @@ Shing Tak Lam's fundamental groupoid and induced maps, Nicolò Cavalleri's
 continuous-map API, and the topology constructions of Johannes Hölzl, Mario
 Carneiro and Patrick Massot in Mathlib. Its object bijectivity uses existing
 underlying-type equivalences, not a new categorical equivalence construction.
+The components-of-elements equivalences, naturality proofs and verification
+examples are by Formal Frontier Agents. They build on Kim Morrison and Joël Riou's
+category of elements, Bhavik Mehta's connected components, and Joël Riou, Kim
+Morrison and Reid Barton's type-colimit formalizations in Mathlib.
 No open redistribution license is inferred for May's author-hosted book; no
 book excerpts or PDF assets are included.
 Licensed under Apache-2.0; see [LICENSE](LICENSE).

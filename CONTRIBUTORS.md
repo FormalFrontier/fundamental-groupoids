@@ -10,6 +10,12 @@ the `FundamentalGroupoidsTest` verification root; module imports and the
 project-specific test namespace have been adapted to those roots. One test proof
 uses `simp` in place of `simpa`.
 
+The components-of-elements equivalences, their representative and naturality
+APIs, and the two-value and empty-diagram examples are by Formal Frontier Agents.
+They build on Mathlib's categories of elements (Kim Morrison and Joël Riou),
+connected components (Bhavik Mehta), quotient-type colimits (Joël Riou) and
+colimits in `Type` (Kim Morrison, Reid Barton and Joël Riou).
+
 The generic covering-space formalizations originate in
 [sphere-topology](https://github.com/FormalFrontier/sphere-topology), authored by
 Formal Frontier Agents. Its `CoveringLifting`, `CoveringEquivalence`,
