@@ -184,7 +184,8 @@ noncomputable def pullbackZerothHomotopyEquivDoubleCoset
 variable [PathConnectedSpace E₁] [PathConnectedSpace E₂]
 
 /-- The relative product is `γ⁻¹ * δ`, with Mathlib's stock fundamental-group multiplication. -/
-@[simp] theorem pullbackZerothHomotopyEquivDoubleCoset_apply (γ δ : G) :
+-- Apply before simplifying the subgroup coercions in the implicit double-coset type.
+@[simp↓] theorem pullbackZerothHomotopyEquivDoubleCoset_apply (γ δ : G) :
     cov₁.pullbackZerothHomotopyEquivDoubleCoset cov₂ b e₁ e₂
       (ZerothHomotopy.mk
         ((Function.Pullback.fiberEquiv f₁ f₂ b).symm
@@ -232,7 +233,8 @@ variable [PathConnectedSpace E₁] [PathConnectedSpace E₂]
   exact MulAction.orbitQuotientProdQuotientEquivDoubleCoset_apply_mk H K γ δ
 
 /-- The inverse double-coset formula uses `g`, not `g⁻¹`, in the second coordinate. -/
-@[simp] theorem pullbackZerothHomotopyEquivDoubleCoset_symm_apply (g : G) :
+-- Apply before simplifying the subgroup coercions in the implicit double-coset type.
+@[simp↓] theorem pullbackZerothHomotopyEquivDoubleCoset_symm_apply (g : G) :
     (cov₁.pullbackZerothHomotopyEquivDoubleCoset cov₂ b e₁ e₂).symm
         (DoubleCoset.mk H K g) =
       ZerothHomotopy.mk

@@ -212,7 +212,7 @@ noncomputable def monodromyOrbitEquivZerothHomotopyFiber (b : B) :
       cov.monodromyOrbitEmbeddingZerothHomotopyFiber b := rfl
 
 /-- The underlying component of a fiber-point orbit is the component of that point. -/
-@[simp] theorem monodromyOrbitEquivZerothHomotopyFiber_val_apply (b : B)
+theorem monodromyOrbitEquivZerothHomotopyFiber_val_apply (b : B)
     (e : p ⁻¹' {b}) :
     (cov.monodromyOrbitEquivZerothHomotopyFiber b
       (Quotient.mk (@MulAction.orbitRel (FundamentalGroup B b) (p ⁻¹' {b}) _

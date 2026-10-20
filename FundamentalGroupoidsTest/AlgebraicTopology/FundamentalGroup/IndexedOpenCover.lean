@@ -310,7 +310,7 @@ private theorem universalProperty :
 
 private def colimit : CategoryTheory.Limits.IsColimit
     ((FundamentalGroup.openNhdsCocone point).whisker (CategoryTheory.inducedFunctor V)) :=
-  FundamentalGroup.isColimit_of_isOpenCover point V cover_V
+  FundamentalGroup.isColimitOfIsOpenCover point V cover_V
     (fun n => pathConnected n.down) infClosed_V
 
 end CircleCylinderIndexedCover

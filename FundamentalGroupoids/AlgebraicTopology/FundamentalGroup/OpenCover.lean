@@ -1007,7 +1007,7 @@ induced inclusion category. Its homomorphism universal property, including targe
 in an independent universe, is `existsUnique_hom_of_isOpenCover_of_infClosed`.
 
 See May, *A Concise Course in Algebraic Topology*, Chapter 2, §7. -/
-noncomputable def isColimit_of_isOpenCover
+noncomputable def isColimitOfIsOpenCover
     (x : X) (U : ι → OpenNhds (X := TopCat.of X) x)
     (hcover : IsOpenCover (fun i => (U i).1))
     (hpc : ∀ i, IsPathConnected ((U i).1 : Set X))
@@ -1061,6 +1061,10 @@ noncomputable def isColimit_of_isOpenCover
         (map (ContinuousMap.subtypeVal ((U i).1 : Set X)) ⟨x, (U i).2⟩) =
       (s.ι.app i).hom at hfac
     exact hfac
+
+-- The deprecated spelling is retained for downstream compatibility.
+@[deprecated (since := "2026-10-20"), nolint defsWithUnderscore]
+alias isColimit_of_isOpenCover := isColimitOfIsOpenCover
 
 end IndexedCover
 

@@ -98,23 +98,22 @@ theorem piAssembly_map {a b : ∀ i, FundamentalGroupoid (X i)} (p : a ⟶ b) :
     (piAssembly X).map p = Path.Homotopic.pi p :=
   rfl
 
-/-- On path representatives, assembly is the pointwise product path. -/
+/-- On path representatives, assembly is the pointwise product path, stated in
+its path-class normal form. -/
 @[simp]
 theorem piAssembly_map_mk (a b : ∀ i, FundamentalGroupoid (X i))
     (p : ∀ i, Path (a i).as (b i).as) :
-    (piAssembly X).map (fun i => Path.Homotopic.Quotient.mk (p i)) =
+    Path.Homotopic.pi (fun i => Path.Homotopic.Quotient.mk (p i)) =
       Path.Homotopic.Quotient.mk (Path.pi p) := by
   exact Path.Homotopic.pi_lift p
 
 /-- Projecting an assembled arrow recovers its chosen coordinate. -/
-@[simp]
 theorem piProj_map_piAssembly (i : I) {a b : ∀ i, FundamentalGroupoid (X i)}
     (p : a ⟶ b) :
     (piProj X i).map ((piAssembly X).map p) = p i := by
   exact Path.Homotopic.proj_pi i p
 
 /-- Assembling all coordinate projections recovers an arrow of the product space. -/
-@[simp]
 theorem piAssembly_map_piProj {a b : FundamentalGroupoid (∀ i, X i)} (p : a ⟶ b) :
     (piAssembly X).map (fun i => (piProj X i).map p) = p := by
   exact Path.Homotopic.pi_proj p
@@ -164,20 +163,21 @@ theorem piProductIso_hom_map {a b : ∀ i, FundamentalGroupoid (X i)} (p : a ⟶
     (piProductIso X).hom.map p = Path.Homotopic.pi p :=
   rfl
 
-/-- The inverse product isomorphism evaluates the underlying point at every coordinate. -/
+/-- The inverse product isomorphism evaluates the underlying point at every coordinate,
+in the normal form of `piProductIso_inv`. -/
 @[simp]
 theorem piProductIso_inv_obj (a : FundamentalGroupoid (∀ i, X i)) :
-    (piProductIso X).inv.obj a = fun i => FundamentalGroupoid.mk (a.as i) :=
+    (Functor.pi' (piProj X)).obj a = fun i => FundamentalGroupoid.mk (a.as i) :=
   rfl
 
-/-- The inverse product isomorphism projects a path class to every coordinate. -/
+/-- The inverse product isomorphism projects a path class to every coordinate,
+in the normal form of `piProductIso_inv`. -/
 @[simp]
 theorem piProductIso_inv_map {a b : FundamentalGroupoid (∀ i, X i)} (p : a ⟶ b) :
-    (piProductIso X).inv.map p = fun i => Path.Homotopic.proj i p :=
+    (Functor.pi' (piProj X)).map p = fun i => Path.Homotopic.proj i p :=
   rfl
 
 /-- Evaluation of the inverse arrow map is projection to the chosen coordinate. -/
-@[simp]
 theorem piProductIso_inv_map_apply (i : I) {a b : FundamentalGroupoid (∀ i, X i)}
     (p : a ⟶ b) :
     ((piProductIso X).inv.map p) i = Path.Homotopic.proj i p :=

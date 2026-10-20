@@ -361,7 +361,7 @@ noncomputable def fiberMapEquiv [PathConnectedSpace B] [LocallyPathConnectedSpac
 /-- The forward map of the comparison is canonical restriction to the fiber. -/
 @[simp] theorem fiberMapEquivOfPathConnected_toFun
     [PathConnectedSpace E] [LocallyPathConnectedSpace E] (e₀ : E) :
-    (covp.fiberMapEquivOfPathConnected covq e₀).toFun = covp.fiberMap covq (p e₀) :=
+    ⇑(covp.fiberMapEquivOfPathConnected covq e₀) = covp.fiberMap covq (p e₀) :=
   rfl
 
 /-- The comparison evaluates the original continuous map on each fiber coordinate. -/
@@ -449,7 +449,7 @@ theorem fiberMapEquivOfPathConnected_symm_eq_iff
 
 /-- The forward map of the comparison is canonical restriction to the fiber. -/
 @[simp] theorem fiberMapEquiv_toFun [PathConnectedSpace B] [LocallyPathConnectedSpace E] (b : B) :
-    (covp.fiberMapEquiv covq b).toFun = covp.fiberMap covq b :=
+    ⇑(covp.fiberMapEquiv covq b) = covp.fiberMap covq b :=
   rfl
 
 /-- The comparison evaluates the original continuous map on each fiber coordinate. -/
@@ -766,7 +766,8 @@ noncomputable def deckMonodromyEquiv [PathConnectedSpace B] [LocallyPathConnecte
 /-- The forward homomorphism of the comparison is restriction to the fiber. -/
 @[simp] theorem deckMonodromyEquiv_toMonoidHom [PathConnectedSpace B]
     [LocallyPathConnectedSpace E] (b : B) :
-    (cov.deckMonodromyEquiv b).toMonoidHom = cov.deckMonodromyHom b :=
+    (cov.deckMonodromyEquiv b : deck p →*
+      Subgroup.centralizer (Set.range (cov.monodromyPerm b))) = cov.deckMonodromyHom b :=
   rfl
 
 /-- The comparison applies the original deck transformation to each fiber coordinate. -/
@@ -802,7 +803,9 @@ noncomputable def deckMonodromyEquivOfPathConnected [PathConnectedSpace E]
 /-- The occupied-fiber comparison has the same restriction homomorphism. -/
 @[simp] theorem deckMonodromyEquivOfPathConnected_toMonoidHom [PathConnectedSpace E]
     [LocallyPathConnectedSpace E] (e₀ : E) :
-    (cov.deckMonodromyEquivOfPathConnected e₀).toMonoidHom = cov.deckMonodromyHom (p e₀) :=
+    (cov.deckMonodromyEquivOfPathConnected e₀ : deck p →*
+      Subgroup.centralizer (Set.range (cov.monodromyPerm (p e₀)))) =
+      cov.deckMonodromyHom (p e₀) :=
   rfl
 
 /-- The occupied-fiber comparison applies the deck transformation to each coordinate. -/
