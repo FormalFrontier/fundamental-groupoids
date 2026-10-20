@@ -16,6 +16,12 @@ They build on Mathlib's categories of elements (Kim Morrison and Joël Riou),
 connected components (Bhavik Mehta), quotient-type colimits (Joël Riou) and
 colimits in `Type` (Kim Morrison, Reid Barton and Joël Riou).
 
+The pullback component comparisons reuse the independent-universe
+orbit–stabilizer equivariance and product-coset orbit/double-coset constructions
+from [GroupTheory](https://github.com/FormalFrontier/group-theory), formalized by
+Formal Frontier Agents. The covering-space results compose these algebraic
+constructions with the canonical monodromy and induced fundamental-group images.
+
 The generic covering-space formalizations originate in
 [sphere-topology](https://github.com/FormalFrontier/sphere-topology), authored by
 Formal Frontier Agents. Its `CoveringLifting`, `CoveringEquivalence`,

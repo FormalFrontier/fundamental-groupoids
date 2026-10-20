@@ -199,6 +199,26 @@ hypotheses, and the index type need not be finite.
   point to its path component. The total and base universes are independent;
   the total space may be empty, with no local path connectedness or global
   surjectivity assumption on the covering map.
+- **Pullback fibers, monodromy and path components**
+  ([`Pullback`](FundamentalGroupoids/Topology/Covering/Pullback.lean)).
+  For coverings `f₁ : E₁ → B` and `f₂ : E₂ → B`, the map
+  `z ↦ f₁ z.fst` from `Function.Pullback f₁ f₂` to `B` is a covering.
+  `Function.Pullback.fiberEquiv` identifies its fiber over `b` with
+  `(f₁ ⁻¹' {b}) × (f₂ ⁻¹' {b})`, intertwining canonical monodromy with
+  the diagonal product action. The total and base universes are independent.
+  When `B` is path connected, `IsCoveringMap.pullbackProdOrbitEquivZerothHomotopy`
+  identifies diagonal fiber orbits with the pullback's path components;
+  neither total space is required to be path connected or nonempty.
+- **Double cosets of fundamental-group images**
+  ([`PullbackDoubleCoset`](FundamentalGroupoids/Topology/Covering/PullbackDoubleCoset.lean)).
+  When both `E₁` and `E₂` are path connected and points `eᵢ : fᵢ ⁻¹' {b}`
+  are specified, `IsCoveringMap.pullbackZerothHomotopyEquivDoubleCoset`
+  identifies path components of the pullback with `H \ G / K`, where
+  `G = FundamentalGroup B b` and `H`, `K` are the ranges of
+  `FundamentalGroup.mapOfEq ⟨fᵢ, covᵢ.continuous⟩ eᵢ.2`.
+  No path connectedness of `B` is needed. The component of
+  `(γ • e₁, δ • e₂)` corresponds to `H (γ⁻¹ * δ) K`, and `H g K`
+  maps back to the component of `(e₁, g • e₂)`.
 - **Maps of covers from equivariant fiber maps**
   ([`DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean)).
   Restriction to a chosen fiber identifies continuous over-maps with Mathlib's
@@ -357,7 +377,8 @@ illustrates both formulations.
 
 Import the covering modules individually as
 `FundamentalGroupoids.Topology.Covering.Lifting`, `Equivalence`, `Monodromy`,
-`Components`, `Cardinality`, `DeckGroup` or `DeckMonodromy`, with the same prefix for each. They extend
+`Components`, `Pullback`, `PullbackDoubleCoset`, `Cardinality`, `DeckGroup` or
+`DeckMonodromy`, with the same prefix for each. They extend
 Mathlib's covering maps, monodromy actions and deck groups rather than defining
 replacement structures.
 
@@ -387,8 +408,10 @@ automatically.
 ## Building
 
 Lean is pinned to `leanprover/lean4:v4.34.0-rc2`; Mathlib is pinned to
-`83abb3e776bdefcbc447a1e44d0debe4010039e5`. Mathlib is the only direct package
-dependency. The resolved dependencies are recorded in `lake-manifest.json`.
+`83abb3e776bdefcbc447a1e44d0debe4010039e5`. The other direct package dependency is
+[GroupTheory](https://github.com/FormalFrontier/group-theory), pinned to
+`12ea07a60c5e6c219d8996eb56d7485139041e15`. The resolved dependencies are recorded
+in `lake-manifest.json`.
 
 ```sh
 lake exe cache get
@@ -420,6 +443,8 @@ verification examples, not additional prerequisites for the library.
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
 | [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity and equivariant fiber restriction with identity/composition laws |
 | [`Topology.Covering.Components`](FundamentalGroupoids/Topology/Covering/Components.lean) | Orbit equivalence with the path-component-map fiber; path-component image equality; equivalence to all total-space components over a path-connected base |
+| [`Topology.Covering.Pullback`](FundamentalGroupoids/Topology/Covering/Pullback.lean) | Pullback covering projections, fiber/product monodromy comparison, and diagonal-orbit/path-component equivalence over a path-connected base |
+| [`Topology.Covering.PullbackDoubleCoset`](FundamentalGroupoids/Topology/Covering/PullbackDoubleCoset.lean) | Path components as double cosets of based fundamental-group images for path-connected total spaces with specified fiber points, without base path connectedness |
 | [`Topology.Covering.Cardinality`](FundamentalGroupoids/Topology/Covering/Cardinality.lean) | Local constancy of point-fiber cardinalities |
 | [`Topology.Covering.DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean) | Fiber actions, evaluation embeddings and fixed-point rigidity for separated, locally injective maps with preconnected total space |
 | [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
@@ -511,6 +536,9 @@ a fiber, not a group structure on that fiber.
   fundamental groupoid, conjugation, one-object category, open-cover,
   interval-subdivision, subpath, morphism-property and colimit APIs, as well as
   covering maps, lifting, monodromy, deck groups and equivariant maps.
+- [GroupTheory](https://github.com/FormalFrontier/group-theory), by Formal
+  Frontier Agents: orbit–stabilizer equivariance and the equivalence between
+  diagonal orbits of products of coset spaces and double cosets.
 
 ## Credits and license
 
@@ -519,6 +547,9 @@ examples and mathematical documentation. May supplies mathematical motivation
 and arguments; Mathlib supplies the underlying constructions and APIs.
 Individual Mathlib contributions used in the proofs are credited in the module
 documentation and [CONTRIBUTORS.md](CONTRIBUTORS.md).
+The pullback component comparisons reuse GroupTheory's independent-universe
+orbit–stabilizer equivariance and product-coset orbit/double-coset constructions,
+formalized by Formal Frontier Agents.
 The covering-space formalizations originate in
 [sphere-topology](https://github.com/FormalFrontier/sphere-topology) by Formal
 Frontier Agents, retaining their Apache-2.0 and authorship notices. They build on

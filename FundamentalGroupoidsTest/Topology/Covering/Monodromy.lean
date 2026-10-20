@@ -7,8 +7,9 @@ module
 public import FundamentalGroupoids.Topology.Covering.Monodromy
 import FundamentalGroupoids.Topology.Covering.Components
 import Mathlib.Algebra.Group.Action.Pretransitive
-import Mathlib.Topology.Covering.AddCircle
-import Mathlib.Topology.Instances.ZMultiples
+public import Mathlib.Analysis.Convex.PathConnected
+public import Mathlib.Topology.Covering.AddCircle
+public import Mathlib.Topology.Instances.ZMultiples
 
 /-!
 # Examples for covering-space monodromy
@@ -25,6 +26,29 @@ orbits. Thus a connected base, even a point, does not by itself imply transitivi
 
 @[expose] public section
 
+namespace PeriodOneCover
+
+/-- The zero point in the period-one quotient's zero fiber. -/
+def zeroPoint : ((↑) : ℝ → AddCircle (1 : ℝ)) ⁻¹' {0} :=
+  ⟨0, AddCircle.coe_zero _⟩
+
+/-- The unit-translate point in the same fiber. -/
+def onePoint : ((↑) : ℝ → AddCircle (1 : ℝ)) ⁻¹' {0} :=
+  ⟨1, AddCircle.coe_period _⟩
+
+/-- The straight real path from zero to one, before quotienting. -/
+noncomputable def positivePath : Path (0 : ℝ) 1 := Path.segment 0 1
+
+/-- The positive loop is the image of the zero-to-one real path, with endpoints
+cast to the zero basepoint. -/
+noncomputable def positiveLoop : FundamentalGroup (AddCircle (1 : ℝ)) 0 :=
+  ((Path.Homotopic.Quotient.mk positivePath).map
+    ⟨((↑) : ℝ → AddCircle (1 : ℝ)), (AddCircle.isCoveringMap_coe (1 : ℝ)).continuous⟩).cast
+      (by exact (AddCircle.coe_zero (1 : ℝ)).symm)
+      (by exact (AddCircle.coe_period (1 : ℝ)).symm)
+
+end PeriodOneCover
+
 /-- The period-one real quotient has a moving monodromy element, which does not come from a
 loop in the total space based at its starting point. -/
 private theorem realCircle_exists_moving_monodromy :
@@ -35,8 +59,8 @@ private theorem realCircle_exists_moving_monodromy :
           ⟨((↑) : ℝ → AddCircle (1 : ℝ)), (AddCircle.isCoveringMap_coe (1 : ℝ)).continuous⟩
           e.2).range := by
   let cov := AddCircle.isCoveringMap_coe (1 : ℝ)
-  let e : ((↑) : ℝ → AddCircle (1 : ℝ)) ⁻¹' {0} := ⟨0, AddCircle.coe_zero _⟩
-  let e' : ((↑) : ℝ → AddCircle (1 : ℝ)) ⁻¹' {0} := ⟨1, AddCircle.coe_period _⟩
+  let e := PeriodOneCover.zeroPoint
+  let e' := PeriodOneCover.onePoint
   have hne : e ≠ e' := by
     intro h
     exact zero_ne_one (congrArg Subtype.val h)

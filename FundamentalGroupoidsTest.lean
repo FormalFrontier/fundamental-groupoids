@@ -22,3 +22,4 @@ import FundamentalGroupoidsTest.Topology.Covering.Equivalence
 import FundamentalGroupoidsTest.Topology.Covering.Lifting
 import FundamentalGroupoidsTest.Topology.Covering.Monodromy
 import FundamentalGroupoidsTest.Topology.Covering.Morphisms
+import FundamentalGroupoidsTest.Topology.Covering.Pullback
