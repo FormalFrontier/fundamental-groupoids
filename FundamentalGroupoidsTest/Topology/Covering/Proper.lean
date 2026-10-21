@@ -8,13 +8,16 @@ import FundamentalGroupoids.Topology.Covering.Proper
 import Mathlib.Topology.Algebra.Ring.Real
 import Mathlib.Topology.FiberBundle.Constructions
 import Mathlib.Topology.Order.Compact
+import Mathlib.Topology.Order.IntermediateValue
 
 /-!
 # Properness of finite-sheeted product coverings
 
 The two-sheeted projection `Fin 2 × ℝ → ℝ` is a covering map, obtained from Mathlib's
-trivial bundle by its product homeomorphism. The finite-fiber characterization gives its
-properness, and the compact-preimage theorem gives compactness over the interval `[0, 1]`.
+trivial bundle by its product homeomorphism. Its finite-fiber predicate is locally constant,
+with clopen locus equal to the whole real line. Preconnectedness of the base makes finiteness
+over the given point zero sufficient for properness, and the compact-preimage theorem gives
+compactness over the interval `[0, 1]`.
 
 Identity and empty-domain projections illustrate singleton and empty fibers. The discrete
 projection `ℕ × PUnit → PUnit` is a covering map that is not proper.
@@ -37,9 +40,24 @@ private theorem twoSheetFiber_finite (y : ℝ) :
   exact Prod.ext h ((show x.val.2 = y from x.property).trans
     (show x'.val.2 = y from x'.property).symm)
 
-private theorem twoSheetProjection_proper : IsProperMap (Prod.snd : Fin 2 × ℝ → ℝ) :=
-  (discreteProductProjection_covering (F := Fin 2) (B := ℝ)).isProperMap_iff_finite_fibers.mpr
-    twoSheetFiber_finite
+/-- The generic API compares finiteness throughout any preconnected subset of the real line. -/
+example {s : Set ℝ} (hs : IsPreconnected s) {x y : ℝ} (hx : x ∈ s) (hy : y ∈ s) :
+    Finite ((Prod.snd : Fin 2 × ℝ → ℝ) ⁻¹' {x}) =
+      Finite ((Prod.snd : Fin 2 × ℝ → ℝ) ⁻¹' {y}) := by
+  have hp := discreteProductProjection_covering (F := Fin 2) (B := ℝ)
+  exact hp.isLocallyConstant_finite_fiber.apply_eq_of_isPreconnected hs hx hy
+
+/-- The clopen finite-fiber locus contains every point of the real line. -/
+example : IsClopen {y : ℝ | Finite ((Prod.snd : Fin 2 × ℝ → ℝ) ⁻¹' {y})} ∧
+    {y : ℝ | Finite ((Prod.snd : Fin 2 × ℝ → ℝ) ⁻¹' {y})} = Set.univ := by
+  have hp := discreteProductProjection_covering (F := Fin 2) (B := ℝ)
+  refine ⟨hp.isClopen_setOf_finite_fiber, ?_⟩
+  ext y
+  simp [twoSheetFiber_finite]
+
+private theorem twoSheetProjection_proper : IsProperMap (Prod.snd : Fin 2 × ℝ → ℝ) := by
+  have hp := discreteProductProjection_covering (F := Fin 2) (B := ℝ)
+  exact (hp.isProperMap_iff_finite_fiber 0).mpr (twoSheetFiber_finite 0)
 
 /-- The inverse image of the closed unit interval in the two-sheeted real cover is compact. -/
 example : IsCompact ((Prod.snd : Fin 2 × ℝ → ℝ) ⁻¹' Set.Icc (0 : ℝ) 1) :=

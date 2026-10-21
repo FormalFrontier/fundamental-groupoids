@@ -12,6 +12,9 @@ project:
     equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
     A covering map is proper exactly when every point fiber is finite,
     without separation, local compactness or uniform-degree assumptions.
+    Fiber finiteness is locally constant, with clopen locus including empty
+    fibers and excluding infinite ones. On a preconnected base, properness
+    is equivalent to finiteness of the fiber at any given point.
     The canonical comparison from the categorical coproduct of fundamental
     groupoids to the fundamental groupoid of the topological coproduct is an
     equivalence, for arbitrary families without connectivity assumptions.
@@ -41,8 +44,8 @@ sources:
       connectivity and local path connectedness hypotheses stated below.
       The coproduct comparison is derived support for the all-points groupoid
       and disjoint-union viewpoint of Chapter 2 §§5–6, not a named theorem
-      quoted from the book. The properness characterization is supporting
-      covering theory, not a theorem quoted from the book.
+      quoted from the book. The fiber-finiteness and properness results are
+      supporting covering theory, not theorems quoted from the book.
       No open redistribution license is inferred for
       the author-hosted PDF, and no book excerpts or PDF assets are included.
 related_formalizations:
@@ -53,7 +56,8 @@ related_formalizations:
       connectedness, fundamental-groupoid, subdivision, open-cover,
       morphism-property, pairwise-diagram and colimit APIs, together with
       covering maps, lifting, monodromy, deck groups and equivariant maps,
-      as well as proper maps, compact projections and local closedness.
+      as well as cardinality, local constancy, proper maps, compact projections
+      and local closedness.
   - id: https://github.com/FormalFrontier/vector-bundles
     relationship: builds-on
     note: >-
@@ -112,6 +116,10 @@ status:
     universes, IsProperMap p is equivalent to finiteness of every canonical
     point-fiber subtype. No separation, local compactness, connectedness,
     surjectivity, nonempty fiber or uniform-degree assumption is required.
+    The predicate of canonical fiber finiteness is locally constant and its
+    locus is clopen, including empty fibers and excluding infinite ones.
+    On a preconnected base, properness is equivalent to finiteness at a
+    given point; no additional nonemptiness premise is required.
     Compact inverse images then use Mathlib's existing proper-map API.
     Monodromy fixes a fiber point exactly on its based total-space
     fundamental-group image, and two fiber points share an orbit exactly when
@@ -201,6 +209,12 @@ alignment:
       module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
     - lean: IsCoveringMap.pathConnectedSpace_iff_nonempty_and_monodromy_isPretransitive
       module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
+    - lean: IsCoveringMap.isLocallyConstant_finite_fiber
+      module: FundamentalGroupoids/Topology/Covering/Cardinality.lean
+    - lean: IsCoveringMap.isClopen_setOf_finite_fiber
+      module: FundamentalGroupoids/Topology/Covering/Cardinality.lean
+    - lean: IsCoveringMap.isProperMap_iff_finite_fiber
+      module: FundamentalGroupoids/Topology/Covering/Proper.lean
     - lean: IsCoveringMap.isProperMap_iff_finite_fibers
       module: FundamentalGroupoids/Topology/Covering/Proper.lean
     - lean: IsCoveringMap.fiberMap

@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 import FundamentalGroupoids.Topology.Covering.Cardinality
+import FundamentalGroupoids.Topology.Covering.Proper
 import Mathlib.Logic.Equiv.Set
 import Mathlib.SetTheory.Cardinal.Order
 import Mathlib.Topology.Algebra.Ring.Real
@@ -12,7 +13,7 @@ import Mathlib.Topology.FiberBundle.Constructions
 import Mathlib.Topology.Order.IntermediateValue
 
 /-!
-# Cardinalities of infinite and empty covering fibers
+# Finite, infinite and empty covering fibers
 
 The trivial bundle with natural-number sheets over the real line is a covering map.
 Its point fibers are homeomorphic to `ℕ`, so their cardinality is `ℵ₀`. The local-constancy
@@ -21,7 +22,12 @@ the fibers over zero and one.
 
 The constant-false map `Bool → Bool` is a covering of discrete spaces. Its fibers over
 `false` and `true` have cardinalities two and zero, respectively. Thus local constancy does
-not imply global constancy on a disconnected base.
+not imply global constancy on a disconnected base. Both of these fibers are finite.
+
+The discrete map `Fin 2 ⊕ ℕ → Bool` sending the left summand to `false` and the right summand
+to `true` has finite-fiber locus exactly `{false}`. This locus is clopen but nonconstant, and
+the map is not proper despite its finite fiber over `false`: the given-point properness
+criterion needs preconnectedness of the whole base.
 
 The coverings, topologies, and point-fiber comparisons use Mathlib's trivial-bundle and
 discrete-covering constructions.
@@ -94,3 +100,36 @@ private theorem boolFiber_cardinalMk_ne :
       Cardinal.mk (boolFalseProjection ⁻¹' {true}) := by
   rw [boolFalseFiber_cardinalMk, boolTrueFiber_cardinalMk]
   exact two_ne_zero
+
+private abbrev mixedProjection : Fin 2 ⊕ ℕ → Bool := Sum.elim (fun _ ↦ false) (fun _ ↦ true)
+
+private theorem mixedProjection_covering : IsCoveringMap mixedProjection :=
+  IsCoveringMap.of_discreteTopology _
+
+private abbrev mixedFalseFiberEquiv : mixedProjection ⁻¹' {false} ≃ Fin 2 :=
+  (Set.equivOfEq (show mixedProjection ⁻¹' {false} = {x : Fin 2 ⊕ ℕ | x.isLeft} by
+    ext x
+    cases x <;> simp [mixedProjection])).trans Equiv.sumIsLeft
+
+private abbrev mixedTrueFiberEquiv : mixedProjection ⁻¹' {true} ≃ ℕ :=
+  (Set.equivOfEq (show mixedProjection ⁻¹' {true} = {x : Fin 2 ⊕ ℕ | x.isRight} by
+    ext x
+    cases x <;> simp [mixedProjection])).trans Equiv.sumIsRight
+
+private theorem mixedFalseFiber_finite : Finite (mixedProjection ⁻¹' {false}) :=
+  mixedFalseFiberEquiv.finite_iff.mpr inferInstance
+
+private theorem mixedTrueFiber_infinite : Infinite (mixedProjection ⁻¹' {true}) :=
+  mixedTrueFiberEquiv.infinite_iff.mpr inferInstance
+
+/-- A nonconstant clopen finite-fiber locus does not imply global properness. -/
+example : IsClopen {b : Bool | Finite (mixedProjection ⁻¹' {b})} ∧
+    {b : Bool | Finite (mixedProjection ⁻¹' {b})} = {false} ∧
+    Finite (mixedProjection ⁻¹' {false}) ∧ ¬ IsProperMap mixedProjection := by
+  refine ⟨mixedProjection_covering.isClopen_setOf_finite_fiber, ?_, mixedFalseFiber_finite, ?_⟩
+  · ext b
+    cases b <;> simp [mixedFalseFiber_finite,
+      not_finite_iff_infinite.mpr mixedTrueFiber_infinite]
+  · intro h
+    exact (not_finite_iff_infinite.mpr mixedTrueFiber_infinite)
+      (mixedProjection_covering.isProperMap_iff_finite_fibers.mp h true)

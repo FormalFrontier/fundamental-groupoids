@@ -6,6 +6,7 @@ module
 
 public import Mathlib.Topology.Covering.Basic
 public import Mathlib.Topology.LocalAtTarget
+public import FundamentalGroupoids.Topology.Covering.Cardinality
 
 /-!
 # Proper covering maps
@@ -15,12 +16,19 @@ canonical subtypes with their inherited topologies. The total and base spaces ha
 universes and arbitrary given topologies; no separation, local compactness, connectedness,
 surjectivity, nonemptiness or uniform sheet cardinality is assumed.
 
-For compact inverse images, apply `IsProperMap.isCompact_preimage` to the properness supplied by
-`IsCoveringMap.isProperMap_iff_finite_fibers`.
+On a preconnected base, properness is equivalent to finiteness of the fiber over any given
+point, by `IsCoveringMap.isProperMap_iff_finite_fiber`. This uses local constancy of the
+finiteness predicate; the finite-fiber locus is clopen even on a disconnected base. Empty
+fibers are finite and infinite fibers are not. The point criterion requires preconnectedness
+of the whole base: finiteness on just one component need not imply properness. On an empty
+base properness still holds, but there is no point at which to apply the point criterion.
 
-The proof uses Mathlib's raw evenly covered charts, including charts with empty fibers. Finite
-fibers make the restricted maps proper product projections, and closedness glues over the open
-cover of the target. This follows the local closed-map/compact-fiber proof pattern of
+For compact inverse images, apply `IsProperMap.isCompact_preimage` to the properness supplied by
+either criterion.
+
+The all-fibers criterion uses Mathlib's raw evenly covered charts, including charts with empty
+fibers. Finite fibers make the restricted maps proper product projections, and closedness glues
+over the open cover of the target. This follows the local closed-map/compact-fiber proof pattern of
 VectorBundles' `FiberBundle.isProperMap_proj_iff`. That result concerns fixed-model bundle
 projections; no global model fiber or total-space representation is chosen here.
 
@@ -79,5 +87,17 @@ theorem isProperMap_iff_finite_fibers (hp : IsCoveringMap p) :
     rw [hproj]
     exact ((isProperMap_fst_of_compactSpace (X := U y) (Y := p ⁻¹' {y})).comp
       (H y).isProperMap).isClosedMap
+
+/-- On a preconnected base, a covering map is proper exactly when its canonical fiber over
+the given point is finite. No additional nonemptiness assumption is needed; empty fibers
+are finite, while infinite fibers are excluded. An empty base has no point to supply. -/
+theorem isProperMap_iff_finite_fiber (hp : IsCoveringMap p)
+    [PreconnectedSpace Y] (y0 : Y) :
+    IsProperMap p ↔ Finite (p ⁻¹' {y0}) := by
+  rw [hp.isProperMap_iff_finite_fibers]
+  constructor
+  · exact fun h ↦ h y0
+  · intro h y
+    exact (hp.isLocallyConstant_finite_fiber.apply_eq_of_preconnectedSpace y0 y) ▸ h
 
 end IsCoveringMap
