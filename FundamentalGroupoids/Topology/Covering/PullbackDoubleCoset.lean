@@ -29,8 +29,8 @@ of `(e₁, g • e₂)`. The subgroups need not be normal.
 ## References
 
 * `FundamentalGroupoids.Topology.Covering.Components`, for the component-map-fiber equivalence.
-* `Mathlib.GroupTheory.GroupAction.Quotient`, for the existing orbit–stabilizer equivalence.
-* `GroupTheory.GroupAction.Quotient`, for its equivariance with independent universes.
+* `FundamentalGroupoids.Topology.Covering.Monodromy`, for the equivariant fiber–coset
+  equivalence built from Mathlib's orbit–stabilizer equivalence.
 * `GroupTheory.GroupAction.DoubleCoset`, for diagonal product-coset orbits and double cosets.
 -/
 
@@ -39,53 +39,6 @@ of `(e₁, g • e₂)`. The subgroups need not be normal.
 universe u₁ u₂ v
 
 namespace IsCoveringMap
-
-private theorem transitiveCosetEquiv_apply_mk
-    {A : Type v} [Group A] {X : Type u₁} [MulAction A X]
-    [MulAction.IsPretransitive A X] (x : X) {L : Subgroup A}
-    (h : MulAction.stabilizer A x = L) (a : A) :
-    ((Subgroup.quotientEquivOfEq h.symm).trans
-      (((MulAction.orbitEquivQuotientStabilizer A x).symm.trans
-        (Set.equivOfEq (MulAction.orbit_eq_univ A x))).trans
-          (Equiv.Set.univ X))) (QuotientGroup.mk a) = a • x := by
-  rw [Equiv.trans_apply, Subgroup.quotientEquivOfEq_mk]
-  rfl
-
-private theorem transitiveCosetEquiv_symm_apply_smul
-    {A : Type v} [Group A] {X : Type u₁} [MulAction A X]
-    [MulAction.IsPretransitive A X] (x : X) {L : Subgroup A}
-    (h : MulAction.stabilizer A x = L) (a : A) :
-    ((Subgroup.quotientEquivOfEq h.symm).trans
-      (((MulAction.orbitEquivQuotientStabilizer A x).symm.trans
-        (Set.equivOfEq (MulAction.orbit_eq_univ A x))).trans
-          (Equiv.Set.univ X))).symm (a • x) = QuotientGroup.mk a := by
-  rw [Equiv.symm_apply_eq]
-  exact (transitiveCosetEquiv_apply_mk x h a).symm
-
-private theorem transitiveCosetEquiv_smul
-    {A : Type v} [Group A] {X : Type u₁} [MulAction A X]
-    [MulAction.IsPretransitive A X] (x : X) {L : Subgroup A}
-    (h : MulAction.stabilizer A x = L) (a : A) (q : A ⧸ L) :
-    ((Subgroup.quotientEquivOfEq h.symm).trans
-      (((MulAction.orbitEquivQuotientStabilizer A x).symm.trans
-        (Set.equivOfEq (MulAction.orbit_eq_univ A x))).trans
-          (Equiv.Set.univ X))) (a • q) =
-      a • ((Subgroup.quotientEquivOfEq h.symm).trans
-        (((MulAction.orbitEquivQuotientStabilizer A x).symm.trans
-          (Set.equivOfEq (MulAction.orbit_eq_univ A x))).trans
-            (Equiv.Set.univ X))) q := by
-  have hq : Subgroup.quotientEquivOfEq h.symm (a • q) =
-      a • Subgroup.quotientEquivOfEq h.symm q := by
-    refine Quotient.inductionOn' q ?_
-    intro g
-    simp only [MulAction.Quotient.smul_mk, Subgroup.quotientEquivOfEq_mk]
-  change ((MulAction.orbitEquivQuotientStabilizer A x).symm
-      (Subgroup.quotientEquivOfEq h.symm (a • q))).val =
-    a • ((MulAction.orbitEquivQuotientStabilizer A x).symm
-      (Subgroup.quotientEquivOfEq h.symm q)).val
-  rw [hq]
-  exact congrArg Subtype.val
-    (MulAction.orbitEquivQuotientStabilizer_symm_smul x a _)
 
 variable {E₁ : Type u₁} {E₂ : Type u₂} {B : Type v}
   [TopologicalSpace E₁] [TopologicalSpace E₂] [TopologicalSpace B]
@@ -116,10 +69,6 @@ noncomputable def pullbackZerothHomotopyEquivDoubleCoset
       DoubleCoset.Quotient (H : Set G) (K : Set G) := by
   letI := A₁
   letI := A₂
-  haveI : @MulAction.IsPretransitive G F₁ (A₁).toSemigroupAction.toSMul :=
-    cov₁.monodromy_isPretransitive b
-  haveI : @MulAction.IsPretransitive G F₂ (A₂).toSemigroupAction.toSMul :=
-    cov₂.monodromy_isPretransitive b
   let covP := cov₁.pullback_base cov₂
   let hconst : ∀ c : ZerothHomotopy (f₁.Pullback f₂),
       @Quotient.map (f₁.Pullback f₂) B (pathSetoid (f₁.Pullback f₂)) (pathSetoid B)
@@ -133,22 +82,8 @@ noncomputable def pullbackZerothHomotopyEquivDoubleCoset
     have he₁ : f₁ e₁.val = b := e₁.property
     simpa only [he₁] using
       (PathConnectedSpace.joined z.fst e₁.val).map cov₁.continuous
-  let h₁ : MulAction.stabilizer G e₁ = H := by
-    ext γ
-    exact cov₁.monodromy_eq_self_iff_mem_range e₁ γ
-  let h₂ : MulAction.stabilizer G e₂ = K := by
-    ext γ
-    exact cov₂.monodromy_eq_self_iff_mem_range e₂ γ
-  let c₁ : (G ⧸ H) ≃ F₁ :=
-    (Subgroup.quotientEquivOfEq h₁.symm).trans
-      (((MulAction.orbitEquivQuotientStabilizer G e₁).symm.trans
-        (Set.equivOfEq (MulAction.orbit_eq_univ G e₁))).trans
-          (Equiv.Set.univ F₁))
-  let c₂ : (G ⧸ K) ≃ F₂ :=
-    (Subgroup.quotientEquivOfEq h₂.symm).trans
-      (((MulAction.orbitEquivQuotientStabilizer G e₂).symm.trans
-        (Set.equivOfEq (MulAction.orbit_eq_univ G e₂))).trans
-          (Equiv.Set.univ F₂))
+  let c₁ : (G ⧸ H) ≃ F₁ := cov₁.monodromyQuotientEquiv b e₁
+  let c₂ : (G ⧸ K) ≃ F₂ := cov₂.monodromyQuotientEquiv b e₂
   -- Equivariance of the orbit–stabilizer equivalence gives the quotient congruence.
   let orbitDC : @MulAction.orbitRel.Quotient G (F₁ × F₂) _ A₁₂ ≃
       DoubleCoset.Quotient (H : Set G) (K : Set G) :=
@@ -160,8 +95,8 @@ noncomputable def pullbackZerothHomotopyEquivDoubleCoset
             (Equiv.prodCongr c₁ c₂) (a • q) =
               a • (Equiv.prodCongr c₁ c₂) q := by
           apply Prod.ext
-          · exact transitiveCosetEquiv_smul e₁ h₁ a q.1
-          · exact transitiveCosetEquiv_smul e₂ h₂ a q.2
+          · exact cov₁.monodromyQuotientEquiv_smul b e₁ a q.1
+          · exact cov₂.monodromyQuotientEquiv_smul b e₂ a q.2
         intro x y
         change (∃ a : G, a • y = x) ↔
           ∃ a : G, a • (Equiv.prodCongr c₁ c₂).symm y =
@@ -193,10 +128,6 @@ variable [PathConnectedSpace E₁] [PathConnectedSpace E₂]
       DoubleCoset.mk H K (γ⁻¹ * δ) := by
   let := A₁
   let := A₂
-  have : @MulAction.IsPretransitive G F₁ (A₁).toSemigroupAction.toSMul :=
-    cov₁.monodromy_isPretransitive b
-  have : @MulAction.IsPretransitive G F₂ (A₂).toSemigroupAction.toSMul :=
-    cov₂.monodromy_isPretransitive b
   unfold pullbackZerothHomotopyEquivDoubleCoset
   simp only [Equiv.trans_apply, Equiv.symm_trans_apply,
     Equiv.subtypeUnivEquiv_symm_apply]
@@ -209,27 +140,8 @@ variable [PathConnectedSpace E₁] [PathConnectedSpace E₂]
   change MulAction.orbitQuotientProdQuotientEquivDoubleCoset H K
     (Quotient.mk (MulAction.orbitRel G ((G ⧸ H) × (G ⧸ K)))
       (_, _)) = _
-  have h₁ : MulAction.stabilizer G e₁ = H := by
-    ext a
-    exact cov₁.monodromy_eq_self_iff_mem_range e₁ a
-  have h₂ : MulAction.stabilizer G e₂ = K := by
-    ext a
-    exact cov₂.monodromy_eq_self_iff_mem_range e₂ a
-  have hc₁ :
-      ((Subgroup.quotientEquivOfEq h₁.symm).trans
-        (((MulAction.orbitEquivQuotientStabilizer G e₁).symm.trans
-          (Set.equivOfEq (MulAction.orbit_eq_univ G e₁))).trans
-            (Equiv.Set.univ F₁))).symm (cov₁.monodromy γ e₁) =
-        (QuotientGroup.mk γ : G ⧸ H) :=
-    transitiveCosetEquiv_symm_apply_smul e₁ h₁ γ
-  have hc₂ :
-      ((Subgroup.quotientEquivOfEq h₂.symm).trans
-        (((MulAction.orbitEquivQuotientStabilizer G e₂).symm.trans
-          (Set.equivOfEq (MulAction.orbit_eq_univ G e₂))).trans
-            (Equiv.Set.univ F₂))).symm (cov₂.monodromy δ e₂) =
-        (QuotientGroup.mk δ : G ⧸ K) :=
-    transitiveCosetEquiv_symm_apply_smul e₂ h₂ δ
-  rw [hc₁, hc₂]
+  rw [monodromyQuotientEquiv_symm_apply_monodromy,
+    monodromyQuotientEquiv_symm_apply_monodromy]
   exact MulAction.orbitQuotientProdQuotientEquivDoubleCoset_apply_mk H K γ δ
 
 /-- The inverse double-coset formula uses `g`, not `g⁻¹`, in the second coordinate. -/

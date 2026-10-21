@@ -4,8 +4,10 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import GroupTheory.GroupAction.Quotient
 public import Mathlib.Algebra.Group.Action.Pretransitive
 public import Mathlib.GroupTheory.GroupAction.Hom
+public import Mathlib.Logic.Equiv.Basic
 public import Mathlib.Topology.Homotopy.Lifting
 
 /-!
@@ -20,7 +22,14 @@ surjective. Unlike the connected, locally path-connected setting of May's coveri
 theory, they need no global connectedness, local path-connectedness, or separation assumptions.
 
 Path connectedness of the total space makes the canonical monodromy action pretransitive at
-any basepoint. Over a path-connected base, the converse holds for nonempty total spaces,
+any basepoint. With a chosen point of a fiber, `IsCoveringMap.monodromyQuotientEquiv`
+identifies that fiber with the left cosets of the image of the induced fundamental-group map.
+The coset of `g` maps to monodromy by `g`, and this equivalence intertwines the canonical
+left action on cosets with monodromy. The group and the fiber may live in independent universes;
+no normality or connectedness of the base is required. The same orbit–stabilizer
+identification describes path components of pullback coverings.
+
+Over a path-connected base, the converse holds for nonempty total spaces,
 without local path connectedness: every path component meets the chosen fiber. Thus path
 connectedness of the total space is equivalent to its nonemptiness and monodromy
 pretransitivity. Nonemptiness is necessary because an empty fiber has a pretransitive action.
@@ -53,6 +62,8 @@ This uniqueness requires no local path connectedness.
   equivariant maps.
 * Chris Hughes and Yury Kudryashov, `Mathlib.Algebra.Group.Action.Pretransitive`, for
   pretransitive actions.
+* Chris Hughes and Thomas Browning, `Mathlib.GroupTheory.GroupAction.Quotient`, for the
+  orbit–stabilizer equivalence, and `GroupTheory.GroupAction.Quotient` for its equivariance.
 -/
 
 @[expose] public section
@@ -143,6 +154,80 @@ theorem pathConnectedSpace_iff_nonempty_and_monodromy_isPretransitive (b : X)
     exact cov.pathConnectedSpace_of_monodromy_isPretransitive b h
 
 end IsCoveringMap
+
+section Cosets
+
+universe u v
+
+variable {E : Type u} {B : Type v} [TopologicalSpace E] [TopologicalSpace B] {p : E → B}
+
+namespace IsCoveringMap
+
+variable (hp : IsCoveringMap p) (b : B) (a : p ⁻¹' {b}) [PathConnectedSpace E]
+
+/-- For a covering with path-connected total space, the left cosets of the image of the
+induced based fundamental-group map are equivalent to the ordinary fiber. The coset of `g`
+maps to `hp.monodromy g a`. No normality, connectedness of the base, or surjectivity is needed.
+
+This is the orbit–stabilizer construction with the stabilizer identified by
+`monodromy_eq_self_iff_mem_range`. Its representative formula determines the equivalence
+uniquely by quotient induction and `Equiv.ext`. -/
+noncomputable def monodromyQuotientEquiv :
+    (FundamentalGroup B b ⧸
+      (FundamentalGroup.mapOfEq ⟨p, hp.continuous⟩ a.property).range) ≃ p ⁻¹' {b} := by
+  letI := hp.fundamentalGroupMulAction b
+  haveI : MulAction.IsPretransitive (FundamentalGroup B b) (p ⁻¹' {b}) :=
+    hp.monodromy_isPretransitive b
+  have h : MulAction.stabilizer (FundamentalGroup B b) a =
+      (FundamentalGroup.mapOfEq ⟨p, hp.continuous⟩ a.property).range := by
+    ext g
+    exact hp.monodromy_eq_self_iff_mem_range a g
+  exact (Subgroup.quotientEquivOfEq h.symm).trans
+    (((MulAction.orbitEquivQuotientStabilizer (FundamentalGroup B b) a).symm.trans
+      (Set.equivOfEq (MulAction.orbit_eq_univ (FundamentalGroup B b) a))).trans
+        (Equiv.Set.univ (p ⁻¹' {b})))
+
+/-- The coset of a loop maps to its monodromy endpoint at the chosen fiber point. -/
+@[simp] theorem monodromyQuotientEquiv_apply_mk (g : FundamentalGroup B b) :
+    hp.monodromyQuotientEquiv b a (QuotientGroup.mk g) = hp.monodromy g a := by
+  let := hp.fundamentalGroupMulAction b
+  unfold monodromyQuotientEquiv
+  rw [Equiv.trans_apply, Subgroup.quotientEquivOfEq_mk]
+  rfl
+
+/-- The inverse equivalence sends a monodromy endpoint to the coset of its loop. -/
+@[simp] theorem monodromyQuotientEquiv_symm_apply_monodromy (g : FundamentalGroup B b) :
+    (hp.monodromyQuotientEquiv b a).symm (hp.monodromy g a) = QuotientGroup.mk g := by
+  rw [Equiv.symm_apply_eq]
+  exact (hp.monodromyQuotientEquiv_apply_mk b a g).symm
+
+/-- The equivalence intertwines the canonical left action on cosets with monodromy. -/
+@[simp] theorem monodromyQuotientEquiv_smul (k : FundamentalGroup B b)
+    (q : FundamentalGroup B b ⧸
+      (FundamentalGroup.mapOfEq ⟨p, hp.continuous⟩ a.property).range) :
+    hp.monodromyQuotientEquiv b a (k • q) =
+      hp.monodromy k (hp.monodromyQuotientEquiv b a q) := by
+  let := hp.fundamentalGroupMulAction b
+  have h : MulAction.stabilizer (FundamentalGroup B b) a =
+      (FundamentalGroup.mapOfEq ⟨p, hp.continuous⟩ a.property).range := by
+    ext g
+    exact hp.monodromy_eq_self_iff_mem_range a g
+  have hq : Subgroup.quotientEquivOfEq h.symm (k • q) =
+      k • Subgroup.quotientEquivOfEq h.symm q := by
+    refine Quotient.inductionOn' q ?_
+    intro g
+    simp only [MulAction.Quotient.smul_mk, Subgroup.quotientEquivOfEq_mk]
+  change ((MulAction.orbitEquivQuotientStabilizer (FundamentalGroup B b) a).symm
+      (Subgroup.quotientEquivOfEq h.symm (k • q))).val =
+    k • ((MulAction.orbitEquivQuotientStabilizer (FundamentalGroup B b) a).symm
+      (Subgroup.quotientEquivOfEq h.symm q)).val
+  rw [hq]
+  exact congrArg Subtype.val
+    (MulAction.orbitEquivQuotientStabilizer_symm_smul a k _)
+
+end IsCoveringMap
+
+end Cosets
 
 section Maps
 

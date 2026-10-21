@@ -22,6 +22,7 @@ public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.DeckGroup
 public import FundamentalGroupoids.Topology.Covering.DeckMonodromy
 public import FundamentalGroupoids.Topology.Covering.Equivalence
+public import FundamentalGroupoids.Topology.Covering.FiniteIndex
 public import FundamentalGroupoids.Topology.Covering.Lifting
 public import FundamentalGroupoids.Topology.Covering.Monodromy
 public import FundamentalGroupoids.Topology.Covering.Proper

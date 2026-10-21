@@ -4,7 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
-import FundamentalGroupoids.Topology.Covering.Proper
+import FundamentalGroupoids.Topology.Covering.FiniteIndex
 import Mathlib.Topology.Algebra.Ring.Real
 import Mathlib.Topology.FiberBundle.Constructions
 import Mathlib.Topology.Order.Compact
@@ -19,8 +19,14 @@ with clopen locus equal to the whole real line. Preconnectedness of the base mak
 over the given point zero sufficient for properness, and the compact-preimage theorem gives
 compactness over the interval `[0, 1]`.
 
-Identity and empty-domain projections illustrate singleton and empty fibers. The discrete
-projection `ℕ × PUnit → PUnit` is a covering map that is not proper.
+The identity real cover uses the preconnected-total-space fiber criterion to prove properness
+and the based fundamental-group criterion to deduce finite index. The constant-false cover
+`PUnit → Bool` has connected total space, a singleton based fiber, an empty other fiber and a
+clopen, nonsurjective image. Thus the total-space criterion needs no connectedness of the base
+or surjectivity.
+
+An empty-domain projection illustrates empty fibers. The discrete projection
+`ℕ × PUnit → PUnit` is a covering map that is not proper.
 -/
 
 private theorem discreteProductProjection_covering
@@ -63,12 +69,42 @@ private theorem twoSheetProjection_proper : IsProperMap (Prod.snd : Fin 2 × ℝ
 example : IsCompact ((Prod.snd : Fin 2 × ℝ → ℝ) ⁻¹' Set.Icc (0 : ℝ) 1) :=
   twoSheetProjection_proper.isCompact_preimage isCompact_Icc
 
-/-- The identity cover has finite singleton fibers. -/
-example : IsProperMap (id : ℝ → ℝ) := by
-  have hp : IsCoveringMap (id : ℝ → ℝ) :=
-    (discreteProductProjection_covering (F := PUnit.{1}) (B := ℝ)).comp_homeomorph
-      (Homeomorph.punitProd ℝ).symm
-  exact hp.isProperMap_iff_finite_fibers.mpr fun y ↦ Set.finite_singleton y
+private theorem realIdentity_covering : IsCoveringMap (id : ℝ → ℝ) :=
+  (discreteProductProjection_covering (F := PUnit.{1}) (B := ℝ)).comp_homeomorph
+    (Homeomorph.punitProd ℝ).symm
+
+/-- The identity real cover is proper by its singleton fiber and preconnected total space. -/
+private theorem realIdentity_proper : IsProperMap (id : ℝ → ℝ) :=
+  (realIdentity_covering.isProperMap_iff_finite_fiber_of_preconnectedSpace 0).mpr
+    (Set.finite_singleton 0)
+
+/-- Properness of the identity real cover gives finite index for its induced based image. -/
+private theorem realIdentity_finiteIndex :
+    (FundamentalGroup.map ⟨(id : ℝ → ℝ), realIdentity_covering.continuous⟩ 0).range.FiniteIndex :=
+  (realIdentity_covering.isProperMap_iff_finiteIndex 0).mp realIdentity_proper
+
+private abbrev pointToBool : PUnit → Bool := fun _ ↦ false
+
+private theorem pointToBool_covering : IsCoveringMap pointToBool :=
+  IsCoveringMap.of_discreteTopology _
+
+/-- A connected total space can cover just one clopen component of a disconnected base. -/
+private theorem pointToBool_boundary :
+    ConnectedSpace PUnit ∧ IsProperMap pointToBool ∧
+      pointToBool ⁻¹' {false} = {PUnit.unit} ∧ pointToBool ⁻¹' {true} = ∅ ∧
+      IsClopen (Set.range pointToBool) ∧ ¬ Function.Surjective pointToBool := by
+  refine ⟨inferInstance,
+    (pointToBool_covering.isProperMap_iff_finite_fiber_of_preconnectedSpace PUnit.unit).mpr
+      inferInstance, ?_, ?_, ?_, ?_⟩
+  · ext x
+    simp
+  · ext x
+    simp
+  · exact ⟨isClosed_discrete _, isOpen_discrete _⟩
+  · intro h
+    obtain ⟨x, hx⟩ := h true
+    have : (false : Bool) = true := hx
+    cases this
 
 /-- An empty-sheet covering of the real line is proper without being surjective. -/
 example : IsProperMap (Prod.snd : Empty × ℝ → ℝ) ∧

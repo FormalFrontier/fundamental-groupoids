@@ -18,7 +18,9 @@ The quotient `ℝ → AddCircle (1 : ℝ)` has distinct points in its zero fiber
 in `ℝ`. Its monodromy therefore has a moving loop, outside the image of the fundamental
 group of `ℝ`. The covering map and the discreteness of the integer-period subgroup are
 provided by Mathlib's prior formalizations in `Mathlib.Topology.Covering.AddCircle` and
-`Mathlib.Topology.Instances.ZMultiples`.
+`Mathlib.Topology.Instances.ZMultiples`. The projection of the straight path from zero to one
+moves the zero fiber point to the unit-translate point. The fiber–coset equivalence sends its
+coset to that endpoint, distinct from the image of the identity coset.
 
 The discrete two-point trivial covering `Bool × Unit → Unit` has two distinct monodromy
 orbits. Thus a connected base, even a point, does not by itself imply transitivity.
@@ -47,6 +49,42 @@ noncomputable def positiveLoop : FundamentalGroup (AddCircle (1 : ℝ)) 0 :=
       (by exact (AddCircle.coe_zero (1 : ℝ)).symm)
       (by exact (AddCircle.coe_period (1 : ℝ)).symm)
 
+/-- The positive loop lifts from zero to one in the real covering. -/
+private theorem positiveLoop_monodromy :
+    (AddCircle.isCoveringMap_coe (1 : ℝ)).monodromy positiveLoop zeroPoint = onePoint := by
+  let cov := AddCircle.isCoveringMap_coe (1 : ℝ)
+  let γ := (Path.Homotopic.Quotient.mk positivePath).map
+    ⟨((↑) : ℝ → AddCircle (1 : ℝ)), cov.continuous⟩
+  apply cov.monodromy_eq_of_map_eq (.mk positivePath)
+  exact ((γ.cast_cast zeroPoint.property.symm onePoint.property.symm
+    zeroPoint.property onePoint.property).trans γ.cast_rfl_rfl).symm
+
+/-- The positive-loop coset and the identity coset have distinct images under the
+fiber–coset equivalence: their real coordinates are one and zero, respectively. -/
+private theorem monodromyQuotientEquiv_endpoints :
+    (AddCircle.isCoveringMap_coe (1 : ℝ)).monodromyQuotientEquiv 0 zeroPoint
+        (QuotientGroup.mk positiveLoop) = onePoint ∧
+      (AddCircle.isCoveringMap_coe (1 : ℝ)).monodromyQuotientEquiv 0 zeroPoint
+        (QuotientGroup.mk (1 : FundamentalGroup (AddCircle (1 : ℝ)) 0)) = zeroPoint ∧
+      (QuotientGroup.mk positiveLoop : FundamentalGroup (AddCircle (1 : ℝ)) 0 ⧸
+        (FundamentalGroup.mapOfEq
+          ⟨((↑) : ℝ → AddCircle (1 : ℝ)), (AddCircle.isCoveringMap_coe (1 : ℝ)).continuous⟩
+          zeroPoint.property).range) ≠
+        QuotientGroup.mk (1 : FundamentalGroup (AddCircle (1 : ℝ)) 0) := by
+  let cov := AddCircle.isCoveringMap_coe (1 : ℝ)
+  have hpos : cov.monodromyQuotientEquiv 0 zeroPoint
+      (QuotientGroup.mk positiveLoop) = onePoint := by
+    rw [cov.monodromyQuotientEquiv_apply_mk, positiveLoop_monodromy]
+  have hzero : cov.monodromyQuotientEquiv 0 zeroPoint
+      (QuotientGroup.mk (1 : FundamentalGroup (AddCircle (1 : ℝ)) 0)) = zeroPoint := by
+    rw [cov.monodromyQuotientEquiv_apply_mk]
+    exact congr_fun cov.monodromy_refl zeroPoint
+  refine ⟨hpos, hzero, ?_⟩
+  intro h
+  have hend := congrArg (cov.monodromyQuotientEquiv 0 zeroPoint) h
+  rw [hpos, hzero] at hend
+  exact one_ne_zero (congrArg Subtype.val hend)
+
 end PeriodOneCover
 
 /-- The period-one real quotient has a moving monodromy element, which does not come from a
@@ -64,11 +102,11 @@ private theorem realCircle_exists_moving_monodromy :
   have hne : e ≠ e' := by
     intro h
     exact zero_ne_one (congrArg Subtype.val h)
-  obtain ⟨γ, hγ⟩ := (cov.exists_monodromy_eq_iff_joined e e').mpr
-    (PathConnectedSpace.joined _ _)
-  refine ⟨e, e', γ, hne, hγ, ?_⟩
+  have hγ : cov.monodromy PeriodOneCover.positiveLoop e = e' :=
+    PeriodOneCover.positiveLoop_monodromy
+  refine ⟨e, e', PeriodOneCover.positiveLoop, hne, hγ, ?_⟩
   intro hmem
-  have hfix := (cov.monodromy_eq_self_iff_mem_range e γ).mpr hmem
+  have hfix := (cov.monodromy_eq_self_iff_mem_range e PeriodOneCover.positiveLoop).mpr hmem
   exact hne (hfix.symm.trans hγ)
 
 /-- The real circle covering has path-connected total and base spaces, pretransitive

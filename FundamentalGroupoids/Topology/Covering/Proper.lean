@@ -19,12 +19,19 @@ surjectivity, nonemptiness or uniform sheet cardinality is assumed.
 On a preconnected base, properness is equivalent to finiteness of the fiber over any given
 point, by `IsCoveringMap.isProperMap_iff_finite_fiber`. This uses local constancy of the
 finiteness predicate; the finite-fiber locus is clopen even on a disconnected base. Empty
-fibers are finite and infinite fibers are not. The point criterion requires preconnectedness
+fibers are finite and infinite fibers are not. The target-point criterion requires preconnectedness
 of the whole base: finiteness on just one component need not imply properness. On an empty
 base properness still holds, but there is no point at which to apply the point criterion.
 
+On a preconnected total space, properness is equivalent to finiteness of the fiber over the
+image of any given total-space point, by
+`IsCoveringMap.isProperMap_iff_finite_fiber_of_preconnectedSpace`. Here the base need not be
+preconnected and the covering need not be surjective: composing the locally constant fiber
+cardinality with the covering makes it constant on the total space, and fibers outside the
+image are empty.
+
 For compact inverse images, apply `IsProperMap.isCompact_preimage` to the properness supplied by
-either criterion.
+any of these criteria.
 
 The all-fibers criterion uses Mathlib's raw evenly covered charts, including charts with empty
 fibers. Finite fibers make the restricted maps proper product projections, and closedness glues
@@ -99,5 +106,27 @@ theorem isProperMap_iff_finite_fiber (hp : IsCoveringMap p)
   · exact fun h ↦ h y0
   · intro h y
     exact (hp.isLocallyConstant_finite_fiber.apply_eq_of_preconnectedSpace y0 y) ▸ h
+
+/-- On a preconnected total space, a covering map is proper exactly when its fiber over the
+image of the given point is finite. The base need not be preconnected, and the map need not be
+surjective. Fibers outside the image are empty. -/
+theorem isProperMap_iff_finite_fiber_of_preconnectedSpace (hp : IsCoveringMap p)
+    [PreconnectedSpace X] (x0 : X) :
+    IsProperMap p ↔ Finite (p ⁻¹' {p x0}) := by
+  classical
+  rw [hp.isProperMap_iff_finite_fibers]
+  constructor
+  · exact fun h ↦ h (p x0)
+  · intro h y
+    let : Finite (p ⁻¹' {p x0}) := h
+    by_cases hy : y ∈ Set.range p
+    · obtain ⟨x, rfl⟩ := hy
+      have hlocal := hp.isLocallyConstant_cardinalMk_fiber.comp_continuous hp.continuous
+      have hcard : Cardinal.mk (p ⁻¹' {p x}) = Cardinal.mk (p ⁻¹' {p x0}) :=
+        hlocal.apply_eq_of_preconnectedSpace x x0
+      obtain ⟨e⟩ := Cardinal.eq.mp hcard
+      exact Finite.of_injective e e.injective
+    · let : IsEmpty (p ⁻¹' {y}) := ⟨fun x ↦ hy ⟨x.val, x.property⟩⟩
+      infer_instance
 
 end IsCoveringMap

@@ -80,14 +80,16 @@ gives detailed statements, API directions, examples, conventions and credits.
   over the same point are homeomorphic over the base, taking one point to the other;
   only the source total must be locally path connected. No base connectedness or
   global surjectivity is required.
-- **Monodromy and path components** ([`Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean),
+- **Monodromy, cosets and path components** ([`Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean),
   [`Components`](FundamentalGroupoids/Topology/Covering/Components.lean)).
   Fiber-point stabilizers are the based fundamental-group images, and orbits are
   joinedness classes, without connectivity or local path connectedness. Orbit
   classes identify with the fiber of the induced path-component map. Over a
   path-connected base they identify with all total-space components, allowing
   empty total spaces and independent total/base universes; total path connectedness
-  is equivalent to nonemptiness and pretransitive monodromy.
+  is equivalent to nonemptiness and pretransitive monodromy. With path-connected total
+  and a chosen fiber point, the fiber is equivariantly equivalent to left cosets of the
+  induced based fundamental-group image, by `[g] ↦ monodromy g`; normality is not needed.
 - **Pullbacks and double cosets** ([`Pullback`](FundamentalGroupoids/Topology/Covering/Pullback.lean),
   [`PullbackDoubleCoset`](FundamentalGroupoids/Topology/Covering/PullbackDoubleCoset.lean)).
   The pullback of two covers is a cover whose fiber is the product with diagonal
@@ -106,7 +108,10 @@ gives detailed statements, API directions, examples, conventions and credits.
   are independent; no separation, local compactness, connectedness, surjectivity
   or uniform degree is required. Over a preconnected base, finiteness of the
   fiber at any given point suffices, without an extra nonemptiness premise.
-  Compact subsets have compact inverse images.
+  For preconnected total and a supplied `e0`, properness instead means finiteness over
+  `p e0`. With path-connected total, it means finite index of the canonical based
+  fundamental-group image ([`FiniteIndex`](FundamentalGroupoids/Topology/Covering/FiniteIndex.lean));
+  neither base connectedness nor surjectivity is required. Compact subsets have compact inverse images.
 - **Maps of covers and deck centralizers** ([`DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean)).
   Over-maps restrict to equivariant maps on a chosen fiber without connectivity
   assumptions. This is an equivalence of map spaces for path-connected base and
@@ -186,12 +191,13 @@ verification examples, not additional prerequisites for the library.
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts |
 | [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
-| [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity and equivariant fiber restriction with identity/composition laws |
+| [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity, equivariant fiber–coset equivalence and fiber restriction with identity/composition laws |
 | [`Topology.Covering.Components`](FundamentalGroupoids/Topology/Covering/Components.lean) | Orbit equivalence with the path-component-map fiber; path-component image equality; equivalence to all total-space components over a path-connected base |
 | [`Topology.Covering.Pullback`](FundamentalGroupoids/Topology/Covering/Pullback.lean) | Pullback covering projections, fiber/product monodromy comparison, and diagonal-orbit/path-component equivalence over a path-connected base |
 | [`Topology.Covering.PullbackDoubleCoset`](FundamentalGroupoids/Topology/Covering/PullbackDoubleCoset.lean) | Path components as double cosets of based fundamental-group images for path-connected total spaces with specified fiber points, without base path connectedness |
 | [`Topology.Covering.Cardinality`](FundamentalGroupoids/Topology/Covering/Cardinality.lean) | Local constancy of point-fiber cardinalities and finiteness; clopen finite-fiber locus |
-| [`Topology.Covering.Proper`](FundamentalGroupoids/Topology/Covering/Proper.lean) | Properness iff point fibers are finite; given-point criterion on a preconnected base |
+| [`Topology.Covering.Proper`](FundamentalGroupoids/Topology/Covering/Proper.lean) | Properness iff point fibers are finite; given-point criteria on a preconnected base or total space |
+| [`Topology.Covering.FiniteIndex`](FundamentalGroupoids/Topology/Covering/FiniteIndex.lean) | Properness iff the canonical based fundamental-group image has finite index, for path-connected total space |
 | [`Topology.Covering.DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean) | Fiber actions, evaluation embeddings and fixed-point rigidity for separated, locally injective maps with preconnected total space |
 | [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
 
