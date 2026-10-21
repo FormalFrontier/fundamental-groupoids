@@ -10,6 +10,8 @@ project:
     path-connected opens and intersection, as a unique-homomorphism universal
     property and a pushout of groups. Generic covering-map lifting and based
     equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
+    A covering map is proper exactly when every point fiber is finite,
+    without separation, local compactness or uniform-degree assumptions.
     The canonical comparison from the categorical coproduct of fundamental
     groupoids to the fundamental groupoid of the topological coproduct is an
     equivalence, for arbitrary families without connectivity assumptions.
@@ -39,7 +41,9 @@ sources:
       connectivity and local path connectedness hypotheses stated below.
       The coproduct comparison is derived support for the all-points groupoid
       and disjoint-union viewpoint of Chapter 2 §§5–6, not a named theorem
-      quoted from the book. No open redistribution license is inferred for
+      quoted from the book. The properness characterization is supporting
+      covering theory, not a theorem quoted from the book.
+      No open redistribution license is inferred for
       the author-hosted PDF, and no book excerpts or PDF assets are included.
 related_formalizations:
   - id: https://github.com/leanprover-community/mathlib4
@@ -48,7 +52,15 @@ related_formalizations:
       Uses the canonical endomorphism, conjugation, one-object category,
       connectedness, fundamental-groupoid, subdivision, open-cover,
       morphism-property, pairwise-diagram and colimit APIs, together with
-      covering maps, lifting, monodromy, deck groups and equivariant maps.
+      covering maps, lifting, monodromy, deck groups and equivariant maps,
+      as well as proper maps, compact projections and local closedness.
+  - id: https://github.com/FormalFrontier/vector-bundles
+    relationship: builds-on
+    note: >-
+      Follows the local closedness and compact-fiber proof pattern for proper
+      bundle projections in VectorBundles.Topology.FiberBundle.Proper.
+      This is proof-pattern reuse, not a package dependency or a replacement
+      of a given covering map by a fixed-model bundle projection.
   - id: https://github.com/FormalFrontier/sphere-topology
     relationship: builds-on
     note: >-
@@ -96,6 +108,11 @@ status:
     homeomorphism over that base when both total spaces are path connected
     and the source is locally path connected; no base connectedness or global
     surjectivity is required for these results.
+    For a covering map p between arbitrary topological spaces in independent
+    universes, IsProperMap p is equivalent to finiteness of every canonical
+    point-fiber subtype. No separation, local compactness, connectedness,
+    surjectivity, nonempty fiber or uniform-degree assumption is required.
+    Compact inverse images then use Mathlib's existing proper-map API.
     Monodromy fixes a fiber point exactly on its based total-space
     fundamental-group image, and two fiber points share an orbit exactly when
     joined by a path, without connectivity or local path connectedness.
@@ -184,6 +201,8 @@ alignment:
       module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
     - lean: IsCoveringMap.pathConnectedSpace_iff_nonempty_and_monodromy_isPretransitive
       module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
+    - lean: IsCoveringMap.isProperMap_iff_finite_fibers
+      module: FundamentalGroupoids/Topology/Covering/Proper.lean
     - lean: IsCoveringMap.fiberMap
       module: FundamentalGroupoids/Topology/Covering/Monodromy.lean
     - lean: deck.evalEmbedding
@@ -208,7 +227,10 @@ acknowledgements: >-
   uniqueness, Kim Morrison's deck group, Kenny Lau and Antoine Chambert-Loir's
   equivariant maps, and Chris Hughes and Yury Kudryashov's pretransitive actions.
   The coproduct proof uses Johannes Hölzl, Mario Carneiro and Yury Kudryashov's
-  connected-source sigma factorization in Mathlib. The comparison reuses Bhavik
+  connected-source sigma factorization in Mathlib. The covering properness
+  argument follows the local closedness proof pattern in VectorBundles,
+  together with Mathlib's proper-map and compact-projection APIs.
+  The comparison reuses Bhavik
   Mehta's categorical sigma descent,
   Shing Tak Lam's fundamental groupoid and induced maps, Nicolò Cavalleri's
   continuous-map API, and Johannes Hölzl, Mario Carneiro and Patrick Massot's

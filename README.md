@@ -99,6 +99,11 @@ gives detailed statements, API directions, examples, conventions and credits.
   Point-fiber cardinality is locally constant, with independent universes,
   preserving infinite and empty cardinalities. No connectedness, local path
   connectedness, finiteness, surjectivity or nonempty total is needed.
+- **Proper covering maps** ([`Proper`](FundamentalGroupoids/Topology/Covering/Proper.lean)).
+  For a covering map between arbitrary topological spaces, Mathlib's
+  `IsProperMap` holds iff every point fiber is finite. Total and base universes
+  are independent; no separation, local compactness, connectedness, surjectivity
+  or uniform degree is required. Compact subsets have compact inverse images.
 - **Maps of covers and deck centralizers** ([`DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean)).
   Over-maps restrict to equivariant maps on a chosen fiber without connectivity
   assumptions. This is an equivalence of map spaces for path-connected base and
@@ -183,6 +188,7 @@ verification examples, not additional prerequisites for the library.
 | [`Topology.Covering.Pullback`](FundamentalGroupoids/Topology/Covering/Pullback.lean) | Pullback covering projections, fiber/product monodromy comparison, and diagonal-orbit/path-component equivalence over a path-connected base |
 | [`Topology.Covering.PullbackDoubleCoset`](FundamentalGroupoids/Topology/Covering/PullbackDoubleCoset.lean) | Path components as double cosets of based fundamental-group images for path-connected total spaces with specified fiber points, without base path connectedness |
 | [`Topology.Covering.Cardinality`](FundamentalGroupoids/Topology/Covering/Cardinality.lean) | Local constancy of point-fiber cardinalities |
+| [`Topology.Covering.Proper`](FundamentalGroupoids/Topology/Covering/Proper.lean) | Properness iff point fibers are finite, without separation or uniform-degree assumptions |
 | [`Topology.Covering.DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean) | Fiber actions, evaluation embeddings and fixed-point rigidity for separated, locally injective maps with preconnected total space |
 | [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
 
@@ -207,6 +213,8 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
   [GroupTheory](https://github.com/FormalFrontier/group-theory).
   See the [guide's references](docs/mathematical-guide.md#references) for scope and dependencies.
+- [VectorBundles](https://github.com/FormalFrontier/vector-bundles/blob/9d2d4b48577e873679271aeee0899239d9a835a1/VectorBundles/Topology/FiberBundle/Proper.lean):
+  the local closedness and compact-fiber proof pattern for proper bundle projections.
 
 ## Credits and license
 
@@ -215,7 +223,10 @@ examples and documentation. May supplies mathematical motivation and arguments;
 Mathlib supplies underlying constructions and APIs. Covering formalizations
 originate in sphere-topology by Formal Frontier Agents, with retained Apache-2.0
 and authorship notices. Pullback comparisons reuse GroupTheory's orbit–stabilizer
-and double-coset constructions. Full prior-formalization and individual credits
+and double-coset constructions. The covering properness proof follows the
+local closedness approach formalized in VectorBundles, using Mathlib's proper-map
+and compact-projection APIs; no VectorBundles package dependency is required.
+Full prior-formalization and individual credits
 are in [CONTRIBUTORS.md](CONTRIBUTORS.md), module documentation and the
 [guide](docs/mathematical-guide.md#credits-and-license).
 No open redistribution license is inferred for May's author-hosted book; no
