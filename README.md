@@ -1,10 +1,11 @@
 # Fundamental Groupoids
 
 Fundamental groupoids, categorical endomorphism transport, strict open-cover
-descent, based van Kampen and covering-space APIs in Lean. The library extends
-Mathlib's categories, path-homotopy classes and covering maps rather than
-introducing replacement structures. The [mathematical guide](docs/mathematical-guide.md)
-gives detailed statements, API directions, examples, conventions and credits.
+descent, based van Kampen, covering spaces and semilocal simple connectivity in
+Lean. The library extends Mathlib's categories, path-homotopy classes and covering
+maps rather than introducing replacement structures. The
+[mathematical guide](docs/mathematical-guide.md) gives detailed statements, API
+directions, examples, conventions and credits.
 
 ## Headline results
 
@@ -71,6 +72,20 @@ gives detailed statements, API directions, examples, conventions and credits.
   satisfying both restriction equations; target and space universes are independent.
   The inclusion square is a pushout in `GrpCat.{u}`. These specialize indexed
   van Kampen; neither formulation adds ambient or local path connectedness.
+- **Semilocal simple connectivity** ([`Basic`](FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean),
+  [`Maps`](FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean),
+  [`LocallyPathConnected`](FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean)).
+  At `x`, an open neighborhood's loops **based at `x`** contract in the **ambient
+  space**, not necessarily inside the neighborhood. The global class quantifies
+  separately over all centers and is vacuous on empty spaces. Simply connected
+  spaces satisfy it. Continuous maps with injective induced based fundamental-group
+  maps reflect it; local homeomorphisms preserve it pointwise. For every covering,
+  the pointwise properties are equivalent and the base property implies the total
+  property without surjectivity; global descent needs surjectivity, also for local
+  homeomorphisms. Only with local path connectedness do we obtain one open
+  path-connected neighborhood controlling loops at all its basepoints in the ambient
+  space, not an intrinsically simply connected neighborhood. Space universes are
+  independent; no separation or extra connectedness/nonemptiness is assumed.
 - **Based lifting and equivalence of covers** ([`Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean),
   [`Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean)).
   A continuous map from a path-connected, locally path-connected domain with
@@ -142,10 +157,9 @@ rev = "main"
 import FundamentalGroupoids
 ```
 
-Individual modules can be imported separately. For example, use
-`FundamentalGroup.piMulEquiv p` for pointed products, or
-`FundamentalGroup.isColimitOfIsOpenCover` for indexed based van Kampen.
-The deprecated `isColimit_of_isOpenCover` remains a compatibility alias.
+Individual modules can be imported separately; use `FundamentalGroup.piMulEquiv p`
+for pointed products or `FundamentalGroup.isColimitOfIsOpenCover` for indexed based
+van Kampen. The deprecated `isColimit_of_isOpenCover` remains a compatibility alias.
 See the [guide's API directions](docs/mathematical-guide.md#using-the-library)
 and [verification examples](FundamentalGroupoidsTest.lean).
 
@@ -168,14 +182,13 @@ lake exe cache get
 lake build FundamentalGroupoids FundamentalGroupoidsTest
 ```
 
-Both roots are default build targets. `FundamentalGroupoidsTest` contains the
-verification examples, not additional prerequisites for the library.
+Both roots are default targets; `FundamentalGroupoidsTest` holds verification examples.
 
 ## Contents
 
 | Module under `FundamentalGroupoids` | Contents |
 | --- | --- |
-| [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced maps, path transport and homotopy comparisons |
+| [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced maps, null-loop/trivial-image criteria, path transport and homotopy comparisons |
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
@@ -189,6 +202,9 @@ verification examples, not additional prerequisites for the library.
 | [`AlgebraicTopology.FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean) | Fundamental-group product equivalence, coordinate and assembled-loop equations |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts |
+| [`SemilocallySimplyConnected.Basic`](FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean) | Chosen-center ambient-null-loop definition, inclusion-image criterion, simply connected spaces and reflection |
+| [`SemilocallySimplyConnected.Maps`](FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean) | Local-homeomorphism preservation, covering equivalence and surjective global descent |
+| [`SemilocallySimplyConnected.LocallyPathConnected`](FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean) | Open path-connected refinement with ambient nullhomotopies at all basepoints |
 | [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
 | [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity, equivariant fiber–coset equivalence and fiber restriction with identity/composition laws |
@@ -235,6 +251,9 @@ and authorship notices. Pullback comparisons reuse GroupTheory's orbit–stabili
 and double-coset constructions. The covering properness proof follows the
 local closedness approach formalized in VectorBundles, using Mathlib's proper-map
 and compact-projection APIs; no VectorBundles package dependency is required.
+The semilocal API uses Mathlib's path quotients, chart homeomorphisms, covering
+injectivity and locally path-connected neighborhood basis; it is supporting theory,
+not a claimed correspondence with a named theorem in May.
 Full prior-formalization and individual credits
 are in [CONTRIBUTORS.md](CONTRIBUTORS.md), module documentation and the
 [guide](docs/mathematical-guide.md#credits-and-license).

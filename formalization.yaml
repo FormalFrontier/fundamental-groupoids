@@ -22,6 +22,9 @@ project:
     The canonical comparison from the categorical coproduct of fundamental
     groupoids to the fundamental groupoid of the topological coproduct is an
     equivalence, for arbitrary families without connectivity assumptions.
+    Semilocal simple connectivity uses chosen-center loops contracting in the
+    ambient space, with induced-map reflection, local-homeomorphism transport,
+    covering consequences and a locally path-connected neighborhood refinement.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -50,6 +53,8 @@ sources:
       and disjoint-union viewpoint of Chapter 2 §§5–6, not a named theorem
       quoted from the book. The fiber-finiteness, properness and finite-index
       bridge are supporting covering theory, not theorems quoted from the book.
+      Semilocal simple connectivity and its transport/refinement API are
+      supporting theory, not a claimed correspondence with a named book result.
       No open redistribution license is inferred for
       the author-hosted PDF, and no book excerpts or PDF assets are included.
 related_formalizations:
@@ -62,7 +67,10 @@ related_formalizations:
       covering maps, lifting, monodromy, deck groups and equivariant maps,
       as well as cardinality, local constancy, proper maps, compact projections
       and local closedness, with the orbit-stabilizer equivalence, ordinary
-      left-coset quotients and subgroup finite-index API.
+      left-coset quotients and subgroup finite-index API. Semilocal results use
+      path-homotopy quotients, subgroup ranges, local-homeomorphism charts,
+      covering-induced path-class injectivity and open path-connected
+      neighborhood bases.
   - id: https://github.com/FormalFrontier/vector-bundles
     relationship: builds-on
     note: >-
@@ -171,6 +179,24 @@ status:
     recovered using injectivity of the summand inclusion. The theorem is not
     registered as an instance; Mathlib's Functor.asEquivalence supplies equivalence
     data after installing it locally. No coproduct naturality theorem is asserted.
+    Semilocal simple connectivity at x means that x has an open neighborhood
+    whose loops based at x are nullhomotopic in the ambient space, not necessarily
+    in that neighborhood. The global Prop class quantifies separately over all
+    centers, including vacuously on an empty space. It is equivalent to an open
+    neighborhood inclusion having trivial based fundamental-group image, without
+    connectedness of that neighborhood. Simply connected spaces satisfy it
+    without local path connectedness. A continuous map reflects the pointwise
+    property when its induced based fundamental-group homomorphism is injective;
+    injectivity of the underlying map is not assumed. Local homeomorphisms
+    preserve the pointwise property. A covering derives the required induced-map
+    injectivity, giving pointwise equivalence and base-to-total global transport
+    without surjectivity; global descent and global equivalence need surjectivity.
+    Surjective local homeomorphisms also descend the global property.
+    Under local path connectedness only, the chosen neighborhood can be open
+    and path connected, with ambient nullhomotopies for loops at every basepoint
+    in that one neighborhood. Intrinsic simple connectivity is not asserted.
+    Source and target universes are independent; no separation, base path
+    connectedness, extra nonemptiness or smallness assumption is imposed.
 review:
   status: unchecked
 alignment:
@@ -178,6 +204,8 @@ alignment:
     Public mathematical interfaces; the source references describe motivation
     and generalizations. The arbitrary-family coproduct comparison equivalence
     is derived support for the all-points groupoid and disjoint-union viewpoint.
+    The semilocal API is standalone supporting theory, not a claimed
+    correspondence with a named theorem in May.
   statements:
     - lean: CategoryTheory.Iso.conj_eq_iff_mem_center
       module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
@@ -249,6 +277,46 @@ alignment:
       module: FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean
     - lean: IsCoveringMap.deckMonodromyEquivOfPathConnected
       module: FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean
+    - lean: FundamentalGroup.mk_eq_one_iff
+      module: FundamentalGroupoids/FundamentalGroup.lean
+    - lean: FundamentalGroup.range_map_eq_bot_iff
+      module: FundamentalGroupoids/FundamentalGroup.lean
+    - lean: FundamentalGroup.range_map_subtypeVal_eq_bot_iff
+      module: FundamentalGroupoids/FundamentalGroup.lean
+    - lean: IsSemilocallySimplyConnectedAt
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean
+    - lean: SemilocallySimplyConnectedSpace
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean
+    - lean: isSemilocallySimplyConnectedAt_iff_exists_range_eq_bot
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean
+    - lean: semilocallySimplyConnectedSpace_iff
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean
+    - lean: IsSemilocallySimplyConnectedAt.of_simplyConnectedSpace
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean
+    - lean: SimplyConnectedSpace.semilocallySimplyConnectedSpace
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean
+    - lean: IsSemilocallySimplyConnectedAt.of_injective_fundamentalGroup_map
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean
+    - lean: IsLocalHomeomorph.isSemilocallySimplyConnectedAt
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean
+    - lean: IsLocalHomeomorph.semilocallySimplyConnectedSpace_of_surjective
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean
+    - lean: IsCoveringMap.injective_fundamentalGroup_map
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean
+    - lean: IsCoveringMap.isSemilocallySimplyConnectedAt_iff
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean
+    - lean: IsCoveringMap.semilocallySimplyConnectedSpace
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean
+    - lean: IsCoveringMap.semilocallySimplyConnectedSpace_of_surjective
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean
+    - lean: IsCoveringMap.semilocallySimplyConnectedSpace_iff
+      module: FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean
+    - lean: IsPathConnected.forall_loops_homotopic_refl
+      module: FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean
+    - lean: IsSemilocallySimplyConnectedAt.exists_isOpen_isPathConnected
+      module: FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean
+    - lean: isSemilocallySimplyConnectedAt_iff_exists_isOpen_isPathConnected
+      module: FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean
 acknowledgements: >-
   Formal Frontier agents contributed Lean formalization, examples and documentation.
   May and Mathlib are credited in the module references and CONTRIBUTORS.md,
@@ -270,3 +338,8 @@ acknowledgements: >-
   continuous-map API, and Johannes Hölzl, Mario Carneiro and Patrick Massot's
   topology constructions in Mathlib, together with existing underlying-type
   equivalences for object bijectivity.
+  The semilocal arguments reuse Mark Lavrentyev's fundamental-group API,
+  Praneeth Kolichala's simply-connected-space API, Junyan Xu's covering-induced
+  path-class injectivity and circle covering, and Patrick Massot and Ben Eltschig's
+  locally path-connected neighborhood basis in Mathlib. Real-line examples use
+  Yury Kudryashov's contractibility of real topological vector spaces.

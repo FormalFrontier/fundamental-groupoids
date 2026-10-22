@@ -4,6 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import Mathlib.Algebra.Group.Subgroup.Ker
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.InducedMaps
 
@@ -14,18 +15,25 @@ The homomorphism `FundamentalGroup.map` preserves identity maps and composition.
 It commutes with `FundamentalGroup.fundamentalGroupMulEquivOfPath`, and a homotopy
 compares its two induced maps by transport along the basepoint's track. Both
 comparisons are available pointwise and as equalities of monoid homomorphisms.
-No connectedness or basedness hypothesis is needed.
+No connectedness or basedness hypothesis is needed. Loop classes are the identity
+exactly for nullhomotopic loops; trivial images of induced homomorphisms are
+characterized by ambient nullhomotopies, also for arbitrary subspace inclusions.
 
 The proofs restrict fundamental-groupoid functors to endomorphisms and use
 Mathlib's functoriality of conjugation and naturality of the transformation
 associated to a homotopy. Transport along `a : Path x x'` traverses `a.symm`,
 then the loop, then `a`; group multiplication traverses the right factor first.
 
+The loop-class and image characterizations use Mathlib's path-homotopy quotient
+and subgroup-range APIs.
+
 ## References
 
 * Mathlib's `Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup`
   and `Mathlib.AlgebraicTopology.FundamentalGroupoid.Basic` provide the induced
   homomorphisms and the functoriality of the fundamental groupoid.
+* `Mathlib.Topology.Homotopy.Path` and `Mathlib.Algebra.Group.Subgroup.Ker`
+  provide the loop quotient and the trivial-range criterion.
 * `Mathlib.CategoryTheory.Endomorphism` and `Mathlib.CategoryTheory.EqToHom`
   provide restriction to endomorphisms and comparison of equal functors on morphisms.
 * `Mathlib.CategoryTheory.Conj`, `Mathlib.CategoryTheory.NatIso` and
@@ -43,6 +51,67 @@ namespace FundamentalGroup
 
 variable {X : Type u} {Y : Type v} {Z : Type w}
   [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
+
+/-- A loop represents the identity in the fundamental group exactly when it is
+nullhomotopic. -/
+theorem mk_eq_one_iff {x : X} (γ : Path x x) :
+    (Path.Homotopic.Quotient.mk γ : FundamentalGroup X x) = (1 : FundamentalGroup X x) ↔
+      γ.Homotopic (Path.refl x) := by
+  rw [one_def, ← Path.Homotopic.Quotient.mk_refl, Path.Homotopic.Quotient.eq]
+
+/-- The image of the induced fundamental-group homomorphism is trivial exactly
+when every based loop maps to a nullhomotopic loop. -/
+theorem range_map_eq_bot_iff (f : C(X, Y)) (x : X) :
+    (map f x).range = ⊥ ↔
+      ∀ γ : Path x x, (γ.map f.continuous).Homotopic (Path.refl (f x)) := by
+  rw [MonoidHom.range_eq_bot_iff]
+  constructor
+  · intro h γ
+    have hγ :
+        (Path.Homotopic.Quotient.mk (γ.map f.continuous) : FundamentalGroup Y (f x)) =
+          (1 : FundamentalGroup Y (f x)) := by
+      have hγ := congrArg
+        (fun k : FundamentalGroup X x →* FundamentalGroup Y (f x) =>
+          k (Path.Homotopic.Quotient.mk γ)) h
+      simpa only [map_apply, ← Path.Homotopic.Quotient.mk_map,
+        MonoidHom.one_apply] using hγ
+    exact (mk_eq_one_iff (γ.map f.continuous)).mp hγ
+  · intro h
+    apply MonoidHom.ext
+    intro q
+    induction q using Path.Homotopic.Quotient.ind with
+    | mk γ =>
+      have hγ :
+          (Path.Homotopic.Quotient.mk (γ.map f.continuous) : FundamentalGroup Y (f x)) =
+            (1 : FundamentalGroup Y (f x)) :=
+        (mk_eq_one_iff (γ.map f.continuous)).mpr (h γ)
+      simpa only [map_apply, ← Path.Homotopic.Quotient.mk_map,
+        MonoidHom.one_apply] using hγ
+
+/-- The inclusion of a subspace has trivial image on the fundamental group
+at `⟨x, hx⟩` exactly when all ambient loops at `x` with range in that subspace
+are nullhomotopic in `X`. The subspace need not be connected or open. -/
+theorem range_map_subtypeVal_eq_bot_iff {U : Set X} {x : X} (hx : x ∈ U) :
+    (map (ContinuousMap.subtypeVal U) ⟨x, hx⟩).range = ⊥ ↔
+      ∀ γ : Path x x, Set.range γ ⊆ U → γ.Homotopic (Path.refl x) := by
+  rw [range_map_eq_bot_iff]
+  dsimp only [ContinuousMap.subtypeVal]
+  constructor
+  · intro h γ hγ
+    let δ : Path (⟨x, hx⟩ : U) ⟨x, hx⟩ :=
+      { toFun := fun t => ⟨γ t, hγ ⟨t, rfl⟩⟩
+        continuous_toFun := γ.continuous.subtype_mk _
+        source' := Subtype.ext γ.source
+        target' := Subtype.ext γ.target }
+    have hδ : δ.map continuous_subtype_val = γ := by
+      ext t
+      rfl
+    rw [← hδ]
+    exact h δ
+  · intro h δ
+    exact h (δ.map continuous_subtype_val) (by
+      rintro y ⟨t, rfl⟩
+      exact (δ t).property)
 
 /-- The identity map induces the identity homomorphism on the fundamental group. -/
 @[simp]

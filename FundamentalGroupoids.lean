@@ -17,6 +17,9 @@ public import FundamentalGroupoids.CategoryTheory.Groupoid.Covering
 public import FundamentalGroupoids.CategoryTheory.Groupoid.Elements
 public import FundamentalGroupoids.CategoryTheory.SingleObj
 public import FundamentalGroupoids.FundamentalGroup
+public import FundamentalGroupoids.SemilocallySimplyConnected.Basic
+public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnected
+public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.DeckGroup
