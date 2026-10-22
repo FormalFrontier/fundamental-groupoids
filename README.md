@@ -37,6 +37,15 @@ directions, examples, conventions and credits.
 - **Path connectedness** ([`Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean)).
   A space is path connected iff its fundamental groupoid is connected, including
   nonemptiness on both sides; no local path connectedness or separation is needed.
+- **Presheaves of representation sections** ([`SectionsPresheaf`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/SectionsPresheaf.lean)).
+  For any topological space `X`, a representation `FundamentalGroupoid X ⥤ Type w`
+  determines a presheaf of transport-invariant families, functorially in the representation.
+  At an open `U`, its values are canonically equivalent to sections of the representation
+  pulled back along `FundamentalGroupoid U → FundamentalGroupoid X`; the comparison
+  preserves open restriction and natural transformations. Only paths in the open subspace
+  enter the transport condition. Space and fiber universes are independent, with no
+  smallness, connectedness, local connectedness or inhabited-fiber assumption.
+  This constructs a presheaf, without asserting a sheaf condition or covering realization.
 - **Arbitrary coproducts and products** ([`Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean),
   [`Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean)).
   The inclusion-induced comparison `Σ i, FundamentalGroupoid (X i) →
@@ -195,6 +204,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy; pretransitivity for preconnected total groupoids and total preconnectedness from pretransitivity over a preconnected groupoid base |
 | [`CategoryTheory.Groupoid.Elements`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean) | Fiber-value equivalence, compatibility with lifts and monodromy, and covering projections on groupoids |
 | [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Path connectedness and connected groupoids |
+| [`AlgebraicTopology.FundamentalGroupoid.SectionsPresheaf`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/SectionsPresheaf.lean) | Transport-invariant families, the representation-to-presheaf functor and canonical sections comparison with evaluation and naturality |
 | [`AlgebraicTopology.FundamentalGroupoid.Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean) | Canonical sigma comparison equivalence, restriction isomorphism and object bijectivity |
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean) | Small-path generation and construction of natural transformations |
