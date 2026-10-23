@@ -47,6 +47,16 @@ directions, examples, conventions and credits.
   smallness, connectedness, local connectedness or inhabited-fiber assumption.
   This presheaf is a sheaf: compatible families on every open cover glue uniquely.
   No semilocal simple connectivity is needed, and no covering realization is asserted.
+  The [limits API](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/SectionsPresheafLimits.lean)
+  sends pointwise limit cones to limit cones. For coefficients in `Type v`,
+  `[LocallySmall.{v} (FundamentalGroupoid X)]` suffices for the sections-presheaf
+  functor to preserve every existing limit, with arbitrary indexing universes and
+  no shape-completeness assumption on `Type v`. This asserts sufficiency only,
+  not necessity or completeness. More generally, for any `C : Type u`
+  with `Category.{a} C`, the sections functor `(C ⥤ Type v) ⥤ Type (max u v)` is
+  corepresented by a constant singleton representation and preserves every existing
+  limit, without smallness or coefficient-completeness assumptions. The category,
+  coefficient and indexing universes remain independent.
 - **Arbitrary coproducts and products** ([`Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean),
   [`Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean)).
   The inclusion-induced comparison `Σ i, FundamentalGroupoid (X i) →

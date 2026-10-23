@@ -5,25 +5,31 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.SectionsPresheaf
+public import Mathlib.CategoryTheory.Adjunction.Evaluation
 public import Mathlib.CategoryTheory.Adjunction.Limits
+public import Mathlib.CategoryTheory.EssentiallySmall
 public import Mathlib.CategoryTheory.Limits.Preserves.FunctorCategory
 public import Mathlib.CategoryTheory.Limits.Preserves.Limits
 public import Mathlib.CategoryTheory.Limits.Preserves.Ulift
+public import Mathlib.CategoryTheory.Limits.Types.Colimits
+public import Mathlib.CategoryTheory.Limits.Yoneda
 
 /-!
 # Limits of sections presheaves
 
-The sections-presheaf functor preserves limits of shape `J` whenever the coefficient
-category `Type v` has limits of that shape. In particular, it preserves limits indexed
-by categories with `v`-small objects, with no bound on the universe of morphisms.
-The space and coefficient universes are independent.
+Sections of a type-valued functor are corepresented by a constant singleton
+representation. Hence the sections functor preserves every existing limit,
+with independent category, coefficient and indexing universes.
 
-Sections commute with lifting the coefficient universe. After this lift, sections are
-an internal limit, hence a right adjoint. This gives preservation without requiring
-all `J`-limits in the larger universe of presheaf values.
+The sections-presheaf functor sends pointwise limit cones of representations to
+limit cones. If the fundamental groupoid has coefficient-small Hom types, it
+preserves all existing limits of arbitrary indexing size. This is a sufficient
+condition, not a necessity statement or an assertion of completeness.
+The coefficient-shape and object-small preservation instances remain available.
 
-The comparison is `CategoryTheory.preservesLimitIso`. Its projections are the
-pointwise coefficient projections, and it commutes with restriction to every open.
+Sections also commute with lifting the coefficient universe. The limit comparison
+is `CategoryTheory.preservesLimitIso`: its projections are the pointwise coefficient
+projections, and it commutes with restriction to every open.
 -/
 
 @[expose] public section
@@ -35,7 +41,62 @@ universe u v w h k
 open CategoryTheory CategoryTheory.Functor CategoryTheory.Limits
 open TopologicalSpace Opposite
 
-namespace CategoryTheory.Functor
+namespace CategoryTheory
+
+universe a
+
+/-- Sections are morphisms from a constant functor on any singleton coefficient type. -/
+def sectionsFunctorCoyonedaIso {C : Type u} [Category.{a} C]
+    (A : Type v) [Unique A] :
+    (Functor.sectionsFunctor C : (C ⥤ Type v) ⥤ Type (max u v)) ≅
+      coyoneda.obj (op ((Functor.const C).obj A)) :=
+  NatIso.ofComponents (fun F => (F.sectionsEquivHom A).toIso) fun f => by
+    apply ConcreteCategory.ext_apply
+    intro s
+    exact Functor.sectionsEquivHom_naturality f A s
+
+/-- The natural transformation associated to a section is constant at each object. -/
+@[simp]
+theorem sectionsFunctorCoyonedaIso_hom_app_apply {C : Type u} [Category.{a} C]
+    (A : Type v) [Unique A] (F : C ⥤ Type v) (s : F.sections) (p : C) (x : A) :
+    dsimp% (((sectionsFunctorCoyonedaIso (C := C) A).hom.app F) s).app p x =
+      s.val p := rfl
+
+/-- A morphism from the constant singleton functor determines a section by evaluation. -/
+@[simp]
+theorem sectionsFunctorCoyonedaIso_inv_app_val {C : Type u} [Category.{a} C]
+    (A : Type v) [Unique A] (F : C ⥤ Type v)
+    (η : (Functor.const C).obj A ⟶ F) (p : C) :
+    dsimp% (((sectionsFunctorCoyonedaIso (C := C) A).inv.app F) η).val p =
+      η.app p (default : A) := rfl
+
+/-- The section-to-morphism comparison commutes with coefficient morphisms at each value. -/
+theorem sectionsFunctorCoyonedaIso_hom_naturality_apply {C : Type u} [Category.{a} C]
+    (A : Type v) [Unique A] {F G : C ⥤ Type v} (f : F ⟶ G)
+    (s : F.sections) (p : C) (x : A) :
+    dsimp% (((sectionsFunctorCoyonedaIso (C := C) A).hom.app G)
+        ((Functor.sectionsFunctor C).map f s)).app p x =
+      f.app p ((((sectionsFunctorCoyonedaIso (C := C) A).hom.app F) s).app p x) := by
+  exact congrArg (fun η : (Functor.const C).obj A ⟶ G => η.app p x)
+    (Functor.sectionsEquivHom_naturality f A s)
+
+/-- The morphism-to-section comparison commutes with coefficient morphisms at each value. -/
+theorem sectionsFunctorCoyonedaIso_inv_naturality_val {C : Type u} [Category.{a} C]
+    (A : Type v) [Unique A] {F G : C ⥤ Type v} (f : F ⟶ G)
+    (η : (Functor.const C).obj A ⟶ F) (p : C) :
+    dsimp% (((sectionsFunctorCoyonedaIso (C := C) A).inv.app G) (η ≫ f)).val p =
+      f.app p ((((sectionsFunctorCoyonedaIso (C := C) A).inv.app F) η).val p) := by
+  exact congrArg (fun s : G.sections => s.val p)
+    (Functor.sectionsEquivHom_naturality_symm f A η)
+
+/-- At the expanded coefficient universe, the two sections/co-Yoneda comparisons agree. -/
+theorem sectionsFunctorCoyonedaIso_eq_sectionsFunctorNatIsoCoyoneda
+    {C : Type u} [Category.{a} C] (A : Type (max u v)) [Unique A] :
+    sectionsFunctorCoyonedaIso (C := C) A =
+      sectionsFunctorNatIsoCoyoneda (C := C) A := by
+  rfl
+
+namespace Functor
 
 /-- Lifting the coefficient universe does not change compatible families. -/
 def sectionsFunctorUliftIso (C : Type u) [Category.{k} C] :
@@ -61,20 +122,24 @@ theorem sectionsFunctorUliftIso_inv_app_val (C : Type u) [Category.{k} C]
     (F : C ⥤ Type v) (s : (F ⋙ uliftFunctor.{u, v}).sections) (c : C) :
     dsimp% (((sectionsFunctorUliftIso C).inv.app F) s).val c = (s.val c).down := rfl
 
-/-- Sections preserve any shape of limits that exists in the coefficient category. -/
-instance sectionsFunctor_preservesLimitsOfShape (C : Type u) [Category.{k} C]
-    (J : Type w) [Category.{h} J] [HasLimitsOfShape J (Type v)] :
+/-- Sections preserve limits of any size whenever those limits exist in the domain. -/
+instance sectionsFunctor_preservesLimitsOfSize (C : Type u) [Category.{a} C] :
+    PreservesLimitsOfSize.{h, w} (Functor.sectionsFunctor.{a, v} C) := by
+  exact preservesLimits_of_natIso
+    (CategoryTheory.sectionsFunctorCoyonedaIso (C := C) (PUnit : Type v)).symm
+
+/-- Sections preserve limits of any shape whenever those limits exist in the domain. -/
+instance sectionsFunctor_preservesLimitsOfShape (C : Type u) [Category.{a} C]
+    (J : Type w) [Category.{h} J] :
     PreservesLimitsOfShape J
       (sectionsFunctor C : (C ⥤ Type v) ⥤ Type (max u v)) := by
-  let : PreservesLimitsOfSize.{h, w}
-      (lim : (C ⥤ Type (max u v)) ⥤ Type (max u v)) :=
-    (constLimAdj (J := C) (C := Type (max u v))).rightAdjoint_preservesLimits
-  let : PreservesLimitsOfShape J
-      (sectionsFunctor C : (C ⥤ Type (max u v)) ⥤ Type (max u v)) :=
-    preservesLimitsOfShape_of_natIso (Types.limNatIsoSectionsFunctor (J := C))
-  exact preservesLimitsOfShape_of_natIso (sectionsFunctorUliftIso C).symm
+  have : PreservesLimitsOfSize.{h, w} (Functor.sectionsFunctor.{a, v} C) :=
+    sectionsFunctor_preservesLimitsOfSize (C := C)
+  infer_instance
 
-end CategoryTheory.Functor
+end Functor
+
+end CategoryTheory
 
 namespace FundamentalGroupoid
 
@@ -119,6 +184,67 @@ theorem sectionsPresheafSectionsIso_hom_restrict_val
         (mk (Set.inclusion (leOfHom i) x)) :=
   sectionsPresheafSectionsEquiv_obj_map_val F i s x
 
+/-- A pointwise limit cone of representations induces a limit cone of sections
+presheaves. -/
+def sectionsPresheafFunctorMapConeIsLimitOfPointwise
+    {J : Type w} [Category.{h} J]
+    (D : J ⥤ (FundamentalGroupoid X ⥤ Type v)) (c : Cone D)
+    (hc : ∀ p : FundamentalGroupoid X,
+      IsLimit (((evaluation (FundamentalGroupoid X) (Type v)).obj p).mapCone c)) :
+    IsLimit ((sectionsPresheafFunctor X).mapCone c) := by
+  apply evaluationJointlyReflectsLimits
+  intro U
+  let I : FundamentalGroupoid U.unop ⥤ FundamentalGroupoid X :=
+    map (ContinuousMap.subtypeVal (U.unop : Set X))
+  let R : (FundamentalGroupoid X ⥤ Type v) ⥤
+      (FundamentalGroupoid U.unop ⥤ Type v) :=
+    (whiskeringLeft (FundamentalGroupoid U.unop)
+      (FundamentalGroupoid X) (Type v)).obj I
+  have hR : IsLimit (R.mapCone c) := by
+    apply evaluationJointlyReflectsLimits
+    intro q
+    change IsLimit
+      (((evaluation (FundamentalGroupoid X) (Type v)).obj (I.obj q)).mapCone c)
+    exact hc (I.obj q)
+  letI : PreservesLimitsOfSize.{h, w}
+      (sectionsFunctor (FundamentalGroupoid U.unop) :
+        (FundamentalGroupoid U.unop ⥤ Type v) ⥤ Type (max u v)) :=
+    CategoryTheory.Functor.sectionsFunctor_preservesLimitsOfSize
+      (C := FundamentalGroupoid U.unop)
+  have hΓ : IsLimit
+      ((R ⋙ sectionsFunctor (FundamentalGroupoid U.unop)).mapCone c) :=
+    isLimitOfPreserves (sectionsFunctor (FundamentalGroupoid U.unop)) hR
+  change IsLimit
+    (((sectionsPresheafFunctor X :
+        (FundamentalGroupoid X ⥤ Type v) ⥤ ((Opens X)ᵒᵖ ⥤ Type (max u v))) ⋙
+      (evaluation (Opens X)ᵒᵖ (Type (max u v))).obj U).mapCone c)
+  exact IsLimit.mapConeEquiv (sectionsPresheafSectionsIso U.unop).symm hΓ
+
+/-- Coefficient-small Hom types in the fundamental groupoid suffice for preservation
+of all existing limits by the sections-presheaf functor. -/
+instance sectionsPresheafFunctor_preservesLimitsOfSize_of_locallySmall
+    [LocallySmall.{v} (FundamentalGroupoid X)] :
+    PreservesLimitsOfSize.{h, w}
+      (sectionsPresheafFunctor X :
+        (FundamentalGroupoid X ⥤ Type v) ⥤ ((Opens X)ᵒᵖ ⥤ Type (max u v))) := by
+  let : ∀ p q : FundamentalGroupoid X,
+      HasCoproductsOfShape (p ⟶ q) (Type v) := fun p q => by
+    let : Small.{v} (p ⟶ q) := LocallySmall.hom_small p q
+    let : Small.{v} (Discrete (p ⟶ q)) := inferInstance
+    exact CategoryTheory.Limits.Types.hasColimitsOfShape
+  refine { preservesLimitsOfShape := ?_ }
+  intro J instJ
+  refine { preservesLimit := ?_ }
+  intro D
+  refine { preserves := ?_ }
+  intro c hc
+  refine ⟨sectionsPresheafFunctorMapConeIsLimitOfPointwise D c (fun p => ?_)⟩
+  letI : ((evaluation (FundamentalGroupoid X) (Type v)).obj p).IsRightAdjoint :=
+    CategoryTheory.evaluationIsRightAdjoint (Type v) p
+  letI : PreservesLimitsOfSize.{h, w}
+      ((evaluation (FundamentalGroupoid X) (Type v)).obj p) := inferInstance
+  exact isLimitOfPreserves ((evaluation (FundamentalGroupoid X) (Type v)).obj p) hc
+
 /-- At each open, sections preserve every shape of limits available in `Type v`. -/
 instance sectionsPresheafFunctor_evaluation_preservesLimitsOfShape
     (J : Type w) [Category.{h} J] [HasLimitsOfShape J (Type v)]
@@ -155,7 +281,11 @@ theorem sectionsPresheafFunctor_preservesLimitsOfShape_of_small
 
 section Comparisons
 
-variable {J : Type w} [Category.{h} J] [HasLimitsOfShape J (Type v)]
+variable {J : Type w} [Category.{h} J]
+
+section
+
+variable [HasLimitsOfShape J (Type v)]
 variable (D : J ⥤ (FundamentalGroupoid X ⥤ Type v))
 
 /-- The image diagram has a limit at every open, even without shape-wide
@@ -174,6 +304,11 @@ instance sectionsPresheafFunctor_evaluation_preservesLimit (U : (Opens X)ᵒᵖ)
   let : ∀ V, HasLimit ((D ⋙ sectionsPresheafFunctor X).flip.obj V) :=
     fun V => sectionsPresheafFunctor_evaluation_hasLimit D V
   infer_instance
+
+end
+
+variable (D : J ⥤ (FundamentalGroupoid X ⥤ Type v))
+variable [HasLimit D] [PreservesLimit D (sectionsPresheafFunctor X)]
 
 /-- A projection of the comparison sends a section to its coefficient projection
 at every point of the open. -/

@@ -64,13 +64,26 @@ private def productRepresentationIsLimit :
 private def productDiagram : Discrete WalkingPair ⥤ (FundamentalGroupoid PUnit ⥤ Type) :=
   pair (Fin 2 : Type) (Fin 2 : Type) ⋙ Functor.const (FundamentalGroupoid PUnit)
 
+example :
+    PreservesLimitsOfSize.{0, 0}
+      (Functor.sectionsFunctor (FundamentalGroupoid PUnit) :
+        (FundamentalGroupoid PUnit ⥤ Type) ⥤ Type) :=
+  Functor.sectionsFunctor_preservesLimitsOfSize (FundamentalGroupoid PUnit)
+
 private def productComparison :
     (sectionsPresheafFunctor PUnit).obj
         ((Functor.const (FundamentalGroupoid PUnit)).obj (Fin 2 × Fin 2)) ≅
-      limit (productDiagram ⋙ sectionsPresheafFunctor PUnit) :=
-  (sectionsPresheafFunctor PUnit).mapIso
-      (productRepresentationIsLimit.conePointUniqueUpToIso (limit.isLimit productDiagram)) ≪≫
-    preservesLimitIso (sectionsPresheafFunctor PUnit) productDiagram
+      limit (productDiagram ⋙ sectionsPresheafFunctor PUnit) := by
+  let h : PreservesLimitsOfSize.{0, 0}
+      (sectionsPresheafFunctor PUnit :
+        (FundamentalGroupoid PUnit ⥤ Type) ⥤ ((Opens PUnit)ᵒᵖ ⥤ Type)) :=
+    sectionsPresheafFunctor_preservesLimitsOfSize_of_locallySmall (X := PUnit)
+  letI : PreservesLimit productDiagram (sectionsPresheafFunctor PUnit) :=
+    (h.preservesLimitsOfShape (J := Discrete WalkingPair)).preservesLimit
+  exact
+    (sectionsPresheafFunctor PUnit).mapIso
+        (productRepresentationIsLimit.conePointUniqueUpToIso (limit.isLimit productDiagram)) ≪≫
+      preservesLimitIso (sectionsPresheafFunctor PUnit) productDiagram
 
 private def productTopEquiv :
     (limit (productDiagram ⋙ sectionsPresheafFunctor PUnit)).obj (op ⊤) ≃ Fin 4 :=
