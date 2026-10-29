@@ -182,6 +182,9 @@ for pointed products or `FundamentalGroup.isColimitOfIsOpenCover` for indexed ba
 van Kampen. The deprecated `isColimit_of_isOpenCover` remains a compatibility alias.
 See the [guide's API directions](docs/mathematical-guide.md#using-the-library)
 and [verification examples](FundamentalGroupoidsTest.lean).
+The [circle normalization guide](docs/circle-integer-normalization.md) explains
+how to assemble Mathlib's covering computation with its existing algebraic APIs
+to obtain positive integer coordinates and all signed exponential-loop values.
 
 **Covering compatibility:** these modules retain the declaration names relocated
 from [sphere-topology](https://github.com/FormalFrontier/sphere-topology).
