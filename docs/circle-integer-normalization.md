@@ -118,6 +118,40 @@ only the nonzero constant `c`. Thus `N` is the lifted-endpoint map and `N.symm`
 is the signed exponential-loop map. A radian endpoint `2πn` must not be
 confused with a period-one endpoint `n`.
 
+## Integer power maps
+
+The same coordinates compute the map induced by `z ↦ z ^ n` for **every**
+`n : ℤ`. Write `Pₙ` for the continuous power map and use `one_zpow n` for its
+basepoint equality. Then, for every `q : FundamentalGroup Circle 1`,
+
+```text
+N (FundamentalGroup.mapOfEq Pₙ (one_zpow n) q)
+  = Multiplicative.ofAdd (n * (N q).toAdd).
+```
+
+The commuting square is the real map `Fₙ(t) = (n : ℝ) * t` over `Pₙ`:
+`Circle.exp (Fₙ t) = Pₙ (Circle.exp t)`, by `Circle.exp_zsmul`.
+`IsCoveringMap.monodromy_naturality_map` therefore identifies the new lifted
+endpoint with `(n : ℝ)` times the old one. The endpoint characteristic above
+converts this to multiplication by `n` in integer coordinates.
+`IsCoveringMap.monodromy_cast` handles the basepoint equality in `mapOfEq`.
+
+In particular `n = 0` gives the constant based circle map and the zero induced
+homomorphism. Neither `Fₙ` nor `Pₙ` is assumed to be a covering; only the two
+vertical exponential projections are coverings. Negative exponents reverse the
+sign by multiplication by a negative integer, not by changing the convention for
+removing the opposite group. The positive full turn still has coordinate `+1`.
+The verification in `FundamentalGroupoidsTest.Topology.Covering.Circle` uses the
+same private coordinate composition as the signed-loop checks.
+
+More generally, an equivariant commuting square of quotient coverings, with
+acting-group homomorphism `ρ`, gives
+`IsQuotientCoveringMap.fundamentalGroupToMulOpposite_naturality`: the canonical
+fundamental-group maps commute with `MonoidHom.op ρ`. This homomorphism identity
+needs no simple connectivity. The existing `fundamentalGroupEquiv_apply` equations
+recover the simply connected equivalence form; the additive theorem reuses the
+multiplicative one through `Multiplicative`.
+
 ## References and credit
 
 * Mathlib supplies the circle exponential, contractibility, generic covering and
@@ -125,8 +159,8 @@ confused with a period-one endpoint `n`.
   In particular the covering computation is in
   `Topology/Homotopy/Lifting.lean`; the opposite removal is in
   `Algebra/Group/Equiv/Opposite.lean`.
-* J. Peter May, *A Concise Course in Algebraic Topology*, Chapter 1, §5,
-  motivates the signed exponential-loop and lifted-endpoint normalization.
+* J. Peter May, *A Concise Course in Algebraic Topology*, Chapter 1, §§5, 7,
+  motivates signed-loop normalization and the integer power-map computation.
 
 This is a mathematical assembly of the existing APIs, not an additional
 exported circle-computation declaration. May's mathematical motivation and

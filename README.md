@@ -125,6 +125,10 @@ directions, examples, conventions and credits.
   is equivalent to nonemptiness and pretransitive monodromy. With path-connected total
   and a chosen fiber point, the fiber is equivariantly equivalent to left cosets of the
   induced based fundamental-group image, by `[g] ↦ monodromy g`; normality is not needed.
+  Commuting squares of continuous maps intertwine monodromy across different bases;
+  neither horizontal map need be a covering. Equivariant squares of quotient covers
+  intertwine the canonical homomorphisms to opposite acting groups, without simple
+  connectivity. All space and acting-group universes are independent.
 - **Pullbacks and double cosets** ([`Pullback`](FundamentalGroupoids/Topology/Covering/Pullback.lean),
   [`PullbackDoubleCoset`](FundamentalGroupoids/Topology/Covering/PullbackDoubleCoset.lean)).
   The pullback of two covers is a cover whose fiber is the product with diagonal
@@ -184,7 +188,8 @@ See the [guide's API directions](docs/mathematical-guide.md#using-the-library)
 and [verification examples](FundamentalGroupoidsTest.lean).
 The [circle normalization guide](docs/circle-integer-normalization.md) explains
 how to assemble Mathlib's covering computation with its existing algebraic APIs
-to obtain positive integer coordinates and all signed exponential-loop values.
+to obtain positive integer coordinates, all signed exponential-loop values and the
+induced multiplication-by-`n` map for every integer circle power, including zero.
 
 **Covering compatibility:** these modules retain the declaration names relocated
 from [sphere-topology](https://github.com/FormalFrontier/sphere-topology).
@@ -257,7 +262,7 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 ## References
 
 - J. Peter May, *A Concise Course in Algebraic Topology*, revised author PDF,
-  Chapter 1 §3, Chapter 2 §§5, 7 and Chapter 3 §§2–4, 7.
+  Chapter 1 §§3, 5, 7, Chapter 2 §§5, 7 and Chapter 3 §§2–4, 7.
   [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
   [GroupTheory](https://github.com/FormalFrontier/group-theory).

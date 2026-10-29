@@ -6,6 +6,8 @@ module
 
 public import GroupTheory.GroupAction.Quotient
 public import Mathlib.Algebra.Group.Action.Pretransitive
+public import Mathlib.Algebra.Group.Equiv.Opposite
+public import Mathlib.Algebra.Group.TypeTags.Hom
 public import Mathlib.GroupTheory.GroupAction.Hom
 public import Mathlib.Logic.Equiv.Basic
 public import Mathlib.Topology.Homotopy.Lifting
@@ -40,7 +42,10 @@ is not the kernel of the permutation representation for a general covering map. 
 coverings, Mathlib's `IsQuotientCoveringMap.monodromy_eq_id_iff` identifies these conditions,
 and `IsQuotientCoveringMap.ker_monodromyPerm` already computes that kernel.
 
-Continuous maps over a common base intertwine monodromy. The proof generalizes the
+Commuting squares of continuous maps intertwine monodromy, including when the base map
+is not a covering. Equivariant squares of quotient coverings also intertwine the canonical
+fundamental-group homomorphisms to the opposite acting groups, without simple connectivity.
+The same-base API is the identity-base specialization. The proof generalizes the
 lifted-path-class argument of Mathlib's `IsQuotientCoveringMap.monodromy_toPermFiber`;
 `IsQuotientCoveringMap.monodromy_naturality_toPermFiber` recovers its quotient-action
 formula. Restriction to a point fiber is the equivariant map `IsCoveringMap.fiberMap`
@@ -88,6 +93,16 @@ theorem monodromy_mk_apply_eq_of_lift {y : X} (γ : Path x y) (e : p ⁻¹' {x})
     (cov.eq_liftPath_iff' _).mpr ⟨hΓ, h0⟩
   change cov.liftPath γ e.1 _ 1 = Γ 1
   exact congrArg (fun δ : C(unitInterval, E) ↦ δ 1) hlift.symm
+
+/-- Changing only the endpoint indices of a path class does not change the total-space
+value of monodromy. The starting fiber point is transported along the same equality. -/
+theorem monodromy_cast {x' y y' : X} (γ : Path.Homotopic.Quotient x y)
+    (hx : x' = x) (hy : y' = y) (e : p ⁻¹' {x'}) :
+    (cov.monodromy (γ.cast hx hy) e : E) =
+      cov.monodromy γ ⟨e.1, e.2.trans hx⟩ := by
+  cases hx
+  cases hy
+  rw [Path.Homotopic.Quotient.cast_rfl_rfl]
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- A loop fixes a point of the fiber under monodromy if and only if it belongs to the image
@@ -244,6 +259,96 @@ end IsCoveringMap
 
 end Cosets
 
+section ChangingBase
+
+universe u v w z a b
+
+variable {E : Type u} {E' : Type v} {B : Type w} {B' : Type z}
+  [TopologicalSpace E] [TopologicalSpace E'] [TopologicalSpace B] [TopologicalSpace B']
+  {p : E → B} {q : E' → B'}
+
+namespace IsCoveringMap
+
+/-- A commuting square of continuous maps intertwines covering monodromy along a path class
+and its image in the other base. The base map and total-space map need not be covering maps;
+neither covering needs to be surjective, and no connectivity hypotheses are required. -/
+theorem monodromy_naturality_map (covp : IsCoveringMap p) (covq : IsCoveringMap q)
+    (F : C(E, E')) (f : C(B, B')) (hF : q ∘ F = f ∘ p) {x y : B}
+    (γ : Path.Homotopic.Quotient x y) (e : p ⁻¹' {x}) :
+    covq.monodromy (γ.map f) ⟨F e, (congr_fun hF e).trans (congrArg f e.2)⟩ =
+      ⟨F (covp.monodromy γ e),
+        (congr_fun hF (covp.monodromy γ e)).trans
+          (congrArg f (covp.monodromy γ e).2)⟩ := by
+  let Γ := covp.liftPathQuotient γ e
+  let p' : C(E, B) := ⟨p, covp.continuous⟩
+  let q' : C(E', B') := ⟨q, covq.continuous⟩
+  have hcomp : q'.comp F = f.comp p' := ContinuousMap.ext fun z ↦ congr_fun hF z
+  apply covq.monodromy_eq_of_map_eq (Γ.map F)
+  rw [← Path.Homotopic.Quotient.map_comp]
+  have h := congrArg (fun δ : Path.Homotopic.Quotient (p e.1)
+      (p (covp.monodromy γ e)) ↦ δ.map f) (covp.map_liftPathQuotient γ e)
+  have h' := h.trans (Path.Homotopic.Quotient.map_cast γ
+    (hx := e.2) (hy := (covp.monodromy γ e).2) (f := f))
+  convert h' using 2
+  · exact congr_fun hF e
+  · exact congr_fun hF (covp.monodromy γ e)
+  · rw [← Path.Homotopic.Quotient.map_comp]
+    have hmap (g₁ g₂ : C(E, B')) (hg : g₁ = g₂) : HEq (Γ.map g₁) (Γ.map g₂) := by
+      subst g₂
+      rfl
+    exact hmap _ _ hcomp
+  · exact (Path.Homotopic.Quotient.cast_heq _ _ (γ := γ.map f)).trans
+      (Path.Homotopic.Quotient.cast_heq _ _ (γ := γ.map f)).symm
+
+end IsCoveringMap
+
+namespace IsQuotientCoveringMap
+
+variable {G : Type a} {H : Type b} [Group G] [Group H]
+  [MulAction G E] [MulAction H E']
+
+/-- An equivariant continuous map in a commuting square of quotient coverings intertwines
+the canonical fundamental-group homomorphisms to the opposite acting groups. This does not
+require either total space to be simply connected. -/
+theorem fundamentalGroupToMulOpposite_naturality
+    (hp : IsQuotientCoveringMap p G) (hq : IsQuotientCoveringMap q H)
+    (ρ : G →* H) (F : C(E, E')) (f : C(B, B')) (hF : q ∘ F = f ∘ p)
+    (hρ : ∀ (g : G) (e : E), F (g • e) = ρ g • F e) {x : B} (e : p ⁻¹' {x}) :
+    (hq.fundamentalGroupToMulOpposite
+      ⟨F e, (congr_fun hF e).trans (congrArg f e.2)⟩).comp
+        (FundamentalGroup.map f x) =
+      (MonoidHom.op ρ).comp (hp.fundamentalGroupToMulOpposite e) := by
+  ext γ
+  apply hq.fundamentalGroupToMulOpposite_apply_eq_Iff.mpr
+  change ρ (hp.fundamentalGroupToMulOpposite e γ).unop • F e = _
+  rw [← hρ, hp.unop_fundamentalGroupToMulOpposite_smul]
+  exact (congrArg Subtype.val
+    (hp.isCoveringMap.monodromy_naturality_map hq.isCoveringMap F f hF γ e)).symm
+
+end IsQuotientCoveringMap
+
+namespace IsAddQuotientCoveringMap
+
+variable {G : Type a} {H : Type b} [AddGroup G] [AddGroup H]
+  [AddAction G E] [AddAction H E']
+
+/-- Additive quotient-covering naturality, obtained from the multiplicative theorem through
+`Multiplicative`. No simple connectivity or connectedness hypothesis is required. -/
+theorem fundamentalGroupToMulOpposite_naturality
+    (hp : IsAddQuotientCoveringMap p G) (hq : IsAddQuotientCoveringMap q H)
+    (ρ : G →+ H) (F : C(E, E')) (f : C(B, B')) (hF : q ∘ F = f ∘ p)
+    (hρ : ∀ (g : G) (e : E), F (g +ᵥ e) = ρ g +ᵥ F e) {x : B} (e : p ⁻¹' {x}) :
+    (hq.fundamentalGroupToMulOpposite
+      ⟨F e, (congr_fun hF e).trans (congrArg f e.2)⟩).comp
+        (FundamentalGroup.map f x) =
+      (MonoidHom.op ρ.toMultiplicative).comp (hp.fundamentalGroupToMulOpposite e) :=
+  hp.toMultiplicative.fundamentalGroupToMulOpposite_naturality hq.toMultiplicative
+    ρ.toMultiplicative F f hF hρ e
+
+end IsAddQuotientCoveringMap
+
+end ChangingBase
+
 section Maps
 
 universe u v w z
@@ -262,16 +367,9 @@ theorem monodromy_naturality (covp : IsCoveringMap p) (covq : IsCoveringMap q)
     covq.monodromy γ ⟨f e, (congr_fun hf e).trans e.2⟩ =
       ⟨f (covp.monodromy γ e),
         (congr_fun hf (covp.monodromy γ e)).trans (covp.monodromy γ e).2⟩ := by
-  let Γ := covp.liftPathQuotient γ e
-  let p' : C(E, B) := ⟨p, covp.continuous⟩
-  let q' : C(E', B) := ⟨q, covq.continuous⟩
-  have hcomp : q'.comp f = p' := ContinuousMap.ext fun z ↦ congr_fun hf z
-  apply covq.monodromy_eq_of_map_eq (Γ.map f)
-  rw [← Path.Homotopic.Quotient.map_comp]
-  convert covp.map_liftPathQuotient γ e using 2
-  · exact congr_fun hf e
-  · exact congr_fun hf (covp.monodromy γ e)
-  · grind
+  obtain ⟨γ⟩ := γ
+  exact covp.monodromy_naturality_map covq f (ContinuousMap.id B) hf
+    (Path.Homotopic.Quotient.mk γ) e
 
 /-- Restriction of a continuous map over the base to an equivariant map of point fibers.
 Both actions are the specified covering maps' canonical fundamental-group actions. No

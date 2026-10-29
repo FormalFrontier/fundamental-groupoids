@@ -185,7 +185,14 @@ hypotheses, and the index type need not be finite.
   the total space is equivalent to nonemptiness and pretransitive monodromy.
   Continuous maps over the base restrict to equivariant fiber maps
   (`IsCoveringMap.fiberMap`), without connectivity assumptions, preserving
-  identities and composition.
+  identities and composition. For a commuting square `q ∘ F = f ∘ p`,
+  `IsCoveringMap.monodromy_naturality_map` intertwines transport along `γ`
+  with transport along `γ.map f`. The four spaces have independent universes;
+  only `p` and `q` must be coverings. Equivariant squares also intertwine
+  `fundamentalGroupToMulOpposite` with `MonoidHom.op` of the acting-group
+  homomorphism, without simple connectivity. The additive version reuses this
+  result through `Multiplicative`; existing equivalence-application lemmas give
+  the simply connected specialization.
 - **Monodromy orbit classes and path components**
   ([`Components`](../FundamentalGroupoids/Topology/Covering/Components.lean)).
   For any `cov : IsCoveringMap p` with `p : E → B` and `b : B`,

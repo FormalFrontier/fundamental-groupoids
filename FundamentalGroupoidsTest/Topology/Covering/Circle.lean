@@ -21,13 +21,15 @@ The formulas include every signed exponential-loop class and the endpoints of
 lifts through both the radian and the period-one exponentials.
 
 These equations use the characteristic APIs for quotient-covering equivalences
-and monodromy endpoints.
+and monodromy endpoints. Naturality for the real lift `t ↦ n*t` shows that every
+integer power map, including the constant power map at zero, induces multiplication
+by `n` in these same coordinates.
 
 ## References
 
 * Junyan Xu, `Mathlib.Topology.Homotopy.Lifting`, for covering monodromy and lifts.
-* J. Peter May, *A Concise Course in Algebraic Topology*, Chapter 1, §5,
-  for the signed-loop and lifted-endpoint normalization.
+* J. Peter May, *A Concise Course in Algebraic Topology*, Chapter 1, §§5, 7,
+  for signed-loop normalization and the integer power-map computation.
 -/
 
 noncomputable section
@@ -160,5 +162,36 @@ private theorem signedExpLoop_class_add (m n : ℤ) :
   apply integerNormalization.injective
   simp only [map_mul, integerNormalization_signedExpLoop]
   rfl
+
+/-- The real lift of each integer power map computes its induced map in the existing
+integer coordinates. The exponent may be zero or negative; the power map is not assumed
+to be a covering. -/
+private theorem integerNormalization_map_zpow (n : ℤ)
+    (q : FundamentalGroup Circle (1 : Circle)) :
+    integerNormalization
+        (FundamentalGroup.mapOfEq ⟨fun z : Circle ↦ z ^ n, continuous_zpow n⟩
+          (one_zpow n) q) =
+      Multiplicative.ofAdd (n * (integerNormalization q).toAdd) := by
+  let F : C(ℝ, ℝ) := ⟨fun t ↦ (n : ℝ) * t, continuous_const.mul continuous_id⟩
+  let f : C(Circle, Circle) := ⟨fun z ↦ z ^ n, continuous_zpow n⟩
+  have hF : exp ∘ F = f ∘ exp := by
+    funext t
+    change exp ((n : ℝ) * t) = exp t ^ n
+    simpa only [zsmul_eq_mul] using exp_zsmul t n
+  have hnat := isCoveringMap_exp.monodromy_naturality_map
+    isCoveringMap_exp F f hF q expOrigin
+  have hend :
+      (isCoveringMap_exp.monodromy
+        (FundamentalGroup.mapOfEq f (one_zpow n) q) expOrigin : ℝ) =
+          (n : ℝ) * (isCoveringMap_exp.monodromy q expOrigin : ℝ) := by
+    rw [FundamentalGroup.mapOfEq_apply, isCoveringMap_exp.monodromy_cast]
+    simpa [F, expOrigin] using congrArg Subtype.val hnat
+  let m : ℤ := (integerNormalization q).toAdd
+  have hm : integerNormalization q = Multiplicative.ofAdd m := rfl
+  have he := (integerNormalization_eq_iff q m).mp hm
+  apply (integerNormalization_eq_iff _ (n * m)).mpr
+  change (isCoveringMap_exp.monodromy
+    (FundamentalGroup.mapOfEq f (one_zpow n) q) expOrigin : ℝ) = _
+  rw [hend, he, Int.cast_mul, mul_assoc]
 
 end Circle
