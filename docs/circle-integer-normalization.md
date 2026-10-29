@@ -4,7 +4,9 @@ Mathlib's quotient-covering computation already applies to the usual complex
 unit circle at `1`. This guide describes its positive integer normalization,
 including its value on every signed exponential-loop class. The construction
 uses existing equivalences; no separate winding-number or loop-group model is
-needed. The APIs below refer to the Mathlib revision recorded in the README.
+needed. The Mathlib APIs below refer to the revision recorded in the README.
+This library provides characteristic equations for the covering equivalence and
+for monodromy on a supplied continuous lift.
 
 ## The exact composition
 
@@ -72,16 +74,16 @@ N q = Multiplicative.ofAdd n
 Indeed, injectivity of the two algebraic equivalences reduces the left side to
 saying that the stock equivalence has value
 `MulOpposite.op (Multiplicative.ofAdd (A n))`.
-`IsAddQuotientCoveringMap.fundamentalGroupToMulOpposite_apply_eq_Iff`
+`IsAddQuotientCoveringMap.fundamentalGroupEquiv_apply_eq_iff`
 then says that `Multiplicative.ofAdd (A n)` translates `0` to the lifted
 endpoint. That translation is `↑(A n) + 0 = (n : ℝ) * c`, with no sign change.
-The underlying function of the stock `fundamentalGroupEquiv` is its
+The `_apply` lemma relates this equivalence to Mathlib's underlying
 `fundamentalGroupToMulOpposite`.
 
 More explicitly, let `γ : Path (1 : Circle) 1`, and let
 `Γ : C(unitInterval, ℝ)` satisfy `Circle.exp ∘ Γ = γ` and `Γ 0 = 0`.
-The stock `IsCoveringMap.eq_liftPath_iff'` identifies `Γ` with the chosen lift;
-the definition of `monodromy` therefore identifies its endpoint with `Γ 1`.
+`IsCoveringMap.monodromy_mk_apply_eq_of_lift`, using Mathlib's uniqueness of
+path lifting, identifies the monodromy endpoint with `Γ 1` directly.
 The characteristic equation becomes
 
 ```text

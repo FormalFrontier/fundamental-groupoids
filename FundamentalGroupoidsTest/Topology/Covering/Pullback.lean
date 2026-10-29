@@ -159,7 +159,8 @@ private theorem componentDoubleCoset_symm_positiveLoop :
   apply Subtype.ext
   rfl
 
-noncomputable local instance : MulAction G (q ⁻¹' {0}) :=
+/-- Monodromy acts on the zero fiber of the period-one covering. -/
+noncomputable local instance fiberMonodromyAction : MulAction G (q ⁻¹' {0}) :=
   (AddCircle.isCoveringMap_coe (1 : ℝ)).fundamentalGroupMulAction 0
 
 /-- The diagonal orbit of the zero and unit lifts maps to the component of `(0,1)`. -/
@@ -176,7 +177,9 @@ private theorem productOrbitComponents_zero_one :
 /-- The map from the empty space to the circle. -/
 def emptyProjection : Empty → AddCircle (1 : ℝ) := Empty.elim
 
-noncomputable local instance : MulAction G (emptyProjection ⁻¹' {0}) :=
+/-- Monodromy acts on the empty fiber of the empty covering. -/
+noncomputable local instance emptyFiberMonodromyAction :
+    MulAction G (emptyProjection ⁻¹' {0}) :=
   (IsCoveringMap.of_isEmpty emptyProjection).fundamentalGroupMulAction 0
 
 /-- The diagonal fiber orbits of the pullback with the empty cover correspond to its

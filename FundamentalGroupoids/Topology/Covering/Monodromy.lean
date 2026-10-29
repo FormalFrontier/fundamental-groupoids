@@ -51,6 +51,11 @@ Over a path-connected base, continuous maps out of a covering space are determin
 values on one whole fiber when the target projection is separated and locally injective.
 This uniqueness requires no local path connectedness.
 
+Monodromy on a represented path is the endpoint of any continuous lift with the specified
+starting value. For a simply connected quotient covering, the fundamental-group equivalence
+has the same characteristic equation as its underlying homomorphism, in both multiplicative
+and additive notation.
+
 ## References
 
 * J. Peter May, *A Concise Course in Algebraic Topology*, Chapter 3, §§2–4,
@@ -73,6 +78,16 @@ variable {E X : Type*} [TopologicalSpace E] [TopologicalSpace X] {p : E → X}
 namespace IsCoveringMap
 
 variable (cov : IsCoveringMap p) {x : X}
+
+/-- Monodromy on a represented path is the endpoint of a continuous lift with the specified
+starting value. No connectedness or surjectivity is required. -/
+theorem monodromy_mk_apply_eq_of_lift {y : X} (γ : Path x y) (e : p ⁻¹' {x})
+    (Γ : C(unitInterval, E)) (hΓ : p ∘ Γ = γ) (h0 : Γ 0 = e.1) :
+    (cov.monodromy (Path.Homotopic.Quotient.mk γ) e : E) = Γ 1 := by
+  have hlift : Γ = cov.liftPath γ e.1 (γ.source.trans e.2.symm) :=
+    (cov.eq_liftPath_iff' _).mpr ⟨hΓ, h0⟩
+  change cov.liftPath γ e.1 _ 1 = Γ 1
+  exact congrArg (fun δ : C(unitInterval, E) ↦ δ 1) hlift.symm
 
 set_option backward.isDefEq.respectTransparency.types false in
 /-- A loop fixes a point of the fiber under monodromy if and only if it belongs to the image
@@ -388,4 +403,42 @@ theorem ker_monodromyPerm_eq_comap_stabilizer (e : p ⁻¹' {x}) :
   simpa only [DFunLike.ext'_iff, IsCoveringMap.coe_monodromyPerm, Equiv.Perm.coe_one,
     Equiv.Perm.smul_def] using hp.monodromy_eq_id_iff e (γ := γ)
 
+/-- The quotient-covering equivalence acts by its underlying fundamental-group homomorphism. -/
+@[simp]
+theorem fundamentalGroupEquiv_apply [SimplyConnectedSpace E] (e : p ⁻¹' {x})
+    (γ : FundamentalGroup X x) :
+    hp.fundamentalGroupEquiv e γ = hp.fundamentalGroupToMulOpposite e γ := rfl
+
+/-- The value of the quotient-covering equivalence is characterized by translation of the
+chosen fiber point to its monodromy image. -/
+theorem fundamentalGroupEquiv_apply_eq_iff [SimplyConnectedSpace E] (e : p ⁻¹' {x})
+    (γ : FundamentalGroup X x) (g : Gᵐᵒᵖ) :
+    hp.fundamentalGroupEquiv e γ = g ↔
+      g.unop • e.1 = hp.isCoveringMap.monodromy γ e := by
+  simpa only [fundamentalGroupEquiv_apply] using
+    (hp.fundamentalGroupToMulOpposite_apply_eq_Iff (e := e) (γ := γ) (g := g))
+
 end IsQuotientCoveringMap
+
+namespace IsAddQuotientCoveringMap
+
+variable {G : Type*} [AddGroup G] [AddAction G E]
+    (hp : IsAddQuotientCoveringMap p G) {x : X}
+
+/-- The additive quotient-covering equivalence acts by its underlying fundamental-group
+homomorphism. -/
+@[simp]
+theorem fundamentalGroupEquiv_apply [SimplyConnectedSpace E] (e : p ⁻¹' {x})
+    (γ : FundamentalGroup X x) :
+    hp.fundamentalGroupEquiv e γ = hp.fundamentalGroupToMulOpposite e γ :=
+  hp.toMultiplicative.fundamentalGroupEquiv_apply e γ
+
+/-- The value of the additive quotient-covering equivalence is characterized by translation
+of the chosen fiber point to its monodromy image. -/
+theorem fundamentalGroupEquiv_apply_eq_iff [SimplyConnectedSpace E] (e : p ⁻¹' {x})
+    (γ : FundamentalGroup X x) (g : (Multiplicative G)ᵐᵒᵖ) :
+    hp.fundamentalGroupEquiv e γ = g ↔
+      g.unop • e.1 = hp.isCoveringMap.monodromy γ e :=
+  hp.toMultiplicative.fundamentalGroupEquiv_apply_eq_iff e γ g
+
+end IsAddQuotientCoveringMap
