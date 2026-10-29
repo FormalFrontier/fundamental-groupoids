@@ -24,7 +24,8 @@ The two clients compare the translated loop with its transported class and
 then map that transported class once more. They use both pointwise and bundled
 comparison laws, and retain a nonidentity class throughout. Nonidentity refers
 to these loop classes, not to a transport automorphism; the circle's fundamental
-group is abelian.
+group is abelian. The homotopy-retraction client recovers the same nonidentity
+loop along the reverse moving track.
 
 ## References
 
@@ -175,5 +176,19 @@ theorem constant_homotopy_loopClass :
   change fundamentalGroupMulEquivOfPath
     ((ContinuousMap.Homotopy.refl (ContinuousMap.id A)).evalAt 0) loopClass = loopClass at h
   exact h
+
+/-- The retraction induced by the reversed translation homotopy recovers the
+chosen nonidentity loop. Its basepoint track runs from the distinct translate back
+to zero, so this uses a genuinely moving track rather than a based homotopy. -/
+theorem retraction_recovers_loopClass :
+    retractionOfHomotopy translation (ContinuousMap.id A) translationHomotopy.symm 0
+        (map translation 0 loopClass) = loopClass ∧
+      retractionOfHomotopy translation (ContinuousMap.id A) translationHomotopy.symm 0
+        (map translation 0 loopClass) ≠ 1 := by
+  have h := leftInverse_retractionOfHomotopy translation (ContinuousMap.id A)
+    translationHomotopy.symm 0 loopClass
+  refine ⟨h, ?_⟩
+  rw [h]
+  exact loopClass_ne_one
 
 end CircleTransport

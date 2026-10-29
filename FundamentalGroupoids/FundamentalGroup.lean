@@ -9,7 +9,7 @@ public import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.InducedMaps
 
 /-!
-# Induced fundamental-group maps and change of basepoint
+# Induced maps, homotopy retractions and change of basepoint
 
 The homomorphism `FundamentalGroup.map` preserves identity maps and composition.
 It commutes with `FundamentalGroup.fundamentalGroupMulEquivOfPath`, and a homotopy
@@ -18,6 +18,11 @@ comparisons are available pointwise and as equalities of monoid homomorphisms.
 No connectedness or basedness hypothesis is needed. Loop classes are the identity
 exactly for nullhomotopic loops; trivial images of induced homomorphisms are
 characterized by ambient nullhomotopies, also for arbitrary subspace inclusions.
+
+A homotopy retraction gives an explicit splitting of the induced fundamental-group
+homomorphism, using the moving basepoint track of the homotopy. The induced map
+is therefore injective. Nontriviality of the source vertex group and triviality of the target
+vertex group obstruct such a homotopy retraction.
 
 The proofs restrict fundamental-groupoid functors to endomorphisms and use
 Mathlib's functoriality of conjugation and naturality of the transformation
@@ -40,7 +45,8 @@ and subgroup-range APIs.
   `Mathlib.AlgebraicTopology.FundamentalGroupoid.InducedMaps` provide functorial
   conjugation and the natural transformation associated to a homotopy.
 * J. P. May, *A Concise Course in Algebraic Topology*, Chapter 1, §§3–4,
-  pp. 6–8, for change of basepoint and the homotopy comparison convention.
+  pp. 6–8, for change of basepoint and the homotopy comparison convention; §6,
+  p. 10, for the strict-retraction obstruction extended here to homotopy retractions.
 -/
 
 @[expose] public section
@@ -179,5 +185,69 @@ theorem fundamentalGroupMulEquivOfPath_comp_map_of_homotopy {f g : C(X, Y)}
     (H : ContinuousMap.Homotopy f g) (x : X) :
     (fundamentalGroupMulEquivOfPath (H.evalAt x)).toMonoidHom.comp (map f x) = map g x :=
   MonoidHom.ext fun γ => fundamentalGroupMulEquivOfPath_map_of_homotopy H x γ
+
+/-- The fundamental-group retraction induced by a homotopy `f ∘ g ∼ id`.
+It first maps by `f`, then changes basepoint along the track `H.evalAt x`.
+The track need not be constant. This is a moving-basepoint extension of May's
+strict-retraction argument (Chapter 1, §6, p. 10). -/
+noncomputable def retractionOfHomotopy (g : C(X, Y)) (f : C(Y, X))
+    (H : ContinuousMap.Homotopy (f.comp g) (ContinuousMap.id X)) (x : X) :
+    FundamentalGroup Y (g x) →* FundamentalGroup X x :=
+  (fundamentalGroupMulEquivOfPath (H.evalAt x)).toMonoidHom.comp (map f (g x))
+
+/-- The retraction maps a loop by `f` and transports along the supplied homotopy track. -/
+@[simp]
+theorem retractionOfHomotopy_apply (g : C(X, Y)) (f : C(Y, X))
+    (H : ContinuousMap.Homotopy (f.comp g) (ContinuousMap.id X)) (x : X)
+    (γ : FundamentalGroup Y (g x)) :
+    retractionOfHomotopy g f H x γ =
+      fundamentalGroupMulEquivOfPath (H.evalAt x) (map f (g x) γ) := rfl
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The retraction splits the homomorphism induced by `g`. -/
+@[simp]
+theorem retractionOfHomotopy_comp_map (g : C(X, Y)) (f : C(Y, X))
+    (H : ContinuousMap.Homotopy (f.comp g) (ContinuousMap.id X)) (x : X) :
+    (retractionOfHomotopy g f H x).comp (map g x) =
+      MonoidHom.id (FundamentalGroup X x) := by
+  simpa only [ContinuousMap.id_apply, retractionOfHomotopy, map_comp, map_id,
+    MonoidHom.comp_assoc] using
+    fundamentalGroupMulEquivOfPath_comp_map_of_homotopy H x
+
+/-- As a function, the same retraction is a left inverse of the induced map. -/
+theorem leftInverse_retractionOfHomotopy (g : C(X, Y)) (f : C(Y, X))
+    (H : ContinuousMap.Homotopy (f.comp g) (ContinuousMap.id X)) (x : X) :
+    Function.LeftInverse (retractionOfHomotopy g f H x) (map g x) := by
+  intro γ
+  exact DFunLike.congr_fun (retractionOfHomotopy_comp_map g f H x) γ
+
+/-- A map admitting a homotopy left inverse induces an injective fundamental-group map. -/
+theorem map_injective_of_homotopy_retraction (g : C(X, Y)) (f : C(Y, X))
+    (H : ContinuousMap.Homotopy (f.comp g) (ContinuousMap.id X)) (x : X) :
+    Function.Injective (map g x) :=
+  (leftInverse_retractionOfHomotopy g f H x).injective
+
+set_option backward.isDefEq.respectTransparency false in
+/-- For identity maps the retraction is the identity, even for a moving self-homotopy. -/
+@[simp]
+theorem retractionOfHomotopy_id
+    (H : ContinuousMap.Homotopy (ContinuousMap.id X) (ContinuousMap.id X)) (x : X) :
+    retractionOfHomotopy (ContinuousMap.id X) (ContinuousMap.id X) H x =
+      MonoidHom.id (FundamentalGroup X x) := by
+  apply MonoidHom.ext
+  intro γ
+  simpa only [ContinuousMap.id_apply, map_id, MonoidHom.id_apply] using
+    leftInverse_retractionOfHomotopy (ContinuousMap.id X) (ContinuousMap.id X) H x γ
+
+/-- A nontrivial source vertex group cannot be a homotopy retract of a trivial
+vertex group at its image. Only these two local fundamental groups are constrained;
+no connectedness hypothesis is needed. This extends the strict-retraction obstruction
+of May, Chapter 1, §6, p. 10. -/
+theorem not_homotopic_comp_id (g : C(X, Y)) (f : C(Y, X)) (x : X)
+    [Nontrivial (FundamentalGroup X x)] [Subsingleton (FundamentalGroup Y (g x))] :
+    ¬ ContinuousMap.Homotopic (f.comp g) (ContinuousMap.id X) := by
+  rintro ⟨H⟩
+  obtain ⟨a, b, hab⟩ := exists_pair_ne (FundamentalGroup X x)
+  exact hab (map_injective_of_homotopy_retraction g f H x (Subsingleton.elim _ _))
 
 end FundamentalGroup

@@ -70,6 +70,12 @@ directions, examples, conventions and credits.
   multiplicatively equivalent to `∀ i, π₁(X i, p i)`, by evaluation and loop
   assembly, naturally in continuous maps and arbitrary reindexing. Index and
   space universes are independent; no finite/nonempty index or connectedness is needed.
+- **Homotopy-retraction splittings** ([`retractionOfHomotopy`](FundamentalGroupoids/FundamentalGroup.lean)).
+  For `g : C(X, Y)`, `f : C(Y, X)` and a homotopy from `f.comp g` to `id X`,
+  transport along its track at `x` gives an explicit left inverse of
+  `π₁(X, x) → π₁(Y, g x)`, which is therefore injective. A nontrivial source
+  vertex group and a subsingleton target vertex group obstruct such a homotopy.
+  Space universes are independent; no connectedness or fixed-basepoint condition is needed.
 - **Small-path generation** ([`OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean)).
   For an indexed open cover, a composition-stable morphism property holding on
   every local inclusion image holds globally. No separate identity/inverse
@@ -216,7 +222,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 
 | Module under `FundamentalGroupoids` | Contents |
 | --- | --- |
-| [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced maps, null-loop/trivial-image criteria, path transport and homotopy comparisons |
+| [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced maps, null-loop/trivial-image criteria, path transport, homotopy comparisons and retraction splittings |
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
