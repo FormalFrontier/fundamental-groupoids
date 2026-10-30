@@ -41,6 +41,12 @@ nonempty finite intersection, without requiring the whole space to be a member.
 The homomorphism form quantifies a target-group universe independent of both the
 space and the indexing type.
 
+A family of path-connected neighborhoods with a common path-connected overlap needs
+only compatibility from that overlap to each member. Adjoining the overlap as an
+`Option`-indexed member reduces this universal property to the intersection-closed
+one. The family may be empty or repeat an open neighborhood; inclusions between
+members require no additional compatibility hypotheses.
+
 ## References
 
 * J. P. May, *A Concise Course in Algebraic Topology*, Chapter 2, §7, printed
@@ -1067,5 +1073,162 @@ noncomputable def isColimitOfIsOpenCover
 alias isColimit_of_isOpenCover := isColimitOfIsOpenCover
 
 end IndexedCover
+
+section CommonOverlap
+
+variable {I : Type v}
+
+-- The arbitrary family need not preserve infima, so the range-of-inf-hom lemma
+-- does not apply. Adjoining the common infimum supplies every missing intersection.
+private theorem infClosed_range_option_of_common_inf
+    {α : Type*} [SemilatticeInf α] (c : α) (f : I → α)
+    (hcf : ∀ i, c ≤ f i) (hinf : ∀ i j, i ≠ j → f i ⊓ f j = c) :
+    InfClosed (Set.range (fun o : Option I => o.elim c f)) := by
+  classical
+  rintro _ ⟨i, rfl⟩ _ ⟨j, rfl⟩
+  cases i with
+  | none =>
+    cases j with
+    | none => exact ⟨none, (inf_idem c).symm⟩
+    | some j => exact ⟨none, (inf_eq_left.mpr (hcf j)).symm⟩
+  | some i =>
+    cases j with
+    | none => exact ⟨none, (inf_eq_right.mpr (hcf i)).symm⟩
+    | some j =>
+      by_cases hij : i = j
+      · subst j
+        exact ⟨some i, (inf_idem (f i)).symm⟩
+      · exact ⟨none, (hinf i j hij).symm⟩
+
+-- When a presented neighborhood lies below the core, its inclusion into the
+-- core is inverse to the core inclusion. Proof irrelevance identifies all
+-- presentations of the resulting inclusion into the target neighborhood.
+private theorem hom_comp_of_le_core
+    (x : X) (C A B : OpenNhds (X := TopCat.of X) x)
+    (hCA : C ≤ A) (hCB : C ≤ B) (hAC : A ≤ C) (hAB : A ≤ B)
+    {G : Type w} [Group G]
+    (fC : FundamentalGroup C.1 ⟨x, C.2⟩ →* G)
+    (fA : FundamentalGroup A.1 ⟨x, A.2⟩ →* G)
+    (fB : FundamentalGroup B.1 ⟨x, B.2⟩ →* G)
+    (hA : fA.comp (((openNhdsFunctor x).map (homOfLE hCA)).hom) = fC)
+    (hB : fB.comp (((openNhdsFunctor x).map (homOfLE hCB)).hom) = fC) :
+    fB.comp (((openNhdsFunctor x).map (homOfLE hAB)).hom) = fA := by
+  have hAC' : A = C := le_antisymm hAC hCA
+  subst A
+  have hfA : fA = fC := by
+    change fA.comp (((openNhdsFunctor x).map (𝟙 C)).hom) = fC at hA
+    rw [(openNhdsFunctor x).map_id C] at hA
+    exact hA
+  exact hB.trans hfA.symm
+
+/-- Homomorphisms from a common-overlap open cover glue uniquely to the ambient
+fundamental group.
+
+The core and each member are path connected, and adjoining the core gives an open
+cover. Distinct indices intersect in the core. Only compatibility along the core
+inclusions is required, even when the family is empty or an open set is presented
+more than once. All maps are induced by the actual subspace inclusions. The target
+group, index type and ambient space may lie in independent universes.
+
+This is the common-overlap specialization of the intersection-closed cover theorem;
+see May, *A Concise Course in Algebraic Topology*, Chapter 2, §7. -/
+theorem existsUnique_hom_of_isOpenCover_of_commonOverlap
+    (x : X) (C : OpenNhds (X := TopCat.of X) x)
+    (U : I → OpenNhds (X := TopCat.of X) x)
+    (hCU : ∀ i, C ≤ U i)
+    (hinter : ∀ i j, i ≠ j → U i ⊓ U j = C)
+    (hcover : IsOpenCover (fun o : Option I => (o.elim C U).1))
+    (hpcC : IsPathConnected (C.1 : Set X))
+    (hpcU : ∀ i, IsPathConnected ((U i).1 : Set X))
+    (G : Type w) [Group G]
+    (hC : FundamentalGroup C.1 ⟨x, C.2⟩ →* G)
+    (hU : ∀ i, FundamentalGroup (U i).1 ⟨x, (U i).2⟩ →* G)
+    (hcomp : ∀ i,
+      (hU i).comp (((openNhdsFunctor x).map (homOfLE (hCU i))).hom) = hC) :
+    ∃! h : FundamentalGroup X x →* G,
+      h.comp (((openNhdsCocone x).ι.app C).hom) = hC ∧
+        ∀ i, h.comp (((openNhdsCocone x).ι.app (U i)).hom) = hU i := by
+  classical
+  let V : Option I → OpenNhds (X := TopCat.of X) x := fun o => o.elim C U
+  let φ : ∀ o, FundamentalGroup (V o).1 ⟨x, (V o).2⟩ →* G
+    | none => hC
+    | some i => hU i
+  have hpc : ∀ o, IsPathConnected ((V o).1 : Set X) := by
+    intro o
+    cases o with
+    | none => exact hpcC
+    | some i => exact hpcU i
+  have hφ : ∀ i j (hij : V i ≤ V j),
+      (φ j).comp (((openNhdsFunctor x).map (homOfLE hij)).hom) = φ i := by
+    intro i j hij
+    cases i with
+    | none =>
+      cases j with
+      | none =>
+        change hC.comp (((openNhdsFunctor x).map (𝟙 C)).hom) = hC
+        rw [(openNhdsFunctor x).map_id C]
+        exact MonoidHom.comp_id hC
+      | some j => exact hcomp j
+    | some i =>
+      cases j with
+      | none =>
+        exact hom_comp_of_le_core x C (U i) C (hCU i) le_rfl hij hij
+          hC (hU i) hC (hcomp i) (by
+            change hC.comp (((openNhdsFunctor x).map (𝟙 C)).hom) = hC
+            rw [(openNhdsFunctor x).map_id C]
+            exact MonoidHom.comp_id hC)
+      | some j =>
+        by_cases heq : i = j
+        · subst j
+          change (hU i).comp (((openNhdsFunctor x).map (𝟙 (U i))).hom) = hU i
+          rw [(openNhdsFunctor x).map_id (U i)]
+          exact MonoidHom.comp_id (hU i)
+        · have hUi : U i ≤ C := by
+            rw [← hinter i j heq]
+            exact le_inf le_rfl hij
+          exact hom_comp_of_le_core x C (U i) (U j) (hCU i) (hCU j) hUi hij
+            hC (hU i) (hU j) (hcomp i) (hcomp j)
+  obtain ⟨h, hh, huniq⟩ := existsUnique_hom_of_isOpenCover_of_infClosed x V
+    hcover hpc (infClosed_range_option_of_common_inf C U hCU hinter) G φ hφ
+  refine ⟨h, ⟨hh none, fun i => hh (some i)⟩, ?_⟩
+  intro g hg
+  apply huniq g
+  intro o
+  cases o with
+  | none => exact hg.1
+  | some i => exact hg.2 i
+
+/-- Homomorphisms out of the ambient fundamental group agree if their composites
+with the core and all members of a common-overlap cover agree. -/
+theorem hom_ext_of_isOpenCover_of_commonOverlap
+    (x : X) (C : OpenNhds (X := TopCat.of X) x)
+    (U : I → OpenNhds (X := TopCat.of X) x)
+    (hCU : ∀ i, C ≤ U i)
+    (hinter : ∀ i j, i ≠ j → U i ⊓ U j = C)
+    (hcover : IsOpenCover (fun o : Option I => (o.elim C U).1))
+    (hpcC : IsPathConnected (C.1 : Set X))
+    (hpcU : ∀ i, IsPathConnected ((U i).1 : Set X))
+    {G : Type w} [Group G] {f g : FundamentalGroup X x →* G}
+    (hC : f.comp (((openNhdsCocone x).ι.app C).hom) =
+      g.comp (((openNhdsCocone x).ι.app C).hom))
+    (hU : ∀ i, f.comp (((openNhdsCocone x).ι.app (U i)).hom) =
+      g.comp (((openNhdsCocone x).ι.app (U i)).hom)) : f = g := by
+  have hcomp (i : I) :
+      (g.comp (((openNhdsCocone x).ι.app (U i)).hom)).comp
+          (((openNhdsFunctor x).map (homOfLE (hCU i))).hom) =
+        g.comp (((openNhdsCocone x).ι.app C).hom) := by
+    have hleg := congrArg GrpCat.Hom.hom
+      ((openNhdsCocone x).w (homOfLE (hCU i)))
+    dsimp only [GrpCat.hom_comp] at hleg
+    change g.comp ((((openNhdsCocone x).ι.app (U i)).hom).comp
+      (((openNhdsFunctor x).map (homOfLE (hCU i))).hom)) = _
+    exact congrArg (fun k => g.comp k) hleg
+  obtain ⟨h, _, huniq⟩ := existsUnique_hom_of_isOpenCover_of_commonOverlap
+    x C U hCU hinter hcover hpcC hpcU G
+    (g.comp (((openNhdsCocone x).ι.app C).hom))
+    (fun i => g.comp (((openNhdsCocone x).ι.app (U i)).hom)) hcomp
+  exact (huniq f ⟨hC, hU⟩).trans (huniq g ⟨rfl, fun _ => rfl⟩).symm
+
+end CommonOverlap
 
 end FundamentalGroup
