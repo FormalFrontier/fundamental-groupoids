@@ -112,6 +112,10 @@ directions, examples, conventions and credits.
   path-connected neighborhood controlling loops at all its basepoints in the ambient
   space, not an intrinsically simply connected neighborhood. Space universes are
   independent; no separation or extra connectedness/nonemptiness is assumed.
+- **Cancellation of covering maps** ([`Composition`](FundamentalGroupoids/Topology/Covering/Composition.lean)).
+  If `q ∘ g` and `q` are covering maps, `g` is continuous, and the target of `g` is
+  locally connected, then `g` is a covering map. The three space universes are independent;
+  no surjectivity, nonempty-fiber, path-connectedness or separation assumption is needed.
 - **Based lifting and equivalence of covers** ([`Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean),
   [`Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean)).
   A continuous map from a path-connected, locally path-connected domain with

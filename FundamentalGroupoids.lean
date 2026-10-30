@@ -24,6 +24,7 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnect
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
+public import FundamentalGroupoids.Topology.Covering.Composition
 public import FundamentalGroupoids.Topology.Covering.DeckGroup
 public import FundamentalGroupoids.Topology.Covering.DeckMonodromy
 public import FundamentalGroupoids.Topology.Covering.Equivalence

@@ -23,6 +23,7 @@ import FundamentalGroupoidsTest.SemilocallySimplyConnectedCovering
 import FundamentalGroupoidsTest.SemilocallySimplyConnectedLocallyPathConnected
 import FundamentalGroupoidsTest.Topology.Covering.Cardinality
 import FundamentalGroupoidsTest.Topology.Covering.Circle
+import FundamentalGroupoidsTest.Topology.Covering.Composition
 import FundamentalGroupoidsTest.Topology.Covering.DeckGroup
 import FundamentalGroupoidsTest.Topology.Covering.Equivalence
 import FundamentalGroupoidsTest.Topology.Covering.Lifting
