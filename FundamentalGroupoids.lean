@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCoverPresentation
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Product
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Connected
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Coproduct

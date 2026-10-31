@@ -92,6 +92,13 @@ directions, examples, conventions and credits.
   along every inclusion, including repeated opens. Space, index and target-group
   universes are independent; the inclusion cocone is a colimit in `GrpCat.{u}`.
   Binary intersection closure does not require the whole space in the range.
+- **Open-cover quotient presentations** ([`OpenCoverPresentation`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverPresentation.lean)).
+  An intersection-closed open cover by path-connected neighborhoods of a common
+  point presents the ambient fundamental group as the free product of the local
+  groups modulo the normal closure of all inclusion-arrow relators. The quotient
+  equivalence preserves the inclusion legs in both directions; the canonical
+  free-product map is surjective with exactly this kernel. Arbitrary indices,
+  repeated presentations and independent index/space universes are allowed.
 - **Two-open based van Kampen** ([`OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean)).
   For opens `U`, `V` with `U ∪ V = X`, all of `U`, `V`, `U ∩ V` path connected and a point
   in the intersection, compatible homomorphisms to any group extend uniquely,
