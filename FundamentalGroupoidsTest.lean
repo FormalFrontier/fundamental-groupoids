@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.DirectedOpenCover
+import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.DirectedPreorderCover
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.IndexedOpenCover
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.OpenCover
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.Product

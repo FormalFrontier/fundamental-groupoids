@@ -11,7 +11,10 @@ project:
     property and a pushout of groups. Inclusion-directed covers by neighborhoods
     of a supplied basepoint give colimits without path connectedness or
     intersection closure, with a universal property for arbitrary target monoids
-    in independent universes. Generic covering-map lifting and based
+    in independent universes. Monotone neighborhood covers indexed by directed
+    preorders give the same universal property with compatibility only along
+    index inequalities, and colimit data for the canonical preorder diagram.
+    Generic covering-map lifting and based
     equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
     A covering map is proper exactly when every point fiber is finite,
     without separation, local compactness or uniform-degree assumptions.
@@ -49,7 +52,11 @@ sources:
       argument motivate the results. Transport is stated categorically and
       descent permits arbitrary indexed open covers and arbitrary target
       categories, beyond the connectedness and intersection conditions in
-      the source's diagram. The covering modules use the based lifting,
+      the source's diagram. The directed-preorder formulation generalizes the
+      finite-stage colimit step in Chapter 2 §7, printed p. 19 (PDF p. 27);
+      it does not identify all finite families with the source's restricted
+      finite intersection-closed families or assert the later comparisons.
+      The covering modules use the based lifting,
       monodromy and over-base comparison arguments, with the asymmetric
       connectivity and local path connectedness hypotheses stated below.
       The coproduct comparison is derived support for the all-points groupoid
@@ -125,8 +132,20 @@ status:
     are independent. The existing inclusion cocone is a colimit in GrpCat.{u};
     repeated indices are retained, with no path connectedness, intersection closure,
     separation, local connectivity, finiteness or separate index nonemptiness premise.
-    This generalizes the compact finite-stage colimit step in May, Chapter 2, §7,
-    printed p. 19. No arbitrary-cover based-group theorem, wedge calculation or
+    This version uses every inclusion between presented neighborhoods and the
+    diagram inducedFunctor U ⋙ openNhdsFunctor p. For arbitrary topological
+    X : Type u, a supplied p : X, J : Type v with Preorder J and IsDirectedOrder J,
+    and a monotone open-neighborhood cover U with hU : Monotone U, compatibility
+    only along i ≤ j suffices. Homomorphisms into any G : Type w with Monoid G
+    extend uniquely along the canonical inclusion legs, with u, v and w independent.
+    The noncomputable definition isColimitOfIsOpenCoverOfMonotone returns
+    IsColimit ((openNhdsCocone p).whisker hU.functor) in GrpCat.{u} for the
+    canonical preorder category on J, not the induced all-inclusions category.
+    No path connectedness, intersection closure, separation, local connectivity,
+    smallness, injectivity, order reflection or separate Nonempty J premise is
+    required; the cover at p supplies an index. These forms generalize the compact
+    finite-stage colimit step in May, Chapter 2, §7, printed p. 19 (PDF p. 27).
+    No arbitrary-cover based-group theorem, wedge calculation or
     covering-space classification is asserted.
     For a continuous map with path-connected, locally path-connected domain
     and a prescribed lift of its basepoint, unique based lifting is equivalent
@@ -249,6 +268,14 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
     - lean: FundamentalGroup.isPushout_of_isOpenCover
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
+    - lean: FundamentalGroup.existsUnique_hom_of_isOpenCover_of_directed
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean
+    - lean: FundamentalGroup.isColimitOfIsOpenCoverOfDirected
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean
+    - lean: FundamentalGroup.existsUnique_hom_of_isOpenCover_of_monotone
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean
+    - lean: FundamentalGroup.isColimitOfIsOpenCoverOfMonotone
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean
     - lean: IsCoveringMap.existsUnique_continuousMap_lifts_iff_range_le
       module: FundamentalGroupoids/Topology/Covering/Lifting.lean
     - lean: IsCoveringMap.homeomorphOfRangeEq

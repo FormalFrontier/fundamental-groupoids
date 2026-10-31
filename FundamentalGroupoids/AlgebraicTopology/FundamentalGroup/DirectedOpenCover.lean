@@ -6,6 +6,7 @@ module
 
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenNhds
 public import Mathlib.CategoryTheory.Limits.IsLimit
+public import Mathlib.Order.Directed
 public import Mathlib.Topology.Sets.OpenCover
 import Mathlib.CategoryTheory.Limits.Types.ColimitType
 import FundamentalGroupoids.Topology.Path
@@ -16,9 +17,12 @@ import FundamentalGroupoids.Topology.Path
 For an inclusion-directed open cover by neighborhoods of a supplied basepoint, the
 ambient fundamental group has the universal property of the colimit of the local
 fundamental groups. The diagram and cocone are the existing `openNhdsFunctor` and
-`openNhdsCocone`, restricted along `CategoryTheory.inducedFunctor U`. Every index is
-retained, including distinct indices presenting the same open neighborhood, and all
-transition maps are induced by the corresponding subspace inclusions.
+`openNhdsCocone`, restricted along `CategoryTheory.inducedFunctor U`. For a monotone
+cover indexed by a directed preorder, `existsUnique_hom_of_isOpenCover_of_monotone`
+and `isColimitOfIsOpenCoverOfMonotone` instead use `Monotone.functor`, requiring
+compatibility only along index inequalities. Both forms retain every index, including
+distinct indices presenting the same open neighborhood, and all transition maps are
+induced by the corresponding subspace inclusions.
 
 The homomorphism universal property permits any target monoid in a universe independent
 of the space and index universes. The categorical form concerns the inclusion cocone
@@ -34,6 +38,9 @@ each based homotopy in one chart. These stage-surjectivity and eventual-equality
 statements recognize the ambient group as Mathlib's heterogeneous type colimit.
 Its descent map preserves multiplication by putting two inputs in a common chart;
 this uses the existing group operations and works for any target monoid.
+The preorder-indexed form reduces to the inclusion-directed form: passing to a
+common upper index and using thinness of the neighborhood category extends
+compatibility along index inequalities to every inclusion of presented neighborhoods.
 
 ## References
 
@@ -271,6 +278,87 @@ noncomputable def isColimitOfIsOpenCoverOfDirected
     congrArg GrpCat.Hom.hom (s.w (InducedCategory.homMk (homOfLE hij)))
   obtain ⟨ψ, hψ, huniq⟩ := existsUnique_hom_of_isOpenCover_of_directed
     p U hcover hdir s.pt (fun i => (s.ι.app i).hom) hs
+  refine ⟨GrpCat.ofHom ψ, ?_, ?_⟩
+  · intro i
+    exact GrpCat.hom_ext (hψ i)
+  · intro m hm
+    apply GrpCat.hom_ext
+    exact huniq m.hom (fun i => congrArg GrpCat.Hom.hom (hm i))
+
+variable {J : Type v} [Preorder J] [IsDirectedOrder J]
+
+/-- Homomorphisms from the fundamental groups of a monotone neighborhood cover indexed
+by a directed preorder extend uniquely to the ambient fundamental group.
+
+Compatibility is required only along inequalities `i ≤ j` in the index preorder,
+not along every inclusion of presented neighborhoods. The target may be any monoid,
+in a universe independent of the space and index universes. No path connectedness,
+intersection closure, injectivity or order reflection of the cover is required.
+This is the ordinary-preorder form of the compact finite-stage colimit step in May,
+Chapter 2, §7, printed p. 19. -/
+theorem existsUnique_hom_of_isOpenCover_of_monotone
+    (p : X) (U : J → OpenNhds (X := TopCat.of X) p)
+    (hcover : IsOpenCover (fun j => (U j).1))
+    (hU : Monotone U)
+    (G : Type w) [Monoid G]
+    (φ : ∀ j, FundamentalGroup (U j).1 ⟨p, (U j).2⟩ →* G)
+    (hφ : ∀ (i j : J) (hij : i ≤ j),
+      (φ j).comp
+        (((openNhdsFunctor p).map (homOfLE (hU hij))).hom) = φ i) :
+    ∃! ψ : FundamentalGroup X p →* G,
+      ∀ j, ψ.comp (((openNhdsCocone p).ι.app (U j)).hom) = φ j := by
+  -- Keep the entire calculation on the canonical fundamental-group carriers.
+  change ∀ (i j : J) (hij : i ≤ j),
+    (φ j).comp (transitionHom p (hU hij)) = φ i at hφ
+  refine existsUnique_hom_of_isOpenCover_of_directed p U hcover hU.directed_le G φ ?_
+  intro i j hij
+  change (φ j).comp (transitionHom p hij) = φ i
+  obtain ⟨k, hik, hjk⟩ := exists_ge_ge i j
+  -- Both routes from `U i` to `U k` are the same neighborhood inclusion.
+  have hcomp :
+      homOfLE hij ≫ homOfLE (hU hjk) = homOfLE (hU hik) :=
+    Subsingleton.elim _ _
+  have htransition :
+      (transitionHom p (hU hjk)).comp (transitionHom p hij) =
+        transitionHom p (hU hik) := by
+    exact congrArg GrpCat.Hom.hom
+      (((openNhdsFunctor p).map_comp (homOfLE hij) (homOfLE (hU hjk))).symm.trans
+        ((openNhdsFunctor p).congr_map hcomp))
+  calc
+    (φ j).comp (transitionHom p hij) =
+        ((φ k).comp (transitionHom p (hU hjk))).comp (transitionHom p hij) := by
+      rw [hφ j k hjk]
+    _ = (φ k).comp
+        ((transitionHom p (hU hjk)).comp (transitionHom p hij)) :=
+      MonoidHom.comp_assoc _ _ _
+    _ = (φ k).comp (transitionHom p (hU hik)) := by rw [htransition]
+    _ = φ i := hφ i k hik
+
+/-- The inclusion cocone of a monotone neighborhood cover indexed by a directed
+preorder is a colimit in `GrpCat` in the space universe.
+
+The diagram is `hU.functor ⋙ openNhdsFunctor p` on the canonical preorder category:
+its arrows are precisely index inequalities, rather than all inclusions of presented
+neighborhoods. No path connectedness or intersection closure is required.
+This is the ordinary directed-preorder form of the compact finite-stage colimit
+step in May, Chapter 2, §7, printed p. 19. The homomorphism form with arbitrary
+monoid targets in an independent universe is
+`existsUnique_hom_of_isOpenCover_of_monotone`. -/
+noncomputable def isColimitOfIsOpenCoverOfMonotone
+    (p : X) (U : J → OpenNhds (X := TopCat.of X) p)
+    (hcover : IsOpenCover (fun j => (U j).1))
+    (hU : Monotone U) :
+    IsColimit ((openNhdsCocone p).whisker hU.functor) := by
+  classical
+  apply IsColimit.ofExistsUnique
+  intro s
+  have hs (i j : J) (hij : i ≤ j) :
+      (s.ι.app j).hom.comp
+          (((openNhdsFunctor p).map (homOfLE (hU hij))).hom) =
+        (s.ι.app i).hom :=
+    congrArg GrpCat.Hom.hom (s.w (homOfLE hij))
+  obtain ⟨ψ, hψ, huniq⟩ := existsUnique_hom_of_isOpenCover_of_monotone
+    p U hcover hU s.pt (fun i => (s.ι.app i).hom) hs
   refine ⟨GrpCat.ofHom ψ, ?_, ?_⟩
   · intro i
     exact GrpCat.hom_ext (hψ i)

@@ -114,11 +114,27 @@ directions, examples, conventions and credits.
   For any topological space with a supplied basepoint and an arbitrarily indexed,
   inclusion-directed open cover by its neighborhoods, compatible homomorphisms
   from the local fundamental groups to any monoid extend uniquely to a
-  homomorphism from the ambient group. The existing inclusion cocone is a colimit
-  in `GrpCat.{u}`. All indices are retained, including repeated opens, and all maps
-  are inclusion-induced. Space, index and target-monoid universes are independent;
-  no path connectedness, intersection closure, separation, local connectivity,
-  finiteness, dimension or separate index nonemptiness assumption is imposed.
+  homomorphism from the ambient group. Compatibility is along every inclusion
+  between presented neighborhoods; the diagram uses `inducedFunctor U`.
+  The existing inclusion cocone is a colimit in `GrpCat.{u}`. All indices are
+  retained, including repeated opens, and all maps are inclusion-induced.
+  Space, index and target-monoid universes are independent; no path connectedness,
+  intersection closure, separation, local connectivity, finiteness, dimension or
+  separate index nonemptiness assumption is imposed.
+- **Directed-preorder neighborhood-cover colimits** ([`DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean)).
+  Let `X : Type u` be any topological space, `p : X`, and `J : Type v` have
+  `[Preorder J] [IsDirectedOrder J]`. For a monotone open-neighborhood cover
+  `U : J → OpenNhds p`,
+  `FundamentalGroup.existsUnique_hom_of_isOpenCover_of_monotone` extends local
+  homomorphisms to any monoid `G : Type w` uniquely along the canonical inclusion
+  legs. Compatibility is required only for `i ≤ j`, not for every inclusion
+  `U i ≤ U j`. For `hU : Monotone U`, the noncomputable definition
+  `FundamentalGroup.isColimitOfIsOpenCoverOfMonotone` supplies
+  `IsColimit ((openNhdsCocone p).whisker hU.functor)` in `GrpCat.{u}`.
+  Its diagram uses the ordinary preorder category on `J`. The universes `u`, `v`
+  and `w` are independent; no path connectedness, intersection closure, separation,
+  local connectivity, smallness, injectivity, order reflection or separate
+  nonemptiness assumption on `J` is required.
 - **Open-cover quotient presentations** ([`OpenCoverPresentation`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverPresentation.lean)).
   An intersection-closed open cover by path-connected neighborhoods of a common
   point presents the ambient fundamental group as the free product of the local
@@ -297,7 +313,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverInclusions`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverInclusions.lean) | All-open inclusion cocone; full-inclusion `Grpd`/`Cat` colimits and strict arbitrary-category descent for indexed covers with binary-intersection-closed range, without connectivity, common-point or finiteness assumptions |
 | [`AlgebraicTopology.FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean) | Fundamental-group product equivalence, coordinate and assembled-loop equations |
-| [`AlgebraicTopology.FundamentalGroup.DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean) | Directed open covers: unique compatible homomorphisms to arbitrary monoids and the existing inclusion cocone as a `GrpCat` colimit, without path connectedness or intersection closure |
+| [`AlgebraicTopology.FundamentalGroup.DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean) | Inclusion-directed covers and monotone covers on directed preorders: unique compatible homomorphisms to arbitrary monoids and canonical inclusion cocones as `GrpCat` colimits, without path connectedness or intersection closure |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts; directed-union and common-point simple-connectivity criteria |
 | [`SemilocallySimplyConnected.Basic`](FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean) | Chosen-center ambient-null-loop definition, inclusion-image criterion, simply connected spaces and reflection |
@@ -329,7 +345,9 @@ The pairwise diagram includes empty intersections, not the empty-family intersec
 The intersection-closed based-group colimit theorem requires a common basepoint
 and path-connected members. The directed-cover theorem instead requires
 inclusion-directedness, without path connectedness or intersection closure.
-Neither formulation asserts a based-group colimit for an arbitrary open cover.
+Its monotone-cover form uses only inequalities in a directed index preorder,
+not all inclusions of presented neighborhoods. These formulations do not assert
+a based-group colimit for an arbitrary open cover.
 No wedge calculation or covering-space classification is asserted. A monodromy
 stabilizer is not in general its permutation kernel; a centralizer is not a group
 structure on a fiber.

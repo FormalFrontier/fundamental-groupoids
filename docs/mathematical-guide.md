@@ -7,9 +7,10 @@ Groupoids. See the [README](../README.md) for the overview,
 
 Fundamental groupoids, categorical endomorphism transport, strict descent along
 indexed open covers, and based fundamental-group colimits for intersection-closed
-path-connected covers or inclusion-directed covers in Lean. The library extends Mathlib's categories, path-homotopy classes and open-cover
-APIs; it introduces no replacement fundamental group, fundamental groupoid or
-one-object category.
+path-connected covers, inclusion-directed covers or monotone covers indexed by
+directed preorders in Lean. The library extends Mathlib's categories,
+path-homotopy classes and open-cover APIs; it introduces no replacement
+fundamental group, fundamental groupoid or one-object category.
 It also extends Mathlib's covering-space APIs with based lifting, monodromy,
 maps of covers and deck-group comparisons.
 
@@ -161,6 +162,52 @@ ambient or local path connectedness; ambient path connectedness follows from the
 cover hypotheses. For the indexed results, nonemptiness of the index type and
 path connectedness of pairwise intersections are also consequences of the
 hypotheses, and the index type need not be finite.
+
+### Directed neighborhood covers
+
+The [`DirectedOpenCover`](../FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean)
+module concerns arbitrary topological `X : Type u` with a supplied `p : X`.
+For an inclusion-directed open cover `U : I → OpenNhds p`,
+`FundamentalGroup.existsUnique_hom_of_isOpenCover_of_directed` gives a unique
+extension of homomorphisms to any monoid `G : Type w`. Its compatibility condition
+uses every inclusion `U i ≤ U j`. The noncomputable definition
+`FundamentalGroup.isColimitOfIsOpenCoverOfDirected` supplies the colimit data for
+`(openNhdsCocone p).whisker (inducedFunctor U)` in `GrpCat.{u}`. The induced
+category retains every index, including repeated opens, and has an arrow for
+every inclusion of presented neighborhoods.
+
+There is also an ordinary-preorder formulation. Let `J : Type v` have
+`[Preorder J] [IsDirectedOrder J]`, and let `U : J → OpenNhds p` be an open cover
+with `hU : Monotone U`.
+
+- **Unique extension with order-only compatibility**
+  ([`FundamentalGroup.existsUnique_hom_of_isOpenCover_of_monotone`](../FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean)).
+  Homomorphisms `φ j : π₁(U j, p) →* G` to any monoid `G : Type w` extend
+  uniquely to `ψ : π₁(X, p) →* G` along the canonical inclusion legs. Compatibility
+  is required only for `i ≤ j`, using the inclusion `hU hij : U i ≤ U j`.
+  The universes `u`, `v` and `w` are independent.
+- **Colimit data for the ordinary preorder diagram**
+  ([`FundamentalGroup.isColimitOfIsOpenCoverOfMonotone`](../FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean)).
+  This noncomputable definition returns
+  `IsColimit ((openNhdsCocone p).whisker hU.functor)` in `GrpCat.{u}`.
+  The diagram is `hU.functor ⋙ openNhdsFunctor p` on the canonical preorder
+  category of `J`; its arrows are precisely index inequalities, not all
+  inclusions of presented neighborhoods.
+
+Neither version requires path connectedness of the charts or ambient space,
+intersection closure, separation, local connectivity, finiteness or smallness.
+The monotone family need not be injective or order reflecting. No separate
+`Nonempty J` assumption is needed: the cover at `p` supplies an index.
+
+For an inclusion `U i ≤ U j` not supplied by an index inequality, choose a common
+upper index `k ≥ i,j`. Compatibility from `j` to `k`, composed with this inclusion,
+agrees with compatibility from `i` to `k` by functoriality and thinness of
+neighborhood arrows. Thus order-only compatibility implies compatibility along
+all inclusions, without cancellation or injectivity. The independent-target
+universal property above applies, and Mathlib's `IsColimit.ofExistsUnique`
+packages the categorical form. No new path descent, group or colimit model is
+needed. This is not a finality assertion for `U` into all open neighborhoods;
+a cover of proper neighborhoods need not be final there.
 
 ### Covering spaces
 
@@ -396,6 +443,17 @@ The canonical indexed-cover colimit name is `FundamentalGroup.isColimitOfIsOpenC
 The deprecated spelling `FundamentalGroup.isColimit_of_isOpenCover` remains a
 compatibility alias; use the canonical name in new code.
 
+For monotone neighborhood covers on a directed preorder, import
+`FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.DirectedOpenCover`.
+Use `FundamentalGroup.existsUnique_hom_of_isOpenCover_of_monotone` for the
+independent-universe monoid universal property. For a cocone on the ordinary
+preorder diagram, use `FundamentalGroup.isColimitOfIsOpenCoverOfMonotone p U
+hcover hU` through Mathlib's `IsColimit.desc`, `fac` and `uniq` interface, without
+unfolding the definition. For a family with no specified index order, use the
+all-inclusions variants `existsUnique_hom_of_isOpenCover_of_directed` and
+`isColimitOfIsOpenCoverOfDirected`, supplying inclusion-directedness and
+compatibility along every inclusion instead.
+
 ### Covering imports and compatibility with sphere-topology
 
 Import the covering modules individually as
@@ -469,6 +527,28 @@ exercise the advertised interfaces:
   nonidentity cylinder class; the retractions recover the circle class.
   These geometric and group-theoretic facts are established independently of the
   open-cover universal properties, which are then applied in both forms.
+- The [finite-neighborhood-family client](../FundamentalGroupoidsTest/AlgebraicTopology/FundamentalGroup/DirectedPreorderCover.lean)
+  reuses the circle in `AddCircle 1 ⊕ ℕ` and its cover by the circle together
+  with nonempty finite sets of discrete points. Nonempty finite collections of
+  these neighborhoods form a directed preorder under family inclusion; finite
+  union is monotone, and singleton families recover the cover. Let
+  `U₀ = circle ∪ {0}` and `V₀ = circle ∪ {0,1}`. These are distinct proper
+  neighborhoods with `U₀ < V₀`. The collections `J₀ = {V₀}` and
+  `K₀ = {U₀,V₀}` are both intersection-closed and have the same proper union
+  `V₀`. There is a family-inclusion arrow `J₀ → K₀`, but none `K₀ → J₀`,
+  although the unions admit the reverse inclusion. This distinguishes the
+  ordinary family category from the induced union-inclusion category without
+  relying on repeated labels. The circle retractions detect nonidentity local
+  and ambient classes; the colimit descent to the circle group retains that
+  nonidentity class.
+
+The category of all nonempty finite families in this client differs from its
+subtype of intersection-closed finite families. Directedness for the latter
+needs a separate argument: for an intersection-closed ambient family `A`,
+closing the union of two of its finite subfamilies under nonempty finite meets
+stays finite and within `A`, supplying an upper family. The chart range used
+here is not intersection-closed. The finite-family application uses all
+nonempty finite families, not that restricted category.
 
 ## Conventions and limitations
 
@@ -500,9 +580,12 @@ and representative equations. Multiplicativity is checked in a common chart;
 no new group or colimit model is used. This directed formulation retains repeated
 indices and requires
 neither path connectedness nor intersection closure, separation, local connectivity,
-finiteness or separate index nonemptiness. Neither formulation asserts a
-based-group colimit for arbitrary open covers. No wedge calculation or
-covering-space classification is asserted.
+finiteness or separate index nonemptiness. Its
+[directed-preorder form](#directed-neighborhood-covers) requires compatibility
+only along index inequalities and has cocone
+`(openNhdsCocone p).whisker hU.functor`, not the induced all-inclusions diagram.
+These formulations do not assert a based-group colimit for arbitrary open covers.
+No wedge calculation or covering-space classification is asserted.
 The small-path module on its own proves generation and naturality, not functor
 descent. The translation example does not assert nonidentity chart-object casts.
 A monodromy point stabilizer is not generally the kernel of its permutation
@@ -519,8 +602,12 @@ a fiber, not a group structure on that fiber.
   generalize the corresponding topological results. The indexed based van Kampen
   statements give the common-basepoint, intersection-closed formulation, with the
   two-open pushout as a specialization. The directed-cover theorem generalizes
-  the compact finite-stage colimit step on printed p. 19, without path connectedness
-  or intersection closure and with arbitrary target monoids.
+  the compact finite-stage colimit step on printed p. 19 (PDF p. 27), without path
+  connectedness or intersection closure and with arbitrary target monoids. Its
+  ordinary directed-preorder form permits only the specified index inequalities.
+  This general formulation does not identify all finite families with the source's
+  restricted finite intersection-closed families or assert the later comparisons
+  in the van Kampen argument.
   Chapter 3, §§2–4, 7 supplies the covering-space lifting and monodromy arguments.
   The categorical preconnectedness criterion is a derived consequence of the
   fiber-translation argument in §4, rather than a theorem stated there.
