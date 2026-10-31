@@ -126,6 +126,14 @@ gives detailed statements, API directions, examples, conventions and credits.
   under Mathlib's multiplicative comparison. Cube and space universes are
   independent, with no separation, connectedness or finiteness assumptions.
   The module uses Mathlib alone.
+- **Point-local loop rigidity and totally disconnected targets** ([`HomotopyGroup.Discrete`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Discrete.lean)).
+  At any chosen point with a subsingleton path component, every generalized loop
+  indexed by a nonempty type equals the constant loop, so its boundary-relative
+  homotopy quotient is a subsingleton. In particular this holds at every basepoint
+  of a totally disconnected space, including discrete spaces. Cube and target
+  universes are independent, and indices may be infinite. The nonempty-index
+  hypothesis is essential in general: the empty-index quotient records all
+  path components.
 - **Relative affine homotopies and vector-space quotients** ([`Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean),
   [`HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean)).
   Continuous maps from any space into a real vector space with continuous

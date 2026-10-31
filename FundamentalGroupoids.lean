@@ -49,6 +49,7 @@ public import FundamentalGroupoids.Topology.Homotopy.Affine
 public import FundamentalGroupoids.Topology.Homotopy.Cube
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Affine
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Circle
+public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Discrete
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map
 public import FundamentalGroupoids.Topology.Homotopy.Relative
 public import FundamentalGroupoids.Topology.Path
