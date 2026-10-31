@@ -155,19 +155,15 @@ theorem map_comp (g : C(Y, Z)) (f : C(X, Y)) (p : X) :
   MonoidHom.ext fun γ => eq_of_heq
     (CategoryTheory.Functor.hcongr_hom (FundamentalGroupoid.map_comp g f) γ)
 
-/-- A reflexive basepoint equality leaves the induced homomorphism unchanged. -/
-@[simp]
-theorem mapOfEq_rfl (f : C(X, Y)) (x : X) :
-    mapOfEq f (rfl : f x = f x) = map f x := by
-  apply MonoidHom.ext
-  intro γ
-  simp only [mapOfEq_apply, Path.Homotopic.Quotient.cast_rfl_rfl, map_apply]
-
 /-- The identity continuous map with its basepoint equality induces the identity homomorphism. -/
+@[simp]
 theorem mapOfEq_id (x : X) :
     mapOfEq (ContinuousMap.id X) (rfl : ContinuousMap.id X x = x) =
       MonoidHom.id (FundamentalGroup X x) := by
-  rw [mapOfEq_rfl, map_id]
+  apply MonoidHom.ext
+  intro γ
+  simpa only [mapOfEq_apply, Path.Homotopic.Quotient.cast_rfl_rfl, map_apply] using
+    DFunLike.congr_fun (map_id x) γ
 
 /-- Induced homomorphisms for point-preserving maps respect composition and the composite
 basepoint equality. -/

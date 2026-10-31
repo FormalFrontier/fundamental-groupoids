@@ -4,7 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
-import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Products
+import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Functor
 import FundamentalGroupoids.Topology.Covering.Monodromy
 import Mathlib.Algebra.Group.Equiv.Opposite
 import Mathlib.Algebra.Group.Equiv.TypeTags
@@ -24,10 +24,7 @@ lifts through both the radian and the period-one exponentials.
 These equations use the characteristic APIs for quotient-covering equivalences
 and monodromy endpoints. Naturality for the real lift `t ↦ n*t` shows that every
 integer power map, including the constant power map at zero, induces multiplication
-by `n` in these same coordinates. For the categorical product of two based circles,
-the canonical fundamental-group comparison and its two projections give integer
-coordinates sending the signed coordinate loops to their prescribed pair of integers.
-The empty-product comparison includes the based one-point space.
+by `n` in these same coordinates.
 
 ## References
 
@@ -38,7 +35,7 @@ The empty-product comparison includes the based one-point space.
 
 noncomputable section
 
-open CategoryTheory CategoryTheory.Limits
+open CategoryTheory
 
 namespace Circle
 
@@ -241,127 +238,5 @@ private theorem homotopyFunctor_map_square_ne_id :
   have htwo : (2 : ℤ) = 1 := by
     simpa only [toAdd_ofAdd] using congrArg Multiplicative.toAdd hcoord
   exact (by decide : (2 : ℤ) ≠ 1) htwo
-
-/-- Two circles based at one, with their ordinary categorical product. -/
-private abbrev productFamily : Fin 2 → BasedTopCat :=
-  fun _ => BasedTopCat.of Circle (1 : Circle)
-
-/-- Integer coordinates obtained from the canonical product comparison and both
-chosen group-product projections, using the same circle normalization as above. -/
-private def productIntegerCoordinates :
-    FundamentalGroup.functor.obj (∏ᶜ productFamily) →*
-      Multiplicative ℤ × Multiplicative ℤ :=
-  ((integerNormalization.toMonoidHom.comp
-      (Pi.π (fun i => FundamentalGroup.functor.obj (productFamily i)) 0).hom).prod
-    (integerNormalization.toMonoidHom.comp
-      (Pi.π (fun i => FundamentalGroup.functor.obj (productFamily i)) 1).hom)).comp
-    (piComparison FundamentalGroup.functor productFamily).hom
-
-/-- The product of two signed exponential loops, transported to the chosen based product. -/
-private def productSignedLoopClass (m n : ℤ) :
-    FundamentalGroup.functor.obj (∏ᶜ productFamily) :=
-  FundamentalGroup.functor.map (BasedTopCat.piIsoPi productFamily).inv
-    (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk
-      (Path.pi (fun i : Fin 2 => if i = 0 then signedExpLoop m else signedExpLoop n))))
-
-private theorem productIntegerCoordinates_map_piIsoPi_inv
-    (q : FundamentalGroup (Fin 2 → Circle) (fun _ => (1 : Circle))) :
-    productIntegerCoordinates
-        (FundamentalGroup.functor.map (BasedTopCat.piIsoPi productFamily).inv q) =
-      (integerNormalization
-          (FundamentalGroup.piMulEquiv (fun _ : Fin 2 => (1 : Circle)) q 0),
-        integerNormalization
-          (FundamentalGroup.piMulEquiv (fun _ : Fin 2 => (1 : Circle)) q 1)) := by
-  have h := DFunLike.congr_fun
-    (FundamentalGroup.functor_piComparison_eq_piMulEquiv productFamily) q
-  exact Prod.ext
-    (congrArg integerNormalization (congrFun h 0))
-    (congrArg integerNormalization (congrFun h 1))
-
-/-- The two signed coordinate loops form the two distinct nonidentity integer
-coordinate classes under the canonical categorical comparison. -/
-private theorem productIntegerCoordinates_signedLoops (m n : ℤ) :
-    Function.Bijective productIntegerCoordinates ∧
-      productIntegerCoordinates (productSignedLoopClass m n) =
-        (Multiplicative.ofAdd m, Multiplicative.ofAdd n) ∧
-      productSignedLoopClass 1 0 ≠ 1 ∧
-      productSignedLoopClass 0 1 ≠ 1 ∧
-      productSignedLoopClass 1 0 ≠ productSignedLoopClass 0 1 := by
-  let e : FundamentalGroup (Fin 2 → Circle) (fun _ => (1 : Circle)) ≃
-      Multiplicative ℤ × Multiplicative ℤ :=
-    ((FundamentalGroup.piMulEquiv (fun _ : Fin 2 => (1 : Circle))).toEquiv.trans
-      (Equiv.piCongrRight (fun _ : Fin 2 => integerNormalization.toEquiv))).trans
-      (piFinTwoEquiv (fun _ : Fin 2 => Multiplicative ℤ))
-  have he :
-      productIntegerCoordinates ∘
-          (FundamentalGroup.functor.map (BasedTopCat.piIsoPi productFamily).inv) =
-        e := by
-    funext q
-    exact productIntegerCoordinates_map_piIsoPi_inv q
-  have htransport :
-      Function.Bijective
-        (FundamentalGroup.functor.map (BasedTopCat.piIsoPi productFamily).inv) :=
-    ((FundamentalGroup.functor.mapIso
-      (BasedTopCat.piIsoPi productFamily).symm).groupIsoToMulEquiv).bijective
-  have hbij : Function.Bijective productIntegerCoordinates := by
-    apply (Function.Bijective.of_comp_iff productIntegerCoordinates htransport).mp
-    rw [he]
-    exact e.bijective
-  have hcoords (a b : ℤ) :
-      productIntegerCoordinates (productSignedLoopClass a b) =
-        (Multiplicative.ofAdd a, Multiplicative.ofAdd b) := by
-    let γ : Fin 2 → Path (1 : Circle) 1 :=
-      fun i => if i = 0 then signedExpLoop a else signedExpLoop b
-    have hγ :
-        FundamentalGroup.piMulEquiv (fun _ : Fin 2 => (1 : Circle))
-            (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (Path.pi γ))) =
-          fun i => FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (γ i)) := by
-      rw [← FundamentalGroup.piMulEquiv_symm_fromPath
-        (fun _ : Fin 2 => (1 : Circle)) γ]
-      exact (FundamentalGroup.piMulEquiv _).apply_symm_apply _
-    exact (productIntegerCoordinates_map_piIsoPi_inv
-      (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (Path.pi γ)))).trans (by
-        simp only [hγ]
-        simp [γ, integerNormalization_signedExpLoop])
-  have hone : Multiplicative.ofAdd (1 : ℤ) ≠ (1 : Multiplicative ℤ) := by decide
-  refine ⟨hbij, hcoords m n, ?_, ?_, ?_⟩
-  · intro h
-    have hc := congrArg productIntegerCoordinates h
-    simp only [hcoords, map_one] at hc
-    exact hone (congrArg Prod.fst hc)
-  · intro h
-    have hc := congrArg productIntegerCoordinates h
-    simp only [hcoords, map_one] at hc
-    exact hone (congrArg Prod.snd hc)
-  · intro h
-    have hc := congrArg productIntegerCoordinates h
-    simp only [hcoords] at hc
-    exact hone (congrArg Prod.fst hc)
-
-/-- In the empty case the source and target of the canonical comparison are
-trivial groups, as is the fundamental group of the based one-point space. -/
-private theorem empty_product_comparison :
-    Subsingleton (FundamentalGroup.functor.obj (BasedTopCat.of PUnit.{1} PUnit.unit)) ∧
-      IsIso (piComparison FundamentalGroup.functor
-        (fun _ : Empty => BasedTopCat.of PUnit.{1} PUnit.unit)) ∧
-      (∀ q : FundamentalGroup.functor.obj
-          (∏ᶜ fun _ : Empty => BasedTopCat.of PUnit.{1} PUnit.unit), q = 1) ∧
-      (∀ q : (∏ᶜ (fun _ : Empty =>
-          FundamentalGroup.functor.obj (BasedTopCat.of PUnit.{1} PUnit.unit)) : GrpCat),
-        q = 1) := by
-  let X : Empty → BasedTopCat := fun _ => BasedTopCat.of PUnit.{1} PUnit.unit
-  have htarget :
-      ∀ q : (∏ᶜ (fun i => FundamentalGroup.functor.obj (X i)) : GrpCat), q = 1 := by
-    intro q
-    apply Concrete.limit_ext
-      (Discrete.functor (fun i => FundamentalGroup.functor.obj (X i))) q 1
-    intro i
-    exact i.as.elim
-  have hsource : ∀ q : FundamentalGroup.functor.obj (∏ᶜ X), q = 1 := by
-    intro q
-    apply ((asIso (piComparison FundamentalGroup.functor X)).groupIsoToMulEquiv).injective
-    exact (htarget _).trans (map_one (piComparison FundamentalGroup.functor X).hom).symm
-  exact ⟨(inferInstance : Subsingleton (FundamentalGroup PUnit.{1} PUnit.unit)),
-    inferInstance, hsource, htarget⟩
 
 end Circle
