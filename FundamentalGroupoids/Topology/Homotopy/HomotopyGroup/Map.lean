@@ -64,6 +64,12 @@ theorem map_apply (f : C(X, Y)) (hf : f x = y) (p : GenLoop N X x)
     (t : N → unitInterval) : map f hf p t = f (p t) :=
   rfl
 
+/-- Based postcomposition is continuous for the inherited compact-open topologies. -/
+@[fun_prop]
+theorem continuous_map (f : C(X, Y)) (hf : f x = y) :
+    Continuous (map f hf : GenLoop N X x → GenLoop N Y y) :=
+  ((ContinuousMap.continuous_postcomp f).comp continuous_subtype_val).subtype_mk _
+
 /-- The constant loop maps to the constant loop at the target point. -/
 @[simp]
 theorem map_const (f : C(X, Y)) (hf : f x = y) :

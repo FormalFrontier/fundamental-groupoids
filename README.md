@@ -141,6 +141,23 @@ gives detailed statements, API directions, examples, conventions and credits.
   under Mathlib's multiplicative comparison. Cube and space universes are
   independent, with no separation, connectedness or finiteness assumptions.
   The module uses Mathlib alone.
+- **Generalized-loop components** ([`HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean)).
+  `HomotopyGroup.equivZerothHomotopy N x` identifies the raw quotient
+  `HomotopyGroup N X x` with `ZerothHomotopy (GenLoop N X x)` by the identity
+  on representatives in both directions, preserving the chosen constant class.
+  The compact-open/subtype topology is unchanged. Index and space universes are
+  independent; only a topology and chosen `x` are required, with no finiteness,
+  index nonemptiness, decidable equality or separation assumptions.
+  Naturality relates `HomotopyGroup.mapFun` to `ZerothHomotopy.map` of the same
+  continuous `GenLoop.map`. For empty indices, the square with
+  `genLoopHomeoOfIsEmpty` and `homotopyGroupEquivZerothHomotopyOfIsEmpty`
+  commutes, including arbitrary `y : X`, not just `x`. No group structure on
+  components is introduced. This is a raw cubical analogue of May, Chapter 8 §1's
+  based mapping-space observation; his sphere classes and kified weak-Hausdorff
+  category `U` use a different model. No sphere-domain, interval-quotient,
+  kification, `U`-category or finite iterated-loop comparison is asserted.
+  Boundaries mean coordinate faces; for infinite indices these are not interpreted
+  as ambient frontiers or infinite-dimensional spheres.
 - **Point-local loop rigidity and totally disconnected targets** ([`HomotopyGroup.Discrete`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Discrete.lean)).
   At any chosen point with a subsingleton path component, every generalized loop
   indexed by a nonempty type equals the constant loop, so its boundary-relative
@@ -414,11 +431,12 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
+| [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Boundary-relative homotopy iff joinedness; raw quotient/component equivalence with identity representative and constant laws, based-postcomposition naturality and empty-index compatibility |
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
 | [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Zero boundary vertex for nonempty indices and path-connected coordinate-face boundaries for nontrivial indices |
 | [`Topology.Covering.GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean) | Chosen unique based generalized-loop lifts through coverings for nontrivial cube indices, with projection and uniqueness laws |
 | [`Topology.Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean) | Canonical quotient-map injectivity for nonempty indices, bijectivity and stock multiplicative equivalences for nontrivial indices, with forward and inverse representative formulas |
-| [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition along maps carrying a specified set into the fixed set |
+| [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition; `HomotopyWith.joined` without local compactness and `nonempty_iff_joined` for locally compact sources, for arbitrary predicates and independent source/target universes |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
 | [`AlgebraicTopology.FundamentalGroup.Circle`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean) | Signed-period additive-circle and complex-circle integer coordinates, loop/inverse/endpoint laws, nonidentity generators and homeomorphism compatibility |

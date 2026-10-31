@@ -25,6 +25,9 @@ project:
     dependent products for all cube indices in independent universes, by coordinate
     evaluation and loop assembly; for nonempty cube indices with decidable equality
     this is a multiplicative equivalence for the existing group structures.
+    Raw cubical homotopy quotients canonically identify with path components of
+    the same compact-open generalized-loop spaces, naturally in based postcomposition
+    and compatibly with the empty-index comparison.
     Coverings induce canonical quotient-map injections for nonempty cube indices
     and bijections for nontrivial indices, without decidable equality.
     For nontrivial indices with decidable equality,
