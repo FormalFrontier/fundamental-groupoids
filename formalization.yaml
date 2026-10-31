@@ -17,6 +17,8 @@ project:
     Signed-period additive-circle and complex-circle fundamental groups have
     integer coordinates, with signed-loop, inverse, endpoint, nonidentity and
     homeomorphism-compatibility laws, using Mathlib's quotient coverings.
+    Continuous maps act functorially on path components, with equal actions for
+    homotopic maps, in independent space universes without separation assumptions.
     Based postcomposition on generalized loops and homotopy quotients for every
     cube-index type, with positive homomorphisms, based-homotopy invariance and
     fundamental-group compatibility. Coverings induce canonical quotient-map
@@ -127,7 +129,10 @@ related_formalizations:
       RestrictedProductDuality.HomotopyMaps originate with Formal Frontier Agents.
       They supply FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map,
       retaining the same names, statements, proofs, Apache-2.0 and authorship
-      notices. This module depends only on Mathlib, not on restricted products.
+      notices. Its generic path-component map and four characteristic laws also
+      supply FundamentalGroupoids.Topology.Connected.PathConnected, with names
+      under ZerothHomotopy and retained proofs, pointwise identity/composition
+      statements and notices. Both modules depend only on Mathlib.
   - id: https://github.com/FormalFrontier/vector-bundles
     relationship: builds-on
     note: >-
@@ -224,7 +229,10 @@ status:
     dimension-one action agrees with FundamentalGroup.mapOfEq. No separation,
     connectedness, local path connectedness, finiteness or well-pointedness is
     assumed. The module depends only on Mathlib and supplies no group structure
-    for empty indices or restricted-product path-component-map interface.
+    for empty indices. The separate path-component module defines ZerothHomotopy.map
+    on the existing quotient by Joined for arbitrary continuous maps, with
+    representative, pointwise identity/composition and homotopy-invariance laws.
+    Space universes are independent, with no separation or connectedness assumptions.
     For an arbitrary topological domain A and a real module E with AddCommGroup E,
     Module ℝ E, TopologicalSpace E, ContinuousAdd E and ContinuousSMul ℝ E,
     ContinuousMap.HomotopyRel.affine f g hfg constructs an affine homotopy fixed
@@ -413,6 +421,10 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
     - lean: AddCircle.fundamentalGroupEquivInt_homeomorphCircle
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+    - lean: ZerothHomotopy.map
+      module: FundamentalGroupoids/Topology/Connected/PathConnected.lean
+    - lean: ZerothHomotopy.map_eq_of_homotopy
+      module: FundamentalGroupoids/Topology/Connected/PathConnected.lean
     - lean: GenLoop.map
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
     - lean: GenLoop.Homotopic.map
@@ -564,7 +576,11 @@ acknowledgements: >-
   in Restricted Product Duality by Formal Frontier Agents, with retained names,
   statements, proofs and Apache-2.0 notice. It reuses Roberto Alvarez's generalized
   loops and homotopy groups, Mark Lavrentyev's fundamental groups and Shing Tak
-  Lam's relative and path homotopies in Mathlib. Relative affine interpolation
+  Lam's relative and path homotopies in Mathlib. The path-component map and its
+  four characteristic laws also originate in Restricted Product Duality, with
+  names under ZerothHomotopy, retained proofs and notices, and Mathlib's path
+  components and Joined.map by Patrick Massot and contributors.
+  Relative affine interpolation
   uses Yury G. Kudryashov's affine homotopies and Patrick Massot and Yury
   Kudryashov's straight segment paths in Mathlib, with the same generalized-loop
   and relative-homotopy APIs for the vector-space consequences.

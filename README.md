@@ -37,6 +37,10 @@ gives detailed statements, API directions, examples, conventions and credits.
 - **Path connectedness** ([`Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean)).
   A space is path connected iff its fundamental groupoid is connected, including
   nonemptiness on both sides; no local path connectedness or separation is needed.
+- **Maps on path components** ([`PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean)).
+  Every continuous map induces `ZerothHomotopy.map`, preserving representatives,
+  identity and composition; homotopic maps induce equal functions. Space universes
+  are independent, with no separation or connectedness assumptions.
 - **Cube boundaries** ([`Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean)).
   For any index type `N` with at least two elements, the coordinate-face boundary of
   `N → I` is path connected, even for infinite `N`. The zero vertex lies in the
@@ -337,6 +341,11 @@ loop, inverse and endpoint laws are described in the
 [circle coordinate guide](docs/circle-integer-normalization.md), together with the
 all-integer power-map consumer, including zero and negative exponents.
 
+For path components, import `FundamentalGroupoids.Topology.Connected.PathConnected`
+and use `ZerothHomotopy.map f`. Its representative law is `map_mk`; `map_id` and
+`map_comp` are pointwise laws, and `map_eq_of_homotopy f g H` gives equality of
+functions for a homotopy `H : ContinuousMap.Homotopy f g`.
+
 For generalized loops and homotopy groups, import
 `FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map` and use
 `GenLoop.map f hf`, `HomotopyGroup.mapFun N f hf` or, for a nonempty index with
@@ -390,6 +399,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | Module under `FundamentalGroupoids` | Contents |
 | --- | --- |
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
+| [`Topology.Connected.PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean) | Continuous maps on path components, with representative, identity, composition and homotopy-invariance laws |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
@@ -466,7 +476,7 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
   See the [guide's references](docs/mathematical-guide.md#references) for scope and dependencies.
 - [Restricted Product Duality](https://github.com/FormalFrontier/restricted-product-duality):
   the based-postcomposition definitions and proofs for generalized loops and
-  homotopy groups, by Formal Frontier Agents.
+  homotopy groups, and the path-component map API, by Formal Frontier Agents.
 - [VectorBundles](https://github.com/FormalFrontier/vector-bundles/blob/9d2d4b48577e873679271aeee0899239d9a835a1/VectorBundles/Topology/FiberBundle/Proper.lean):
   the local closedness and compact-fiber proof pattern for proper bundle projections.
 
@@ -482,7 +492,10 @@ using Mathlib's quotient coverings and induced homeomorphism equivalence.
 The generalized-loop and homotopy-group map API originates in Restricted Product
 Duality by Formal Frontier Agents, retaining its definitions, proofs, names and
 Apache-2.0 notice. It uses Roberto Alvarez's homotopy groups, Mark Lavrentyev's
-fundamental groups and Shing Tak Lam's homotopies in Mathlib.
+fundamental groups and Shing Tak Lam's homotopies in Mathlib. The path-component
+map and its four characteristic laws also originate in Restricted Product Duality,
+with names under `ZerothHomotopy`, retained proofs and notices, and Mathlib's path
+components by Patrick Massot and contributors.
 Pullback comparisons reuse GroupTheory's orbit–stabilizer
 and double-coset constructions. Normalizer quotients compose GroupTheory's
 normalizer–automorphism and centralizer APIs with covering monodromy.

@@ -61,6 +61,15 @@ representative and based-homotopy laws use the existing homotopy quotient and
 canonical positive group structures; the dimension-one theorem compares with
 Mathlib's fundamental-group map.
 
+The path-component map and its representative, identity, composition and
+homotopy-invariance laws also originate in Restricted Product Duality's
+`RestrictedProductDuality.HomotopyMaps`, by Formal Frontier Agents. They supply
+`FundamentalGroupoids.Topology.Connected.PathConnected` as `ZerothHomotopy.map`,
+`map_mk`, `map_id`, `map_comp` and `map_eq_of_homotopy`, retaining the proofs,
+pointwise identity/composition statements and Apache-2.0 and authorship notices.
+They reuse Mathlib's path components and `Joined.map` by Patrick Massot and
+contributors, homotopies by Shing Tak Lam and contributors, and quotient maps.
+
 J. Peter May's *A Concise Course in Algebraic Topology*, revised author PDF,
 Chapter 1, §3 and Chapter 2, §§5, 7, supplies mathematical motivation and
 arguments. The book is published by the University of Chicago Press.

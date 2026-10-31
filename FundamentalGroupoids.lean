@@ -30,6 +30,7 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnect
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Category.TopCat.Based
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
+public import FundamentalGroupoids.Topology.Connected.PathConnected
 public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.Composition
