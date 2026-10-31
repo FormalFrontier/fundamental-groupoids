@@ -41,6 +41,10 @@ directions, examples, conventions and credits.
   For any index type `N` with at least two elements, the coordinate-face boundary of
   `N → I` is path connected, even for infinite `N`. The zero vertex lies in the
   boundary whenever `N` is nonempty.
+- **Based generalized-loop lifts** ([`GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean)).
+  A covering map uniquely lifts a based generalized loop to a supplied point when
+  the cube index has at least two elements. The spaces need no connectedness, local
+  path connectedness or separation assumptions, and the covering need not be surjective.
 - **Sheaves of representation sections** ([`SectionsPresheaf`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/SectionsPresheaf.lean)).
   For any topological space `X`, a representation `FundamentalGroupoid X ⥤ Type w`
   determines a presheaf of transport-invariant families, functorially in the representation.

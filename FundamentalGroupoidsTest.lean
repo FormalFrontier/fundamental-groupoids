@@ -28,6 +28,7 @@ import FundamentalGroupoidsTest.Topology.Covering.Circle
 import FundamentalGroupoidsTest.Topology.Covering.Composition
 import FundamentalGroupoidsTest.Topology.Covering.DeckGroup
 import FundamentalGroupoidsTest.Topology.Covering.Equivalence
+import FundamentalGroupoidsTest.Topology.Covering.GenLoop
 import FundamentalGroupoidsTest.Topology.Covering.Lifting
 import FundamentalGroupoidsTest.Topology.Covering.Monodromy
 import FundamentalGroupoidsTest.Topology.Covering.Morphisms
