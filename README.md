@@ -87,11 +87,22 @@ gives detailed statements, API directions, examples, conventions and credits.
   Index and space universes are independent; no finiteness, connectedness, local
   path connectedness or nonemptiness is needed. The product comparison agrees
   with Mathlib's when its universes coincide.
-- **Fundamental groups of dependent products** ([`piMulEquiv`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean)).
-  For arbitrary spaces `X i` and basepoints `p i`, `π₁(∀ i, X i, p)` is
-  multiplicatively equivalent to `∀ i, π₁(X i, p i)`, by evaluation and loop
-  assembly, naturally in continuous maps and arbitrary reindexing. Index and
-  space universes are independent; no finite/nonempty index or connectedness is needed.
+- **Homotopy quotients of dependent products** ([`HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean),
+  [`FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean)).
+  For arbitrary spaces `X i`, points `p i` and cube index `N`,
+  `HomotopyGroup.piEquiv N p` identifies `HomotopyGroup N (∀ i, X i) p` with
+  `∀ i, HomotopyGroup N (X i) (p i)`. Its coordinates are induced by evaluation;
+  its inverse assembles loop representatives with `GenLoop.pi`, naturally in
+  based coordinate maps. Cube, family and space universes are independent;
+  either index may be empty or infinite, without connectedness, separation,
+  finiteness or decidable-equality assumptions. With `[DecidableEq N] [Nonempty N]`,
+  `HomotopyGroup.piMulEquiv N p` is multiplicative for Mathlib's existing group
+  structures. Under `pi1MulEquivFundamentalGroup`, the degree-one equivalence
+  agrees with the existing `FundamentalGroup.piMulEquiv p`, identifying
+  `π₁(∀ i, X i, p)` multiplicatively with `∀ i, π₁(X i, p i)`.
+  That FundamentalGroup API is natural in continuous coordinate maps and arbitrary
+  reindexing. This generalizes May's binary finite-degree product statement
+  (Chapter 9 §4, printed p. 67), without a sphere-domain or U-topology comparison.
 - **Categorical based products** ([`Products`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean),
   [`Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean)).
   The fundamental-group functor preserves every existing indexed product,
@@ -403,6 +414,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
+| [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
 | [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Zero boundary vertex for nonempty indices and path-connected coordinate-face boundaries for nontrivial indices |
 | [`Topology.Covering.GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean) | Chosen unique based generalized-loop lifts through coverings for nontrivial cube indices, with projection and uniqueness laws |
 | [`Topology.Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean) | Canonical quotient-map injectivity for nonempty indices, bijectivity and stock multiplicative equivalences for nontrivial indices, with forward and inverse representative formulas |

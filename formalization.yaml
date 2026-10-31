@@ -21,9 +21,13 @@ project:
     homotopic maps, in independent space universes without separation assumptions.
     Based postcomposition on generalized loops and homotopy quotients for every
     cube-index type, with positive homomorphisms, based-homotopy invariance and
-    fundamental-group compatibility. Coverings induce canonical quotient-map
-    injections for nonempty cube indices and bijections for nontrivial indices,
-    without decidable equality. For nontrivial indices with decidable equality,
+    fundamental-group compatibility. Homotopy quotients commute with arbitrary
+    dependent products for all cube indices in independent universes, by coordinate
+    evaluation and loop assembly; for nonempty cube indices with decidable equality
+    this is a multiplicative equivalence for the existing group structures.
+    Coverings induce canonical quotient-map injections for nonempty cube indices
+    and bijections for nontrivial indices, without decidable equality.
+    For nontrivial indices with decidable equality,
     the stock homotopy groups are multiplicatively equivalent, with forward
     postcomposition and inverse represented by a chosen based generalized-loop
     lift. Coordinate-face cube boundaries are path connected for nontrivial
