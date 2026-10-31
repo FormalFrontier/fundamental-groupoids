@@ -43,7 +43,7 @@ sources:
     id: https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf
     type: book
     location: >-
-      Revised author PDF, Chapter 1 §3 and Chapter 2 §§5, 7; printed pp. 17–19.
+      Revised author PDF, Chapter 1 §3 and Chapter 2 §§5, 7–8; printed pp. 17–20.
       Chapter 3 §§2–4, 7 for covering-space monodromy, lifting and maps of covers.
     relationship: adapts
     note: >-
@@ -59,6 +59,10 @@ sources:
       The covering modules use the based lifting,
       monodromy and over-base comparison arguments, with the asymmetric
       connectivity and local path connectedness hypotheses stated below.
+      The based fundamental-group functor preserves every existing indexed
+      product, with independent index and space universes. This categorically
+      generalizes the binary product lemma in Chapter 2 §8; it does not assert
+      existence of every large product in a fixed universe.
       The coproduct comparison is derived support for the all-points groupoid
       and disjoint-union viewpoint of Chapter 2 §§5–6, not a named theorem
       quoted from the book. The fiber-finiteness, properness and finite-index
@@ -147,6 +151,13 @@ status:
     finite-stage colimit step in May, Chapter 2, §7, printed p. 19 (PDF p. 27).
     No arbitrary-cover based-group theorem, wedge calculation or
     covering-space classification is asserted.
+    The fundamental-group functor on based spaces preserves every existing
+    indexed product, including the empty product, without index-smallness or
+    connectedness. Space and index universes are independent. The stock product
+    comparison has the projection-induced coordinate maps; under the canonical
+    based-product identification its coordinate homomorphism is piMulEquiv.
+    The raw realization lives in the larger ambient universe when necessary,
+    separately from the unrestricted preservation statement.
     For a continuous map with path-connected, locally path-connected domain
     and a prescribed lift of its basepoint, unique based lifting is equivalent
     to containment of fundamental-group images, compared by the basepoint
@@ -242,6 +253,14 @@ alignment:
       module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
     - lean: CategoryTheory.SingleObj.isEquivalence_functor_id
       module: FundamentalGroupoids/CategoryTheory/SingleObj.lean
+    - lean: BasedTopCat.piIsoPi
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean
+    - lean: FundamentalGroup.functor_piComparison_π_fromPath
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
+    - lean: FundamentalGroup.functor_piComparison_eq_piMulEquiv
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
+    - lean: FundamentalGroup.functor_preservesLimitsOfShape_discrete
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
     - lean: FundamentalGroupoid.pathConnectedSpace_iff_isConnected
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean
     - lean: FundamentalGroupoidFunctor.sigmaComparison

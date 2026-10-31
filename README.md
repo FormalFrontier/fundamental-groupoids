@@ -70,6 +70,14 @@ directions, examples, conventions and credits.
   multiplicatively equivalent to `∀ i, π₁(X i, p i)`, by evaluation and loop
   assembly, naturally in continuous maps and arbitrary reindexing. Index and
   space universes are independent; no finite/nonempty index or connectedness is needed.
+- **Categorical based products** ([`Products`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean),
+  [`Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean)).
+  The fundamental-group functor preserves every existing indexed product,
+  including the empty product, with independent index and space universes.
+  This is preservation, not a blanket large-product existence assertion.
+  The stock comparison acts by the based projections; after the canonical based
+  product identification, its coordinate homomorphism is exactly `piMulEquiv`.
+  No connectedness, finiteness or index-smallness premise is needed.
 - **Fundamental groups and based homotopy** ([`Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean),
   [`Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean)).
   Based spaces form the under category of the one-point space. The fundamental
@@ -299,6 +307,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition along maps carrying a specified set into the fixed set |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
+| [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
 | [`AlgebraicTopology.FundamentalGroup.Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean) | Fundamental-group functor on based spaces and its unique factorization through based homotopy |
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
@@ -313,6 +322,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverInclusions`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverInclusions.lean) | All-open inclusion cocone; full-inclusion `Grpd`/`Cat` colimits and strict arbitrary-category descent for indexed covers with binary-intersection-closed range, without connectivity, common-point or finiteness assumptions |
 | [`AlgebraicTopology.FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean) | Fundamental-group product equivalence, coordinate and assembled-loop equations |
+| [`AlgebraicTopology.FundamentalGroup.Products`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean) | Preservation of every existing indexed product; canonical comparison, projected-loop and raw-product agreement laws |
 | [`AlgebraicTopology.FundamentalGroup.DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean) | Inclusion-directed covers and monotone covers on directed preorders: unique compatible homomorphisms to arbitrary monoids and canonical inclusion cocones as `GrpCat` colimits, without path connectedness or intersection closure |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts; directed-union and common-point simple-connectivity criteria |
