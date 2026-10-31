@@ -105,6 +105,14 @@ directions, examples, conventions and credits.
   satisfying both restriction equations; target and space universes are independent.
   The inclusion square is a pushout in `GrpCat.{u}`. These specialize indexed
   van Kampen; neither formulation adds ambient or local path connectedness.
+- **Simple-connectivity criteria** ([`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean),
+  [`OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean)).
+  Simple connectivity is characterized by path connectedness and a
+  subsingleton fundamental group at a given point. Two simply connected opens
+  covering a space make it simply connected when their intersection
+  is path connected, including nonemptiness. The cover criterion adds no ambient or
+  local path connectedness or separation assumption; the overlap need not be simply
+  connected.
 - **Semilocal simple connectivity** ([`Basic`](FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean),
   [`Maps`](FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean),
   [`LocallyPathConnected`](FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean)).

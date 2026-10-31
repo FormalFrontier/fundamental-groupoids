@@ -7,6 +7,7 @@ module
 public import Mathlib.Algebra.Group.Subgroup.Ker
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.InducedMaps
+public import Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected
 
 /-!
 # Induced maps, homotopy retractions and change of basepoint
@@ -30,13 +31,16 @@ associated to a homotopy. Transport along `a : Path x x'` traverses `a.symm`,
 then the loop, then `a`; group multiplication traverses the right factor first.
 
 The loop-class and image characterizations use Mathlib's path-homotopy quotient
-and subgroup-range APIs.
+and subgroup-range APIs. Simple connectivity is characterized by path connectedness
+and subsingletonness of the fundamental group at a given point.
 
 ## References
 
 * Mathlib's `Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup`
   and `Mathlib.AlgebraicTopology.FundamentalGroupoid.Basic` provide the induced
   homomorphisms and the functoriality of the fundamental groupoid.
+* Mathlib's simple-connectivity API, by Praneeth Kolichala and contributors,
+  supplies the canonical class and the all-point null-loop characterization.
 * `Mathlib.Topology.Homotopy.Path` and `Mathlib.Algebra.Group.Subgroup.Ker`
   provide the loop quotient and the trivial-range criterion.
 * `Mathlib.CategoryTheory.Endomorphism` and `Mathlib.CategoryTheory.EqToHom`
@@ -46,7 +50,8 @@ and subgroup-range APIs.
   conjugation and the natural transformation associated to a homotopy.
 * J. P. May, *A Concise Course in Algebraic Topology*, Chapter 1, §§3–4,
   pp. 6–8, for change of basepoint and the homotopy comparison convention; §6,
-  p. 10, for the strict-retraction obstruction extended here to homotopy retractions.
+  p. 10, for the strict-retraction obstruction extended here to homotopy retractions;
+  Chapter 2, §8, p. 20, for the fundamental-group characterization of simple connectivity.
 -/
 
 @[expose] public section
@@ -64,6 +69,27 @@ theorem mk_eq_one_iff {x : X} (γ : Path x x) :
     (Path.Homotopic.Quotient.mk γ : FundamentalGroup X x) = (1 : FundamentalGroup X x) ↔
       γ.Homotopic (Path.refl x) := by
   rw [one_def, ← Path.Homotopic.Quotient.mk_refl, Path.Homotopic.Quotient.eq]
+
+/-- A space is simply connected exactly when it is path connected and its fundamental
+group at the given point is subsingleton. No separate nonemptiness assumption is needed.
+
+This is the based fundamental-group characterization of simple connectivity in
+J. P. May, *A Concise Course in Algebraic Topology*, Chapter 2, §8, p. 20. -/
+theorem simplyConnectedSpace_iff (p : X) :
+    SimplyConnectedSpace X ↔ PathConnectedSpace X ∧ Subsingleton (FundamentalGroup X p) := by
+  constructor
+  · intro h
+    let := h
+    exact ⟨inferInstance, inferInstance⟩
+  · rintro ⟨hpc, hπ⟩
+    let := hpc
+    let := hπ
+    apply simply_connected_iff_loops_nullhomotopic.mpr
+    refine ⟨hpc, ?_⟩
+    intro x γ
+    let : Subsingleton (FundamentalGroup X x) :=
+      (fundamentalGroupMulEquivOfPathConnected p x).symm.toEquiv.subsingleton
+    exact (mk_eq_one_iff γ).mp (Subsingleton.elim (α := FundamentalGroup X x) _ _)
 
 /-- The image of the induced fundamental-group homomorphism is trivial exactly
 when every based loop maps to a nullhomotopic loop. -/

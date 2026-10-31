@@ -24,7 +24,9 @@ For two open subsets covering a space, a point in their intersection determines 
 inclusion square of fundamental groups. Path connectedness of the two subsets and
 their intersection gives the based van Kampen universal property. The homomorphism
 form permits a target group in a universe independent of the space; the categorical
-form is a pushout square in `GrpCat`.
+form is a pushout square in `GrpCat`. For simply connected opens with path-connected
+intersection, the corresponding simple-connectivity criterion has no ambient
+path-connectedness assumption.
 
 The inclusion cocone commutes without connectedness or coverage assumptions. The
 auxiliary path choices are made first in the intersection, normalized in the path
@@ -53,10 +55,13 @@ members require no additional compatibility hypotheses.
   pp. 17–19: the groupoid colimit theorem and the based-group colimit theorem.
   The two-open inclusion span is a specialization of the common-basepoint,
   intersection-closed cover formulation; global path connectedness follows from
-  the two local hypotheses, the common point, and coverage.
+  the two local hypotheses, the common point, and coverage. Chapter 2, §8,
+  printed p. 20 motivates the simple-connectivity consequence.
 * Mathlib's fundamental groupoids and path homotopies, by Shing Tak Lam, and
   fundamental groups, by Mark Lavrentyev; its continuous subtype inclusions,
-  path-connectedness, bundled groups, and pushout cocones.
+  path-connectedness, bundled groups, and pushout cocones. Its simple-connectivity
+  API, by Praneeth Kolichala and contributors, supplies the canonical class and
+  subsingleton local fundamental groups.
 -/
 
 @[expose] public section
@@ -531,6 +536,51 @@ theorem existsUnique_hom_of_isOpenCover
       congrArg (vertexHom (FundamentalGroupoid.mk p.1))
         (FundamentalGroupoid.descOfIsOpenCover_unique hW F hF K hK)
     _ = φ := rfl
+
+/-- A space covered by two simply connected open subsets with path-connected intersection
+is simply connected. The intersection hypothesis includes nonemptiness; ambient path
+connectedness follows from the local hypotheses and coverage. No local path connectedness
+or separation assumption is required, and the intersection need not be simply connected.
+
+This is a consequence of the based van Kampen theorem discussed in J. P. May,
+*A Concise Course in Algebraic Topology*, Chapter 2, §8, printed p. 20, stated here
+without Chapter 3's standing local path-connectedness assumption. -/
+theorem simplyConnectedSpace_of_isOpenCover
+    (U V : Opens X) (hcover : U ⊔ V = ⊤)
+    (hU : IsSimplyConnected (U : Set X)) (hV : IsSimplyConnected (V : Set X))
+    (hI : IsPathConnected (↑(U ⊓ V) : Set X)) : SimplyConnectedSpace X := by
+  have hunion : (U : Set X) ∪ (V : Set X) = Set.univ :=
+    congrArg (fun W : Opens X => (W : Set X)) hcover
+  let : PathConnectedSpace X := pathConnectedSpace_iff_univ.mpr
+    (hunion ▸ hU.isPathConnected.union hV.isPathConnected hI.nonempty)
+  let : SimplyConnectedSpace U := hU.simplyConnectedSpace
+  let : SimplyConnectedSpace V := hV.simplyConnectedSpace
+  obtain ⟨x, hx⟩ := hI.nonempty
+  let p : ↑(U ⊓ V) := ⟨x, hx⟩
+  let pU : U := ⟨p.1, p.2.1⟩
+  let pV : V := ⟨p.1, p.2.2⟩
+  let G := FundamentalGroup X p.1
+  -- Uniqueness compares the identity and trivial endomorphisms: both restrict
+  -- to the trivial homomorphism on each simply connected open.
+  obtain ⟨φ, _, huniq⟩ := existsUnique_hom_of_isOpenCover U V hcover
+    hU.isPathConnected hV.isPathConnected hI p G
+    (1 : FundamentalGroup U pU →* G) (1 : FundamentalGroup V pV →* G)
+    (by exact (MonoidHom.one_comp _).trans (MonoidHom.one_comp _).symm)
+  have hid : MonoidHom.id G = (1 : G →* G) := by
+    refine (huniq (MonoidHom.id G) ?_).trans (huniq 1 ?_).symm
+    · constructor
+      · apply MonoidHom.ext
+        intro g
+        change map (ContinuousMap.subtypeVal (U : Set X)) pU g = 1
+        rw [Subsingleton.elim g 1, map_one]
+      · apply MonoidHom.ext
+        intro g
+        change map (ContinuousMap.subtypeVal (V : Set X)) pV g = 1
+        rw [Subsingleton.elim g 1, map_one]
+    · exact ⟨MonoidHom.one_comp _, MonoidHom.one_comp _⟩
+  have htrivial (g : G) : g = 1 := DFunLike.congr_fun hid g
+  exact (simplyConnectedSpace_iff p.1).mpr
+    ⟨inferInstance, ⟨fun a b => (htrivial a).trans (htrivial b).symm⟩⟩
 
 /-- The inclusion square of fundamental groups of a two-open cover is a pushout in
 `GrpCat`, provided both opens and their intersection are path connected and a common
