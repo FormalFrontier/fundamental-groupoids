@@ -103,6 +103,11 @@ gives detailed statements, API directions, examples, conventions and credits.
   sending the counterclockwise full turn to `+1`. Signed-loop, inverse, endpoint,
   nonidentity and homeomorphism-compatibility laws are public; zero-period loops
   are constant. The coordinate core uses Mathlib alone.
+- **Higher circle homotopy quotients** ([`HomotopyGroup.Circle`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Circle.lean)).
+  At every basepoint `z` and for every index type `N` with at least two elements,
+  `HomotopyGroup N Circle z` is a subsingleton, using the coordinate-face boundary
+  even for infinite `N`. For finite indices this gives `πₙ(Circle, z) = 0` for
+  `n ≥ 2`; no decidable equality or group instance is required for the quotient result.
 - **Fundamental groups and based homotopy** ([`Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean),
   [`Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean)).
   Based spaces form the under category of the one-point space. The fundamental
