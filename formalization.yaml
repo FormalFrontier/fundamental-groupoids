@@ -17,6 +17,9 @@ project:
     Signed-period additive-circle and complex-circle fundamental groups have
     integer coordinates, with signed-loop, inverse, endpoint, nonidentity and
     homeomorphism-compatibility laws, using Mathlib's quotient coverings.
+    Based postcomposition on generalized loops and homotopy quotients for every
+    cube-index type, with positive homomorphisms, based-homotopy invariance and
+    fundamental-group compatibility.
     Generic covering-map lifting and based
     equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
     A covering map is proper exactly when every point fiber is finite,
@@ -91,7 +94,17 @@ related_formalizations:
       left-coset quotients and subgroup finite-index API. Semilocal results use
       path-homotopy quotients, subgroup ranges, local-homeomorphism charts,
       covering-induced path-class injectivity and open path-connected
-      neighborhood bases.
+      neighborhood bases. Homotopy-group maps use the existing generalized loops,
+      relative homotopies, homotopy quotient, canonical positive group structures,
+      and the multiplicative comparison with the fundamental group.
+  - id: https://github.com/FormalFrontier/restricted-product-duality
+    relationship: builds-on
+    note: >-
+      The generic based-postcomposition definitions and proofs in
+      RestrictedProductDuality.HomotopyMaps originate with Formal Frontier Agents.
+      They supply FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map,
+      retaining the same names, statements, proofs, Apache-2.0 and authorship
+      notices. This module depends only on Mathlib, not on restricted products.
   - id: https://github.com/FormalFrontier/vector-bundles
     relationship: builds-on
     note: >-
@@ -176,6 +189,19 @@ status:
     nonidentity and signed-period homeomorphism-compatibility laws are public.
     At zero period all prescribed loops are constant; no integer equivalence
     is asserted there. The coordinate module depends only on Mathlib.
+    For arbitrary topological spaces in independent universes, supplied points
+    x and y and a continuous map f with f x = y, GenLoop.map postcomposes based
+    cube maps and HomotopyGroup.mapFun acts on the existing homotopy quotient
+    for any cube-index type N in an independent universe, including an empty one.
+    Representative, constant, identity, composition and homotopy-relative-to-{x}
+    laws require no decidable equality or nonemptiness of N. With DecidableEq N
+    and Nonempty N, HomotopyGroup.map is a homomorphism for the canonical group
+    structures and has mapFun as its underlying function. It preserves Mathlib's
+    reversed concatenation convention. Under pi1MulEquivFundamentalGroup the
+    dimension-one action agrees with FundamentalGroup.mapOfEq. No separation,
+    connectedness, local path connectedness, finiteness or well-pointedness is
+    assumed. The module depends only on Mathlib and supplies no group structure
+    for empty indices or restricted-product path-component-map interface.
     For a continuous map with path-connected, locally path-connected domain
     and a prescribed lift of its basepoint, unique based lifting is equivalent
     to containment of fundamental-group images, compared by the basepoint
@@ -325,6 +351,24 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
     - lean: AddCircle.fundamentalGroupEquivInt_homeomorphCircle
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+    - lean: GenLoop.map
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: GenLoop.Homotopic.map
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: GenLoop.map_homotopic
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: HomotopyGroup.mapFun
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: HomotopyGroup.mapFun_eq_of_homotopyRel
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: HomotopyGroup.map
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: HomotopyGroup.coe_map_eq_mapFun
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: HomotopyGroup.map_eq_of_homotopyRel
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: HomotopyGroup.pi1MulEquivFundamentalGroup_map
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
     - lean: IsCoveringMap.existsUnique_continuousMap_lifts_iff_range_le
       module: FundamentalGroupoids/Topology/Covering/Lifting.lean
     - lean: IsCoveringMap.homeomorphOfRangeEq
@@ -416,6 +460,11 @@ acknowledgements: >-
   in Sphere Topology by Formal Frontier Agents, retaining its definitions,
   proofs, public names and attribution and using Mathlib's covering and
   homeomorphism-induced fundamental-group equivalences.
+  The generalized-loop and homotopy-group based-postcomposition API originates
+  in Restricted Product Duality by Formal Frontier Agents, with retained names,
+  statements, proofs and Apache-2.0 notice. It reuses Roberto Alvarez's generalized
+  loops and homotopy groups, Mark Lavrentyev's fundamental groups and Shing Tak
+  Lam's relative and path homotopies in Mathlib.
   The fiber-coset equivalence reuses Chris Hughes and Thomas Browning's
   orbit-stabilizer construction and GroupTheory's equivariance API.
   The coproduct proof uses Johannes Hölzl, Mario Carneiro and Yury Kudryashov's

@@ -46,6 +46,21 @@ by the additive-circle homeomorphism. May's Chapter 1, §5, pp. 8–9 supplies t
 positive circle normalization; the all-integer power-map consumer follows the
 signed-loop formula and the power maps of Chapter 1, §7, p. 10.
 
+The based-postcomposition definitions and proofs for generalized loops and
+homotopy groups originate in
+[Restricted Product Duality's homotopy-map formalization](https://github.com/FormalFrontier/restricted-product-duality/blob/4e17b1b82a95873b94d6f8f9f236658fbf7bb7eb/RestrictedProductDuality/HomotopyMaps.lean)
+by Formal Frontier Agents. The generic part through the fundamental-group
+compatibility theorem supplies
+`FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map`, with the same names,
+statements and proofs and retained Apache-2.0 and authorship notices. Its imports
+and module documentation describe the generalized-loop and homotopy-group API
+independently of restricted products. It builds on Roberto Alvarez's generalized
+loops and homotopy groups, Mark Lavrentyev's fundamental groups, and Shing Tak
+Lam's relative and path homotopies in Mathlib. The identity, composition,
+representative and based-homotopy laws use the existing homotopy quotient and
+canonical positive group structures; the dimension-one theorem compares with
+Mathlib's fundamental-group map.
+
 J. Peter May's *A Concise Course in Algebraic Topology*, revised author PDF,
 Chapter 1, §3 and Chapter 2, §§5, 7, supplies mathematical motivation and
 arguments. The book is published by the University of Chicago Press.

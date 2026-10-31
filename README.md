@@ -94,6 +94,15 @@ directions, examples, conventions and credits.
   identifies exactly the based-homotopic maps and has Mathlib's categorical
   universal property and natural-transformation descent. Spaces and selected
   points are arbitrary, without connectedness, separation or well-pointedness.
+- **Based maps on homotopy groups** ([`HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean)).
+  A continuous map preserving supplied points acts on generalized loops and on
+  their homotopy quotient for every cube-index type, including an empty one.
+  For nonempty indices with decidable equality, the same function is a group
+  homomorphism. Representative, constant, identity, composition and based-homotopy
+  laws are public; in dimension one the map agrees with `FundamentalGroup.mapOfEq`
+  under Mathlib's multiplicative comparison. Cube and space universes are
+  independent, with no separation, connectedness or finiteness assumptions.
+  The module uses Mathlib alone.
 - **Homotopy-retraction splittings** ([`retractionOfHomotopy`](FundamentalGroupoids/FundamentalGroup.lean)).
   For `g : C(X, Y)`, `f : C(Y, X)` and a homotopy from `f.comp g` to `id X`,
   transport along its track at `x` gives an explicit left inverse of
@@ -287,6 +296,16 @@ loop, inverse and endpoint laws are described in the
 [circle coordinate guide](docs/circle-integer-normalization.md), together with the
 all-integer power-map consumer, including zero and negative exponents.
 
+For generalized loops and homotopy groups, import
+`FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map` and use
+`GenLoop.map f hf`, `HomotopyGroup.mapFun N f hf` or, for a nonempty index with
+supplied decidable equality, `HomotopyGroup.map N f hf`. Here `hf : f x = y`
+relates the supplied points. See the [homotopy-group map guide](docs/mathematical-guide.md#based-maps-on-homotopy-groups).
+These declarations keep the names from
+[Restricted Product Duality](https://github.com/FormalFrontier/restricted-product-duality).
+Co-importing the libraries requires a Restricted Product Duality version whose
+`HomotopyMaps` module publicly imports this module rather than defining its own copies.
+
 **Covering and circle compatibility:** these modules retain declaration names
 from [sphere-topology](https://github.com/FormalFrontier/sphere-topology).
 Do not co-import a version defining its own copies. Joint consumers must select
@@ -315,6 +334,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | Module under `FundamentalGroupoids` | Contents |
 | --- | --- |
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
+| [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition along maps carrying a specified set into the fixed set |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
@@ -382,6 +402,9 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
   [GroupTheory](https://github.com/FormalFrontier/group-theory).
   See the [guide's references](docs/mathematical-guide.md#references) for scope and dependencies.
+- [Restricted Product Duality](https://github.com/FormalFrontier/restricted-product-duality):
+  the based-postcomposition definitions and proofs for generalized loops and
+  homotopy groups, by Formal Frontier Agents.
 - [VectorBundles](https://github.com/FormalFrontier/vector-bundles/blob/9d2d4b48577e873679271aeee0899239d9a835a1/VectorBundles/Topology/FiberBundle/Proper.lean):
   the local closedness and compact-fiber proof pattern for proper bundle projections.
 
@@ -394,6 +417,10 @@ originate in sphere-topology by Formal Frontier Agents, with retained Apache-2.0
 and authorship notices. The signed-period and complex-circle coordinate core also
 originates in its [circle formalization](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/Circle.lean),
 using Mathlib's quotient coverings and induced homeomorphism equivalence.
+The generalized-loop and homotopy-group map API originates in Restricted Product
+Duality by Formal Frontier Agents, retaining its definitions, proofs, names and
+Apache-2.0 notice. It uses Roberto Alvarez's homotopy groups, Mark Lavrentyev's
+fundamental groups and Shing Tak Lam's homotopies in Mathlib.
 Pullback comparisons reuse GroupTheory's orbit–stabilizer
 and double-coset constructions. Normalizer quotients compose GroupTheory's
 normalizer–automorphism and centralizer APIs with covering monodromy.

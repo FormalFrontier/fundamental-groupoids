@@ -10,7 +10,10 @@ indexed open covers, and based fundamental-group colimits for intersection-close
 path-connected covers, inclusion-directed covers or monotone covers indexed by
 directed preorders in Lean. The library extends Mathlib's categories,
 path-homotopy classes and open-cover APIs; it introduces no replacement
-fundamental group, fundamental groupoid or one-object category.
+fundamental group, fundamental groupoid or one-object category. Based
+postcomposition also acts on Mathlib's generalized loops and homotopy quotients
+for arbitrary cube-index types, with positive homomorphisms and fundamental-group
+compatibility.
 It also extends Mathlib's covering-space APIs with based lifting, monodromy,
 maps of covers and deck-group comparisons.
 
@@ -352,6 +355,58 @@ naturality theorem is asserted. The comparison is derived support for May's
 all-points groupoid and disjoint-union viewpoint (Chapter 2, §§5–6), not a named
 theorem quoted from his book.
 
+## Based maps on homotopy groups
+
+Import
+[`FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map`](../FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean)
+for based postcomposition on Mathlib's generalized loops and homotopy groups.
+Let `X : Type v`, `Y : Type w` and `N : Type s`, with independent universes,
+original topologies, supplied points `x : X`, `y : Y`, a continuous map
+`f : C(X, Y)` and an equality `hf : f x = y`.
+
+- `GenLoop.map f hf p : GenLoop N Y y` postcomposes a generalized loop
+  `p : GenLoop N X x`. Use `map_apply` for evaluation and `map_const` for the
+  constant loop. The laws `map_id`, `map_comp` and, with decidable equality on
+  `N`, `map_transAt` describe identity, composition and concatenation in any
+  cube direction. `GenLoop.Homotopic.map` preserves homotopies relative to the
+  cube boundary.
+- `HomotopyGroup.mapFun N f hf` maps the existing homotopy quotient for **every**
+  index type, including an empty type, without a group structure or decidable
+  equality. Use `mapFun_class` on representatives, `mapFun_const` on the chosen
+  constant class, and `mapFun_id` and `mapFun_comp` for functoriality.
+- With `[DecidableEq N] [Nonempty N]`, `HomotopyGroup.map N f hf` is a
+  `MonoidHom` between Mathlib's canonical homotopy groups. Its underlying
+  function is `mapFun N f hf`, as stated by `coe_map_eq_mapFun`, with the supplied
+  decidable equality and the canonical group instances. Use `map_class`,
+  `map_id` and `map_comp` without unfolding the homomorphism. Multiplication
+  retains Mathlib's reversed concatenation convention.
+
+For maps `f`, `g` preserving the same supplied points, a
+`ContinuousMap.HomotopyRel f g ({x} : Set X)` gives homotopic postcompositions
+of each generalized loop by `GenLoop.map_homotopic`. It gives equal all-index
+quotient maps by `HomotopyGroup.mapFun_eq_of_homotopyRel`, and equal positive
+homomorphisms by `HomotopyGroup.map_eq_of_homotopyRel`. There is no separation,
+connectedness, local path connectedness, finiteness, well-pointedness or finite
+cube-index requirement. For an empty index the quotient is not supplied with a
+group structure by this API.
+
+The theorem `HomotopyGroup.pi1MulEquivFundamentalGroup_map` is a comparison
+with the fundamental-group action: for every
+`a : HomotopyGroup (Fin 1) X x`, applying the target
+`pi1MulEquivFundamentalGroup` after `HomotopyGroup.map (Fin 1) f hf` equals
+applying `FundamentalGroup.mapOfEq f hf` after the source comparison. Thus one
+can compute the induced map in dimension one using either generalized loops or
+path-homotopy classes. Its proof uses the representative-map API and Mathlib's
+path-class map and equality transport.
+
+The definitions and proofs originate in
+[Restricted Product Duality](https://github.com/FormalFrontier/restricted-product-duality),
+with the same declaration names. Co-importing the libraries requires a Restricted
+Product Duality version whose `HomotopyMaps` module publicly imports this module
+instead of defining these declarations again. The module here depends only on
+Mathlib; restricted-product coordinate comparisons and path-component-map
+interfaces are not part of it.
+
 ## Using the library
 
 The Lake package is `fundamental-groupoids`. Import the complete interface with:
@@ -614,7 +669,12 @@ a fiber, not a group structure on that fiber.
 - [Mathlib](https://github.com/leanprover-community/mathlib4), especially its
   fundamental groupoid, conjugation, one-object category, open-cover,
   interval-subdivision, subpath, morphism-property and colimit APIs, as well as
-  covering maps, lifting, monodromy, deck groups and equivariant maps.
+  covering maps, lifting, monodromy, deck groups and equivariant maps. The
+  homotopy-group map API uses its generalized loops, homotopy quotients,
+  canonical positive group structures and dimension-one comparison.
+- [Restricted Product Duality](https://github.com/FormalFrontier/restricted-product-duality),
+  by Formal Frontier Agents: the based-postcomposition definitions, proofs and
+  characteristic API for generalized loops and homotopy groups.
 - [GroupTheory](https://github.com/FormalFrontier/group-theory), by Formal
   Frontier Agents: orbit–stabilizer equivariance and the equivalence between
   diagonal orbits of products of coset spaces and double cosets.
@@ -626,6 +686,11 @@ examples and mathematical documentation. May supplies mathematical motivation
 and arguments; Mathlib supplies the underlying constructions and APIs.
 Individual Mathlib contributions used in the proofs are credited in the module
 documentation and [CONTRIBUTORS.md](../CONTRIBUTORS.md).
+The based-postcomposition API for generalized loops and homotopy groups
+originates in Restricted Product Duality by Formal Frontier Agents, retaining
+its definitions, proofs, names and Apache-2.0 notice. It builds on Roberto
+Alvarez's generalized loops and homotopy groups, Mark Lavrentyev's fundamental
+groups and Shing Tak Lam's relative and path homotopies in Mathlib.
 The pullback component comparisons reuse GroupTheory's independent-universe
 orbit–stabilizer equivariance and product-coset orbit/double-coset constructions,
 formalized by Formal Frontier Agents.
