@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover
+import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCoverInclusions
 import all FundamentalGroupoidsTest.FundamentalGroup
 import Mathlib.Algebra.Group.Pi.Lemmas
 import Mathlib.Analysis.Convex.PathConnected
@@ -41,7 +42,7 @@ class is asserted.
 
 noncomputable section
 
-open TopologicalSpace
+open CategoryTheory TopologicalSpace
 
 namespace CircleCylinderIndexedCover
 
@@ -312,5 +313,22 @@ private def colimit : CategoryTheory.Limits.IsColimit
     ((FundamentalGroup.openNhdsCocone point).whisker (CategoryTheory.inducedFunctor V)) :=
   FundamentalGroup.isColimitOfIsOpenCover point V cover_V
     (fun n => pathConnected n.down) infClosed_V
+
+/-- Inclusion-compatible functors on the proper infinite cylinder cover extend uniquely.
+The target has object universe `2` and morphism universe `3`, independent of the unlifted
+cylinder and its universe-`1` cover index. The circle-axis classes above remain nonidentity
+in the cylinder and its charts. -/
+private theorem groupoidUniversalProperty (C : Type 2) [Category.{3} C]
+    (F : ∀ i : CoverIndex, FundamentalGroupoid (V i).1 ⥤ C)
+    (hF : ∀ (i j : CoverIndex) (hij : (V i).1 ≤ (V j).1),
+      FundamentalGroupoid.map (ContinuousMap.inclusion hij) ⋙ F j = F i) :
+    ∃! K : FundamentalGroupoid X ⥤ C,
+      ∀ i : CoverIndex,
+        FundamentalGroupoid.map (ContinuousMap.subtypeVal ((V i).1 : Set X)) ⋙ K = F i := by
+  have hclosed : InfClosed (Set.range (fun i : CoverIndex => (V i).1)) := by
+    rintro _ ⟨m, rfl⟩ _ ⟨n, rfl⟩
+    exact ⟨ULift.up (min m.down n.down), (inf_eq m.down n.down).symm⟩
+  exact FundamentalGroupoid.existsUnique_functor_of_isOpenCover_of_infClosed
+    cover_V hclosed F hF
 
 end CircleCylinderIndexedCover

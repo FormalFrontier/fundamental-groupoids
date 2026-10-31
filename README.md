@@ -85,6 +85,15 @@ directions, examples, conventions and credits.
   For any indexed open cover, local functors into any category agreeing by
   equality on every ordered pairwise intersection extend uniquely by equality.
   No connectivity is assumed. Inclusion cocones are colimits in `Grpd` and `Cat`.
+- **Full-inclusion open-cover colimits** ([`OpenCoverInclusions`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverInclusions.lean)).
+  For an indexed open cover with `InfClosed (Set.range U)`, the diagram retaining
+  every index and every open inclusion has the ambient fundamental groupoid as
+  its colimit in both `Grpd` and `Cat`. Chart functors into any category agreeing
+  by equality along all inclusions extend uniquely by equality, with independent
+  space, index, target-object and target-morphism universes. No path connectedness,
+  common point, finiteness, injective indexing or member equal to the whole space
+  is required. This generalizes May's groupoid theorem on printed p. 17 by dropping
+  its path-connected-member hypothesis; the based theorem on p. 18 remains separate.
 - **Indexed based van Kampen** ([`isColimitOfIsOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean)).
   For an arbitrarily indexed open cover by path-connected neighborhoods of a
   common basepoint with `InfClosed (Set.range U)`, compatible homomorphisms to
@@ -259,6 +268,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCover.lean) | Small-path generation and construction of natural transformations |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
+| [`AlgebraicTopology.FundamentalGroupoid.OpenCoverInclusions`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverInclusions.lean) | All-open inclusion cocone; full-inclusion `Grpd`/`Cat` colimits and strict arbitrary-category descent for indexed covers with binary-intersection-closed range, without connectivity, common-point or finiteness assumptions |
 | [`AlgebraicTopology.FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean) | Fundamental-group product equivalence, coordinate and assembled-loop equations |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts |
