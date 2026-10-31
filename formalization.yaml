@@ -8,7 +8,12 @@ project:
     descent along arbitrary indexed open covers into arbitrary categories.
     Based van Kampen for two-open covers with a common basepoint and
     path-connected opens and intersection, as a unique-homomorphism universal
-    property and a pushout of groups. Inclusion-directed covers by neighborhoods
+    property and a pushout of groups. A path-connected based open core and
+    charts with that common pairwise overlap give a colimit of their inclusion
+    star when the core and charts cover the space. The raw group colimit is
+    multiplicatively equivalent to the ambient fundamental group, preserving
+    every leg in both directions with independent space and index universes.
+    Inclusion-directed covers by neighborhoods
     of a supplied basepoint give colimits without path connectedness or
     intersection closure, with a universal property for arbitrary target monoids
     in independent universes. Monotone neighborhood covers indexed by directed
@@ -155,6 +160,9 @@ related_formalizations:
       CoveringMonodromy, DeckGroup and DeckMonodromy supply the covering APIs
       now under FundamentalGroupoids.Topology.Covering, with the same
       declaration names and retained Apache-2.0 and authorship notices.
+      Its point-chart star comparison also supplies the universal-property
+      proof pattern generalized here to based common-overlap open covers in
+      arbitrary ambient spaces, without a package dependency on Sphere Topology.
       Its signed-period and complex-circle coordinate definitions and proofs in
       SphereTopology.Homotopy.Circle also supply the Fundamental Groupoids
       circle module, with the same public names and characteristic API.
@@ -188,6 +196,16 @@ status:
     square in GrpCat.{u}. These are two-open specializations of the based-group
     colimit theorem, obtained using strict groupoid descent. Neither global
     path connectedness nor local path connectedness is an extra hypothesis.
+    For a based open core C contained in every chart U i, assume path
+    connectedness of C and the charts, U i intersect U j equals C at distinct
+    indices, and coverage by C together with all charts. Their core-to-chart
+    star inclusion cocone is a colimit in GrpCat at the ambient group universe.
+    Its raw quotient group is canonically multiplicatively equivalent to the
+    ambient fundamental group, preserving every core and chart leg in both
+    directions. Space and index universes are independent; the raw quotient
+    lies in their maximum. Empty chart families and nontrivial core groups are
+    allowed. This is a common-core re-presentation of the based all-inclusions
+    cover theorem, not an arbitrary-cover based theorem or wedge calculation.
     For an inclusion-directed open cover by neighborhoods of a supplied basepoint,
     compatible homomorphisms from local fundamental groups into any monoid extend
     uniquely to the ambient fundamental group. Space, index and target universes
@@ -408,6 +426,18 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
     - lean: FundamentalGroup.isPushout_of_isOpenCover
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
+    - lean: FundamentalGroup.commonOverlapDiagram
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/CommonOverlap.lean
+    - lean: FundamentalGroup.commonOverlapCocone
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/CommonOverlap.lean
+    - lean: FundamentalGroup.commonOverlapCoconeIsColimit
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/CommonOverlap.lean
+    - lean: FundamentalGroup.commonOverlapColimitEquiv
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/CommonOverlap.lean
+    - lean: FundamentalGroup.commonOverlapColimitEquiv_comp_ι
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/CommonOverlap.lean
+    - lean: FundamentalGroup.commonOverlapColimitEquiv_symm_comp_ι
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/CommonOverlap.lean
     - lean: FundamentalGroup.existsUnique_hom_of_isOpenCover_of_directed
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean
     - lean: FundamentalGroup.isColimitOfIsOpenCoverOfDirected

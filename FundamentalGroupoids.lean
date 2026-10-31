@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Circle
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.CommonOverlap
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.DirectedOpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Functor
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover

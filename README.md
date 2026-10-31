@@ -207,6 +207,14 @@ gives detailed statements, API directions, examples, conventions and credits.
   along every inclusion, including repeated opens. Space, index and target-group
   universes are independent; the inclusion cocone is a colimit in `GrpCat.{u}`.
   Binary intersection closure does not require the whole space in the range.
+- **Common-overlap stars** ([`CommonOverlap`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/CommonOverlap.lean)).
+  Let a based open core `C` lie in every chart `U i`, with `C` and the charts
+  path connected, `U i ∩ U j = C` for distinct indices, and the core together
+  with the charts covering the space. The core-to-chart inclusion star has the
+  ambient fundamental group as its colimit. Its raw group colimit is canonically
+  multiplicatively equivalent to that group, preserving every core and chart
+  leg in both directions. Space and index universes are independent; empty
+  chart families and a nontrivial core fundamental group are allowed.
 - **Directed open-cover colimits** ([`DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean)).
   For any topological space with a supplied basepoint and an arbitrarily indexed,
   inclusion-directed open cover by its neighborhoods, compatible homomorphisms
@@ -457,6 +465,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`AlgebraicTopology.FundamentalGroup.Products`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean) | Preservation of every existing indexed product; canonical comparison, projected-loop and raw-product agreement laws |
 | [`AlgebraicTopology.FundamentalGroup.DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean) | Inclusion-directed covers and monotone covers on directed preorders: unique compatible homomorphisms to arbitrary monoids and canonical inclusion cocones as `GrpCat` colimits, without path connectedness or intersection closure |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
+| [`AlgebraicTopology.FundamentalGroup.CommonOverlap`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/CommonOverlap.lean) | Common-core inclusion-star colimit and raw-quotient equivalence, preserving every leg in independent universes |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts; directed-union and common-point simple-connectivity criteria |
 | [`SemilocallySimplyConnected.Basic`](FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean) | Chosen-center ambient-null-loop definition, inclusion-image criterion, simply connected spaces and reflection |
 | [`SemilocallySimplyConnected.Maps`](FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean) | Local-homeomorphism preservation, covering equivalence and surjective global descent |
