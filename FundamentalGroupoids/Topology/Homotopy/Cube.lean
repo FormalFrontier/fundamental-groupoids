@@ -7,13 +7,13 @@ module
 public import Mathlib.Topology.Homotopy.HomotopyGroup
 
 /-!
-# Path connectedness of cube boundaries
+# Geometry of cube boundaries
 
 The coordinate-face boundary `Cube.boundary N` is path connected when the index
 type `N` has at least two elements. The index type may be infinite. This is the
 set of cube points with a coordinate equal to `0` or `1`, rather than a claim
 about a topological frontier. For a nonempty index type, the zero vertex lies
-on the boundary.
+on the boundary. For an infinite index type, the boundary is dense in the cube.
 
 ## References
 
@@ -35,6 +35,18 @@ namespace Cube
 theorem zero_mem_boundary (N : Type u) [Nonempty N] : (0 : I^N) ∈ boundary N := by
   obtain ⟨i⟩ := ‹Nonempty N›
   exact ⟨i, Or.inl rfl⟩
+
+/-- The coordinate-face boundary of a cube indexed by an infinite type is dense. -/
+theorem dense_boundary (N : Type u) [Infinite N] : Dense (boundary N) := by
+  classical
+  refine dense_iff_inter_open.2 ?_
+  intro U hU hne
+  obtain ⟨x, hx⟩ := hne
+  obtain ⟨J, hJ⟩ :=
+    exists_finset_piecewise_mem_of_mem_nhds (hU.mem_nhds hx) (0 : I^N)
+  obtain ⟨i, hi⟩ := J.exists_notMem
+  refine ⟨J.piecewise x 0, hJ, i, Or.inl ?_⟩
+  exact J.piecewise_eq_of_notMem x 0 hi
 
 private theorem joinedIn_boundary_of_eq_coord {N : Type u} {x y : I^N} (i : N)
     (hxy : x i = y i) (hx : x i = 0 ∨ x i = 1) : JoinedIn (boundary N) x y := by

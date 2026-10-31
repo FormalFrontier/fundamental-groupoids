@@ -55,5 +55,6 @@ public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Discrete
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.LoopSpace
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Product
+public import FundamentalGroupoids.Topology.Homotopy.InfiniteCube
 public import FundamentalGroupoids.Topology.Homotopy.Relative
 public import FundamentalGroupoids.Topology.Path
