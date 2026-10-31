@@ -37,6 +37,10 @@ directions, examples, conventions and credits.
 - **Path connectedness** ([`Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean)).
   A space is path connected iff its fundamental groupoid is connected, including
   nonemptiness on both sides; no local path connectedness or separation is needed.
+- **Cube boundaries** ([`Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean)).
+  For any index type `N` with at least two elements, the coordinate-face boundary of
+  `N → I` is path connected, even for infinite `N`. The zero vertex lies in the
+  boundary whenever `N` is nonempty.
 - **Sheaves of representation sections** ([`SectionsPresheaf`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/SectionsPresheaf.lean)).
   For any topological space `X`, a representation `FundamentalGroupoid X ⥤ Type w`
   determines a presheaf of transport-invariant families, functorially in the representation.
