@@ -8,6 +8,7 @@ public import Mathlib.Algebra.Group.Subgroup.Ker
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.InducedMaps
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected
+import FundamentalGroupoids.Topology.Path
 
 /-!
 # Induced maps, homotopy retractions and change of basepoint
@@ -132,16 +133,8 @@ theorem range_map_subtypeVal_eq_bot_iff {U : Set X} {x : X} (hx : x ∈ U) :
   dsimp only [ContinuousMap.subtypeVal]
   constructor
   · intro h γ hγ
-    let δ : Path (⟨x, hx⟩ : U) ⟨x, hx⟩ :=
-      { toFun := fun t => ⟨γ t, hγ ⟨t, rfl⟩⟩
-        continuous_toFun := γ.continuous.subtype_mk _
-        source' := Subtype.ext γ.source
-        target' := Subtype.ext γ.target }
-    have hδ : δ.map continuous_subtype_val = γ := by
-      ext t
-      rfl
-    rw [← hδ]
-    exact h δ
+    rw [← Path.codRestrict_map_subtypeVal γ hγ]
+    exact h (γ.codRestrict hγ)
   · intro h δ
     exact h (δ.map continuous_subtype_val) (by
       rintro y ⟨t, rfl⟩

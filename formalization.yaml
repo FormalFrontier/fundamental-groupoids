@@ -8,7 +8,10 @@ project:
     descent along arbitrary indexed open covers into arbitrary categories.
     Based van Kampen for two-open covers with a common basepoint and
     path-connected opens and intersection, as a unique-homomorphism universal
-    property and a pushout of groups. Generic covering-map lifting and based
+    property and a pushout of groups. Inclusion-directed covers by neighborhoods
+    of a supplied basepoint give colimits without path connectedness or
+    intersection closure, with a universal property for arbitrary target monoids
+    in independent universes. Generic covering-map lifting and based
     equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
     A covering map is proper exactly when every point fiber is finite,
     without separation, local compactness or uniform-degree assumptions.
@@ -116,8 +119,15 @@ status:
     square in GrpCat.{u}. These are two-open specializations of the based-group
     colimit theorem, obtained using strict groupoid descent. Neither global
     path connectedness nor local path connectedness is an extra hypothesis.
-    No arbitrary-cover based-group theorem, wedge calculation or covering-space
-    classification is asserted.
+    For an inclusion-directed open cover by neighborhoods of a supplied basepoint,
+    compatible homomorphisms from local fundamental groups into any monoid extend
+    uniquely to the ambient fundamental group. Space, index and target universes
+    are independent. The existing inclusion cocone is a colimit in GrpCat.{u};
+    repeated indices are retained, with no path connectedness, intersection closure,
+    separation, local connectivity, finiteness or separate index nonemptiness premise.
+    This generalizes the compact finite-stage colimit step in May, Chapter 2, §7,
+    printed p. 19. No arbitrary-cover based-group theorem, wedge calculation or
+    covering-space classification is asserted.
     For a continuous map with path-connected, locally path-connected domain
     and a prescribed lift of its basepoint, unique based lifting is equivalent
     to containment of fundamental-group images, compared by the basepoint

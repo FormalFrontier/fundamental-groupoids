@@ -17,6 +17,7 @@ import Mathlib.Data.Set.UnionLift
 public import Mathlib.Topology.Category.TopCat.Opens
 public import Mathlib.Topology.Sets.OpenCover
 import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCover
+import FundamentalGroupoids.Topology.Path
 
 /-!
 # Strict fundamental-groupoid descent over open covers
@@ -247,48 +248,29 @@ private theorem descentObj_eq (hU : IsOpenCover U)
     (f := fun i a => (F i).obj (mk a)) (hf := descentObj_overlap F hF)
     (hS := hU.iSup_set_eq_univ) (i := i) (x := x) hx
 
--- Corestriction keeps the ambient endpoints, using their membership in the path range.
-private def descentLocalPath {a b : X} (p : Path a b) {s : Set X}
-    (hp : Set.range p ⊆ s) :
-    Path (⟨a, hp p.source_mem_range⟩ : s) ⟨b, hp p.target_mem_range⟩ where
-  toFun t := ⟨p t, hp ⟨t, rfl⟩⟩
-  continuous_toFun := p.continuous.subtype_mk _
-  source' := Subtype.ext p.source
-  target' := Subtype.ext p.target
-
-private theorem descentLocalPath_apply {a b : X} (p : Path a b) {s : Set X}
-    (hp : Set.range p ⊆ s) (t : unitInterval) :
-    (descentLocalPath p hp) t = ⟨p t, hp ⟨t, rfl⟩⟩ := rfl
-
-private theorem descentLocalPath_map_subtypeVal {a b : X} (p : Path a b)
-    {s : Set X} (hp : Set.range p ⊆ s) :
-    (descentLocalPath p hp).map continuous_subtype_val = p := by
-  ext t
-  rfl
-
 private theorem descentLocalPath_map_left (i j : ι) {a b : X} (p : Path a b)
     (hi : Set.range p ⊆ U i) (hj : Set.range p ⊆ U j) :
     ((openCoverDiagram U).map (Pairwise.Hom.left i j)).map
         (fromPath (Path.Homotopic.Quotient.mk
-          (descentLocalPath p (s := (U i ⊓ U j : Opens X))
+          (Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
             (fun _ hx => ⟨hi hx, hj hx⟩)))) =
-      fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hi)) := by
+      fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hi)) := by
   let f : C((U i ⊓ U j : Opens X), U i) :=
     ContinuousMap.inclusion
       (show (↑(U i ⊓ U j) : Set X) ⊆ (U i : Set X) from Set.inter_subset_left)
   change (map f).map
       (fromPath (Path.Homotopic.Quotient.mk
-        (descentLocalPath p (s := (U i ⊓ U j : Opens X))
+        (Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
           (fun _ hx => ⟨hi hx, hj hx⟩)))) =
-    fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hi))
+    fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hi))
   have hpath :
-      (descentLocalPath p (s := (U i ⊓ U j : Opens X))
+      (Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
         (fun _ hx => ⟨hi hx, hj hx⟩)).map f.continuous =
-        descentLocalPath p hi := by
+        Path.codRestrict p hi := by
     ext t
     rfl
   exact (map_fromPath_mk f
-    (descentLocalPath p (s := (U i ⊓ U j : Opens X))
+    (Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
       (fun _ hx => ⟨hi hx, hj hx⟩))).trans
         (congrArg (fun q : Path (⟨a, hi p.source_mem_range⟩ : U i)
           ⟨b, hi p.target_mem_range⟩ => fromPath (Path.Homotopic.Quotient.mk q)) hpath)
@@ -297,25 +279,25 @@ private theorem descentLocalPath_map_right (i j : ι) {a b : X} (p : Path a b)
     (hi : Set.range p ⊆ U i) (hj : Set.range p ⊆ U j) :
     ((openCoverDiagram U).map (Pairwise.Hom.right i j)).map
         (fromPath (Path.Homotopic.Quotient.mk
-          (descentLocalPath p (s := (U i ⊓ U j : Opens X))
+          (Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
             (fun _ hx => ⟨hi hx, hj hx⟩)))) =
-      fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hj)) := by
+      fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hj)) := by
   let f : C((U i ⊓ U j : Opens X), U j) :=
     ContinuousMap.inclusion
       (show (↑(U i ⊓ U j) : Set X) ⊆ (U j : Set X) from Set.inter_subset_right)
   change (map f).map
       (fromPath (Path.Homotopic.Quotient.mk
-        (descentLocalPath p (s := (U i ⊓ U j : Opens X))
+        (Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
           (fun _ hx => ⟨hi hx, hj hx⟩)))) =
-    fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hj))
+    fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hj))
   have hpath :
-      (descentLocalPath p (s := (U i ⊓ U j : Opens X))
+      (Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
         (fun _ hx => ⟨hi hx, hj hx⟩)).map f.continuous =
-        descentLocalPath p hj := by
+        Path.codRestrict p hj := by
     ext t
     rfl
   exact (map_fromPath_mk f
-    (descentLocalPath p (s := (U i ⊓ U j : Opens X))
+    (Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
       (fun _ hx => ⟨hi hx, hj hx⟩))).trans
         (congrArg (fun q : Path (⟨a, hj p.source_mem_range⟩ : U j)
           ⟨b, hj p.target_mem_range⟩ => fromPath (Path.Homotopic.Quotient.mk q)) hpath)
@@ -327,7 +309,7 @@ private noncomputable def descentLocalValue (hU : IsOpenCover U)
     (i : ι) {a b : X} (p : Path a b) (hp : Set.range p ⊆ U i) :
     descentObj hU F hF a ⟶ descentObj hU F hF b :=
   eqToHom (descentObj_eq hU F hF i a (hp p.source_mem_range)) ≫
-    (F i).map (fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hp))) ≫
+    (F i).map (fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hp))) ≫
       eqToHom (descentObj_eq hU F hF i b (hp p.target_mem_range)).symm
 
 private theorem descentLocalValue_eq (hU : IsOpenCover U)
@@ -337,7 +319,7 @@ private theorem descentLocalValue_eq (hU : IsOpenCover U)
     (i : ι) {a b : X} (p : Path a b) (hp : Set.range p ⊆ U i) :
     descentLocalValue hU F hF i p hp =
       eqToHom (descentObj_eq hU F hF i a (hp p.source_mem_range)) ≫
-        (F i).map (fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hp))) ≫
+        (F i).map (fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hp))) ≫
           eqToHom (descentObj_eq hU F hF i b (hp p.target_mem_range)).symm := rfl
 
 private theorem descentLocalValue_label_independent (hU : IsOpenCover U)
@@ -348,10 +330,10 @@ private theorem descentLocalValue_label_independent (hU : IsOpenCover U)
     (hi : Set.range p ⊆ U i) (hj : Set.range p ⊆ U j) :
     descentLocalValue hU F hF i p hi = descentLocalValue hU F hF j p hj := by
   have hmap :
-      (F i).map (fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hi))) =
+      (F i).map (fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hi))) =
         eqToHom (descentObj_overlap F hF i j a
           (hi p.source_mem_range) (hj p.source_mem_range)) ≫
-          (F j).map (fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hj))) ≫
+          (F j).map (fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hj))) ≫
             eqToHom (descentObj_overlap F hF i j b
               (hi p.target_mem_range) (hj p.target_mem_range)).symm := by
     let L : FundamentalGroupoid (U i ⊓ U j : Opens X) ⥤ FundamentalGroupoid (U i) :=
@@ -360,13 +342,13 @@ private theorem descentLocalValue_label_independent (hU : IsOpenCover U)
       (openCoverDiagram U).map (Pairwise.Hom.right i j)
     let q : Path (⟨a, hi p.source_mem_range, hj p.source_mem_range⟩ :
         (U i ⊓ U j : Opens X)) ⟨b, hi p.target_mem_range, hj p.target_mem_range⟩ :=
-      descentLocalPath p (s := (U i ⊓ U j : Opens X))
+      Path.codRestrict p (s := (U i : Set X) ∩ (U j : Set X))
         (fun _ hx => ⟨hi hx, hj hx⟩)
     have hleft : L.map (fromPath (Path.Homotopic.Quotient.mk q)) =
-        fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hi)) :=
+        fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hi)) :=
       descentLocalPath_map_left i j p hi hj
     have hright : R.map (fromPath (Path.Homotopic.Quotient.mk q)) =
-        fromPath (Path.Homotopic.Quotient.mk (descentLocalPath p hj)) :=
+        fromPath (Path.Homotopic.Quotient.mk (Path.codRestrict p hj)) :=
       descentLocalPath_map_right i j p hi hj
     have hc :
         (F i).map (L.map (fromPath (Path.Homotopic.Quotient.mk q))) =
@@ -649,35 +631,13 @@ private theorem descentWordValue_prefix {n k : ℕ} (t : Fin (n + 1) → unitInt
 
 end WordEvaluation
 
-private theorem descentLocalPath_refl {a : X} {s : Set X}
-    (hp : Set.range (Path.refl a) ⊆ s) :
-    descentLocalPath (Path.refl a) hp =
-      Path.refl (⟨a, hp (Path.refl a).source_mem_range⟩ : s) := by
-  apply Path.ext
-  funext t
-  rfl
-
-private theorem descentLocalPath_trans {a b c : X} (p : Path a b) (q : Path b c)
-    {s : Set X} (hp : Set.range p ⊆ s) (hq : Set.range q ⊆ s)
-    (hpq : Set.range (p.trans q) ⊆ s) :
-    descentLocalPath (p.trans q) hpq =
-      (descentLocalPath p hp).trans (descentLocalPath q hq) := by
-  apply Path.ext
-  funext t
-  apply Subtype.ext
-  change ((descentLocalPath (p.trans q) hpq).map continuous_subtype_val) t =
-    (((descentLocalPath p hp).trans (descentLocalPath q hq)).map
-      continuous_subtype_val) t
-  rw [descentLocalPath_map_subtypeVal, Path.map_trans,
-    descentLocalPath_map_subtypeVal, descentLocalPath_map_subtypeVal]
-
 private theorem descentLocalValue_refl (hU : IsOpenCover U)
     (F : ∀ i, FundamentalGroupoid (U i) ⥤ D)
     (hF : ∀ i j, (openCoverDiagram U).map (Pairwise.Hom.left i j) ⋙ F i =
       (openCoverDiagram U).map (Pairwise.Hom.right i j) ⋙ F j)
     (i : ι) (a : X) (hp : Set.range (Path.refl a) ⊆ U i) :
     descentLocalValue hU F hF i (Path.refl a) hp = 𝟙 (descentObj hU F hF a) := by
-  rw [descentLocalValue_eq, descentLocalPath_refl, fromPath_mk_refl,
+  rw [descentLocalValue_eq, Path.codRestrict_refl, fromPath_mk_refl,
     CategoryTheory.Functor.map_id]
   simp only [Category.id_comp, eqToHom_trans, eqToHom_refl]
 
@@ -691,7 +651,7 @@ private theorem descentLocalValue_trans (hU : IsOpenCover U)
     descentLocalValue hU F hF i (p.trans q) hpq =
       descentLocalValue hU F hF i p hp ≫ descentLocalValue hU F hF i q hq := by
   rw [descentLocalValue_eq, descentLocalValue_eq, descentLocalValue_eq,
-    descentLocalPath_trans p q hp hq hpq, fromPath_mk_trans, Functor.map_comp]
+    Path.codRestrict_trans p q hp hq hpq, fromPath_mk_trans, Functor.map_comp]
   simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_refl, Category.id_comp]
 
 private theorem descentSubpath_range_subset {i : ι} {x y : X} (p : Path x y)
@@ -721,12 +681,7 @@ private theorem descentLocalValue_map_subtypeVal (hU : IsOpenCover U)
       eqToHom (descentObj_eq hU F hF i a.1 a.2) ≫
         (F i).map (fromPath (Path.Homotopic.Quotient.mk p)) ≫
           eqToHom (descentObj_eq hU F hF i b.1 b.2).symm := by
-  have hlift : descentLocalPath (p.map continuous_subtype_val) hp = p := by
-    apply Path.ext
-    funext t
-    apply Subtype.ext
-    rfl
-  rw [descentLocalValue_eq, hlift]
+  rw [descentLocalValue_eq, Path.map_subtypeVal_codRestrict]
 
 -- Conjugating a chart square uses only equality of its four object values.
 private theorem descentLocalValue_commSq (hU : IsOpenCover U)
@@ -1053,13 +1008,13 @@ private theorem descentLocalValue_subpath_cut (hU : IsOpenCover U)
     ⟨fun t => ⟨p (e t), hs (show e t ∈ Set.Icc a b from t.2)⟩,
       (p.continuous.comp e.continuous).subtype_mk _⟩
   let q (r s : K) : Path r s :=
-    descentLocalPath (Path.segment (r : ℝ) (s : ℝ)) (by
+    Path.codRestrict (Path.segment (r : ℝ) (s : ℝ)) (by
       rw [Path.range_segment]
       exact (convex_Icc (a : ℝ) (b : ℝ)).segment_subset r.2 s.2)
   have hqmap (r s : unitInterval) (hr : a ≤ r ∧ r ≤ b) (hs' : a ≤ s ∧ s ≤ b)
       (hp : Set.range (p.subpath r s) ⊆ U i) :
       (q ⟨(r : ℝ), hr⟩ ⟨(s : ℝ), hs'⟩).map g.continuous =
-        descentLocalPath (p.subpath r s) hp := by
+        Path.codRestrict (p.subpath r s) hp := by
     apply Path.ext
     funext t
     apply Subtype.ext
@@ -1078,11 +1033,11 @@ private theorem descentLocalValue_subpath_cut (hU : IsOpenCover U)
       (SimplyConnectedSpace.paths_homotopic ((q ka kc).trans (q kc kb)) (q ka kb))
   have hvalues :
       (F i).map (fromPath (Path.Homotopic.Quotient.mk
-          (descentLocalPath (p.subpath a c) hpac))) ≫
+          (Path.codRestrict (p.subpath a c) hpac))) ≫
         (F i).map (fromPath (Path.Homotopic.Quotient.mk
-          (descentLocalPath (p.subpath c b) hpcb))) =
+          (Path.codRestrict (p.subpath c b) hpcb))) =
       (F i).map (fromPath (Path.Homotopic.Quotient.mk
-        (descentLocalPath (p.subpath a b) hpab))) := by
+        (Path.codRestrict (p.subpath a b) hpab))) := by
     have hg := congrArg (fun f : mk ka ⟶ mk kb => (map g ⋙ F i).map f) hthin
     change (F i).map ((map g).map
         (fromPath (Path.Homotopic.Quotient.mk (q ka kc)) ≫

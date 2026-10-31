@@ -6,8 +6,8 @@ Groupoids. See the [README](../README.md) for the overview,
 [module catalogue](../README.md#contents).
 
 Fundamental groupoids, categorical endomorphism transport, strict descent along
-indexed open covers, and based van Kampen for intersection-closed indexed covers in
-Lean. The library extends Mathlib's categories, path-homotopy classes and open-cover
+indexed open covers, and based fundamental-group colimits for intersection-closed
+path-connected covers or inclusion-directed covers in Lean. The library extends Mathlib's categories, path-homotopy classes and open-cover
 APIs; it introduces no replacement fundamental group, fundamental groupoid or
 one-object category.
 It also extends Mathlib's covering-space APIs with based lifting, monodromy,
@@ -370,6 +370,13 @@ for local arrows, including their equality transports. The theorem
 For bundled cocones use `isColimitOpenCoverCocone` or
 `isColimitOpenCoverCatCocone` through the usual `IsColimit.desc`, `fac` and `uniq`.
 
+For path corestriction to an arbitrary subspace, import
+`FundamentalGroupoids.Topology.Path`. Use `γ.codRestrict hγ` for
+`hγ : Set.range γ ⊆ s`. Inclusion recovers `γ` by
+`Path.codRestrict_map_subtypeVal`, and `Path.codRestrict_trans` describes
+concatenation. `Path.Homotopic.of_subtypeVal` restricts a based ambient homotopy
+between subspace paths when its whole range stays in the subspace.
+
 For based van Kampen, import
 `FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover`.
 For an intersection-closed indexed cover, use
@@ -481,8 +488,19 @@ object for an intersection of the empty family. No connectedness,
 inhabited-intersection, nonempty-target or faithful-inclusion condition is assumed.
 
 Arbitrary-cover descent concerns all-point groupoids without connectedness
-conditions. The indexed based-group results require a common basepoint,
-path-connected members and an intersection-closed range; they do not assert a
+conditions. The intersection-closed based-group theorem uses path-connected
+members and a common basepoint. For an inclusion-directed open cover by
+neighborhoods of a supplied basepoint,
+[`existsUnique_hom_of_isOpenCover_of_directed`](../FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean)
+allows compatible homomorphisms to any monoid in an independent universe;
+`isColimitOfIsOpenCoverOfDirected` packages the existing inclusion cocone in
+`GrpCat.{u}`. The proof puts each loop and each based homotopy square in one
+chart using compactness, then applies Mathlib's `Functor.CoconeTypes` descent
+and representative equations. Multiplicativity is checked in a common chart;
+no new group or colimit model is used. This directed formulation retains repeated
+indices and requires
+neither path connectedness nor intersection closure, separation, local connectivity,
+finiteness or separate index nonemptiness. Neither formulation asserts a
 based-group colimit for arbitrary open covers. No wedge calculation or
 covering-space classification is asserted.
 The small-path module on its own proves generation and naturality, not functor
@@ -500,7 +518,9 @@ a fiber, not a group structure on that fiber.
   results and the arbitrary-cover, arbitrary-category descent statements
   generalize the corresponding topological results. The indexed based van Kampen
   statements give the common-basepoint, intersection-closed formulation, with the
-  two-open pushout as a specialization.
+  two-open pushout as a specialization. The directed-cover theorem generalizes
+  the compact finite-stage colimit step on printed p. 19, without path connectedness
+  or intersection closure and with arbitrary target monoids.
   Chapter 3, §§2–4, 7 supplies the covering-space lifting and monodromy arguments.
   The categorical preconnectedness criterion is a derived consequence of the
   fiber-translation argument in §4, rather than a theorem stated there.
@@ -538,6 +558,9 @@ The components-of-elements equivalences, naturality proofs and verification
 examples are by Formal Frontier Agents. They build on Kim Morrison and Joël Riou's
 category of elements, Bhavik Mehta's connected components, and Joël Riou, Kim
 Morrison and Reid Barton's type-colimit formalizations in Mathlib.
+The directed-cover proof uses Joël Riou's heterogeneous type-colimit descent
+and representative APIs in Mathlib, together with compact directed-cover
+containment and Mathlib's path homotopy quotient.
 No open redistribution license is inferred for May's author-hosted book; no
 book excerpts or PDF assets are included.
 Licensed under Apache-2.0; see [LICENSE](../LICENSE).

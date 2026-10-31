@@ -110,6 +110,15 @@ directions, examples, conventions and credits.
   along every inclusion, including repeated opens. Space, index and target-group
   universes are independent; the inclusion cocone is a colimit in `GrpCat.{u}`.
   Binary intersection closure does not require the whole space in the range.
+- **Directed open-cover colimits** ([`DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean)).
+  For any topological space with a supplied basepoint and an arbitrarily indexed,
+  inclusion-directed open cover by its neighborhoods, compatible homomorphisms
+  from the local fundamental groups to any monoid extend uniquely to a
+  homomorphism from the ambient group. The existing inclusion cocone is a colimit
+  in `GrpCat.{u}`. All indices are retained, including repeated opens, and all maps
+  are inclusion-induced. Space, index and target-monoid universes are independent;
+  no path connectedness, intersection closure, separation, local connectivity,
+  finiteness, dimension or separate index nonemptiness assumption is imposed.
 - **Open-cover quotient presentations** ([`OpenCoverPresentation`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverPresentation.lean)).
   An intersection-closed open cover by path-connected neighborhoods of a common
   point presents the ambient fundamental group as the free product of the local
@@ -288,11 +297,13 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverInclusions`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverInclusions.lean) | All-open inclusion cocone; full-inclusion `Grpd`/`Cat` colimits and strict arbitrary-category descent for indexed covers with binary-intersection-closed range, without connectivity, common-point or finiteness assumptions |
 | [`AlgebraicTopology.FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean) | Fundamental-group product equivalence, coordinate and assembled-loop equations |
+| [`AlgebraicTopology.FundamentalGroup.DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean) | Directed open covers: unique compatible homomorphisms to arbitrary monoids and the existing inclusion cocone as a `GrpCat` colimit, without path connectedness or intersection closure |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts; directed-union and common-point simple-connectivity criteria |
 | [`SemilocallySimplyConnected.Basic`](FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean) | Chosen-center ambient-null-loop definition, inclusion-image criterion, simply connected spaces and reflection |
 | [`SemilocallySimplyConnected.Maps`](FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean) | Local-homeomorphism preservation, covering equivalence and surjective global descent |
 | [`SemilocallySimplyConnected.LocallyPathConnected`](FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean) | Open path-connected refinement with ambient nullhomotopies at all basepoints |
+| [`Topology.Path`](FundamentalGroupoids/Topology/Path.lean) | Path corestriction, its inclusion and concatenation equations, and based homotopies in subspaces |
 | [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
 | [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity, equivariant fiber–coset equivalence and fiber restriction with identity/composition laws |
@@ -315,10 +326,13 @@ not equality at a fixed basepoint. Strict descent uses equality, including
 natural isomorphism. Its space, index, target-object and target-hom universes
 are independent; bundled colimits have sizes `Grpd.{u, u}` and `Cat.{u, u}`.
 The pairwise diagram includes empty intersections, not the empty-family intersection.
-Based-group colimits require the stated common-basepoint, path-connected-member,
-intersection-closure hypotheses, not an arbitrary open cover. No wedge calculation
-or covering-space classification is asserted. A monodromy stabilizer is not
-in general its permutation kernel; a centralizer is not a group structure on a fiber.
+The intersection-closed based-group colimit theorem requires a common basepoint
+and path-connected members. The directed-cover theorem instead requires
+inclusion-directedness, without path connectedness or intersection closure.
+Neither formulation asserts a based-group colimit for an arbitrary open cover.
+No wedge calculation or covering-space classification is asserted. A monodromy
+stabilizer is not in general its permutation kernel; a centralizer is not a group
+structure on a fiber.
 See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-limitations).
 
 ## References

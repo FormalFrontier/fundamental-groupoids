@@ -16,6 +16,12 @@ They build on Mathlib's categories of elements (Kim Morrison and Joël Riou),
 connected components (Bhavik Mehta), quotient-type colimits (Joël Riou) and
 colimits in `Type` (Kim Morrison, Reid Barton and Joël Riou).
 
+The directed-cover fundamental-group colimit proof uses Mathlib's compact
+directed-cover containment and path-homotopy quotient, and Joël Riou's
+heterogeneous type-colimit descent and representative APIs. Its subspace path
+corestriction is shared with the fundamental-group image criterion and
+open-cover groupoid descent.
+
 The pullback component comparisons reuse the independent-universe
 orbit–stabilizer equivariance and product-coset orbit/double-coset constructions
 from [GroupTheory](https://github.com/FormalFrontier/group-theory), formalized by
