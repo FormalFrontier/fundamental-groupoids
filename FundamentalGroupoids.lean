@@ -4,6 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Functor
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCoverPresentation
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Product
@@ -24,6 +25,7 @@ public import FundamentalGroupoids.FundamentalGroup
 public import FundamentalGroupoids.SemilocallySimplyConnected.Basic
 public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnected
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
+public import FundamentalGroupoids.Topology.Category.TopCat.Based
 public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.Composition
@@ -37,3 +39,4 @@ public import FundamentalGroupoids.Topology.Covering.NormalizerQuotient
 public import FundamentalGroupoids.Topology.Covering.Proper
 public import FundamentalGroupoids.Topology.Covering.Pullback
 public import FundamentalGroupoids.Topology.Covering.PullbackDoubleCoset
+public import FundamentalGroupoids.Topology.Homotopy.Relative

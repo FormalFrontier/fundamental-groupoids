@@ -12,8 +12,10 @@ public import Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected
 /-!
 # Induced maps, homotopy retractions and change of basepoint
 
-The homomorphism `FundamentalGroup.map` preserves identity maps and composition.
-It commutes with `FundamentalGroup.fundamentalGroupMulEquivOfPath`, and a homotopy
+The homomorphisms `FundamentalGroup.map` and `FundamentalGroup.mapOfEq` preserve
+identity maps and composition. Relative homotopies fixing the basepoint give equal
+`FundamentalGroup.mapOfEq` homomorphisms.
+The induced map commutes with `FundamentalGroup.fundamentalGroupMulEquivOfPath`, and a homotopy
 compares its two induced maps by transport along the basepoint's track. Both
 comparisons are available pointwise and as equalities of monoid homomorphisms.
 No connectedness or basedness hypothesis is needed. Loop classes are the identity
@@ -160,6 +162,30 @@ theorem map_comp (g : C(Y, Z)) (f : C(X, Y)) (p : X) :
   MonoidHom.ext fun γ => eq_of_heq
     (CategoryTheory.Functor.hcongr_hom (FundamentalGroupoid.map_comp g f) γ)
 
+/-- The identity continuous map with its basepoint equality induces the identity homomorphism. -/
+@[simp]
+theorem mapOfEq_id (x : X) :
+    mapOfEq (ContinuousMap.id X) (rfl : ContinuousMap.id X x = x) =
+      MonoidHom.id (FundamentalGroup X x) := by
+  apply MonoidHom.ext
+  intro γ
+  simpa only [mapOfEq_apply, Path.Homotopic.Quotient.cast_rfl_rfl, map_apply] using
+    DFunLike.congr_fun (map_id x) γ
+
+/-- Induced homomorphisms for point-preserving maps respect composition and the composite
+basepoint equality. -/
+theorem mapOfEq_comp (g : C(Y, Z)) (f : C(X, Y)) {x : X} {y : Y} {z : Z}
+    (hf : f x = y) (hg : g y = z) :
+    mapOfEq (g.comp f) ((congrArg g hf).trans hg) =
+      (mapOfEq g hg).comp (mapOfEq f hf) := by
+  subst y
+  subst z
+  apply MonoidHom.ext
+  intro γ
+  simpa only [MonoidHom.comp_apply, mapOfEq_apply,
+    Path.Homotopic.Quotient.cast_rfl_rfl, map_apply] using
+    DFunLike.congr_fun (map_comp g f x) γ
+
 open CategoryTheory
 
 private theorem map_pathIso (f : C(X, Y)) {x x' : X} (a : Path x x') :
@@ -211,6 +237,38 @@ theorem fundamentalGroupMulEquivOfPath_comp_map_of_homotopy {f g : C(X, Y)}
     (H : ContinuousMap.Homotopy f g) (x : X) :
     (fundamentalGroupMulEquivOfPath (H.evalAt x)).toMonoidHom.comp (map f x) = map g x :=
   MonoidHom.ext fun γ => fundamentalGroupMulEquivOfPath_map_of_homotopy H x γ
+
+/-- Maps homotopic relative to a set containing the basepoint induce equal homomorphisms
+at a common target basepoint. This is the constant-track specialization of the homotopy
+comparison in May, Chapter 1, §4. -/
+theorem mapOfEq_eq_of_homotopicRel {f g : C(X, Y)} {S : Set X} {x : X} {y : Y}
+    (H : f.HomotopicRel g S) (hx : x ∈ S) (hf : f x = y) (hg : g x = y) :
+    mapOfEq f hf = mapOfEq g hg := by
+  obtain ⟨H⟩ := H
+  have htrack :
+      (Groupoid.isoEquivHom (FundamentalGroupoid.mk (f x))
+        (FundamentalGroupoid.mk (g x))).symm
+          (Path.Homotopic.Quotient.mk (H.toHomotopy.evalAt x)) =
+        eqToIso (congrArg FundamentalGroupoid.mk (hf.trans hg.symm)) := by
+    apply Iso.ext
+    change Path.Homotopic.Quotient.mk (H.toHomotopy.evalAt x) =
+      eqToHom (congrArg FundamentalGroupoid.mk (hf.trans hg.symm))
+    rw [FundamentalGroupoid.eqToHom_eq (hf.trans hg.symm),
+      ← Path.Homotopic.Quotient.mk_refl, ← Path.Homotopic.Quotient.mk_cast]
+    congr 1
+    ext t
+    exact (H.eq_fst t hx).trans (hf.trans hg.symm)
+  have hconj :
+      fundamentalGroupMulEquivOfPath (H.toHomotopy.evalAt x) =
+        (eqToIso (congrArg FundamentalGroupoid.mk (hf.trans hg.symm))).conj :=
+    congrArg Iso.conj htrack
+  apply MonoidHom.ext
+  intro γ
+  have h := fundamentalGroupMulEquivOfPath_map_of_homotopy H.toHomotopy x γ
+  rw [hconj] at h
+  change (eqToIso (congrArg FundamentalGroupoid.mk hf)).conj (map f x γ) =
+    (eqToIso (congrArg FundamentalGroupoid.mk hg)).conj (map g x γ)
+  rw [← h, ← Iso.trans_conj, eqToIso_trans]
 
 /-- The fundamental-group retraction induced by a homotopy `f ∘ g ∼ id`.
 It first maps by `f`, then changes basepoint along the track `H.evalAt x`.

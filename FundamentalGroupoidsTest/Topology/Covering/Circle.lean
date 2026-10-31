@@ -4,6 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
+import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Functor
 import FundamentalGroupoids.Topology.Covering.Monodromy
 import Mathlib.Algebra.Group.Equiv.Opposite
 import Mathlib.Algebra.Group.Equiv.TypeTags
@@ -33,6 +34,8 @@ by `n` in these same coordinates.
 -/
 
 noncomputable section
+
+open CategoryTheory
 
 namespace Circle
 
@@ -193,5 +196,47 @@ private theorem integerNormalization_map_zpow (n : ℤ)
   change (isCoveringMap_exp.monodromy
     (FundamentalGroup.mapOfEq f (one_zpow n) q) expOrigin : ℝ) = _
   rw [hend, he, Int.cast_mul, mul_assoc]
+
+/-- The based circle squaring map remains different from the identity after applying the
+fundamental-group functor on the based-homotopy category. Its action is multiplication by two
+in the integer coordinates of `integerNormalization_map_zpow`. -/
+private theorem homotopyFunctor_map_square_ne_id :
+    FundamentalGroup.homotopyFunctor.map
+        (BasedTopCat.homotopyQuotient.map
+          (BasedTopCat.ofHom
+            (⟨fun z : Circle ↦ z ^ (2 : ℤ), continuous_zpow (2 : ℤ)⟩ : C(Circle, Circle))
+            (one_zpow (2 : ℤ)))) ≠
+      𝟙 (FundamentalGroup.homotopyFunctor.obj
+        (BasedTopCat.homotopyQuotient.obj (BasedTopCat.of Circle (1 : Circle)))) := by
+  intro h
+  rw [FundamentalGroup.homotopyFunctor_map] at h
+  let f : C(Circle, Circle) := ⟨fun z ↦ z ^ (2 : ℤ), continuous_zpow (2 : ℤ)⟩
+  have hhom : FundamentalGroup.mapOfEq f (one_zpow (2 : ℤ)) =
+      MonoidHom.id (FundamentalGroup Circle (1 : Circle)) := by
+    exact (FundamentalGroup.functor_map_ofHom f (one_zpow (2 : ℤ))).symm.trans
+      ((congrArg GrpCat.Hom.hom h).trans GrpCat.hom_id)
+  have hloop :
+      FundamentalGroup.mapOfEq f (one_zpow (2 : ℤ))
+          (Path.Homotopic.Quotient.mk (signedExpLoop 1)) =
+        Path.Homotopic.Quotient.mk (signedExpLoop 1) :=
+    DFunLike.congr_fun hhom (Path.Homotopic.Quotient.mk (signedExpLoop 1))
+  have hnorm := congrArg integerNormalization hloop
+  have hmap := integerNormalization_map_zpow (2 : ℤ)
+    (Path.Homotopic.Quotient.mk (signedExpLoop 1))
+  have hgen := integerNormalization_signedExpLoop (1 : ℤ)
+  have hcoord : Multiplicative.ofAdd (2 : ℤ) = Multiplicative.ofAdd (1 : ℤ) := by
+    calc
+      Multiplicative.ofAdd (2 : ℤ) =
+          Multiplicative.ofAdd ((2 : ℤ) *
+            (integerNormalization (Path.Homotopic.Quotient.mk (signedExpLoop 1))).toAdd) := by
+        simpa only [toAdd_ofAdd, mul_one] using
+          congrArg (fun x : Multiplicative ℤ ↦
+            Multiplicative.ofAdd ((2 : ℤ) * x.toAdd)) hgen.symm
+      _ = integerNormalization
+          (Path.Homotopic.Quotient.mk (signedExpLoop 1)) := hmap.symm.trans hnorm
+      _ = Multiplicative.ofAdd (1 : ℤ) := hgen
+  have htwo : (2 : ℤ) = 1 := by
+    simpa only [toAdd_ofAdd] using congrArg Multiplicative.toAdd hcoord
+  exact (by decide : (2 : ℤ) ≠ 1) htwo
 
 end Circle

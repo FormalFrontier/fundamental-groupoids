@@ -1,8 +1,8 @@
 # Fundamental Groupoids
 
-Fundamental groupoids, categorical endomorphism transport, strict open-cover
-descent, based van Kampen, covering spaces and semilocal simple connectivity in
-Lean. The library extends Mathlib's categories, path-homotopy classes and covering
+Fundamental groupoids, based homotopy, categorical endomorphism transport,
+strict open-cover descent, based van Kampen, covering spaces and semilocal simple
+connectivity in Lean. The library extends Mathlib's categories, path-homotopy classes and covering
 maps rather than introducing replacement structures. The
 [mathematical guide](docs/mathematical-guide.md) gives detailed statements, API
 directions, examples, conventions and credits.
@@ -70,6 +70,15 @@ directions, examples, conventions and credits.
   multiplicatively equivalent to `∀ i, π₁(X i, p i)`, by evaluation and loop
   assembly, naturally in continuous maps and arbitrary reindexing. Index and
   space universes are independent; no finite/nonempty index or connectedness is needed.
+- **Fundamental groups and based homotopy** ([`Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean),
+  [`Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean)).
+  Based spaces form the under category of the one-point space. The fundamental
+  group at the selected point and the induced homomorphism define a functor to
+  `GrpCat`. It factors uniquely through the category of based-homotopy classes,
+  with object, representative-map and loop-class characteristics. The quotient
+  identifies exactly the based-homotopic maps and has Mathlib's categorical
+  universal property and natural-transformation descent. Spaces and selected
+  points are arbitrary, without connectedness, separation or well-pointedness.
 - **Homotopy-retraction splittings** ([`retractionOfHomotopy`](FundamentalGroupoids/FundamentalGroup.lean)).
   For `g : C(X, Y)`, `f : C(Y, X)` and a homotopy from `f.comp g` to `id X`,
   transport along its track at `x` gives an explicit left inverse of
@@ -227,6 +236,9 @@ import FundamentalGroupoids
 Individual modules can be imported separately; use `FundamentalGroup.piMulEquiv p`
 for pointed products or `FundamentalGroup.isColimitOfIsOpenCover` for indexed based
 van Kampen. The deprecated `isColimit_of_isOpenCover` remains a compatibility alias.
+For based spaces, use `BasedTopCat.of X x` and `BasedTopCat.ofHom f h`;
+`FundamentalGroup.functor` gives the induced groups and homomorphisms, and
+`FundamentalGroup.homotopyFunctor` acts on based-homotopy classes.
 See the [guide's API directions](docs/mathematical-guide.md#using-the-library)
 and [verification examples](FundamentalGroupoidsTest.lean).
 The [circle normalization guide](docs/circle-integer-normalization.md) explains
@@ -259,7 +271,10 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 
 | Module under `FundamentalGroupoids` | Contents |
 | --- | --- |
-| [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced maps, null-loop/trivial-image criteria, path transport, homotopy comparisons and retraction splittings |
+| [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
+| [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition along maps carrying a specified set into the fixed set |
+| [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
+| [`AlgebraicTopology.FundamentalGroup.Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean) | Fundamental-group functor on based spaces and its unique factorization through based homotopy |
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
@@ -292,8 +307,11 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 
 ## Conventions and limitations
 
-The APIs retain Mathlib's namespaces and original structures. Strict descent
-uses equality, including `eqToHom` transports, not compatibility only up to
+The APIs retain Mathlib's namespaces and original structures. Based homotopies
+fix the selected point throughout time. An unbased homotopy instead compares
+induced fundamental-group homomorphisms by transport along the point's track,
+not equality at a fixed basepoint. Strict descent uses equality, including
+`eqToHom` transports, not compatibility only up to
 natural isomorphism. Its space, index, target-object and target-hom universes
 are independent; bundled colimits have sizes `Grpd.{u, u}` and `Cat.{u, u}`.
 The pairwise diagram includes empty intersections, not the empty-family intersection.
@@ -306,7 +324,7 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 ## References
 
 - J. Peter May, *A Concise Course in Algebraic Topology*, revised author PDF,
-  Chapter 1 §§3, 5, 7, Chapter 2 §§5, 7–8 and Chapter 3 §§2–4, 7.
+  Chapter 1 §§3–5, 7, Chapter 2 §§5, 7–8 and Chapter 3 §§2–4, 7.
   [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
   [GroupTheory](https://github.com/FormalFrontier/group-theory).
