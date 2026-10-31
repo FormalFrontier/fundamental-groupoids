@@ -1,170 +1,194 @@
-# Integer normalization of the circle computation
+# Integer coordinates for circle fundamental groups
 
-Mathlib's quotient-covering computation already applies to the usual complex
-unit circle at `1`. This guide describes its positive integer normalization,
-including its value on every signed exponential-loop class. The construction
-uses existing equivalences; no separate winding-number or loop-group model is
-needed. The Mathlib APIs below refer to the revision recorded in the README.
-This library provides characteristic equations for the covering equivalence and
-for monodromy on a supplied continuous lift.
-
-## The exact composition
-
-Put `c = 2 * Real.pi` and `L = AddSubgroup.zmultiples c`. These are abbreviations
-in this explanation. Use the supplied point
-`e = ⟨0, Circle.exp_zero⟩ : Circle.exp ⁻¹' {(1 : Circle)}`.
-
-The stock equivalence is
+Import
+`FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Circle`, or the
+`FundamentalGroupoids` root, for the public coordinate equivalences
 
 ```lean
-Circle.isAddQuotientCoveringMap_exp.fundamentalGroupEquiv e
+AddCircle.fundamentalGroupEquivInt {T : ℝ} (hT : T ≠ 0) :
+    FundamentalGroup (AddCircle T) 0 ≃* Multiplicative ℤ
+
+Circle.fundamentalGroupEquivInt :
+    FundamentalGroup Circle 1 ≃* Multiplicative ℤ
 ```
 
-with type `FundamentalGroup Circle 1 ≃* (Multiplicative L)ᵐᵒᵖ`.
-`Analysis/SpecialFunctions/Complex/Circle.lean` proves the required covering
-property for this particular exponential. The instances from
-`Analysis/Convex/Contractible.lean` and
-`AlgebraicTopology/FundamentalGroupoid/SimplyConnected.lean` supply simple
-connectivity of the real line. No circle-classification hypothesis is used.
+The signed-period and complex-circle formalization originates in
+[Sphere Topology](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/Circle.lean),
+by Formal Frontier Agents. The constructions use Mathlib's covering,
+simply-connectedness, path and algebraic-equivalence APIs; no separate
+winding-number or loop-group model is introduced. The pins are recorded in the
+[README](../README.md#building).
 
-There is a shorter lattice normalization than choosing a generator of an
-abstract infinite cyclic group. The homomorphism
+## Signed additive-circle coordinates
 
-```lean
-zmultiplesHom ℝ c : ℤ →+ ℝ
-```
-
-sends `n` to `n • c`, and its range is definitionally `L`.
-It is injective: equality of its values is
-`(m : ℝ) * c = (n : ℝ) * c`; cancel the nonzero positive real number `c`,
-then use injectivity of the integer cast. Thus, for this injectivity proof `h`,
-
-```lean
-AddMonoidHom.ofInjective h : ℤ ≃+ L
-```
-
-is exactly the desired equivalence `A`, with `↑(A n) = n • c`.
-This uses `Data/Int/Cast/Lemmas.lean` and
-`Algebra/Group/Subgroup/Ker.lean`. There is no need for an additional `Infinite L`
-instance, a generator-equals-top proof, or a new generic lattice equivalence.
-
-Compose the stock equivalence, then
-
-```lean
-(MulOpposite.opMulEquiv : Multiplicative L ≃* (Multiplicative L)ᵐᵒᵖ).symm
-```
-
-and then `AddEquiv.toMultiplicative A.symm`. Denote this composition by `N` in
-this explanation. Its type is
-`FundamentalGroup Circle 1 ≃* Multiplicative ℤ`.
-The middle map is **unop**, not inversion; it uses commutativity of `L`.
-Consequently this choice sends the positive real period `2π` to the integer
-`1`, not `-1`.
-
-## Endpoint characteristic and all signed representatives
-
-For any class `q : FundamentalGroup Circle 1` and any `n : ℤ`, the composition
-has the characteristic equation
+For every real `T` and integer `n`, `AddCircle.loop T n` projects the segment
+from `0` to `T * n` into `AddCircle T`. The public evaluation and lifting laws are
+`AddCircle.loop_apply`, `AddCircle.coe_loop` and `AddCircle.liftPath_loop`.
+For `hT : T ≠ 0`,
 
 ```text
-N q = Multiplicative.ofAdd n
-  ↔ (Circle.isCoveringMap_exp.monodromy q e).val = (n : ℝ) * c.
+AddCircle.fundamentalGroupEquivInt hT
+    (FundamentalGroup.fromPath ⟦AddCircle.loop T n⟧)
+  = Multiplicative.ofAdd n.
 ```
 
-Indeed, injectivity of the two algebraic equivalences reduces the left side to
-saying that the stock equivalence has value
-`MulOpposite.op (Multiplicative.ofAdd (A n))`.
-`IsAddQuotientCoveringMap.fundamentalGroupEquiv_apply_eq_iff`
-then says that `Multiplicative.ofAdd (A n)` translates `0` to the lifted
-endpoint. That translation is `↑(A n) + 0 = (n : ℝ) * c`, with no sign change.
-The `_apply` lemma relates this equivalence to Mathlib's underlying
-`fundamentalGroupToMulOpposite`.
+Use `AddCircle.fundamentalGroupEquivInt_loop` for this normalization,
+`fundamentalGroupEquivInt_symm_apply` to construct the inverse image, and
+`eq_loop_fundamentalGroupEquivInt` to put an arbitrary class in signed-loop
+normal form. `fundamentalGroupEquivInt_unique` says that these values on all
+integer loops determine the equivalence uniquely.
 
-More explicitly, let `γ : Path (1 : Circle) 1`, and let
-`Γ : C(unitInterval, ℝ)` satisfy `Circle.exp ∘ Γ = γ` and `Γ 0 = 0`.
-`IsCoveringMap.monodromy_mk_apply_eq_of_lift`, using Mathlib's uniqueness of
-path lifting, identifies the monodromy endpoint with `Γ 1` directly.
-The characteristic equation becomes
+The construction first applies
+`AddCircle.isAddQuotientCoveringMap_coe T`'s simply connected covering
+equivalence. Its target is the opposite of
+`Multiplicative (AddSubgroup.zmultiples T)`. The homomorphism
+
+```lean
+zmultiplesHom ℝ T : ℤ →+ ℝ
+```
+
+is injective for `T ≠ 0`, and `AddMonoidHom.ofInjective` identifies `ℤ` with
+its range, `AddSubgroup.zmultiples T`. The coordinate is the covering
+equivalence followed by commutative **unop**, then the inverse of this range
+equivalence. Unop is not inversion and introduces no sign change.
+
+The normalization uses `T`, not `|T|`. A negative period therefore gives a
+prescribed generator with decreasing real lift and integer coordinate `+1`.
+Replacing the signed period by its absolute value would change this convention.
+At `T = 0` the covering still exists, but every `AddCircle.loop 0 n` is constant
+(`AddCircle.loop_zero_period`), and the fundamental group is trivial, not `ℤ`.
+The nonzero hypothesis belongs on the coordinate equivalence, not on the loop
+or covering definitions. For nonzero `T`, `AddCircle.loop_one_ne_one` supplies
+the nonidentity generator law.
+
+For any supplied real lift `Γ` of a loop `γ`, starting at zero,
+`AddCircle.fundamentalGroupEquivInt_apply_eq_iff` gives
 
 ```text
-N (Path.Homotopic.Quotient.mk γ) = Multiplicative.ofAdd n
-  ↔ Γ 1 = (n : ℝ) * c.
+AddCircle.fundamentalGroupEquivInt hT (FundamentalGroup.fromPath ⟦γ⟧)
+    = Multiplicative.ofAdd n
+  ↔ Γ 1 = T * (n : ℝ).
 ```
 
-For **every integer** `n`, take `Γ` to be
-`Path.segment (0 : ℝ) ((n : ℝ) * c)`. Map it through `Circle.exp` and use
-`Circle.exp_zero.symm` and `(Circle.exp_int_mul_two_pi n).symm` to cast its
-endpoints to `1`. Call this loop `fₙ` in this explanation. Its function is
-`t ↦ Circle.exp (c * (n : ℝ) * (t : ℝ))`, by `Path.segment_apply` and the
-formula for the affine line map. Its real lift ends at `(n : ℝ) * c`, so
+`AddCircle.liftPath_apply_one` states the endpoint formula directly for
+Mathlib's chosen lift.
+
+## The complex circle and its positive generator
+
+`Circle.loop n` is the image of `AddCircle.loop 1 n` under the period-one
+circle homeomorphism, with endpoints cast to `1`. Its public evaluation law is
 
 ```text
-N [fₙ] = Multiplicative.ofAdd n,
-N.symm (Multiplicative.ofAdd n) = [fₙ].
+Circle.loop n t = Circle.exp (2 * Real.pi * (n : ℝ) * (t : ℝ)).
 ```
 
-This argument includes `n = 0` and negative `n`; it does not extrapolate from
-one positive generator. Injectivity of `N` and its homomorphism law also give
-`[fₘ] * [fₙ] = [fₘ₊ₙ]`. Here multiplication is Mathlib's canonical
-endomorphism multiplication, `p * q = q.trans p`, not pointwise loop
-multiplication.
+Thus `+1` is counterclockwise, `-1` is clockwise, and `0` is constant.
+`Circle.coe_loop_apply` gives the same formula as a complex exponential.
+The period-one transported path and a radian segment projected by `Circle.exp`
+have this same evaluation; their constructions are not definitionally the same.
+Use `Circle.loop_apply` and path extensionality rather than `rfl` to compare them.
 
-For an arbitrary loop, if its lifted endpoint through the radian exponential
-is `r`, the integer coordinate of `N` is `r / c`. Equivalently, lifting through
-the period-one map `s ↦ Circle.exp (c * s)` ends at that integer itself.
-Indeed, divide the radian lift by `c`; conversely, multiplying any period-one
-lift by `c` gives the unique radian lift. Continuity and these identities use
-only the nonzero constant `c`. Thus `N` is the lifted-endpoint map and `N.symm`
-is the signed exponential-loop map. A radian endpoint `2πn` must not be
-confused with a period-one endpoint `n`.
+`Circle.fundamentalGroupEquivInt` transports the additive-circle coordinate
+through `AddCircle.homeomorphCircle` at period one. Its implementation uses the
+homeomorphism's induced fundamental-groupoid equivalence,
+`fullyFaithfulFunctor.mulEquivEnd`, and equality-index transport by
+`eqToIso.conj`. It is the map induced by that homeomorphism, not a choice of
+preimages arranged to give a generator value.
 
-## Integer power maps
+The characteristic API includes:
 
-The same coordinates compute the map induced by `z ↦ z ^ n` for **every**
-`n : ℤ`. Write `Pₙ` for the continuous power map and use `one_zpow n` for its
-basepoint equality. Then, for every `q : FundamentalGroup Circle 1`,
+- `Circle.fundamentalGroupEquivInt_loop`: every signed loop has coordinate `n`;
+- `Circle.fundamentalGroupEquivInt_symm_apply`: the inverse constructs its class;
+- `Circle.fromPath_loop_add`: the class of `loop (m + n)` is the product of
+  the classes of `loop m` and `loop n`;
+- `Circle.loop_one_ne_one`: the positive full turn is not the identity class.
+
+Multiplication retains Mathlib's endomorphism convention: the right factor is
+traversed first. It is not pointwise multiplication of paths.
+
+For every nonzero signed period, `AddCircle.homeomorphCircle_loop` identifies
+the image of `AddCircle.loop T n` with `Circle.loop n`.
+`AddCircle.fundamentalGroupEquivInt_homeomorphCircle` states equality of the
+coordinates under the induced `FundamentalGroup.mapOfEq`. In particular, the
+negative-period prescribed generator also maps to the positive complex loop.
+
+## Radian and period-one endpoints
+
+`Circle.exp` uses radians. `Circle.liftPath_apply_one` says that its zero-start
+lift of `γ` ends at
+
+```text
+2 * Real.pi *
+  ((Circle.fundamentalGroupEquivInt (FundamentalGroup.fromPath ⟦γ⟧)).toAdd : ℝ).
+```
+
+By uniqueness of lifts, any supplied radian lift starting at zero has this
+endpoint. Dividing it by `2 * Real.pi` gives the integer coordinate. By contrast,
+`Real.fourierChar s = Circle.exp (2 * Real.pi * s)` is period one.
+`Circle.fundamentalGroupEquivInt_apply_eq_iff` applies to a supplied continuous
+lift `Γ` through this map, starting at zero, and states
+
+```text
+Circle.fundamentalGroupEquivInt (FundamentalGroup.fromPath ⟦γ⟧)
+    = Multiplicative.ofAdd n
+  ↔ Γ 1 = (n : ℝ).
+```
+
+A radian endpoint `2πn` must not be confused with a period-one endpoint `n`.
+The [circle verification module](../FundamentalGroupoidsTest/Topology/Covering/Circle.lean)
+uses these public endpoint and signed-loop laws. Its private
+`integerNormalization` and `signedExpLoop` names are only aliases for the public
+coordinate and loop.
+
+## Integer power-map consumers
+
+Write `N = Circle.fundamentalGroupEquivInt` and let `Pₙ` be the continuous map
+`z ↦ z ^ n`, with basepoint equality `one_zpow n`. For every `n : ℤ` and every
+`q : FundamentalGroup Circle 1`, the same verification module proves privately
 
 ```text
 N (FundamentalGroup.mapOfEq Pₙ (one_zpow n) q)
   = Multiplicative.ofAdd (n * (N q).toAdd).
 ```
 
-The commuting square is the real map `Fₙ(t) = (n : ℝ) * t` over `Pₙ`:
-`Circle.exp (Fₙ t) = Pₙ (Circle.exp t)`, by `Circle.exp_zsmul`.
-`IsCoveringMap.monodromy_naturality_map` therefore identifies the new lifted
-endpoint with `(n : ℝ)` times the old one. The endpoint characteristic above
-converts this to multiplication by `n` in integer coordinates.
-`IsCoveringMap.monodromy_cast` handles the basepoint equality in `mapOfEq`.
+The consumer uses the public inverse-loop law to represent `q` by
+`Circle.loop (N q).toAdd`. On that representative, `Circle.loop_apply` and
+`Circle.exp_zsmul` give the equality of paths
 
-In particular `n = 0` gives the constant based circle map and the zero induced
-homomorphism. Neither `Fₙ` nor `Pₙ` is assumed to be a covering; only the two
-vertical exponential projections are coverings. Negative exponents reverse the
-sign by multiplication by a negative integer, not by changing the convention for
-removing the opposite group. The positive full turn still has coordinate `+1`.
-The verification in `FundamentalGroupoidsTest.Topology.Covering.Circle` uses the
-same private coordinate composition as the signed-loop checks.
+```text
+(Circle.loop m mapped by Pₙ, with endpoints cast by one_zpow n)
+  = Circle.loop (n * m).
+```
 
-More generally, an equivariant commuting square of quotient coverings, with
-acting-group homomorphism `ρ`, gives
-`IsQuotientCoveringMap.fundamentalGroupToMulOpposite_naturality`: the canonical
-fundamental-group maps commute with `MonoidHom.op ρ`. This homomorphism identity
-needs no simple connectivity. The existing `fundamentalGroupEquiv_apply` equations
-recover the simply connected equivalence form; the additive theorem reuses the
-multiplicative one through `Multiplicative`.
+`FundamentalGroup.mapOfEq_apply` gives the corresponding loop-class equation,
+and `Circle.fundamentalGroupEquivInt_loop` computes its coordinate. This is a
+consumer of the public normal form, not a second period-lattice construction.
+The argument covers zero and negative exponents without assuming that the power
+map is a covering. At zero the induced homomorphism is zero in integer
+coordinates; a negative exponent reverses the sign. The squaring-map example
+uses this formula to distinguish its image from the identity under the
+fundamental-group functor on the based-homotopy category.
+
+For general circle self-maps and arbitrary return paths,
+[Sphere Topology's degree API](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/CircleDegree.lean)
+provides `Circle.fundamentalGroupEquivInt_map` and `Circle.degree_zpow`.
+That broader degree, free-homotopy and fixed-point theory is not a dependency of
+the Fundamental Groupoids coordinate module. Joint users must select a Sphere
+Topology version whose old circle module publicly imports this canonical module,
+not a version defining another copy of these names.
 
 ## References and credit
 
-* Mathlib supplies the circle exponential, contractibility, generic covering and
-  lifting proofs, path segments, range equivalence and type-tag equivalences.
-  In particular the covering computation is in
-  `Topology/Homotopy/Lifting.lean`; the opposite removal is in
-  `Algebra/Group/Equiv/Opposite.lean`.
-* J. Peter May, *A Concise Course in Algebraic Topology*, Chapter 1, §§5, 7,
-  motivates signed-loop normalization and the integer power-map computation.
+- J. Peter May, *A Concise Course in Algebraic Topology*, Chapter 1, §5,
+  pp. 8–9, for signed loops and lifted endpoints, and §7, p. 10, for degree and
+  power maps. The signed-period additive-circle formulation generalizes the
+  positive circle normalization.
+- Formal Frontier Agents' existing circle formalization in Sphere Topology,
+  linked above, supplies the coordinate definitions and proofs.
+- Mathlib supplies the quotient covering and monodromy formalization by Junyan
+  Xu, additive and complex circles, contractibility, paths and group equivalences.
 
-This is a mathematical assembly of the existing APIs, not an additional
-exported circle-computation declaration. May's mathematical motivation and
-Mathlib's formalization are credited separately from redistribution rights:
-no book text, figures or assets are included, and no license on the book is
-inferred. This guide is original work by Formal Frontier Agents under the
-repository's Apache-2.0 license.
+May's mathematics and the prior formalizations are credited separately from
+redistribution rights: no book text, figures or assets are included, and no
+license on the book is inferred. This guide is original work by Formal Frontier
+Agents under the repository's Apache-2.0 license.

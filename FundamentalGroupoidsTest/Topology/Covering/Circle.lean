@@ -4,104 +4,71 @@ Authors: Formal Frontier Agents
 -/
 module
 
-import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Functor
-import FundamentalGroupoids.Topology.Covering.Monodromy
-import Mathlib.Algebra.Group.Equiv.Opposite
-import Mathlib.Algebra.Group.Equiv.TypeTags
-import Mathlib.Algebra.Group.Subgroup.Ker
-import Mathlib.Analysis.Convex.Contractible
-import Mathlib.Analysis.SpecialFunctions.Complex.Circle
-import Mathlib.Data.Int.Cast.Lemmas
-import Mathlib.Topology.Homotopy.Lifting
+import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Circle
+import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Products
 
 /-!
 # Integer coordinates for the fundamental group of the circle
 
-The circle covering equivalence is normalized through its real period lattice.
-The formulas include every signed exponential-loop class and the endpoints of
-lifts through both the radian and the period-one exponentials.
+The public circle coordinates compute every signed exponential-loop class and
+endpoints of lifts through both the radian and the period-one exponentials.
+The local names below are aliases for `Circle.fundamentalGroupEquivInt` and
+`Circle.loop`, not a separate covering or period-lattice construction.
 
-These equations use the characteristic APIs for quotient-covering equivalences
-and monodromy endpoints. Naturality for the real lift `t ↦ n*t` shows that every
-integer power map, including the constant power map at zero, induces multiplication
-by `n` in these same coordinates.
+The explicit signed-loop formula shows that every integer power map, including
+the constant power map at zero, induces multiplication by its exponent in these
+same coordinates. In particular, the squaring map is not the identity after
+applying the fundamental-group functor on the based-homotopy category.
+For the categorical product of two based circles, the canonical fundamental-group
+comparison and its two projections give integer coordinates sending the signed
+coordinate loops to their prescribed pair of integers. The empty-product
+comparison includes the based one-point space.
 
 ## References
 
-* Junyan Xu, `Mathlib.Topology.Homotopy.Lifting`, for covering monodromy and lifts.
 * J. Peter May, *A Concise Course in Algebraic Topology*, Chapter 1, §§5, 7,
   for signed-loop normalization and the integer power-map computation.
+* The signed-period and complex-circle formalization by Formal Frontier Agents,
+  originating in Sphere Topology; see
+  `FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Circle`.
+* Mathlib's covering and lifting formalization by Junyan Xu.
 -/
 
 noncomputable section
 
-open CategoryTheory
+open CategoryTheory CategoryTheory.Limits
 
 namespace Circle
 
-private theorem periodHom_injective :
-    Function.Injective (zmultiplesHom ℝ (2 * Real.pi)) := by
-  intro m n h
-  have hc : (2 : ℝ) * Real.pi ≠ 0 :=
-    ne_of_gt (mul_pos zero_lt_two Real.pi_pos)
-  have h' : (m : ℝ) * (2 * Real.pi) = (n : ℝ) * (2 * Real.pi) := by
-    simpa only [zmultiplesHom_apply, zsmul_eq_mul] using h
-  exact Int.cast_injective ((mul_left_inj' hc).mp h')
-
-private def periodRangeEquiv : ℤ ≃+ AddSubgroup.zmultiples (2 * Real.pi) :=
-  AddMonoidHom.ofInjective periodHom_injective
-
-private theorem periodRangeEquiv_coe (n : ℤ) :
-    (periodRangeEquiv n : ℝ) = n • (2 * Real.pi) := rfl
-
-private def expOrigin : exp ⁻¹' {(1 : Circle)} := ⟨0, exp_zero⟩
-
 private def integerNormalization :
     FundamentalGroup Circle (1 : Circle) ≃* Multiplicative ℤ :=
-  (isAddQuotientCoveringMap_exp.fundamentalGroupEquiv expOrigin).trans
-    ((MulOpposite.opMulEquiv :
-        Multiplicative (AddSubgroup.zmultiples (2 * Real.pi)) ≃*
-          (Multiplicative (AddSubgroup.zmultiples (2 * Real.pi)))ᵐᵒᵖ).symm.trans
-      (AddEquiv.toMultiplicative periodRangeEquiv.symm))
-
-private theorem integerNormalization_eq_iff
-    (q : FundamentalGroup Circle (1 : Circle)) (n : ℤ) :
-    integerNormalization q = Multiplicative.ofAdd n ↔
-      (isCoveringMap_exp.monodromy q expOrigin : ℝ) = (n : ℝ) * (2 * Real.pi) := by
-  let T : (Multiplicative (AddSubgroup.zmultiples (2 * Real.pi)))ᵐᵒᵖ ≃*
-      Multiplicative ℤ :=
-    (MulOpposite.opMulEquiv :
-        Multiplicative (AddSubgroup.zmultiples (2 * Real.pi)) ≃*
-          (Multiplicative (AddSubgroup.zmultiples (2 * Real.pi)))ᵐᵒᵖ).symm.trans
-      (AddEquiv.toMultiplicative periodRangeEquiv.symm)
-  have hT : T (MulOpposite.op (Multiplicative.ofAdd (periodRangeEquiv n))) =
-      Multiplicative.ofAdd n := by
-    change Multiplicative.ofAdd (periodRangeEquiv.symm (periodRangeEquiv n)) =
-      Multiplicative.ofAdd n
-    exact congrArg Multiplicative.ofAdd (periodRangeEquiv.symm_apply_apply n)
-  calc
-    integerNormalization q = Multiplicative.ofAdd n ↔
-        isAddQuotientCoveringMap_exp.fundamentalGroupEquiv expOrigin q =
-          MulOpposite.op (Multiplicative.ofAdd (periodRangeEquiv n)) := by
-      change T (isAddQuotientCoveringMap_exp.fundamentalGroupEquiv expOrigin q) =
-        Multiplicative.ofAdd n ↔ _
-      rw [← hT, T.injective.eq_iff]
-    _ ↔ (periodRangeEquiv n : ℝ) + 0 =
-        (isCoveringMap_exp.monodromy q expOrigin : ℝ) :=
-      isAddQuotientCoveringMap_exp.fundamentalGroupEquiv_apply_eq_iff expOrigin q _
-    _ ↔ (isCoveringMap_exp.monodromy q expOrigin : ℝ) =
-        (n : ℝ) * (2 * Real.pi) := by
-      rw [add_zero, periodRangeEquiv_coe, zsmul_eq_mul]
-      exact eq_comm
+  Circle.fundamentalGroupEquivInt
 
 private theorem integerNormalization_lift_endpoint
     (γ : Path (1 : Circle) 1) (Γ : C(unitInterval, ℝ))
     (hΓ : ∀ t, exp (Γ t) = γ t) (h0 : Γ 0 = 0) (n : ℤ) :
     integerNormalization (Path.Homotopic.Quotient.mk γ) = Multiplicative.ofAdd n ↔
       Γ 1 = (n : ℝ) * (2 * Real.pi) := by
-  have hend := isCoveringMap_exp.monodromy_mk_apply_eq_of_lift
-    γ expOrigin Γ (funext hΓ) h0
-  rw [integerNormalization_eq_iff, hend]
+  have hc : (2 : ℝ) * Real.pi ≠ 0 :=
+    ne_of_gt (mul_pos zero_lt_two Real.pi_pos)
+  have hl : Γ = isCoveringMap_exp.liftPath γ.toContinuousMap 0
+      (γ.source.trans exp_zero.symm) :=
+    (isCoveringMap_exp.eq_liftPath_iff' (γ.source.trans exp_zero.symm)).mpr
+      ⟨funext hΓ, h0⟩
+  have hend : Γ 1 = 2 * Real.pi *
+      ((integerNormalization (Path.Homotopic.Quotient.mk γ)).toAdd : ℝ) :=
+    (congrArg (fun F : C(unitInterval, ℝ) ↦ F 1) hl).trans (Circle.liftPath_apply_one γ)
+  calc
+    integerNormalization (Path.Homotopic.Quotient.mk γ) = Multiplicative.ofAdd n ↔
+        ((integerNormalization (Path.Homotopic.Quotient.mk γ)).toAdd : ℝ) = (n : ℝ) := by
+      constructor
+      · intro h
+        exact congrArg (fun z : Multiplicative ℤ ↦ (z.toAdd : ℝ)) h
+      · intro h
+        exact congrArg Multiplicative.ofAdd (Int.cast_injective h)
+    _ ↔ Γ 1 = (n : ℝ) * (2 * Real.pi) := by
+      rw [hend, mul_comm (n : ℝ) (2 * Real.pi)]
+      exact (mul_right_inj' hc).symm
 
 private theorem integerNormalization_radian_endpoint_div
     (γ : Path (1 : Circle) 1) (Γ : C(unitInterval, ℝ))
@@ -116,86 +83,64 @@ private theorem integerNormalization_periodOne_endpoint
     (γ : Path (1 : Circle) 1) (Γ : C(unitInterval, ℝ))
     (hΓ : ∀ t, exp ((2 * Real.pi) * Γ t) = γ t) (h0 : Γ 0 = 0) (n : ℤ) :
     integerNormalization (Path.Homotopic.Quotient.mk γ) = Multiplicative.ofAdd n ↔
-      Γ 1 = (n : ℝ) := by
-  let Δ : C(unitInterval, ℝ) :=
-    ⟨fun t ↦ (2 * Real.pi) * Γ t, continuous_const.mul Γ.continuous⟩
-  have hΔ : ∀ t, exp (Δ t) = γ t := hΓ
-  have hΔ0 : Δ 0 = 0 := by simp [Δ, h0]
-  have hc : (2 : ℝ) * Real.pi ≠ 0 :=
-    ne_of_gt (mul_pos zero_lt_two Real.pi_pos)
-  calc
-    integerNormalization (Path.Homotopic.Quotient.mk γ) = Multiplicative.ofAdd n ↔
-        (2 * Real.pi) * Γ 1 = (n : ℝ) * (2 * Real.pi) :=
-      integerNormalization_lift_endpoint γ Δ hΔ hΔ0 n
-    _ ↔ Γ 1 = (n : ℝ) := by
-      rw [mul_comm (2 * Real.pi) (Γ 1)]
-      exact mul_left_inj' hc
+      Γ 1 = (n : ℝ) :=
+  Circle.fundamentalGroupEquivInt_apply_eq_iff γ Γ h0 hΓ n
 
-private def signedExpLoop (n : ℤ) : Path (1 : Circle) 1 :=
-  ((Path.segment (0 : ℝ) ((n : ℝ) * (2 * Real.pi))).map exp.continuous).cast
-    exp_zero.symm (exp_int_mul_two_pi n).symm
+private def signedExpLoop (n : ℤ) : Path (1 : Circle) 1 := Circle.loop n
 
 private theorem signedExpLoop_apply (n : ℤ) (t : unitInterval) :
-    signedExpLoop n t = exp (2 * Real.pi * (n : ℝ) * (t : ℝ)) := by
-  change exp ((Path.segment (0 : ℝ) ((n : ℝ) * (2 * Real.pi))) t) = _
-  rw [Path.segment_apply, AffineMap.lineMap_apply_ring', sub_zero, add_zero]
-  congr 1
-  ac_rfl
+    signedExpLoop n t = exp (2 * Real.pi * (n : ℝ) * (t : ℝ)) :=
+  Circle.loop_apply n t
 
 private theorem integerNormalization_signedExpLoop (n : ℤ) :
     integerNormalization (Path.Homotopic.Quotient.mk (signedExpLoop n)) =
-      Multiplicative.ofAdd n := by
-  apply (integerNormalization_lift_endpoint (signedExpLoop n)
-    (Path.segment (0 : ℝ) ((n : ℝ) * (2 * Real.pi)))
-    (by intro t; rfl) (Path.source _) n).mpr
-  exact Path.target _
+      Multiplicative.ofAdd n :=
+  Circle.fundamentalGroupEquivInt_loop n
 
 private theorem integerNormalization_symm (n : ℤ) :
     integerNormalization.symm (Multiplicative.ofAdd n) =
-      Path.Homotopic.Quotient.mk (signedExpLoop n) := by
-  apply integerNormalization.injective
-  rw [integerNormalization.apply_symm_apply, integerNormalization_signedExpLoop]
+      Path.Homotopic.Quotient.mk (signedExpLoop n) :=
+  Circle.fundamentalGroupEquivInt_symm_apply n
 
 private theorem signedExpLoop_class_add (m n : ℤ) :
     (· * · : FundamentalGroup Circle 1 → FundamentalGroup Circle 1 →
         FundamentalGroup Circle 1)
       (Path.Homotopic.Quotient.mk (signedExpLoop m))
       (Path.Homotopic.Quotient.mk (signedExpLoop n)) =
-      Path.Homotopic.Quotient.mk (signedExpLoop (m + n)) := by
-  apply integerNormalization.injective
-  simp only [map_mul, integerNormalization_signedExpLoop]
-  rfl
+      Path.Homotopic.Quotient.mk (signedExpLoop (m + n)) :=
+  (Circle.fromPath_loop_add m n).symm
 
-/-- The real lift of each integer power map computes its induced map in the existing
-integer coordinates. The exponent may be zero or negative; the power map is not assumed
-to be a covering. -/
+/-- Every integer power map multiplies the public integer coordinate by its exponent.
+The exponent may be zero or negative; the power map is not assumed to be a covering. -/
 private theorem integerNormalization_map_zpow (n : ℤ)
     (q : FundamentalGroup Circle (1 : Circle)) :
     integerNormalization
         (FundamentalGroup.mapOfEq ⟨fun z : Circle ↦ z ^ n, continuous_zpow n⟩
           (one_zpow n) q) =
       Multiplicative.ofAdd (n * (integerNormalization q).toAdd) := by
-  let F : C(ℝ, ℝ) := ⟨fun t ↦ (n : ℝ) * t, continuous_const.mul continuous_id⟩
-  let f : C(Circle, Circle) := ⟨fun z ↦ z ^ n, continuous_zpow n⟩
-  have hF : exp ∘ F = f ∘ exp := by
-    funext t
-    change exp ((n : ℝ) * t) = exp t ^ n
-    simpa only [zsmul_eq_mul] using exp_zsmul t n
-  have hnat := isCoveringMap_exp.monodromy_naturality_map
-    isCoveringMap_exp F f hF q expOrigin
-  have hend :
-      (isCoveringMap_exp.monodromy
-        (FundamentalGroup.mapOfEq f (one_zpow n) q) expOrigin : ℝ) =
-          (n : ℝ) * (isCoveringMap_exp.monodromy q expOrigin : ℝ) := by
-    rw [FundamentalGroup.mapOfEq_apply, isCoveringMap_exp.monodromy_cast]
-    simpa [F, expOrigin] using congrArg Subtype.val hnat
   let m : ℤ := (integerNormalization q).toAdd
-  have hm : integerNormalization q = Multiplicative.ofAdd m := rfl
-  have he := (integerNormalization_eq_iff q m).mp hm
-  apply (integerNormalization_eq_iff _ (n * m)).mpr
-  change (isCoveringMap_exp.monodromy
-    (FundamentalGroup.mapOfEq f (one_zpow n) q) expOrigin : ℝ) = _
-  rw [hend, he, Int.cast_mul, mul_assoc]
+  have hq : q = Path.Homotopic.Quotient.mk (signedExpLoop m) :=
+    (integerNormalization.symm_apply_apply q).symm.trans (integerNormalization_symm m)
+  have hmap :
+      FundamentalGroup.mapOfEq ⟨fun z : Circle ↦ z ^ n, continuous_zpow n⟩
+          (one_zpow n) (Path.Homotopic.Quotient.mk (signedExpLoop m)) =
+        Path.Homotopic.Quotient.mk (signedExpLoop (n * m)) := by
+    rw [FundamentalGroup.mapOfEq_apply]
+    change Path.Homotopic.Quotient.mk _ = Path.Homotopic.Quotient.mk _
+    apply congrArg Path.Homotopic.Quotient.mk
+    apply Path.ext
+    funext t
+    change signedExpLoop m t ^ n = signedExpLoop (n * m) t
+    rw [signedExpLoop_apply, signedExpLoop_apply, ← exp_zsmul, zsmul_eq_mul, Int.cast_mul]
+    congr 1
+    ring
+  calc
+    integerNormalization
+        (FundamentalGroup.mapOfEq ⟨fun z : Circle ↦ z ^ n, continuous_zpow n⟩
+          (one_zpow n) q) =
+        integerNormalization (Path.Homotopic.Quotient.mk (signedExpLoop (n * m))) := by
+      rw [hq, hmap]
+    _ = Multiplicative.ofAdd (n * m) := integerNormalization_signedExpLoop _
 
 /-- The based circle squaring map remains different from the identity after applying the
 fundamental-group functor on the based-homotopy category. Its action is multiplication by two
@@ -238,5 +183,127 @@ private theorem homotopyFunctor_map_square_ne_id :
   have htwo : (2 : ℤ) = 1 := by
     simpa only [toAdd_ofAdd] using congrArg Multiplicative.toAdd hcoord
   exact (by decide : (2 : ℤ) ≠ 1) htwo
+
+/-- Two circles based at one, with their ordinary categorical product. -/
+private abbrev productFamily : Fin 2 → BasedTopCat :=
+  fun _ => BasedTopCat.of Circle (1 : Circle)
+
+/-- Integer coordinates obtained from the canonical product comparison and both
+chosen group-product projections, using the same circle normalization as above. -/
+private def productIntegerCoordinates :
+    FundamentalGroup.functor.obj (∏ᶜ productFamily) →*
+      Multiplicative ℤ × Multiplicative ℤ :=
+  ((integerNormalization.toMonoidHom.comp
+      (Pi.π (fun i => FundamentalGroup.functor.obj (productFamily i)) 0).hom).prod
+    (integerNormalization.toMonoidHom.comp
+      (Pi.π (fun i => FundamentalGroup.functor.obj (productFamily i)) 1).hom)).comp
+    (piComparison FundamentalGroup.functor productFamily).hom
+
+/-- The product of two signed exponential loops, transported to the chosen based product. -/
+private def productSignedLoopClass (m n : ℤ) :
+    FundamentalGroup.functor.obj (∏ᶜ productFamily) :=
+  FundamentalGroup.functor.map (BasedTopCat.piIsoPi productFamily).inv
+    (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk
+      (Path.pi (fun i : Fin 2 => if i = 0 then signedExpLoop m else signedExpLoop n))))
+
+private theorem productIntegerCoordinates_map_piIsoPi_inv
+    (q : FundamentalGroup (Fin 2 → Circle) (fun _ => (1 : Circle))) :
+    productIntegerCoordinates
+        (FundamentalGroup.functor.map (BasedTopCat.piIsoPi productFamily).inv q) =
+      (integerNormalization
+          (FundamentalGroup.piMulEquiv (fun _ : Fin 2 => (1 : Circle)) q 0),
+        integerNormalization
+          (FundamentalGroup.piMulEquiv (fun _ : Fin 2 => (1 : Circle)) q 1)) := by
+  have h := DFunLike.congr_fun
+    (FundamentalGroup.functor_piComparison_eq_piMulEquiv productFamily) q
+  exact Prod.ext
+    (congrArg integerNormalization (congrFun h 0))
+    (congrArg integerNormalization (congrFun h 1))
+
+/-- The two signed coordinate loops form the two distinct nonidentity integer
+coordinate classes under the canonical categorical comparison. -/
+private theorem productIntegerCoordinates_signedLoops (m n : ℤ) :
+    Function.Bijective productIntegerCoordinates ∧
+      productIntegerCoordinates (productSignedLoopClass m n) =
+        (Multiplicative.ofAdd m, Multiplicative.ofAdd n) ∧
+      productSignedLoopClass 1 0 ≠ 1 ∧
+      productSignedLoopClass 0 1 ≠ 1 ∧
+      productSignedLoopClass 1 0 ≠ productSignedLoopClass 0 1 := by
+  let e : FundamentalGroup (Fin 2 → Circle) (fun _ => (1 : Circle)) ≃
+      Multiplicative ℤ × Multiplicative ℤ :=
+    ((FundamentalGroup.piMulEquiv (fun _ : Fin 2 => (1 : Circle))).toEquiv.trans
+      (Equiv.piCongrRight (fun _ : Fin 2 => integerNormalization.toEquiv))).trans
+      (piFinTwoEquiv (fun _ : Fin 2 => Multiplicative ℤ))
+  have he :
+      productIntegerCoordinates ∘
+          (FundamentalGroup.functor.map (BasedTopCat.piIsoPi productFamily).inv) =
+        e := by
+    funext q
+    exact productIntegerCoordinates_map_piIsoPi_inv q
+  have htransport :
+      Function.Bijective
+        (FundamentalGroup.functor.map (BasedTopCat.piIsoPi productFamily).inv) :=
+    ((FundamentalGroup.functor.mapIso
+      (BasedTopCat.piIsoPi productFamily).symm).groupIsoToMulEquiv).bijective
+  have hbij : Function.Bijective productIntegerCoordinates := by
+    apply (Function.Bijective.of_comp_iff productIntegerCoordinates htransport).mp
+    rw [he]
+    exact e.bijective
+  have hcoords (a b : ℤ) :
+      productIntegerCoordinates (productSignedLoopClass a b) =
+        (Multiplicative.ofAdd a, Multiplicative.ofAdd b) := by
+    let γ : Fin 2 → Path (1 : Circle) 1 :=
+      fun i => if i = 0 then signedExpLoop a else signedExpLoop b
+    have hγ :
+        FundamentalGroup.piMulEquiv (fun _ : Fin 2 => (1 : Circle))
+            (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (Path.pi γ))) =
+          fun i => FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (γ i)) := by
+      rw [← FundamentalGroup.piMulEquiv_symm_fromPath
+        (fun _ : Fin 2 => (1 : Circle)) γ]
+      exact (FundamentalGroup.piMulEquiv _).apply_symm_apply _
+    exact (productIntegerCoordinates_map_piIsoPi_inv
+      (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (Path.pi γ)))).trans (by
+        simp only [hγ]
+        simp [γ, integerNormalization_signedExpLoop])
+  have hone : Multiplicative.ofAdd (1 : ℤ) ≠ (1 : Multiplicative ℤ) := by decide
+  refine ⟨hbij, hcoords m n, ?_, ?_, ?_⟩
+  · intro h
+    have hc := congrArg productIntegerCoordinates h
+    simp only [hcoords, map_one] at hc
+    exact hone (congrArg Prod.fst hc)
+  · intro h
+    have hc := congrArg productIntegerCoordinates h
+    simp only [hcoords, map_one] at hc
+    exact hone (congrArg Prod.snd hc)
+  · intro h
+    have hc := congrArg productIntegerCoordinates h
+    simp only [hcoords] at hc
+    exact hone (congrArg Prod.fst hc)
+
+/-- In the empty case the source and target of the canonical comparison are
+trivial groups, as is the fundamental group of the based one-point space. -/
+private theorem empty_product_comparison :
+    Subsingleton (FundamentalGroup.functor.obj (BasedTopCat.of PUnit.{1} PUnit.unit)) ∧
+      IsIso (piComparison FundamentalGroup.functor
+        (fun _ : Empty => BasedTopCat.of PUnit.{1} PUnit.unit)) ∧
+      (∀ q : FundamentalGroup.functor.obj
+          (∏ᶜ fun _ : Empty => BasedTopCat.of PUnit.{1} PUnit.unit), q = 1) ∧
+      (∀ q : (∏ᶜ (fun _ : Empty =>
+          FundamentalGroup.functor.obj (BasedTopCat.of PUnit.{1} PUnit.unit)) : GrpCat),
+        q = 1) := by
+  let X : Empty → BasedTopCat := fun _ => BasedTopCat.of PUnit.{1} PUnit.unit
+  have htarget :
+      ∀ q : (∏ᶜ (fun i => FundamentalGroup.functor.obj (X i)) : GrpCat), q = 1 := by
+    intro q
+    apply Concrete.limit_ext
+      (Discrete.functor (fun i => FundamentalGroup.functor.obj (X i))) q 1
+    intro i
+    exact i.as.elim
+  have hsource : ∀ q : FundamentalGroup.functor.obj (∏ᶜ X), q = 1 := by
+    intro q
+    apply ((asIso (piComparison FundamentalGroup.functor X)).groupIsoToMulEquiv).injective
+    exact (htarget _).trans (map_one (piComparison FundamentalGroup.functor X).hom).symm
+  exact ⟨(inferInstance : Subsingleton (FundamentalGroup PUnit.{1} PUnit.unit)),
+    inferInstance, hsource, htarget⟩
 
 end Circle

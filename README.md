@@ -70,6 +70,21 @@ directions, examples, conventions and credits.
   multiplicatively equivalent to `∀ i, π₁(X i, p i)`, by evaluation and loop
   assembly, naturally in continuous maps and arbitrary reindexing. Index and
   space universes are independent; no finite/nonempty index or connectedness is needed.
+- **Categorical based products** ([`Products`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean),
+  [`Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean)).
+  The fundamental-group functor preserves every existing indexed product,
+  including the empty product, with independent index and space universes.
+  This is preservation, not a blanket large-product existence assertion.
+  The stock comparison acts by the based projections; after the canonical based
+  product identification, its coordinate homomorphism is exactly `piMulEquiv`.
+  No connectedness, finiteness or index-smallness premise is needed.
+- **Circle integer coordinates** ([`Circle`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean)).
+  For every nonzero real period `T`, `π₁(AddCircle T, 0) ≃* Multiplicative ℤ`,
+  with the loop lifted from `0` to `T * n` assigned `n`, including negative periods.
+  The induced period-one homeomorphism gives `π₁(Circle, 1) ≃* Multiplicative ℤ`,
+  sending the counterclockwise full turn to `+1`. Signed-loop, inverse, endpoint,
+  nonidentity and homeomorphism-compatibility laws are public; zero-period loops
+  are constant. The coordinate core uses Mathlib alone.
 - **Fundamental groups and based homotopy** ([`Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean),
   [`Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean)).
   Based spaces form the under category of the one-point space. The fundamental
@@ -266,16 +281,19 @@ For based spaces, use `BasedTopCat.of X x` and `BasedTopCat.ofHom f h`;
 `FundamentalGroup.homotopyFunctor` acts on based-homotopy classes.
 See the [guide's API directions](docs/mathematical-guide.md#using-the-library)
 and [verification examples](FundamentalGroupoidsTest.lean).
-The [circle normalization guide](docs/circle-integer-normalization.md) explains
-how to assemble Mathlib's covering computation with its existing algebraic APIs
-to obtain positive integer coordinates, all signed exponential-loop values and the
-induced multiplication-by-`n` map for every integer circle power, including zero.
+Use `AddCircle.fundamentalGroupEquivInt hT` for signed nonzero periods, or
+`Circle.fundamentalGroupEquivInt` at `1` on the complex unit circle. Their public
+loop, inverse and endpoint laws are described in the
+[circle coordinate guide](docs/circle-integer-normalization.md), together with the
+all-integer power-map consumer, including zero and negative exponents.
 
-**Covering compatibility:** these modules retain the declaration names relocated
+**Covering and circle compatibility:** these modules retain declaration names
 from [sphere-topology](https://github.com/FormalFrontier/sphere-topology).
-Do not co-import a legacy version defining its own copies. Joint consumers need
-its subsequent shim release and a compatible Fundamental Groupoids pin together;
-existing pins do not update automatically. See the [migration warning](docs/mathematical-guide.md#covering-imports-and-compatibility-with-sphere-topology).
+Do not co-import a version defining its own copies. Joint consumers must select
+a Sphere Topology version whose old modules publicly import the canonical
+Fundamental Groupoids modules, with a compatible dependency pin. See the
+[covering compatibility warning](docs/mathematical-guide.md#covering-imports-and-compatibility-with-sphere-topology)
+and the [circle guide](docs/circle-integer-normalization.md#integer-power-map-consumers).
 
 ## Building
 
@@ -299,6 +317,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition along maps carrying a specified set into the fixed set |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
+| [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
+| [`AlgebraicTopology.FundamentalGroup.Circle`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean) | Signed-period additive-circle and complex-circle integer coordinates, loop/inverse/endpoint laws, nonidentity generators and homeomorphism compatibility |
 | [`AlgebraicTopology.FundamentalGroup.Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean) | Fundamental-group functor on based spaces and its unique factorization through based homotopy |
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
@@ -313,6 +333,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean) | Pairwise diagrams, strict descent, characteristic equations and `Grpd`/`Cat` colimits |
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverInclusions`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverInclusions.lean) | All-open inclusion cocone; full-inclusion `Grpd`/`Cat` colimits and strict arbitrary-category descent for indexed covers with binary-intersection-closed range, without connectivity, common-point or finiteness assumptions |
 | [`AlgebraicTopology.FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean) | Fundamental-group product equivalence, coordinate and assembled-loop equations |
+| [`AlgebraicTopology.FundamentalGroup.Products`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean) | Preservation of every existing indexed product; canonical comparison, projected-loop and raw-product agreement laws |
 | [`AlgebraicTopology.FundamentalGroup.DirectedOpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean) | Inclusion-directed covers and monotone covers on directed preorders: unique compatible homomorphisms to arbitrary monoids and canonical inclusion cocones as `GrpCat` colimits, without path connectedness or intersection closure |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
 | [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts; directed-union and common-point simple-connectivity criteria |
@@ -370,7 +391,10 @@ Authors: Formal Frontier Agents. AI agents contributed Lean formalization,
 examples and documentation. May supplies mathematical motivation and arguments;
 Mathlib supplies underlying constructions and APIs. Covering formalizations
 originate in sphere-topology by Formal Frontier Agents, with retained Apache-2.0
-and authorship notices. Pullback comparisons reuse GroupTheory's orbit–stabilizer
+and authorship notices. The signed-period and complex-circle coordinate core also
+originates in its [circle formalization](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/Circle.lean),
+using Mathlib's quotient coverings and induced homeomorphism equivalence.
+Pullback comparisons reuse GroupTheory's orbit–stabilizer
 and double-coset constructions. Normalizer quotients compose GroupTheory's
 normalizer–automorphism and centralizer APIs with covering monodromy.
 The covering properness proof follows the

@@ -4,11 +4,13 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Circle
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.DirectedOpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Functor
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.OpenCoverPresentation
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Product
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Products
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Connected
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Coproduct
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCover
@@ -27,6 +29,7 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.Basic
 public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnected
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Category.TopCat.Based
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
 public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.Composition

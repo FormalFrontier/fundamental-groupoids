@@ -14,6 +14,9 @@ project:
     in independent universes. Monotone neighborhood covers indexed by directed
     preorders give the same universal property with compatibility only along
     index inequalities, and colimit data for the canonical preorder diagram.
+    Signed-period additive-circle and complex-circle fundamental groups have
+    integer coordinates, with signed-loop, inverse, endpoint, nonidentity and
+    homeomorphism-compatibility laws, using Mathlib's quotient coverings.
     Generic covering-map lifting and based
     equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
     A covering map is proper exactly when every point fiber is finite,
@@ -43,7 +46,7 @@ sources:
     id: https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf
     type: book
     location: >-
-      Revised author PDF, Chapter 1 §3 and Chapter 2 §§5, 7; printed pp. 17–19.
+      Revised author PDF, Chapter 1 §§3, 5, 7 and Chapter 2 §§4–5, 7–8.
       Chapter 3 §§2–4, 7 for covering-space monodromy, lifting and maps of covers.
     relationship: adapts
     note: >-
@@ -56,9 +59,17 @@ sources:
       finite-stage colimit step in Chapter 2 §7, printed p. 19 (PDF p. 27);
       it does not identify all finite families with the source's restricted
       finite intersection-closed families or assert the later comparisons.
+      Circle coordinates use the positive loop and lifted-endpoint description
+      of Chapter 1 §5; the additive-circle API generalizes it to nonzero signed
+      real periods. The private integer power-map consumer uses the same public
+      signed-loop normal form, including zero and negative exponents, as in §7.
       The covering modules use the based lifting,
       monodromy and over-base comparison arguments, with the asymmetric
       connectivity and local path connectedness hypotheses stated below.
+      The based fundamental-group functor preserves every existing indexed
+      product, with independent index and space universes. This categorically
+      generalizes the binary product lemma in Chapter 2 §8; it does not assert
+      existence of every large product in a fixed universe.
       The coproduct comparison is derived support for the all-points groupoid
       and disjoint-union viewpoint of Chapter 2 §§5–6, not a named theorem
       quoted from the book. The fiber-finiteness, properness and finite-index
@@ -96,6 +107,9 @@ related_formalizations:
       CoveringMonodromy, DeckGroup and DeckMonodromy supply the covering APIs
       now under FundamentalGroupoids.Topology.Covering, with the same
       declaration names and retained Apache-2.0 and authorship notices.
+      Its signed-period and complex-circle coordinate definitions and proofs in
+      SphereTopology.Homotopy.Circle also supply the Fundamental Groupoids
+      circle module, with the same public names and characteristic API.
 automation:
   methods:
     - method: agent
@@ -147,6 +161,21 @@ status:
     finite-stage colimit step in May, Chapter 2, §7, printed p. 19 (PDF p. 27).
     No arbitrary-cover based-group theorem, wedge calculation or
     covering-space classification is asserted.
+    The fundamental-group functor on based spaces preserves every existing
+    indexed product, including the empty product, without index-smallness or
+    connectedness. Space and index universes are independent. The stock product
+    comparison has the projection-induced coordinate maps; under the canonical
+    based-product identification its coordinate homomorphism is piMulEquiv.
+    The raw realization lives in the larger ambient universe when necessary,
+    separately from the unrestricted preservation statement.
+    For every nonzero real period T, the fundamental group of AddCircle T at
+    zero is multiplicatively equivalent to Multiplicative ℤ, sending the loop
+    lifted from zero to T * n to n for all integers. The complex-circle coordinate
+    at one is transported through the period-one homeomorphism and sends the
+    counterclockwise full turn to positive one. Inverse-loop, lifted-endpoint,
+    nonidentity and signed-period homeomorphism-compatibility laws are public.
+    At zero period all prescribed loops are constant; no integer equivalence
+    is asserted there. The coordinate module depends only on Mathlib.
     For a continuous map with path-connected, locally path-connected domain
     and a prescribed lift of its basepoint, unique based lifting is equivalent
     to containment of fundamental-group images, compared by the basepoint
@@ -242,6 +271,14 @@ alignment:
       module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
     - lean: CategoryTheory.SingleObj.isEquivalence_functor_id
       module: FundamentalGroupoids/CategoryTheory/SingleObj.lean
+    - lean: BasedTopCat.piIsoPi
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean
+    - lean: FundamentalGroup.functor_piComparison_π_fromPath
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
+    - lean: FundamentalGroup.functor_piComparison_eq_piMulEquiv
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
+    - lean: FundamentalGroup.functor_preservesLimitsOfShape_discrete
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
     - lean: FundamentalGroupoid.pathConnectedSpace_iff_isConnected
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean
     - lean: FundamentalGroupoidFunctor.sigmaComparison
@@ -276,6 +313,18 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean
     - lean: FundamentalGroup.isColimitOfIsOpenCoverOfMonotone
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/DirectedOpenCover.lean
+    - lean: AddCircle.fundamentalGroupEquivInt
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+    - lean: AddCircle.fundamentalGroupEquivInt_apply_eq_iff
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+    - lean: Circle.fundamentalGroupEquivInt
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+    - lean: Circle.fundamentalGroupEquivInt_loop
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+    - lean: Circle.fundamentalGroupEquivInt_apply_eq_iff
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+    - lean: AddCircle.fundamentalGroupEquivInt_homeomorphCircle
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
     - lean: IsCoveringMap.existsUnique_continuousMap_lifts_iff_range_le
       module: FundamentalGroupoids/Topology/Covering/Lifting.lean
     - lean: IsCoveringMap.homeomorphOfRangeEq
@@ -363,6 +412,10 @@ acknowledgements: >-
   references credit Junyan Xu's covering-space lifting, monodromy and separated-map
   uniqueness, Kim Morrison's deck group, Kenny Lau and Antoine Chambert-Loir's
   equivariant maps, and Chris Hughes and Yury Kudryashov's pretransitive actions.
+  The signed-period and complex-circle coordinate formalization also originates
+  in Sphere Topology by Formal Frontier Agents, retaining its definitions,
+  proofs, public names and attribution and using Mathlib's covering and
+  homeomorphism-induced fundamental-group equivalences.
   The fiber-coset equivalence reuses Chris Hughes and Thomas Browning's
   orbit-stabilizer construction and GroupTheory's equivariance API.
   The coproduct proof uses Johannes Hölzl, Mario Carneiro and Yury Kudryashov's

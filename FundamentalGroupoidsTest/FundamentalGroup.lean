@@ -4,11 +4,8 @@ Authors: Formal Frontier Agents
 -/
 module
 
+import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Circle
 import FundamentalGroupoids.FundamentalGroup
-import Mathlib.Analysis.Convex.Contractible
-import Mathlib.Topology.Algebra.Order.ArchimedeanDiscrete
-import Mathlib.Topology.Covering.AddCircle
-import Mathlib.Topology.Homotopy.Lifting
 import Mathlib.Tactic.NormNum
 
 /-!
@@ -16,9 +13,9 @@ import Mathlib.Tactic.NormNum
 
 On `AddCircle (1 : ℝ)`, translation by the half-period is homotopic to the
 identity through `H(t, z) = z + [t / 2]`. Its track at zero moves to a distinct
-basepoint. A nonidentity loop is chosen using Mathlib's equivalence between the
-fundamental group and the opposite of the multiplicative form of the covering
-group `ℤ ∙ (1 : ℝ)`. No orientation of this loop is asserted.
+basepoint. The loop class is the inverse image of the positive unit integer
+under `AddCircle.fundamentalGroupEquivInt one_ne_zero`. Thus it is the positive
+once-around class in the public signed-period coordinates, and is nonidentity.
 
 The two clients compare the translated loop with its transported class and
 then map that transported class once more. They use both pointwise and bundled
@@ -29,9 +26,11 @@ loop along the reverse moving track.
 
 ## References
 
-* Mathlib's `Topology.Covering.AddCircle` supplies the quotient covering map;
-  `Topology.Homotopy.Lifting` supplies its fundamental-group equivalence.
-* `Analysis.Convex.Contractible` supplies contractibility of the real line.
+* `FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Circle` supplies
+  the signed integer coordinates, originating in Sphere Topology's circle
+  formalization by Formal Frontier Agents.
+* Mathlib supplies the additive circle, its quotient covering and lifting
+  construction, and contractibility of the real line.
 -/
 
 noncomputable section
@@ -83,32 +82,19 @@ theorem half_ne_zero : half ≠ (0 : A) := by
 theorem translation_zero_ne_zero : translation 0 ≠ (0 : A) := by
   simpa only [translation, ContinuousMap.coe_mk, zero_add] using half_ne_zero
 
-private abbrev CoveringGroup := AddSubgroup.zmultiples (1 : ℝ)
-
-private def deckStep : (Multiplicative CoveringGroup)ᵐᵒᵖ :=
-  MulOpposite.op (Multiplicative.ofAdd ⟨1, AddSubgroup.mem_zmultiples (1 : ℝ)⟩)
-
-private theorem deckStep_ne_one : deckStep ≠ 1 := by
-  intro h
-  have hreal : (1 : ℝ) = 0 := congrArg
-    (fun u : (Multiplicative CoveringGroup)ᵐᵒᵖ =>
-      ((Multiplicative.toAdd u.unop : CoveringGroup) : ℝ)) h
-  exact one_ne_zero hreal
-
-private def coveringCoordinate :
-    FundamentalGroup A 0 ≃* (Multiplicative CoveringGroup)ᵐᵒᵖ :=
-  (AddCircle.isAddQuotientCoveringMap_coe (1 : ℝ)).fundamentalGroupEquiv ⟨0, rfl⟩
-
-/-- A loop class chosen as the preimage of a nonunit covering-group element.
-This choice does not specify a once-around orientation. -/
-def loopClass : FundamentalGroup A 0 := coveringCoordinate.symm deckStep
+/-- The positive once-around loop class, with integer coordinate `1` under the
+public signed-period equivalence. -/
+def loopClass : FundamentalGroup A 0 :=
+  (AddCircle.fundamentalGroupEquivInt (T := (1 : ℝ)) one_ne_zero).symm
+    (Multiplicative.ofAdd (1 : ℤ))
 
 /-- The chosen loop is not nullhomotopic. -/
 theorem loopClass_ne_one : loopClass ≠ 1 := by
   intro h
-  apply deckStep_ne_one
-  apply coveringCoordinate.symm.injective
-  simpa only [loopClass, map_one] using h
+  have hcoord : Multiplicative.ofAdd (1 : ℤ) = 1 := by
+    apply (AddCircle.fundamentalGroupEquivInt (T := (1 : ℝ)) one_ne_zero).symm.injective
+    simpa only [loopClass, map_one] using h
+  exact (one_ne_zero : (1 : ℤ) ≠ 0) (congrArg Multiplicative.toAdd hcoord)
 
 /-- Transport to the distinct basepoint preserves the nonidentity class. -/
 theorem transported_loopClass_ne_one :

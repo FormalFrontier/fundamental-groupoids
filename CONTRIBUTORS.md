@@ -36,6 +36,16 @@ Formal Frontier Agents. Its `CoveringLifting`, `CoveringEquivalence`,
 Their Apache-2.0 and authorship notices are retained, as are the mathematical
 references and credits to prior formalizations.
 
+The signed-period additive-circle and complex-circle integer coordinates,
+including their loop, inverse, endpoint and homeomorphism-compatibility APIs,
+originate in [Sphere Topology's circle formalization](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/Circle.lean)
+by Formal Frontier Agents. The definitions and proofs retain their authorship and
+Apache-2.0 notice. They compose Mathlib's quotient-covering calculation, the
+integer period-range equivalence and the fundamental-group equivalence induced
+by the additive-circle homeomorphism. May's Chapter 1, §5, pp. 8–9 supplies the
+positive circle normalization; the all-integer power-map consumer follows the
+signed-loop formula and the power maps of Chapter 1, §7, p. 10.
+
 J. Peter May's *A Concise Course in Algebraic Topology*, revised author PDF,
 Chapter 1, §3 and Chapter 2, §§5, 7, supplies mathematical motivation and
 arguments. The book is published by the University of Chicago Press.
