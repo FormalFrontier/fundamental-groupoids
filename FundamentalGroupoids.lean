@@ -31,6 +31,7 @@ public import FundamentalGroupoids.Topology.Covering.Equivalence
 public import FundamentalGroupoids.Topology.Covering.FiniteIndex
 public import FundamentalGroupoids.Topology.Covering.Lifting
 public import FundamentalGroupoids.Topology.Covering.Monodromy
+public import FundamentalGroupoids.Topology.Covering.NormalizerQuotient
 public import FundamentalGroupoids.Topology.Covering.Proper
 public import FundamentalGroupoids.Topology.Covering.Pullback
 public import FundamentalGroupoids.Topology.Covering.PullbackDoubleCoset

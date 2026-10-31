@@ -171,6 +171,12 @@ directions, examples, conventions and credits.
   for path-connected base and a multiplicative equivalence if the total is also
   locally path connected, even empty/disconnected. The supplied-point alternative
   needs only path-connected, locally path-connected total, not base connectedness.
+- **Normalizer quotients and regularity** ([`NormalizerQuotient`](FundamentalGroupoids/Topology/Covering/NormalizerQuotient.lean)).
+  For a covering map with path-connected, locally path-connected total space
+  and a chosen point, the normalizer quotient of the based fundamental-group
+  image is canonically the deck group. A representative acts by monodromy of its inverse at the
+  chosen point. The existing deck action on that fiber is pretransitive iff
+  the image subgroup is normal, without base connectedness or surjectivity.
 - **Deck fixed-point rigidity** ([`DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean)).
   Deck groups act on point fibers. For a separated, locally injective map with
   preconnected total, evaluation at a supplied point is injective: fixing a point
@@ -212,7 +218,7 @@ existing pins do not update automatically. See the [migration warning](docs/math
 Lean is pinned to `leanprover/lean4:v4.34.0-rc2`; Mathlib is pinned to
 `83abb3e776bdefcbc447a1e44d0debe4010039e5`. The other direct package dependency is
 [GroupTheory](https://github.com/FormalFrontier/group-theory), pinned to
-`12ea07a60c5e6c219d8996eb56d7485139041e15`. The resolved dependencies are recorded
+`da81dc691eabf38306f427465ea8a4af350f0aef`. The resolved dependencies are recorded
 in `lake-manifest.json`.
 
 ```sh
@@ -287,7 +293,9 @@ examples and documentation. May supplies mathematical motivation and arguments;
 Mathlib supplies underlying constructions and APIs. Covering formalizations
 originate in sphere-topology by Formal Frontier Agents, with retained Apache-2.0
 and authorship notices. Pullback comparisons reuse GroupTheory's orbit–stabilizer
-and double-coset constructions. The covering properness proof follows the
+and double-coset constructions. Normalizer quotients compose GroupTheory's
+normalizer–automorphism and centralizer APIs with covering monodromy.
+The covering properness proof follows the
 local closedness approach formalized in VectorBundles, using Mathlib's proper-map
 and compact-projection APIs; no VectorBundles package dependency is required.
 The semilocal API uses Mathlib's path quotients, chart homeomorphisms, covering
