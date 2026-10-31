@@ -72,6 +72,38 @@ universe u v w
 
 open CategoryTheory CategoryTheory.Limits TopologicalSpace
 
+/-- A nonempty directed union of open simply connected subsets is simply connected.
+
+Compactness of loop images reduces each loop to one member. The null-loop
+characterization is Mathlib's
+`isSimplyConnected_iff_exists_homotopy_refl_forall_mem`. -/
+theorem IsSimplyConnected.iUnion_of_directed
+    {X : Type u} [TopologicalSpace X] {ι : Type w} [Nonempty ι]
+    {U : ι → Set X} (hU : ∀ i, IsSimplyConnected (U i))
+    (hopen : ∀ i, IsOpen (U i)) (hdir : Directed (· ⊆ ·) U) :
+    IsSimplyConnected (⋃ i, U i) := by
+  classical
+  refine isSimplyConnected_iff_exists_homotopy_refl_forall_mem.mpr ⟨?_, ?_⟩
+  · refine isPathConnected_iff.mpr ⟨?_, ?_⟩
+    · obtain ⟨x, hx⟩ := (hU (Classical.arbitrary ι)).nonempty
+      exact ⟨x, Set.mem_iUnion.mpr ⟨_, hx⟩⟩
+    · intro x hx y hy
+      obtain ⟨i, hxi⟩ := Set.mem_iUnion.mp hx
+      obtain ⟨j, hyj⟩ := Set.mem_iUnion.mp hy
+      obtain ⟨k, hik, hjk⟩ := hdir i j
+      exact ((hU k).isPathConnected.joinedIn x (hik hxi) y (hjk hyj)).mono
+        (fun z hz => Set.mem_iUnion.mpr ⟨k, hz⟩)
+  · intro x gamma hgamma
+    have hrange : Set.range gamma ⊆ ⋃ i, U i := by
+      rintro z ⟨t, rfl⟩
+      exact hgamma t
+    obtain ⟨i, hi⟩ := (isCompact_range gamma.continuous).elim_directed_cover
+      U hopen hrange hdir
+    obtain ⟨F, hF⟩ :=
+      (isSimplyConnected_iff_exists_homotopy_refl_forall_mem.mp (hU i)).2 x gamma
+        (fun t => hi ⟨t, rfl⟩)
+    exact ⟨F, fun t => Set.mem_iUnion.mpr ⟨i, hF t⟩⟩
+
 namespace FundamentalGroup
 
 variable {X : Type u} [TopologicalSpace X]
@@ -581,6 +613,91 @@ theorem simplyConnectedSpace_of_isOpenCover
   have htrivial (g : G) : g = 1 := DFunLike.congr_fun hid g
   exact (simplyConnectedSpace_iff p.1).mpr
     ⟨inferInstance, ⟨fun a b => (htrivial a).trans (htrivial b).symm⟩⟩
+
+-- Apply the two-open criterion in the union, where the relative opens cover.
+private theorem isSimplyConnected_sup (A B : Opens X)
+    (hA : IsSimplyConnected (A : Set X)) (hB : IsSimplyConnected (B : Set X))
+    (hI : IsPathConnected (↑(A ⊓ B) : Set X)) :
+    IsSimplyConnected (↑(A ⊔ B) : Set X) := by
+  let W : Set X := ↑(A ⊔ B)
+  let q : C(W, X) := ContinuousMap.subtypeVal W
+  let A' : Opens W := Opens.comap q A
+  let B' : Opens W := Opens.comap q B
+  have hcover : A' ⊔ B' = ⊤ := by
+    apply Opens.ext
+    change ((↑) : W → X) ⁻¹' W = Set.univ
+    exact Subtype.coe_preimage_self W
+  have hq : Topology.IsEmbedding (q : W → X) := Topology.IsEmbedding.subtypeVal
+  have hrel (C : Opens X) (hC : C ≤ A ⊔ B)
+      (hSC : IsSimplyConnected (C : Set X)) :
+      IsSimplyConnected (↑(Opens.comap q C) : Set W) := by
+    apply hq.isSimplyConnected_image.mp
+    change IsSimplyConnected (((↑) : W → X) '' (((↑) : W → X) ⁻¹' (C : Set X)))
+    rw [Subtype.image_preimage_val, Set.inter_eq_right.mpr hC]
+    exact hSC
+  have hI' : IsPathConnected (↑(A' ⊓ B') : Set W) := by
+    change IsPathConnected (((↑) : W → X) ⁻¹' (↑(A ⊓ B) : Set X))
+    exact hI.preimage_coe (fun _ hx => Or.inl hx.1)
+  exact simplyConnectedSpace_of_isOpenCover A' B' hcover
+    (hrel A le_sup_left hA) (hrel B le_sup_right hB) hI'
+
+/-- A space covered by simply connected open subsets with a common point and
+path-connected pairwise intersections is simply connected. The family may be infinite,
+and no connectedness condition on triple intersections is required. No local
+path-connectedness or separation assumption is needed.
+
+This follows from the two-open van Kampen theorem and compactness of loop images;
+see J. P. May, *A Concise Course in Algebraic Topology*, Chapter 2, §§7–8,
+printed pp. 17–20. -/
+theorem simplyConnectedSpace_of_isOpenCover_of_commonPoint
+    {ι : Type w} (U : ι → Opens X) (hcover : IsOpenCover U)
+    (p : X) (hp : ∀ i, p ∈ U i)
+    (hU : ∀ i, IsSimplyConnected (U i : Set X))
+    (hI : ∀ i j, IsPathConnected (↑(U i ⊓ U j) : Set X)) : SimplyConnectedSpace X := by
+  classical
+  obtain ⟨i₀, _⟩ := hcover.exists_mem p
+  let W (s : Finset ι) : Opens X := U i₀ ⊔ s.sup U
+  have hW_empty : W ∅ = U i₀ := by simp [W]
+  have hW_insert (s : Finset ι) (i : ι) : W (insert i s) = W s ⊔ U i := by
+    simp only [W, Finset.sup_insert, sup_left_comm, sup_comm]
+  have hpW (s : Finset ι) : p ∈ W s := Or.inl (hp i₀)
+  -- Each overlap is a finite union of pairwise overlaps, all containing p.
+  have hWI : ∀ (s : Finset ι) (j : ι),
+      IsPathConnected (↑(W s ⊓ U j) : Set X) := by
+    intro s
+    induction s using Finset.induction_on with
+    | empty =>
+      intro j
+      simpa only [hW_empty] using hI i₀ j
+    | @insert i s _hi ih =>
+      intro j
+      rw [hW_insert, inf_sup_right, Opens.coe_sup]
+      exact (ih j).union (hI i j) ⟨p, ⟨hpW s, hp j⟩, ⟨hp i, hp j⟩⟩
+  have hWSC : ∀ s : Finset ι, IsSimplyConnected (W s : Set X) := by
+    intro s
+    induction s using Finset.induction_on with
+    | empty => simpa only [hW_empty] using hU i₀
+    | @insert i s _hi ih =>
+      rw [hW_insert]
+      exact isSimplyConnected_sup (W s) (U i) ih (hU i) (hWI s i)
+  have hmono : Monotone W := by
+    intro s t hst
+    exact sup_le_sup le_rfl (Finset.sup_mono hst)
+  have hdir : Directed (· ⊆ ·) (fun s : Finset ι => (W s : Set X)) := by
+    intro s t
+    exact ⟨s ∪ t, hmono Finset.subset_union_left, hmono Finset.subset_union_right⟩
+  have hunion : (⋃ s : Finset ι, (W s : Set X)) = Set.univ := by
+    apply Set.eq_univ_of_forall
+    intro x
+    obtain ⟨i, hi⟩ := hcover.exists_mem x
+    refine Set.mem_iUnion.mpr ⟨{i}, ?_⟩
+    change x ∈ U i₀ ⊔ ({i} : Finset ι).sup U
+    rw [Finset.sup_singleton]
+    exact Or.inr hi
+  have hSC := IsSimplyConnected.iUnion_of_directed hWSC (fun s => (W s).isOpen) hdir
+  rw [hunion] at hSC
+  exact (Homeomorph.Set.univ X).toHomotopyEquiv.simplyConnectedSpace_iff.mp
+    hSC.simplyConnectedSpace
 
 /-- The inclusion square of fundamental groups of a two-open cover is a pushout in
 `GrpCat`, provided both opens and their intersection are path connected and a common

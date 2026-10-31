@@ -119,9 +119,12 @@ directions, examples, conventions and credits.
   Simple connectivity is characterized by path connectedness and a
   subsingleton fundamental group at a given point. Two simply connected opens
   covering a space make it simply connected when their intersection
-  is path connected, including nonemptiness. The cover criterion adds no ambient or
-  local path connectedness or separation assumption; the overlap need not be simply
-  connected.
+  is path connected, including nonemptiness. A nonempty directed union of open simply
+  connected sets is simply connected. An arbitrarily indexed open cover also gives
+  simple connectivity when its members are simply connected, share one point, and
+  have path-connected pairwise intersections; connected triple intersections are not
+  required. These criteria add no ambient or local path connectedness or separation
+  assumption; overlaps need not be simply connected.
 - **Semilocal simple connectivity** ([`Basic`](FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean),
   [`Maps`](FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean),
   [`LocallyPathConnected`](FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean)).
@@ -271,7 +274,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`AlgebraicTopology.FundamentalGroupoid.OpenCoverInclusions`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverInclusions.lean) | All-open inclusion cocone; full-inclusion `Grpd`/`Cat` colimits and strict arbitrary-category descent for indexed covers with binary-intersection-closed range, without connectivity, common-point or finiteness assumptions |
 | [`AlgebraicTopology.FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean) | Fundamental-group product equivalence, coordinate and assembled-loop equations |
 | [`AlgebraicTopology.FundamentalGroup.OpenNhds`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenNhds.lean) | Fundamental-group functor on open neighborhoods and its inclusion cocone |
-| [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts |
+| [`AlgebraicTopology.FundamentalGroup.OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean) | Indexed based van Kampen for intersection-closed covers: unique compatible homomorphisms and `GrpCat` colimits; two-open pushouts; directed-union and common-point simple-connectivity criteria |
 | [`SemilocallySimplyConnected.Basic`](FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean) | Chosen-center ambient-null-loop definition, inclusion-image criterion, simply connected spaces and reflection |
 | [`SemilocallySimplyConnected.Maps`](FundamentalGroupoids/SemilocallySimplyConnected/Maps.lean) | Local-homeomorphism preservation, covering equivalence and surjective global descent |
 | [`SemilocallySimplyConnected.LocallyPathConnected`](FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean) | Open path-connected refinement with ambient nullhomotopies at all basepoints |
@@ -303,7 +306,7 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 ## References
 
 - J. Peter May, *A Concise Course in Algebraic Topology*, revised author PDF,
-  Chapter 1 §§3, 5, 7, Chapter 2 §§5, 7 and Chapter 3 §§2–4, 7.
+  Chapter 1 §§3, 5, 7, Chapter 2 §§5, 7–8 and Chapter 3 §§2–4, 7.
   [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
   [GroupTheory](https://github.com/FormalFrontier/group-theory).
