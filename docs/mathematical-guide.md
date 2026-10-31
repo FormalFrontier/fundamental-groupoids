@@ -13,7 +13,9 @@ path-homotopy classes and open-cover APIs; it introduces no replacement
 fundamental group, fundamental groupoid or one-object category. Based
 postcomposition also acts on Mathlib's generalized loops and homotopy quotients
 for arbitrary cube-index types, with positive homomorphisms and fundamental-group
-compatibility.
+compatibility. Relative affine interpolation fixes any agreement subset for maps
+into a real topological vector space; its generalized loops contract relative to
+their cube boundary and all their homotopy quotients are subsingletons.
 It also extends Mathlib's covering-space APIs with based lifting, monodromy,
 maps of covers and deck-group comparisons.
 
@@ -407,6 +409,112 @@ instead of defining these declarations again. The module here depends only on
 Mathlib; restricted-product coordinate comparisons and path-component-map
 interfaces are not part of it.
 
+## Relative affine homotopies and vector-space quotients
+
+Import
+[`FundamentalGroupoids.Topology.Homotopy.Affine`](../FundamentalGroupoids/Topology/Homotopy/Affine.lean)
+for relative affine interpolation. Let `A : Type u` be any topological space and
+`E : Type v` have `[AddCommGroup E] [Module ℝ E] [TopologicalSpace E]`,
+`[ContinuousAdd E]` and `[ContinuousSMul ℝ E]`, with `u` and `v` independent.
+For continuous maps `f g : C(A, E)`, any subset `S : Set A` and agreement
+`hfg : Set.EqOn f g S`, the construction
+`ContinuousMap.HomotopyRel.affine f g hfg` is a homotopy from `f` to `g`
+fixed throughout on `S`.
+
+- `ContinuousMap.HomotopyRel.affine_apply` computes its value at
+  `p : unitInterval × A` as
+  `AffineMap.lineMap (f p.2) (g p.2) (p.1 : ℝ)`.
+- `ContinuousMap.HomotopyRel.affine_toHomotopy`, stated with
+  `[IsTopologicalAddGroup E]`, identifies the underlying homotopy with
+  Mathlib's `ContinuousMap.Homotopy.affine f g`.
+- Mathlib's `ContinuousMap.HomotopyRel.eq_fst` and `eq_snd` give the fixed-set
+  equations: at every time and every `a ∈ S`, its value is both `f a` and `g a`.
+
+Continuous negation follows from scalar multiplication by `-1`, so the
+construction needs only continuous addition and continuous real scalar
+multiplication beyond the algebraic and topological structures above. There is
+no closedness or nonemptiness assumption on `S`, and no separation, norm,
+completeness, local convexity or dimension restriction on `E`.
+
+Import
+[`FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Affine`](../FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean)
+for the generalized-loop consequences. For any `N : Type u`, independently of
+the target universe, any chosen `x : E` and any `p : GenLoop N E x`,
+`GenLoop.homotopic_const p` proves
+`GenLoop.Homotopic p (GenLoop.const : GenLoop N E x)`.
+The theorem applies `ContinuousMap.HomotopyRel.affine` to the underlying cube
+map of `p` and the constant map at `x`. Their agreement on `Cube.boundary N`
+is exactly `GenLoop.boundary p`, so the affine homotopy stays equal to `x`
+on the entire coordinate-face boundary.
+
+`HomotopyGroup.subsingleton N x` proves
+`Subsingleton (HomotopyGroup N E x)` for the same hypotheses. Two representatives
+are homotopic by passing through the constant loop, using symmetry and
+transitivity of `GenLoop.Homotopic`. Quotient induction and `Quotient.sound`
+then identify their classes in Mathlib's existing quotient. This is a theorem,
+not a global instance; it can be installed locally when subsingleton typeclass
+inference is wanted.
+
+Neither result requires decidable equality, finiteness or nonemptiness of `N`,
+or a group structure on the quotient. In particular, when `N` is empty,
+`Cube.boundary N` is empty and a generalized loop need not take its unique cube
+point to `x`. Affine interpolation still joins that value to `x`, giving the
+same subsingleton conclusion. Thus the assertion is about boundary-relative
+homotopy classes, not equality of the generalized loops themselves. For
+nonempty indices with decidable equality it also says that Mathlib's canonical
+homotopy group is trivial; it does not supply a group structure for empty indices.
+
+## Covering maps on homotopy groups
+
+Import
+[`FundamentalGroupoids.Topology.Covering.HomotopyGroup`](../FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean).
+Let `hf : IsCoveringMap f` for `f : E → B`, with arbitrary topologies, and
+choose `e : E`. The cube index `N`, total space `E` and base space `B` have
+independent universes. No connectedness, local path connectedness, separation,
+finiteness or global surjectivity of the covering is assumed.
+
+- With `[Nonempty N]`, `hf.injective_homotopyGroup_mapFun N e` proves that
+  `HomotopyGroup.mapFun N ⟨f, hf.continuous⟩ (x := e) rfl` is injective.
+- With `[Nontrivial N]`, `hf.bijective_homotopyGroup_mapFun N e` proves that
+  this same canonical quotient map is bijective. Neither quotient result
+  requires decidable equality on `N` or a group structure.
+- With `[DecidableEq N] [Nontrivial N]`, `hf.homotopyGroupMulEquiv N e`
+  is a multiplicative equivalence
+  `HomotopyGroup N E e ≃* HomotopyGroup N B (f e)`, with the supplied
+  decidable equality and Mathlib's stock group structures and reversed
+  concatenation convention. Its `homotopyGroupMulEquiv_toMonoidHom`
+  characteristic identifies the forward homomorphism with `HomotopyGroup.map`.
+
+On a representative, `hf.homotopyGroupMulEquiv_apply_class N e p` sends
+`⟦p⟧` to `⟦GenLoop.map ⟨f, hf.continuous⟩ rfl p⟧`. In the reverse direction,
+`hf.homotopyGroupMulEquiv_symm_apply_class N e q` sends `⟦q⟧` to
+`⟦hf.liftGenLoop e q⟧`. For any other displayed lift `p` with
+`GenLoop.map ⟨f, hf.continuous⟩ rfl p = q`, use
+`homotopyGroupMulEquiv_symm_apply_class_of_map_eq` instead. These formulas use
+the existing generalized loops, relative homotopy quotient and group dictionaries;
+there is no replacement carrier or multiplication.
+
+The module re-exports
+[`Covering.GenLoop`](../FundamentalGroupoids/Topology/Covering/GenLoop.lean):
+for `[Nontrivial N]`, `hf.liftGenLoop e q` is the chosen based lift of
+`q : GenLoop N B (f e)`. The laws `map_liftGenLoop` and `liftGenLoop_map`
+compute projection and lifting of an image; `liftGenLoop_zero` gives its value
+at zero, and `liftGenLoop_unique` identifies any other based lift.
+The cube is contractible and locally path connected, so unique continuous
+lifting applies. The boundary condition uses
+[`Cube.isPathConnected_boundary`](../FundamentalGroupoids/Topology/Homotopy/Cube.lean)
+and discreteness of the covering fiber. For merely nonempty indices,
+`Cube.zero_mem_boundary N` supplies the anchor for injectivity.
+
+Here `Cube.boundary N` is the union of coordinate faces where a coordinate is
+zero or one, including when `N` is infinite; it is not a topological-frontier
+assertion. For `N = Fin n`, the bijection and equivalence apply in degrees
+`n ≥ 2`, giving the classical covering isomorphism described in May,
+Chapter 9 §4, printed p. 66. Arbitrary index types give a derived cubical,
+boundary-relative extension. No comparison with sphere-domain or U-topology
+homotopy groups is supplied. No injectivity assertion is made for an empty
+index, nor a surjectivity assertion for a singleton index (degree one).
+
 ## Using the library
 
 The Lake package is `fundamental-groupoids`. Import the complete interface with:
@@ -513,8 +621,8 @@ compatibility along every inclusion instead.
 
 Import the covering modules individually as
 `FundamentalGroupoids.Topology.Covering.Lifting`, `Equivalence`, `Monodromy`,
-`Components`, `Pullback`, `PullbackDoubleCoset`, `Cardinality`, `DeckGroup` or
-`DeckMonodromy`, with the same prefix for each. They extend
+`Components`, `Pullback`, `PullbackDoubleCoset`, `Cardinality`, `DeckGroup`,
+`DeckMonodromy`, `GenLoop` or `HomotopyGroup`, with the same prefix for each. They extend
 Mathlib's covering maps, monodromy actions and deck groups rather than defining
 replacement structures.
 
@@ -666,12 +774,19 @@ a fiber, not a group structure on that fiber.
   Chapter 3, §§2–4, 7 supplies the covering-space lifting and monodromy arguments.
   The categorical preconnectedness criterion is a derived consequence of the
   fiber-translation argument in §4, rather than a theorem stated there.
+  Chapter 9, §§1, 4 (printed pp. 65–67) describes based homotopy groups and the
+  classical finite-degree covering isomorphism. The arbitrary-index results
+  here are a cubical boundary-relative extension, without a comparison with
+  sphere-domain homotopy groups.
 - [Mathlib](https://github.com/leanprover-community/mathlib4), especially its
   fundamental groupoid, conjugation, one-object category, open-cover,
   interval-subdivision, subpath, morphism-property and colimit APIs, as well as
   covering maps, lifting, monodromy, deck groups and equivariant maps. The
   homotopy-group map API uses its generalized loops, homotopy quotients,
-  canonical positive group structures and dimension-one comparison.
+  canonical positive group structures and dimension-one comparison. Relative
+  affine interpolation uses its affine homotopy and straight segment paths,
+  and the vector-space quotient results use its boundary-relative homotopy
+  relation and quotient.
 - [Restricted Product Duality](https://github.com/FormalFrontier/restricted-product-duality),
   by Formal Frontier Agents: the based-postcomposition definitions, proofs and
   characteristic API for generalized loops and homotopy groups.
@@ -691,6 +806,9 @@ originates in Restricted Product Duality by Formal Frontier Agents, retaining
 its definitions, proofs, names and Apache-2.0 notice. It builds on Roberto
 Alvarez's generalized loops and homotopy groups, Mark Lavrentyev's fundamental
 groups and Shing Tak Lam's relative and path homotopies in Mathlib.
+The relative affine homotopies use Yury G. Kudryashov's affine homotopies and
+Patrick Massot and Yury Kudryashov's straight segment paths in Mathlib; the
+vector-space consequences use the same generalized loops and relative homotopies.
 The pullback component comparisons reuse GroupTheory's independent-universe
 orbit–stabilizer equivariance and product-coset orbit/double-coset constructions,
 formalized by Formal Frontier Agents.

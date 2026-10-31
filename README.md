@@ -1,11 +1,11 @@
 # Fundamental Groupoids
 
-Fundamental groupoids, based homotopy, categorical endomorphism transport,
-strict open-cover descent, based van Kampen, covering spaces and semilocal simple
-connectivity in Lean. The library extends Mathlib's categories, path-homotopy classes and covering
-maps rather than introducing replacement structures. The
-[mathematical guide](docs/mathematical-guide.md) gives detailed statements, API
-directions, examples, conventions and credits.
+Fundamental groupoids, based homotopy, relative affine homotopies, categorical
+endomorphism transport, strict open-cover descent, based van Kampen, covering
+spaces and semilocal simple connectivity in Lean. The library extends Mathlib's
+categories, path-homotopy classes and covering maps rather than introducing
+replacement structures. The [mathematical guide](docs/mathematical-guide.md)
+gives detailed statements, API directions, examples, conventions and credits.
 
 ## Headline results
 
@@ -45,6 +45,16 @@ directions, examples, conventions and credits.
   A covering map uniquely lifts a based generalized loop to a supplied point when
   the cube index has at least two elements. The spaces need no connectedness, local
   path connectedness or separation assumptions, and the covering need not be surjective.
+- **Coverings on positive homotopy groups** ([`Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean)).
+  A covering induces an injection on the cubical homotopy quotient for every nonempty
+  index type, and a bijection when the index has at least two elements. Neither needs
+  decidable equality. With supplied decidable equality, the latter is a multiplicative
+  equivalence for the stock group structures: its forward map is `HomotopyGroup.map`,
+  and its inverse sends a class to the class of its chosen based lift. The cube, total
+  and base universes are independent, without connectedness, local path connectedness,
+  separation, finiteness or global surjectivity assumptions. For `Fin n` this gives
+  the covering isomorphism in degrees `n ≥ 2`; arbitrary indices use the coordinate-face
+  boundary, without a sphere-domain comparison.
 - **Sheaves of representation sections** ([`SectionsPresheaf`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/SectionsPresheaf.lean)).
   For any topological space `X`, a representation `FundamentalGroupoid X ⥤ Type w`
   determines a presheaf of transport-invariant families, functorially in the representation.
@@ -111,6 +121,16 @@ directions, examples, conventions and credits.
   under Mathlib's multiplicative comparison. Cube and space universes are
   independent, with no separation, connectedness or finiteness assumptions.
   The module uses Mathlib alone.
+- **Relative affine homotopies and vector-space quotients** ([`Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean),
+  [`HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean)).
+  Continuous maps from any space into a real vector space with continuous
+  addition and scalar multiplication admit an affine homotopy fixed on any
+  subset where they agree. Every generalized loop in such a vector space is
+  homotopic to the constant loop relative to its cube boundary, so
+  `HomotopyGroup N E x` is a subsingleton for every index type and every chosen
+  point. Cube and target universes are independent; empty and infinite indices
+  are allowed. No separation, norm, completeness or positive-degree group
+  structure is required.
 - **Homotopy-retraction splittings** ([`retractionOfHomotopy`](FundamentalGroupoids/FundamentalGroup.lean)).
   For `g : C(X, Y)`, `f : C(Y, X)` and a homotopy from `f.comp g` to `id X`,
   transport along its track at `x` gives an explicit left inverse of
@@ -314,6 +334,21 @@ These declarations keep the names from
 Co-importing the libraries requires a Restricted Product Duality version whose
 `HomotopyMaps` module publicly imports this module rather than defining its own copies.
 
+For real vector spaces, import
+`FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Affine` and use
+`GenLoop.homotopic_const` or `HomotopyGroup.subsingleton N x`.
+The relative construction `ContinuousMap.HomotopyRel.affine` is in
+`FundamentalGroupoids.Topology.Homotopy.Affine`. See the
+[relative affine guide](docs/mathematical-guide.md#relative-affine-homotopies-and-vector-space-quotients)
+for the hypotheses, evaluation laws and empty-index interpretation.
+
+For a covering proof `hf : IsCoveringMap f`, import
+`FundamentalGroupoids.Topology.Covering.HomotopyGroup` and use
+`hf.injective_homotopyGroup_mapFun N e`, `hf.bijective_homotopyGroup_mapFun N e`
+or `hf.homotopyGroupMulEquiv N e` at the index hypotheses above. See the
+[covering homotopy-group guide](docs/mathematical-guide.md#covering-maps-on-homotopy-groups)
+for representative and chosen-lift inverse formulas.
+
 **Covering and circle compatibility:** these modules retain declaration names
 from [sphere-topology](https://github.com/FormalFrontier/sphere-topology).
 Do not co-import a version defining its own copies. Joint consumers must select
@@ -342,7 +377,12 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | Module under `FundamentalGroupoids` | Contents |
 | --- | --- |
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
+| [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
+| [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
+| [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Zero boundary vertex for nonempty indices and path-connected coordinate-face boundaries for nontrivial indices |
+| [`Topology.Covering.GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean) | Chosen unique based generalized-loop lifts through coverings for nontrivial cube indices, with projection and uniqueness laws |
+| [`Topology.Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean) | Canonical quotient-map injectivity for nonempty indices, bijectivity and stock multiplicative equivalences for nontrivial indices, with forward and inverse representative formulas |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition along maps carrying a specified set into the fixed set |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
@@ -405,7 +445,8 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 ## References
 
 - J. Peter May, *A Concise Course in Algebraic Topology*, revised author PDF,
-  Chapter 1 §§3–5, 7, Chapter 2 §§5, 7–8 and Chapter 3 §§2–4, 7.
+  Chapter 1 §§3–5, 7, Chapter 2 §§5, 7–8, Chapter 3 §§2–4, 7 and
+  Chapter 9 §§1, 4 (printed pp. 65–67).
   [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
   [GroupTheory](https://github.com/FormalFrontier/group-theory).

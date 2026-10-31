@@ -38,13 +38,16 @@ public import FundamentalGroupoids.Topology.Covering.DeckMonodromy
 public import FundamentalGroupoids.Topology.Covering.Equivalence
 public import FundamentalGroupoids.Topology.Covering.FiniteIndex
 public import FundamentalGroupoids.Topology.Covering.GenLoop
+public import FundamentalGroupoids.Topology.Covering.HomotopyGroup
 public import FundamentalGroupoids.Topology.Covering.Lifting
 public import FundamentalGroupoids.Topology.Covering.Monodromy
 public import FundamentalGroupoids.Topology.Covering.NormalizerQuotient
 public import FundamentalGroupoids.Topology.Covering.Proper
 public import FundamentalGroupoids.Topology.Covering.Pullback
 public import FundamentalGroupoids.Topology.Covering.PullbackDoubleCoset
+public import FundamentalGroupoids.Topology.Homotopy.Affine
 public import FundamentalGroupoids.Topology.Homotopy.Cube
+public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Affine
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map
 public import FundamentalGroupoids.Topology.Homotopy.Relative
 public import FundamentalGroupoids.Topology.Path

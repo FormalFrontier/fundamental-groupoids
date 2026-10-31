@@ -19,7 +19,18 @@ project:
     homeomorphism-compatibility laws, using Mathlib's quotient coverings.
     Based postcomposition on generalized loops and homotopy quotients for every
     cube-index type, with positive homomorphisms, based-homotopy invariance and
-    fundamental-group compatibility.
+    fundamental-group compatibility. Coverings induce canonical quotient-map
+    injections for nonempty cube indices and bijections for nontrivial indices,
+    without decidable equality. For nontrivial indices with decidable equality,
+    the stock homotopy groups are multiplicatively equivalent, with forward
+    postcomposition and inverse represented by a chosen based generalized-loop
+    lift. Coordinate-face cube boundaries are path connected for nontrivial
+    indices, including infinite ones.
+    Relative affine interpolation fixes any agreement subset for maps into real
+    modules with continuous addition and scalar multiplication. Generalized loops
+    in such modules are homotopic relative to the cube boundary to their constant
+    loops, and all their homotopy quotients are subsingletons, including empty
+    indices and arbitrary chosen points.
     Generic covering-map lifting and based
     equivalences, monodromy, equivariant fiber maps and deck-group centralizers.
     A covering map is proper exactly when every point fiber is finite,
@@ -51,6 +62,8 @@ sources:
     location: >-
       Revised author PDF, Chapter 1 §§3, 5, 7 and Chapter 2 §§4–5, 7–8.
       Chapter 3 §§2–4, 7 for covering-space monodromy, lifting and maps of covers.
+      Chapter 9 §§1, 4, printed pp. 65–67, for based homotopy groups and the
+      classical finite-degree covering isomorphism.
     relationship: adapts
     note: >-
       The book is published by the University of Chicago Press. Basepoint
@@ -79,6 +92,10 @@ sources:
       bridge are supporting covering theory, not theorems quoted from the book.
       Semilocal simple connectivity and its transport/refinement API are
       supporting theory, not a claimed correspondence with a named book result.
+      The covering homotopy-group equivalence specializes in finite degrees
+      at least two to the classical result on printed p. 66. Arbitrary index
+      types give a derived cubical, coordinate-face-boundary-relative extension,
+      without a comparison with sphere-domain or U-topology homotopy groups.
       No open redistribution license is inferred for
       the author-hosted PDF, and no book excerpts or PDF assets are included.
 related_formalizations:
@@ -96,7 +113,13 @@ related_formalizations:
       covering-induced path-class injectivity and open path-connected
       neighborhood bases. Homotopy-group maps use the existing generalized loops,
       relative homotopies, homotopy quotient, canonical positive group structures,
-      and the multiplicative comparison with the fundamental group.
+      and the multiplicative comparison with the fundamental group. Relative
+      affine interpolation reuses the affine homotopy and straight segment paths;
+      the vector-space quotient results use the boundary-relative homotopy relation
+      and its existing quotient. Based
+      generalized-loop lifts use unique continuous lifting from the contractible,
+      locally path-connected cube and path connectedness of its coordinate-face
+      boundary, together with discreteness of the covering fiber.
   - id: https://github.com/FormalFrontier/restricted-product-duality
     relationship: builds-on
     note: >-
@@ -202,6 +225,43 @@ status:
     connectedness, local path connectedness, finiteness or well-pointedness is
     assumed. The module depends only on Mathlib and supplies no group structure
     for empty indices or restricted-product path-component-map interface.
+    For an arbitrary topological domain A and a real module E with AddCommGroup E,
+    Module ℝ E, TopologicalSpace E, ContinuousAdd E and ContinuousSMul ℝ E,
+    ContinuousMap.HomotopyRel.affine f g hfg constructs an affine homotopy fixed
+    on any subset S where the continuous maps f and g agree. Domain and target
+    universes are independent. Its evaluation is AffineMap.lineMap, and the
+    underlying-homotopy equation compares it with ContinuousMap.Homotopy.affine
+    under IsTopologicalAddGroup E. Continuous negation follows from scalar
+    multiplication by negative one. No separation, norm, completeness or local
+    convexity of E, and no closedness or nonemptiness of S, are assumed. For every
+    N in an independent universe and every x in E, GenLoop.homotopic_const
+    contracts each generalized loop to the constant loop relative to Cube.boundary N
+    using this construction and GenLoop.boundary. HomotopyGroup.subsingleton N x identifies
+    all classes in the existing boundary-relative homotopy quotient by passing
+    through the constant loop. Neither result requires decidable equality,
+    finiteness or nonemptiness of N, and no global subsingleton instance is
+    registered. At empty indices the boundary condition is empty, but affine
+    interpolation still joins any cube value to x. No group structure on the
+    empty-index quotient is supplied.
+    For IsCoveringMap f and a supplied e : E, the same canonical mapFun with
+    target point f e is injective for Nonempty N and bijective for Nontrivial N,
+    without DecidableEq N. With DecidableEq N and Nontrivial N,
+    homotopyGroupMulEquiv is a multiplicative equivalence for the stock group
+    structures, whose forward homomorphism is HomotopyGroup.map. Its forward
+    representative formula is GenLoop.map; its inverse sends a representative
+    class to the class of liftGenLoop. The generic inverse formula also applies
+    to any displayed based lift with the required GenLoop.map equality.
+    The chosen lift exists uniquely for Nontrivial N, projects to the given
+    generalized loop, takes zero to e, and returns any based loop when applied
+    to its image. Cube.zero_mem_boundary requires only Nonempty N, while
+    Cube.isPathConnected_boundary and the boundary subtype's path-connected
+    instance require Nontrivial N. Index, total and base universes are independent;
+    no connectedness, local path connectedness or separation of either space,
+    global surjectivity, finiteness of the cube index or smallness is assumed.
+    No injectivity for empty indices or surjectivity for singleton indices is
+    asserted. For Fin n the covering equivalence applies when n is at least two;
+    arbitrary indices use the coordinate-face boundary, not a topological frontier
+    or a comparison with sphere-domain or U-topology homotopy groups.
     For a continuous map with path-connected, locally path-connected domain
     and a prescribed lift of its basepoint, unique based lifting is equivalent
     to containment of fundamental-group images, compared by the basepoint
@@ -289,7 +349,9 @@ alignment:
     and generalizations. The arbitrary-family coproduct comparison equivalence
     is derived support for the all-points groupoid and disjoint-union viewpoint.
     The semilocal API is standalone supporting theory, not a claimed
-    correspondence with a named theorem in May.
+    correspondence with a named theorem in May. Relative affine homotopies and
+    vector-space homotopy quotients are supporting theory built on Mathlib,
+    without a claimed correspondence with a named theorem in May.
   statements:
     - lean: CategoryTheory.Iso.conj_eq_iff_mem_center
       module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
@@ -369,6 +431,44 @@ alignment:
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
     - lean: HomotopyGroup.pi1MulEquivFundamentalGroup_map
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: ContinuousMap.HomotopyRel.affine
+      module: FundamentalGroupoids/Topology/Homotopy/Affine.lean
+    - lean: ContinuousMap.HomotopyRel.affine_toHomotopy
+      module: FundamentalGroupoids/Topology/Homotopy/Affine.lean
+    - lean: ContinuousMap.HomotopyRel.affine_apply
+      module: FundamentalGroupoids/Topology/Homotopy/Affine.lean
+    - lean: GenLoop.homotopic_const
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean
+    - lean: HomotopyGroup.subsingleton
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean
+    - lean: Cube.zero_mem_boundary
+      module: FundamentalGroupoids/Topology/Homotopy/Cube.lean
+    - lean: Cube.isPathConnected_boundary
+      module: FundamentalGroupoids/Topology/Homotopy/Cube.lean
+    - lean: IsCoveringMap.liftGenLoop
+      module: FundamentalGroupoids/Topology/Covering/GenLoop.lean
+    - lean: IsCoveringMap.map_liftGenLoop
+      module: FundamentalGroupoids/Topology/Covering/GenLoop.lean
+    - lean: IsCoveringMap.liftGenLoop_zero
+      module: FundamentalGroupoids/Topology/Covering/GenLoop.lean
+    - lean: IsCoveringMap.liftGenLoop_unique
+      module: FundamentalGroupoids/Topology/Covering/GenLoop.lean
+    - lean: IsCoveringMap.liftGenLoop_map
+      module: FundamentalGroupoids/Topology/Covering/GenLoop.lean
+    - lean: IsCoveringMap.injective_homotopyGroup_mapFun
+      module: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+    - lean: IsCoveringMap.bijective_homotopyGroup_mapFun
+      module: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+    - lean: IsCoveringMap.homotopyGroupMulEquiv
+      module: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+    - lean: IsCoveringMap.homotopyGroupMulEquiv_toMonoidHom
+      module: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+    - lean: IsCoveringMap.homotopyGroupMulEquiv_apply_class
+      module: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+    - lean: IsCoveringMap.homotopyGroupMulEquiv_symm_apply_class_of_map_eq
+      module: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+    - lean: IsCoveringMap.homotopyGroupMulEquiv_symm_apply_class
+      module: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
     - lean: IsCoveringMap.existsUnique_continuousMap_lifts_iff_range_le
       module: FundamentalGroupoids/Topology/Covering/Lifting.lean
     - lean: IsCoveringMap.homeomorphOfRangeEq
@@ -464,7 +564,10 @@ acknowledgements: >-
   in Restricted Product Duality by Formal Frontier Agents, with retained names,
   statements, proofs and Apache-2.0 notice. It reuses Roberto Alvarez's generalized
   loops and homotopy groups, Mark Lavrentyev's fundamental groups and Shing Tak
-  Lam's relative and path homotopies in Mathlib.
+  Lam's relative and path homotopies in Mathlib. Relative affine interpolation
+  uses Yury G. Kudryashov's affine homotopies and Patrick Massot and Yury
+  Kudryashov's straight segment paths in Mathlib, with the same generalized-loop
+  and relative-homotopy APIs for the vector-space consequences.
   The fiber-coset equivalence reuses Chris Hughes and Thomas Browning's
   orbit-stabilizer construction and GroupTheory's equivariance API.
   The coproduct proof uses Johannes Hölzl, Mario Carneiro and Yury Kudryashov's
