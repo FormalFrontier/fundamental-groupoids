@@ -48,6 +48,18 @@ locally compact pair APIs; and Shing Tak Lam's relative and interval homotopies.
 May, Chapter 2, §8, p. 19 supplies the point-wedge setting, not the pair-hypothesis
 continuity criterion or its independent-universe descent generalization.
 
+The point-family descent laws, point-wide-pushout universe-lift homeomorphism,
+based-wedge universe-lift isomorphism and chosen cartesian structure on the
+opposite based-homotopy category are by Formal Frontier Agents. The point-family
+map API uses Mathlib's continuous maps by Johannes Hölzl, Mario Carneiro,
+Patrick Massot and contributors; Tiller and Loupe supplied image/preimage and
+empty-head observations. The universe-lift comparison uses Mathlib's
+homeomorphism API by Johannes Hölzl, Patrick Massot, Sébastien Gouëzel,
+Zhouhang Zhou and Reid Barton, and its topological and under-category isomorphisms.
+The cartesian construction uses Mathlib's binary fans and cofans by Kim Morrison
+and Bhavik Mehta and its cartesian monoidal categories by Kim Morrison, Simon
+Hudon, Adam Topaz and Robin Carlier.
+
 The signed-period additive-circle and complex-circle integer coordinates,
 including their loop, inverse, endpoint and homeomorphism-compatibility APIs,
 originate in [Sphere Topology's circle formalization](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/Circle.lean)

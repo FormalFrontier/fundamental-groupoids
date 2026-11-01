@@ -32,11 +32,15 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.Basic
 public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnected
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Category.TopCat.Based
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.Cartesian
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Coproducts
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.ULift
 public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.Products
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout
+public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.PointMap
+public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.ULift
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.Collapse
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.ContinuousMap
 public import FundamentalGroupoids.Topology.Connected.PathConnected

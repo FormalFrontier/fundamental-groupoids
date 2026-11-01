@@ -20,6 +20,26 @@ directions, examples, conventions and credits.
   diagram; the binary specialization uses its explicit comparison isomorphism.
   Empty families give initial objects. No separation, local compactness of the
   spaces, finiteness of the index, or condition on the basepoints is required.
+- **Chosen finite products in the opposite based-homotopy category** ([`Based.Cartesian`](FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean)).
+  The ordinary opposite of `BasedTopCat.HomotopyCategory` has explicit terminal
+  and binary limit cones, given by the opposite empty and ordered two-factor
+  based wedges. The named cartesian monoidal structure uses these choices;
+  its unit, tensor, two projections and map to the unit have characteristic
+  equations. The projections preserve the left/right order of the wedge
+  inclusions. No global cartesian or monoidal instance is installed.
+- **Point-family maps and universe lifting** ([`WidePushout.PointMap`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout/PointMap.lean),
+  [`WidePushout.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout/ULift.lean),
+  [`Based.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Based/ULift.lean)).
+  Point-preserving maps between independently sized families on the same index
+  type descend through their point-wide-pushouts, preserving identities and
+  composition. For `J : Type w` and `X : J → TopCat.{max u w}` with chosen points,
+  the universe lift of its point-wide-pushout is homeomorphic to the
+  point-wide-pushout of its lifted factors, with head, factor and inverse
+  evaluation laws. Based at the
+  lifted head, this gives an isomorphism with the based wedge of the lifted
+  pointed factors. Empty families retain the head. No separation or local
+  compactness is needed; the point-family and homeomorphism modules are
+  independent of based-homotopy constructions.
 - **Wide-pushout continuity and homotopy descent** ([`Limits.Products`](FundamentalGroupoids/Topology/Category/TopCat/Limits/Products.lean),
   [`Limits.WidePushout`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout.lean),
   [`Homotopy.WidePushout`](FundamentalGroupoids/Topology/Homotopy/WidePushout.lean)).
@@ -669,6 +689,24 @@ homotopies, import `FundamentalGroupoids.Topology.Homotopy.WidePushout` and use
 lemmas characterize the constructed data; the last constructor requires explicit
 head equality even when there are no factors.
 
+For finite products in the opposite based-homotopy category, import
+`FundamentalGroupoids.Topology.Category.TopCat.Based.Cartesian` and use
+`BasedTopCat.homotopyOppositeTerminalLimitCone`,
+`BasedTopCat.homotopyOppositeBinaryLimitCone` and
+`BasedTopCat.homotopyOppositeCartesianMonoidalCategory`. Use the last as a local
+instance for monoidal notation; the `homotopyOpposite_*` equations identify the
+unit, tensor, projections and terminal map with the corresponding wedge data.
+
+For point-family maps, import
+`FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.PointMap`.
+`TopCat.widePushoutDesc_point_condition` supplies compatibility for
+`TopCat.widePushoutDesc`; the head, factor, uniqueness, identity and composition
+laws describe this descent without unfolding it. Import the neighboring
+`WidePushout.ULift` module for `TopCat.widePushoutPointULiftUp`,
+`TopCat.widePushoutPointULiftDown` and `TopCat.widePushoutPointULiftHomeomorph`.
+For the based isomorphism `BasedTopCat.basedWedgeULiftIso`, import
+`FundamentalGroupoids.Topology.Category.TopCat.Based.ULift`.
+
 **Covering, circle and wide-pushout compatibility:** these modules retain declaration names
 from [sphere-topology](https://github.com/FormalFrontier/sphere-topology).
 Do not co-import a version defining its own copies. Joint consumers must select
@@ -721,10 +759,15 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean) | Canonical quotient-map injectivity for nonempty indices, bijectivity and stock multiplicative equivalences for nontrivial indices, with forward and inverse representative formulas |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition; `HomotopyWith.joined` without local compactness and `nonempty_iff_joined` for locally compact sources, for arbitrary predicates and independent source/target universes |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
+| [`Topology.Category.TopCat.Based.Cartesian`](FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean) | Chosen terminal and binary limit cones in the ordinary opposite based-homotopy category, and their named cartesian monoidal structure with unit, tensor, projection and terminal-map equations |
+| [`Topology.Category.TopCat.Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean) | Point-wide-pushout coproduct data in based spaces and their homotopy category, factorwise based-homotopy criterion, and empty and binary specializations |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
+| [`Topology.Category.TopCat.Based.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Based/ULift.lean) | Isomorphism from a point-wide-pushout lifted and based at its head to the based wedge of the lifted pointed factors, with underlying-map, head, factor and inverse equations |
 | [`Topology.Category.TopCat.DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean) | Unpointed disk attachments, universal property, original-space closed embedding, disjoint open-disk embeddings and empty/identity attachment homeomorphisms |
 | [`Topology.Category.TopCat.Limits.Products`](FundamentalGroupoids/Topology/Category/TopCat/Limits/Products.lean) | Product-parameter continuity for supplied topological colimits under a locally compact pair hypothesis, and its one-point specialization |
 | [`Topology.Category.TopCat.Limits.WidePushout`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout.lean) | Head-plus-factors quotient comparison, arbitrary-target continuous descent and uniqueness, and empty/singleton diagram homeomorphisms |
+| [`Topology.Category.TopCat.Limits.WidePushout.PointMap`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout/PointMap.lean) | Point-preserving family descent with independently sized families, head and factor characteristics, uniqueness, and identity and composition laws |
+| [`Topology.Category.TopCat.Limits.WidePushout.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout/ULift.lean) | Universe-raising and universe-lowering descent, strict inverse equations, and the universe-lift homeomorphism with head, factor and inverse evaluation laws |
 | [`Topology.Homotopy.WidePushout`](FundamentalGroupoids/Topology/Homotopy/WidePushout.lean) | Jointly continuous family and homotopy descent, all-time restrictions, uniqueness and reparameterization; point-relative factor homotopies as a unique head-relative homotopy |
 | [`AlgebraicTopology.FundamentalGroup.Circle`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean) | Signed-period additive-circle and complex-circle integer coordinates, loop/inverse/endpoint laws, nonidentity generators and homeomorphism compatibility |
 | [`AlgebraicTopology.FundamentalGroup.Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean) | Fundamental-group functor on based spaces and its unique factorization through based homotopy |
@@ -820,6 +863,11 @@ Frontier Agents. They reuse Mathlib's topological colimits, Joël Riou's
 `Types.Pushout`, Reid Barton's compact-open currying and evaluation, and Shing Tak
 Lam's relative homotopies. May, Chapter 2 §8, p. 19 supplies the point-wedge setting,
 not the pair-hypothesis or universe-general descent results.
+Formal Frontier Agents supplied the point-family map laws, the universe-lift
+homeomorphism and based isomorphism, and the chosen cartesian structure on the
+opposite based-homotopy category. These use Mathlib's homeomorphisms, under
+categories, opposite binary (co)fans and cartesian monoidal construction.
+Tiller and Loupe supplied point-family image/preimage and empty-head observations.
 The generalized-loop and homotopy-group map API originates in Restricted Product
 Duality by Formal Frontier Agents, retaining its definitions, proofs, names and
 Apache-2.0 notice. It uses Roberto Alvarez's homotopy groups, Mark Lavrentyev's
