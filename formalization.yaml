@@ -32,7 +32,11 @@ project:
     this is a multiplicative equivalence for the existing group structures.
     Raw cubical homotopy quotients canonically identify with path components of
     the same compact-open generalized-loop spaces, naturally in based postcomposition
-    and compatibly with the empty-index comparison.
+    and compatibly with the empty-index comparison. Equivalences of cube-index
+    types induce quotient equivalences by reindexing representatives, with inverse,
+    identity, composition and based-postcomposition laws in independent universes.
+    For nonempty indices with decidable equality, the same maps are multiplicative
+    for the existing group structures, without requiring corresponding selected axes.
     Coverings induce canonical quotient-map injections for nonempty cube indices
     and bijections for nontrivial indices, without decidable equality.
     For nontrivial indices with decidable equality,

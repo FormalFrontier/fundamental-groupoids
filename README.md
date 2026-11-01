@@ -87,6 +87,17 @@ gives detailed statements, API directions, examples, conventions and credits.
   Index and space universes are independent; no finiteness, connectedness, local
   path connectedness or nonemptiness is needed. The product comparison agrees
   with Mathlib's when its universes coincide.
+- **Reindexing cube coordinates** ([`HomotopyGroup.Congr`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Congr.lean)).
+  An equivalence `e : N ≃ M` induces `HomotopyGroup.congr x e` on the existing
+  boundary-relative quotients, sending `[p]` to `[t ↦ p (t ∘ e)]`.
+  The inverse uses `e.symm`; representative, constant, identity, composition
+  and based-postcomposition laws are public. Index and space universes are
+  independent, and the indices may be empty or infinite. For nonempty indices
+  with supplied decidable equality, `HomotopyGroup.congrMulEquiv x e` uses the
+  same function with Mathlib's existing group structures. It commutes with
+  concatenation along corresponding coordinates, without requiring the two
+  group structures to select corresponding axes. This is a cubical transport,
+  not a comparison with sphere-domain homotopy classes.
 - **Homotopy quotients of dependent products** ([`HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean),
   [`FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean)).
   For arbitrary spaces `X i`, points `p i` and cube index `N`,
