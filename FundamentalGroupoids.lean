@@ -62,6 +62,7 @@ public import FundamentalGroupoids.Topology.Homotopy.Cube.Cylinder
 public import FundamentalGroupoids.Topology.Homotopy.Cube.Deformation
 public import FundamentalGroupoids.Topology.Homotopy.Cube.Extension
 public import FundamentalGroupoids.Topology.Homotopy.Cube.Radius
+public import FundamentalGroupoids.Topology.Homotopy.Fiber
 public import FundamentalGroupoids.Topology.Homotopy.GenLoop.OnePoint
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Action
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Affine
@@ -82,6 +83,7 @@ public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Product
 public import FundamentalGroupoids.Topology.Homotopy.InfiniteCube
 public import FundamentalGroupoids.Topology.Homotopy.Radial
 public import FundamentalGroupoids.Topology.Homotopy.Relative
+public import FundamentalGroupoids.Topology.Homotopy.RelativePathSpace.Contractible
 public import FundamentalGroupoids.Topology.Homotopy.WidePushout
 public import FundamentalGroupoids.Topology.Path
 public import FundamentalGroupoids.Topology.Piecewise

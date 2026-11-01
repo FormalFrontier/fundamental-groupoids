@@ -1,7 +1,8 @@
 # Fundamental Groupoids
 
 Fundamental groupoids, based homotopy, compact-open generalized-loop spaces,
-relative affine homotopies, categorical endomorphism transport, strict open-cover
+ordinary compact-open endpoint paths and homotopy fibers, relative affine
+homotopies, categorical endomorphism transport, strict open-cover
 descent, based van Kampen, covering spaces and semilocal simple connectivity in
 Lean. The library extends Mathlib's categories, path-homotopy classes and covering
 maps rather than introducing replacement structures. The
@@ -105,6 +106,26 @@ directions, examples, conventions and credits.
   Ambient and target universes are independent; `s` may be empty or all of `K`,
   and `X` needs neither separation nor local compactness. The construction uses
   GroupTheory's compact-covering precomposition embedding API.
+- **Ordinary compact-open paths and homotopy fibers** ([`RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean),
+  [`Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean),
+  [`RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean)).
+  `ContinuousMap.RelativePathSpace b A` consists of paths from an arbitrary `b`
+  to any point of `A`; the paths need not stay in `A`, and `b` need not lie in `A`.
+  `ContinuousMap.HomotopyFiber f b` retains both a source point `e` and a path
+  from `b` to `f e`, with the ordinary product/subtype compact-open topology.
+  It is homeomorphic to the pullback of `f` along terminal evaluation. For an
+  embedding, forgetting `e` identifies it with paths ending in `Set.range f`;
+  for the original subspace inclusion, the endpoint lies in `A` itself.
+  Maps act on both point and path, with identity, composition, constant and
+  naturality laws. A constant fiber point needs a specified `e` with `f e = b`;
+  being outside the image does not force the homotopy fiber to be empty.
+  For every topological space `X` and chosen `b : X`,
+  `RelativePathSpace.contraction b` sends `γ` to `t ↦ γ ((1 - s) * t)` at time
+  `s`, fixes the constant path throughout, and gives a `ContractibleSpace`
+  instance on `RelativePathSpace b Set.univ`. Its endpoint is free to move.
+  No target separation or local compactness is required. These are ordinary,
+  non-kified spaces, not an identification with May's category `U`; this contracts
+  neither loop spaces nor `X`.
 - **Finite generalized loops as based compact-open maps** ([`GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean)).
   For every finite index type `N` (`[Finite N]`) and every topological space `X`
   with chosen `x`, `GenLoop.onePointHomeomorph N x` identifies `GenLoop N X x`
@@ -660,6 +681,10 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Connected.PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean) | Continuous maps on path components, with representative, identity, composition and homotopy-invariance laws |
 | [`Topology.Compactification.OnePoint.Collapse`](FundamentalGroupoids/Topology/Compactification/OnePoint/Collapse.lean) | Continuous open-subspace collapse for Hausdorff spaces, membership and infinity laws, and a surjective disjoint-point extension that is a quotient map for compact sources |
 | [`Topology.Compactification.OnePoint.ContinuousMap`](FundamentalGroupoids/Topology/Compactification/OnePoint/ContinuousMap.lean) | Compact-open/subtype homeomorphism between maps based at infinity and ambient maps constant outside any open in a compact Hausdorff space; collapse-precomposition, recursor and evaluation laws |
+| [`Topology.Homeomorph.Subtype`](FundamentalGroupoids/Topology/Homeomorph/Subtype.lean) | Flattening nested subspaces using Mathlib's carrier equivalence, with forward/inverse coercion laws |
+| [`Topology.Homotopy.RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean) | Ordinary compact-open paths from an arbitrary point to a subspace, with constructor, extensionality, evaluation, endpoint and functorial postcomposition APIs |
+| [`Topology.Homotopy.Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean) | Retained-point ordinary homotopy fibers, maps of continuous squares, pullback and embedding/subspace homeomorphisms, with projection, evaluation, constant and naturality laws |
+| [`Topology.Homotopy.RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean) | Explicit time-shortening homotopy relative to the constant path, characteristic evaluation and moving-endpoint laws, and contractibility of fixed-start/free-endpoint paths |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
@@ -742,8 +767,10 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 ## References
 
 - J. Peter May, *A Concise Course in Algebraic Topology*, revised author PDF,
-  Chapter 1 §§3–5, 7, Chapter 2 §§5, 7–8, Chapter 3 §§2–4, 7 and
-  Chapter 9 §§1, 4 (printed pp. 65–67).
+  Chapter 1 §§3–5, 7, Chapter 2 §§5, 7–8, Chapter 3 §§2–4, 7,
+  Chapter 7 §3 (printed p. 50, time-shortening deformation),
+  Chapter 8 §6 (printed p. 61, path direction and pullback fibers), and
+  Chapter 9 §§1, 4 (printed pp. 65–67, including subspace endpoint paths).
   [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
   [GroupTheory](https://github.com/FormalFrontier/group-theory).
@@ -778,6 +805,17 @@ fundamental groups and Shing Tak Lam's homotopies in Mathlib. The based compact-
 collapse comparisons use Yourong Zang and Yury Kudryashov's one-point
 compactification and Mathlib's compact-open topology, together with GroupTheory's
 compact-covering precomposition embedding API.
+The relative-path spaces, retained-point homotopy fibers and fixed-start contraction
+are by Formal Frontier Agents. May's time-shortening deformation (Chapter 7 §3,
+printed p. 50) supplies the contraction idea; Chapters 8 §6 and 9 §1 motivate the
+fiber and endpoint-path models, without identifying their ordinary topologies
+with his kified category. The fiber comparisons reuse Mathlib's whole
+`TopCat.pullbackHomeoPreimage`, including its inverse continuity, by Patrick Massot,
+Kim Morrison, Mario Carneiro and Andrew Yang. Subspace flattening uses
+`Equiv.subtypeSubtypeEquivSubtypeInter` from the equivalence API by Leonardo de Moura
+and Mario Carneiro, with Mathlib's subtype continuity. Evaluation and currying
+use Reid Barton's compact-open API; relative homotopies use Shing Tak Lam's API,
+and the contractibility criterion uses Praneeth Kolichala's formalization.
 The path-component map and its four characteristic laws also originate in
 Restricted Product Duality, with names under `ZerothHomotopy`, retained proofs and
 notices, and Mathlib's path components by Patrick Massot and contributors.
