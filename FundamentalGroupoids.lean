@@ -32,6 +32,7 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Category.TopCat.Based
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.Collapse
+public import FundamentalGroupoids.Topology.Compactification.OnePoint.ContinuousMap
 public import FundamentalGroupoids.Topology.Connected.PathConnected
 public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
@@ -51,6 +52,7 @@ public import FundamentalGroupoids.Topology.Covering.PullbackDoubleCoset
 public import FundamentalGroupoids.Topology.Homotopy.Affine
 public import FundamentalGroupoids.Topology.Homotopy.Cube
 public import FundamentalGroupoids.Topology.Homotopy.Cube.Coordinates
+public import FundamentalGroupoids.Topology.Homotopy.GenLoop.OnePoint
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Affine
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Circle
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.CompactlyGenerated

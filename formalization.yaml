@@ -56,6 +56,13 @@ project:
     and collapsing its complement to infinity, without a local compactness
     assumption. Adding a disjoint point gives a surjection, even for
     the whole space, and a quotient map when the ambient space is compact.
+    For compact Hausdorff ambient spaces, collapse pullback is a homeomorphism
+    between continuous maps based at infinity and ambient maps equal to the
+    chosen point outside the open subspace, with ordinary compact-open/subtype
+    topologies. Its finite-cube specialization identifies generalized loops
+    with based maps from the one-point compactification of the cube-boundary
+    complement, including empty indices and arbitrary topological targets in
+    independent universes.
     Relative affine interpolation fixes any agreement subset for maps into real
     modules with continuous addition and scalar multiplication. Generalized loops
     in such modules are homotopic relative to the cube boundary to their constant
@@ -155,7 +162,17 @@ related_formalizations:
       and its existing quotient. Based
       generalized-loop lifts use unique continuous lifting from the contractible,
       locally path-connected cube and path connectedness of its coordinate-face
-      boundary, together with discreteness of the covering fiber.
+      boundary, together with discreteness of the covering fiber. The based
+      compact-open comparisons use OnePoint and its recursor, compact-open
+      mapping spaces and continuity of precomposition.
+  - id: https://github.com/FormalFrontier/group-theory
+    relationship: builds-on
+    note: >-
+      The based compact-open collapse comparison uses
+      ContinuousMap.isEmbedding_precomp_of_compactCovering from
+      GroupTheory.Topology.ContinuousMap.CompactCovering for compact-open
+      continuity of the inverse family. The finite-cube
+      generalized-loop comparison specializes this open-subspace homeomorphism.
   - id: https://github.com/FormalFrontier/restricted-product-duality
     relationship: builds-on
     note: >-
@@ -293,6 +310,29 @@ status:
     continuity iff and unchanged-function lift apply to any
     UCompactlyGeneratedSpace.{u} source. Neither a sphere-domain comparison nor
     May's weak-Hausdorff category or a k-product formula is supplied.
+    For compact Hausdorff K : Type u, any open s and any topological X : Type v
+    with a chosen x : X, OnePoint.collapsePullbackHomeomorph s x identifies
+    {F : C(OnePoint s, X) // F ∞ = x} with
+    {f : C(K, X) // ∀ k, k ∉ s → f k = x} homeomorphically. Both sides have
+    the ordinary compact-open/subtype topology. The forward map is
+    precomposition by OnePoint.collapse s; the inverse is OnePoint.rec x
+    applied to the restriction to s. Ambient and target universes are independent,
+    with no target separation or local compactness assumption. The open subspace
+    may be empty or all of K; neither nonemptiness nor properness is required.
+    For N in an independent universe with Finite N, GenLoop.onePointHomeomorph N x
+    identifies GenLoop N X x homeomorphically with
+    {F : C(OnePoint ((Cube.boundary N)ᶜ : Set (I^N)), X) // F ∞ = x}.
+    Its forward map retains loop values on the coordinate-face boundary complement
+    and assigns x at infinity; its inverse precomposes with the cube-boundary
+    collapse. The topology is the ordinary compact-open/subtype topology, not a
+    refinement of it. Only a topology and chosen point are required on X, with
+    no Fintype, DecidableEq N or Nonempty N premise. When N is empty, the cube
+    is a singleton and its boundary is empty, but infinity remains distinct from
+    the cube point; the based-map space need not be a singleton. Five
+    underlying-map and evaluation laws for each homeomorphism characterize both
+    directions, including values at infinity and points of the open subspace.
+    The constructions use GroupTheory's compact-covering precomposition
+    embedding API.
     For an arbitrary topological domain A and a real module E with AddCommGroup E,
     Module ℝ E, TopologicalSpace E, ContinuousAdd E and ContinuousSMul ℝ E,
     ContinuousMap.HomotopyRel.affine f g hfg constructs an affine homotopy fixed
@@ -419,7 +459,10 @@ alignment:
     The semilocal API is standalone supporting theory, not a claimed
     correspondence with a named theorem in May. Relative affine homotopies and
     vector-space homotopy quotients are supporting theory built on Mathlib,
-    without a claimed correspondence with a named theorem in May.
+    without a claimed correspondence with a named theorem in May. The based
+    compact-open collapse comparison and its finite-cube specialization are
+    supporting topology built on Mathlib and GroupTheory's compact-covering
+    precomposition embedding API.
   statements:
     - lean: CategoryTheory.Iso.conj_eq_iff_mem_center
       module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
@@ -497,6 +540,10 @@ alignment:
       module: FundamentalGroupoids/Topology/Connected/PathConnected.lean
     - lean: ZerothHomotopy.map_eq_of_homotopy
       module: FundamentalGroupoids/Topology/Connected/PathConnected.lean
+    - lean: OnePoint.collapsePullbackHomeomorph
+      module: FundamentalGroupoids/Topology/Compactification/OnePoint/ContinuousMap.lean
+    - lean: GenLoop.onePointHomeomorph
+      module: FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean
     - lean: GenLoop.map
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
     - lean: GenLoop.Homotopic.map
@@ -648,8 +695,11 @@ acknowledgements: >-
   in Restricted Product Duality by Formal Frontier Agents, with retained names,
   statements, proofs and Apache-2.0 notice. It reuses Roberto Alvarez's generalized
   loops and homotopy groups, Mark Lavrentyev's fundamental groups and Shing Tak
-  Lam's relative and path homotopies in Mathlib. The path-component map and its
-  four characteristic laws also originate in Restricted Product Duality, with
+  Lam's relative and path homotopies in Mathlib. The based compact-open collapse
+  comparisons use Yourong Zang and Yury Kudryashov's one-point compactification,
+  Mathlib's compact-open mapping spaces, and GroupTheory's compact-covering
+  precomposition embedding API. The path-component map
+  and its four characteristic laws also originate in Restricted Product Duality, with
   names under ZerothHomotopy, retained proofs and notices, and Mathlib's path
   components and Joined.map by Patrick Massot and contributors.
   Relative affine interpolation

@@ -1,11 +1,12 @@
 # Fundamental Groupoids
 
-Fundamental groupoids, based homotopy, relative affine homotopies, categorical
-endomorphism transport, strict open-cover descent, based van Kampen, covering
-spaces and semilocal simple connectivity in Lean. The library extends Mathlib's
-categories, path-homotopy classes and covering maps rather than introducing
-replacement structures. The [mathematical guide](docs/mathematical-guide.md)
-gives detailed statements, API directions, examples, conventions and credits.
+Fundamental groupoids, based homotopy, compact-open generalized-loop spaces,
+relative affine homotopies, categorical endomorphism transport, strict open-cover
+descent, based van Kampen, covering spaces and semilocal simple connectivity in
+Lean. The library extends Mathlib's categories, path-homotopy classes and covering
+maps rather than introducing replacement structures. The
+[mathematical guide](docs/mathematical-guide.md) gives detailed statements, API
+directions, examples, conventions and credits.
 
 ## Headline results
 
@@ -62,6 +63,29 @@ gives detailed statements, API directions, examples, conventions and credits.
   the whole space; for compact `K` it is a quotient map, giving continuous descent
   through Mathlib's quotient-map API to arbitrary topological targets. Neither
   nonemptiness nor properness of `s` is required.
+- **Based compact-open collapse comparison** ([`OnePoint.ContinuousMap`](FundamentalGroupoids/Topology/Compactification/OnePoint/ContinuousMap.lean)).
+  For a compact Hausdorff space `K`, any open `s` and any topological space `X`
+  with a chosen `x : X`, `OnePoint.collapsePullbackHomeomorph s x` identifies
+  `{F : C(OnePoint s, X) // F ∞ = x}` homeomorphically with continuous maps
+  `K → X` equal to `x` outside `s`. The forward map precomposes with
+  `OnePoint.collapse s`; the inverse is `OnePoint.rec x` applied to restriction
+  to `s`. Both spaces carry the ordinary compact-open/subtype topology.
+  Ambient and target universes are independent; `s` may be empty or all of `K`,
+  and `X` needs neither separation nor local compactness. The construction uses
+  GroupTheory's compact-covering precomposition embedding API.
+- **Finite generalized loops as based compact-open maps** ([`GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean)).
+  For every finite index type `N` (`[Finite N]`) and every topological space `X`
+  with chosen `x`, `GenLoop.onePointHomeomorph N x` identifies `GenLoop N X x`
+  with continuous maps from `OnePoint ((Cube.boundary N)ᶜ)` taking infinity to
+  `x`, with the ordinary compact-open/subtype topologies. It keeps the loop's
+  values on the coordinate-face boundary complement and assigns `x` at infinity;
+  its inverse precomposes with the boundary collapse. Underlying-map and
+  evaluation laws characterize both directions of this and the open-subspace
+  comparison. Index and target universes are independent; no `Fintype`, decidable
+  equality, index nonemptiness, target separation or target local compactness is
+  required. For empty `N`, the cube is a singleton with empty boundary, but the
+  added infinity is distinct from its cube point, so the based-map space need
+  not be a singleton.
 - **Based generalized-loop lifts** ([`GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean)).
   A covering map uniquely lifts a based generalized loop to a supplied point when
   the cube index has at least two elements. The spaces need no connectedness, local
@@ -479,6 +503,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
 | [`Topology.Connected.PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean) | Continuous maps on path components, with representative, identity, composition and homotopy-invariance laws |
 | [`Topology.Compactification.OnePoint.Collapse`](FundamentalGroupoids/Topology/Compactification/OnePoint/Collapse.lean) | Continuous open-subspace collapse for Hausdorff spaces, membership and infinity laws, and a surjective disjoint-point extension that is a quotient map for compact sources |
+| [`Topology.Compactification.OnePoint.ContinuousMap`](FundamentalGroupoids/Topology/Compactification/OnePoint/ContinuousMap.lean) | Compact-open/subtype homeomorphism between maps based at infinity and ambient maps constant outside any open in a compact Hausdorff space; collapse-precomposition, recursor and evaluation laws |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
@@ -488,6 +513,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
 | [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Closed coordinate-face boundaries for finite indices, zero boundary vertex for nonempty indices and path-connected boundaries for nontrivial indices |
 | [`Topology.Homotopy.Cube.Coordinates`](FundamentalGroupoids/Topology/Homotopy/Cube/Coordinates.lean) | Increasing real-product coordinates on the boundary complement for every index type, with membership and forward/inverse evaluation laws; local compactness theorem for finite indices |
+| [`Topology.Homotopy.GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean) | Finite generalized loops as based maps from the one-point compactification of the cube-boundary complement, with restriction/extension, collapse-precomposition and evaluation laws, including empty indices |
 | [`Topology.Covering.GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean) | Chosen unique based generalized-loop lifts through coverings for nontrivial cube indices, with projection and uniqueness laws |
 | [`Topology.Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean) | Canonical quotient-map injectivity for nonempty indices, bijectivity and stock multiplicative equivalences for nontrivial indices, with forward and inverse representative formulas |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition; `HomotopyWith.joined` without local compactness and `nonempty_iff_joined` for locally compact sources, for arbitrary predicates and independent source/target universes |
@@ -577,10 +603,13 @@ using Mathlib's quotient coverings and induced homeomorphism equivalence.
 The generalized-loop and homotopy-group map API originates in Restricted Product
 Duality by Formal Frontier Agents, retaining its definitions, proofs, names and
 Apache-2.0 notice. It uses Roberto Alvarez's homotopy groups, Mark Lavrentyev's
-fundamental groups and Shing Tak Lam's homotopies in Mathlib. The path-component
-map and its four characteristic laws also originate in Restricted Product Duality,
-with names under `ZerothHomotopy`, retained proofs and notices, and Mathlib's path
-components by Patrick Massot and contributors.
+fundamental groups and Shing Tak Lam's homotopies in Mathlib. The based compact-open
+collapse comparisons use Yourong Zang and Yury Kudryashov's one-point
+compactification and Mathlib's compact-open topology, together with GroupTheory's
+compact-covering precomposition embedding API.
+The path-component map and its four characteristic laws also originate in
+Restricted Product Duality, with names under `ZerothHomotopy`, retained proofs and
+notices, and Mathlib's path components by Patrick Massot and contributors.
 Pullback comparisons reuse GroupTheory's orbit–stabilizer
 and double-coset constructions. Normalizer quotients compose GroupTheory's
 normalizer–automorphism and centralizer APIs with covering monodromy.
