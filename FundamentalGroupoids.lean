@@ -31,6 +31,7 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnect
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Category.TopCat.Based
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
+public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.Collapse
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.ContinuousMap
 public import FundamentalGroupoids.Topology.Connected.PathConnected

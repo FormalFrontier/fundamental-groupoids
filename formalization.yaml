@@ -493,6 +493,22 @@ alignment:
       module: FundamentalGroupoids/CategoryTheory/SingleObj.lean
     - lean: BasedTopCat.piIsoPi
       module: FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean
+    - lean: TopCat.diskAttachment
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachmentInclusion
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachmentDisk
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachmentDesc
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.continuous_diskAttachment_iff
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachment_existsUnique
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachmentEmptyHomeomorph
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachmentIdentityHomeomorph
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: FundamentalGroup.functor_piComparison_π_fromPath
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
     - lean: FundamentalGroup.functor_piComparison_eq_piMulEquiv
