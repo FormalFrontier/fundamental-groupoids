@@ -11,11 +11,13 @@ public import Mathlib.Data.Setoid.Basic
 public import Mathlib.Topology.Homotopy.Product
 
 /-!
-# Homotopy quotients of indexed products
+# Generalized loops and homotopy quotients of indexed products
 
 `GenLoop.pi` assembles a family of generalized loops into a generalized loop in
-the dependent product. `HomotopyGroup.piComparison` sends a boundary-relative
-homotopy class to its coordinate classes using `HomotopyGroup.mapFun` and
+the dependent product. `GenLoop.piHomeomorph` identifies the compact-open
+space of generalized loops in a product with the product of its coordinate
+loop spaces, with inverse `GenLoop.pi`. `HomotopyGroup.piComparison` sends a
+boundary-relative homotopy class to its coordinate classes using `HomotopyGroup.mapFun` and
 continuous coordinate evaluation. `HomotopyGroup.piEquiv` bundles this comparison
 as an equivalence for every cube-index type. For a nonempty cube index with
 decidable equality, `HomotopyGroup.piMulEquiv` uses the existing coordinate
@@ -24,8 +26,10 @@ homomorphisms and the canonical homotopy-group structures.
 The cube index, family index and coordinate spaces have independent universes.
 The generalized-loop constructor and quotient comparison allow empty or infinite
 indices, without connectedness, separation, local compactness or finiteness
-assumptions. For an empty cube index the boundary is empty, so representatives
-may take any value, not necessarily the supplied point; the quotient describes
+assumptions. The cube is compact Hausdorff for every index type by the interval
+and Pi instances, so local compactness needed for joint evaluation is internal
+to the construction. For an empty cube index the boundary is empty, so
+representatives may take any value, not necessarily the supplied point; the quotient describes
 path components. An empty family gives the terminal product.
 
 These statements generalize May's binary product statement in finite degrees
@@ -103,6 +107,125 @@ private def piCarrierEquiv :
     intro t
     funext i
     rfl
+
+/-- Generalized loops in a dependent product, with the compact-open topology,
+are homeomorphic to the product of the coordinate generalized-loop spaces.
+The inverse is `GenLoop.pi`. The cube and family indices may be empty or infinite. -/
+def piHomeomorph (N : Type s) (p : ∀ i, X i) :
+    GenLoop N (∀ i, X i) p ≃ₜ ∀ i, GenLoop N (X i) (p i) where
+  toEquiv :=
+    { toFun := fun γ i => GenLoop.map (ContinuousMap.eval i) rfl γ
+      invFun := GenLoop.pi
+      left_inv := by
+        exact (piCarrierEquiv (N := N) (p := p)).right_inv
+      right_inv := by
+        exact (piCarrierEquiv (N := N) (p := p)).left_inv }
+  continuous_toFun := continuous_pi fun i =>
+    continuous_map (ContinuousMap.eval i) rfl
+  continuous_invFun := by
+    refine (ContinuousMap.continuous_of_continuous_uncurry
+      (fun γ : ∀ i, GenLoop N (X i) (p i) =>
+        ContinuousMap.pi (fun i => (γ i).val)) ?_).subtype_mk
+      (fun γ => (GenLoop.pi γ).property)
+    apply continuous_pi
+    intro i
+    change Continuous (fun z :
+      (∀ j, GenLoop N (X j) (p j)) × (N → unitInterval) => (z.1 i).val z.2)
+    have hcoord : Continuous (fun γ : ∀ j, GenLoop N (X j) (p j) => (γ i).val) :=
+      continuous_subtype_val.comp (continuous_apply i)
+    exact (hcoord.comp continuous_fst).eval continuous_snd
+
+private theorem piHomeomorph_toEquiv (N : Type s) (p : ∀ i, X i) :
+    (piHomeomorph N p).toEquiv = (piCarrierEquiv (N := N) (p := p)).symm := by
+  rfl
+
+/-- A coordinate of the product homeomorphism is based postcomposition by
+continuous coordinate evaluation. -/
+@[simp]
+theorem piHomeomorph_apply (N : Type s) (p : ∀ i, X i)
+    (γ : GenLoop N (∀ i, X i) p) (i : ι) :
+    piHomeomorph N p γ i = GenLoop.map (ContinuousMap.eval i) rfl γ := by
+  rfl
+
+/-- Evaluate a coordinate loop supplied by the product homeomorphism. -/
+theorem piHomeomorph_apply_apply (N : Type s) (p : ∀ i, X i)
+    (γ : GenLoop N (∀ i, X i) p) (i : ι) (t : N → unitInterval) :
+    piHomeomorph N p γ i t = γ t i := by
+  rfl
+
+/-- The inverse product homeomorphism is the generalized-loop assembler. -/
+@[simp]
+theorem piHomeomorph_symm_apply (N : Type s) (p : ∀ i, X i)
+    (γ : ∀ i, GenLoop N (X i) (p i)) :
+    (piHomeomorph N p).symm γ = GenLoop.pi γ := by
+  rfl
+
+/-- Evaluate the generalized loop assembled by the inverse homeomorphism. -/
+theorem piHomeomorph_symm_apply_apply (N : Type s) (p : ∀ i, X i)
+    (γ : ∀ i, GenLoop N (X i) (p i)) (t : N → unitInterval) (i : ι) :
+    (piHomeomorph N p).symm γ t i = γ i t := by
+  rfl
+
+/-- The product homeomorphism takes the chosen constant loop to the family of
+chosen constant loops. -/
+@[simp]
+theorem piHomeomorph_const (N : Type s) (p : ∀ i, X i) :
+    piHomeomorph N p (GenLoop.const : GenLoop N (∀ i, X i) p) =
+      fun i => (GenLoop.const : GenLoop N (X i) (p i)) := by
+  rfl
+
+/-- The inverse homeomorphism assembles the chosen coordinate constants into
+the chosen constant loop. -/
+theorem piHomeomorph_symm_const (N : Type s) (p : ∀ i, X i) :
+    (piHomeomorph N p).symm (fun i => (GenLoop.const : GenLoop N (X i) (p i))) =
+      (GenLoop.const : GenLoop N (∀ i, X i) p) := by
+  rfl
+
+/-- Forgetting the boundary condition in the forward product homeomorphism
+agrees with coordinate extraction by `ContinuousMap.piEquiv`. -/
+theorem piHomeomorph_apply_val (N : Type s) (p : ∀ i, X i)
+    (γ : GenLoop N (∀ i, X i) p) :
+    (fun i => (piHomeomorph N p γ i).val) =
+      (ContinuousMap.piEquiv (N → unitInterval) X).symm γ.val := by
+  rfl
+
+/-- Forgetting the boundary condition in the inverse product homeomorphism
+agrees with assembly by `ContinuousMap.piEquiv`. -/
+theorem piHomeomorph_symm_apply_val (N : Type s) (p : ∀ i, X i)
+    (γ : ∀ i, GenLoop N (X i) (p i)) :
+    ((piHomeomorph N p).symm γ).val =
+      ContinuousMap.piEquiv (N → unitInterval) X (fun i => (γ i).val) := by
+  rfl
+
+/-- The product homeomorphism commutes with arbitrary based coordinate maps.
+The source and target families may lie in independent universes. -/
+theorem piHomeomorph_naturality (N : Type s) {Y : ι → Type w}
+    [∀ i, TopologicalSpace (Y i)] (f : ∀ i, C(X i, Y i))
+    (p : ∀ i, X i) (q : ∀ i, Y i) (hf : ∀ i, f i (p i) = q i)
+    (γ : GenLoop N (∀ i, X i) p) :
+    piHomeomorph N q
+        (GenLoop.map (ContinuousMap.piMap f) (x := p) (y := q) (funext hf) γ) =
+      fun i => GenLoop.map (f i) (x := p i) (y := q i) (hf i)
+        (piHomeomorph N p γ i) := by
+  funext i
+  apply GenLoop.ext
+  intro t
+  simp only [piHomeomorph_apply_apply, map_apply, ContinuousMap.piMap_apply]
+
+/-- The inverse product homeomorphism commutes with arbitrary based
+coordinate maps. -/
+theorem piHomeomorph_symm_naturality (N : Type s) {Y : ι → Type w}
+    [∀ i, TopologicalSpace (Y i)] (f : ∀ i, C(X i, Y i))
+    (p : ∀ i, X i) (q : ∀ i, Y i) (hf : ∀ i, f i (p i) = q i)
+    (γ : ∀ i, GenLoop N (X i) (p i)) :
+    (piHomeomorph N q).symm
+        (fun i => GenLoop.map (f i) (x := p i) (y := q i) (hf i) (γ i)) =
+      GenLoop.map (ContinuousMap.piMap f) (x := p) (y := q) (funext hf)
+        ((piHomeomorph N p).symm γ) := by
+  apply GenLoop.ext
+  intro t
+  funext i
+  simp only [piHomeomorph_symm_apply_apply, map_apply, ContinuousMap.piMap_apply]
 
 private theorem homotopic_pi_iff (γ δ : ∀ i, GenLoop N (X i) (p i)) :
     Homotopic (pi γ) (pi δ) ↔ ∀ i, Homotopic (γ i) (δ i) := by
@@ -267,6 +390,22 @@ theorem piEquiv_symm_class (N : Type s) (p : ∀ i, X i)
     piEquiv_apply_class N p (GenLoop.pi γ) i
   exact Eq.trans (α := HomotopyGroup N (X i) (p i)) hcoordinate
     (Eq.trans (α := HomotopyGroup N (X i) (p i)) hmap.symm hclass.symm)
+
+/-- The representative comparison `piEquiv_apply_class` agrees with the
+coordinate generalized loops of `GenLoop.piHomeomorph`. -/
+theorem piEquiv_apply_class_piHomeomorph (N : Type s) (p : ∀ i, X i)
+    (γ : GenLoop N (∀ i, X i) p) (i : ι) :
+    piEquiv N p (⟦γ⟧ : HomotopyGroup N (∀ i, X i) p) i =
+      (⟦GenLoop.piHomeomorph N p γ i⟧ : HomotopyGroup N (X i) (p i)) := by
+  exact piEquiv_apply_class N p γ i
+
+/-- The representative assembly law `piEquiv_symm_class` agrees with the
+inverse of `GenLoop.piHomeomorph`. -/
+theorem piEquiv_symm_class_piHomeomorph (N : Type s) (p : ∀ i, X i)
+    (γ : ∀ i, GenLoop N (X i) (p i)) :
+    (piEquiv N p).symm (fun i => (⟦γ i⟧ : HomotopyGroup N (X i) (p i))) =
+      (⟦(GenLoop.piHomeomorph N p).symm γ⟧ : HomotopyGroup N (∀ i, X i) p) := by
+  simpa only [GenLoop.piHomeomorph_symm_apply] using (piEquiv_symm_class N p γ)
 
 /-- The product equivalence commutes with arbitrary based coordinate maps.
 The target spaces may lie in a universe independent of the source spaces. -/

@@ -144,15 +144,21 @@ directions, examples, conventions and credits.
   concatenation along corresponding coordinates, without requiring the two
   group structures to select corresponding axes. This is a cubical transport,
   not a comparison with sphere-domain homotopy classes.
-- **Homotopy quotients of dependent products** ([`HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean),
+- **Generalized loops and homotopy quotients of dependent products** ([`HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean),
   [`FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean)).
   For arbitrary spaces `X i`, points `p i` and cube index `N`,
+  `GenLoop.piHomeomorph N p` is a homeomorphism from generalized loops in the
+  ordinary dependent product to the Pi product of coordinate generalized-loop
+  spaces, using their inherited compact-open topologies. Its inverse is the
+  existing assembler `GenLoop.pi`.
   `HomotopyGroup.piEquiv N p` identifies `HomotopyGroup N (∀ i, X i) p` with
   `∀ i, HomotopyGroup N (X i) (p i)`. Its coordinates are induced by evaluation;
   its inverse assembles loop representatives with `GenLoop.pi`, naturally in
   based coordinate maps. Cube, family and space universes are independent;
-  either index may be empty or infinite, without connectedness, separation,
-  finiteness or decidable-equality assumptions. With `[DecidableEq N] [Nonempty N]`,
+  either index may be empty or infinite, without finiteness or decidable-equality
+  assumptions. No connectedness, separation or local-compactness hypotheses on
+  the spaces are needed; the cube's local compactness is internal to the construction.
+  With `[DecidableEq N] [Nonempty N]`,
   `HomotopyGroup.piMulEquiv N p` is multiplicative for Mathlib's existing group
   structures. Under `pi1MulEquivFundamentalGroup`, the degree-one equivalence
   agrees with the existing `FundamentalGroup.piMulEquiv p`, identifying
