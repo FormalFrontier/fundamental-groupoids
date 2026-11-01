@@ -96,10 +96,16 @@ directions, examples, conventions and credits.
   required. For empty `N`, the cube is a singleton with empty boundary, but the
   added infinity is distinct from its cube point, so the based-map space need
   not be a singleton.
-- **Based generalized-loop lifts** ([`GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean)).
-  A covering map uniquely lifts a based generalized loop to a supplied point when
-  the cube index has at least two elements. The spaces need no connectedness, local
-  path connectedness or separation assumptions, and the covering need not be surjective.
+- **Coverings on compact-open generalized-loop spaces** ([`GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean)).
+  For a covering `p : E → X`, a chosen `e : E` and any index type `N` with at least
+  two elements, `hp.genLoopHomeomorph N e` identifies `GenLoop N E e` with
+  `GenLoop N X (p e)` in their ordinary compact-open/subtype topologies. Its forward
+  map is `GenLoop.map` and its inverse is the unique chosen based lift `hp.liftGenLoop e`.
+  The lift is natural in commuting squares with arbitrary continuous horizontal maps;
+  the forward map agrees with `HomotopyGroup.mapFun` on representative classes.
+  Cube, total and base universes are independent, without finiteness, decidable equality,
+  connectedness, local path connectedness, local compactness, separation or global
+  surjectivity assumptions.
 - **Coverings on positive homotopy groups** ([`Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean)).
   A covering induces an injection on the cubical homotopy quotient for every nonempty
   index type, and a bijection when the index has at least two elements. Neither needs
@@ -627,7 +633,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Closed coordinate-face boundaries for finite indices, zero boundary vertex for nonempty indices and path-connected boundaries for nontrivial indices |
 | [`Topology.Homotopy.Cube.Coordinates`](FundamentalGroupoids/Topology/Homotopy/Cube/Coordinates.lean) | Increasing real-product coordinates on the boundary complement for every index type, with membership and forward/inverse evaluation laws; local compactness theorem for finite indices |
 | [`Topology.Homotopy.GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean) | Finite generalized loops as based maps from the one-point compactification of the cube-boundary complement, with restriction/extension, collapse-precomposition and evaluation laws, including empty indices |
-| [`Topology.Covering.GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean) | Chosen unique based generalized-loop lifts through coverings for nontrivial cube indices, with projection and uniqueness laws |
+| [`Topology.Covering.GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean) | Compact-open homeomorphisms of based generalized-loop spaces through coverings for nontrivial cube indices, with chosen-lift inverse, continuous-square naturality and quotient representative compatibility |
 | [`Topology.Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean) | Canonical quotient-map injectivity for nonempty indices, bijectivity and stock multiplicative equivalences for nontrivial indices, with forward and inverse representative formulas |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition; `HomotopyWith.joined` without local compactness and `nonempty_iff_joined` for locally compact sources, for arbitrary predicates and independent source/target universes |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
