@@ -206,6 +206,38 @@ directions, examples, conventions and credits.
   by the identity function in both directions, compatibly with the counits.
   The probe and both space universes are independent, without separation or
   smallness assumptions. This is not an arbitrary-product formula.
+- **Closed subspaces under refinement** ([`CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean)).
+  Let `κ_u Y` mean `Y` with Mathlib's `compactlyGenerated.{u} Y` topology,
+  with continuous identity `ε_u : κ_u Y → Y`. Closed subsets of a
+  `UCompactlyGeneratedSpace.{u}` space are `u`-compactly generated in their original
+  subtype topology. For any ambient space and closed `s`,
+  `Homeomorph.compactlyGeneratedSubtype` identifies `κ_u s` with the subtype `s`
+  of `κ_u Y` by unchanged functions in both directions. This homeomorphism and
+  preservation of closed embeddings require no ambient compact generation or
+  separation. The forward comparison and restricted counit exist for every subset;
+  no such inheritance or homeomorphism is asserted for arbitrary subspaces,
+  nor preservation of arbitrary embeddings.
+- **Fixed-evaluation fibers under refinement** ([`Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean)).
+  For arbitrary spaces `A`, `X` and points `a : A`, `x : X`, assume only
+  `IsClosed ({x} : Set X)`. Give `M = C(A, X)` its original compact-open topology,
+  `P = {F : M // F a = x}` its original subtype topology, and
+  `Q = {F : κ_u M // (ε_u F) a = x}` the subtype topology inside `κ_u M`.
+  `Homeomorph.compactlyGeneratedEvalFiber` gives `κ_u P ≃ₜ Q`, with unchanged
+  evaluations in both directions and counit laws. It is separately natural under
+  `f : C(A', A)` with `f a' = a` and `g : C(X, Y)` with `g x = y`.
+  The second homeomorphism for postcomposition needs `{y}` closed; these maps do not.
+  Probe and all space universes are independent. No compact generation, local
+  compactness, separation, countability or smallness of the spaces is required.
+  This refines the function space, not the codomain as in `C(A, κ_u X)`;
+  it asserts no `P ≃ₜ Q`, exponential law, joint composition continuity or
+  arbitrary-product closure.
+- **Path components under refinement** ([`Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean)).
+  `ZerothHomotopy.bijective_map_compactlyGeneratedCounit` gives a bijection on
+  path components for every topological space. Its subtype and fixed-evaluation-fiber
+  versions hold for every subset and every pole, even a nonclosed one, without
+  compact-generation or separation assumptions. Interval paths lift with unchanged
+  functions; this does not assert homeomorphisms or compact generation of arbitrary
+  subspaces.
 - **Relative homotopies under refinement** ([`Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean)).
   From any `UCompactlyGeneratedSpace.{u}` source, a supplied relative homotopy
   lifts to the CompHaus-test refinement of its target with its entire joint
@@ -557,8 +589,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
 | [`Topology.Homotopy.HomotopyGroup.Action`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean) | Fundamental-group actions on all homotopy quotients, preservation of the given positive group structure, strict boundary characterization, based-map equivariance, empty free components and degree-one conjugation |
-| [`Topology.Compactness.CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean) | Source-test continuity, unchanged-function lifts, locally compact product closure and the identity product-refinement homeomorphism |
-| [`Topology.Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean) | Joint relative-homotopy lifts with arbitrary fixed subsets, counit inverse laws, target naturality and homotopy-existence comparison |
+| [`Topology.Compactness.CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean) | Source-test continuity, unchanged-function lifts, locally compact product closure and the identity product-refinement homeomorphism; closed-subtype compact generation and refinement homeomorphisms, and preservation of closed embeddings |
+| [`Topology.Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean) | Joint relative-homotopy lifts with arbitrary fixed subsets, counit inverse laws, target naturality and homotopy-existence comparison; fixed-evaluation-fiber refinement homeomorphisms and based naturality; counit bijectivity on path components for arbitrary spaces, subtypes and fixed-evaluation fibers |
 | [`Topology.Homotopy.HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean) | Natural equivalences for CompHaus-test topology comparisons on all cubical homotopy quotients, with existing-map and positive multiplicative characteristics |
 | [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Boundary-relative homotopy iff joinedness; raw quotient/component equivalence with identity representative and constant laws, based-postcomposition naturality and empty-index compatibility |
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
@@ -647,9 +679,11 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 
 Authors: Formal Frontier Agents. AI agents contributed Lean formalization,
 examples and documentation. May supplies mathematical motivation and arguments;
-Mathlib supplies underlying constructions and APIs. Covering formalizations
-originate in sphere-topology by Formal Frontier Agents, with retained Apache-2.0
-and authorship notices. The signed-period and complex-circle coordinate core also
+Mathlib supplies underlying constructions and APIs. Its compactly generated topology
+and source-test continuity API are due to Dagur Asgeirsson and Etienne Marion.
+Covering formalizations originate in sphere-topology by Formal Frontier Agents,
+with retained Apache-2.0 and authorship notices. The signed-period and complex-circle
+coordinate core also
 originates in its [circle formalization](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/Circle.lean),
 using Mathlib's quotient coverings and induced homeomorphism equivalence.
 The generalized-loop and homotopy-group map API originates in Restricted Product

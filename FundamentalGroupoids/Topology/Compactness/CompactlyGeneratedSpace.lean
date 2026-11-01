@@ -9,7 +9,7 @@ public import Mathlib.Topology.CompactOpen
 public import Mathlib.Topology.Homeomorph.Lemmas
 
 /-!
-# Maps and products for the compactly generated topology
+# Maps, closed subspaces and products for the compactly generated topology
 
 Mathlib's `TopologicalSpace.compactlyGenerated.{u} X` is a topology on the same
 carrier `X`, tested by continuous maps from `CompHaus.{u}`. The continuous
@@ -23,6 +23,15 @@ its two composition identities characterize the lift. The probe, source and
 target universes are independent. `ContinuousMap.compactlyGeneratedMap` refines
 both topologies of a continuous map without changing its function, compatibly
 with identity, composition and the outward comparisons.
+
+Closed subspaces of a `UCompactlyGeneratedSpace.{u}` space are
+`u`-compactly generated in their original subtype topology. For any subset,
+`ContinuousMap.compactlyGeneratedSubtypeComparison` maps the refinement of the
+subtype to the subtype of the refined ambient space, and
+`ContinuousMap.compactlyGeneratedSubtypeCounit` restricts the outward comparison.
+For a closed subset these give `Homeomorph.compactlyGeneratedSubtype`, whose
+underlying functions are identities. Consequently, refinement preserves closed
+embeddings. No corresponding claim is made for arbitrary subspaces or embeddings.
 
 For a locally compact `UCompactlyGeneratedSpace.{u}` factor `P`,
 `Homeomorph.compactlyGeneratedProd` compares the compactly generated topology on
@@ -200,6 +209,266 @@ instance instUCompactlyGeneratedSpaceCompactlyGenerated
   have hE : UCompactlyGeneratedSpace.{u} E := inferInstance
   exact @uCompactlyGeneratedSpace_of_coinduced E A inferInstance
     (compactlyGenerated.{u} A) hE q continuous_coinduced_rng rfl
+
+/-- A closed subspace of a `u`-compactly generated space is `u`-compactly
+generated in its original subtype topology. The ambient universe is independent
+of the compact Hausdorff probe universe. -/
+theorem IsClosed.uCompactlyGeneratedSpace {Y : Type v} [TopologicalSpace Y]
+    [UCompactlyGeneratedSpace.{u} Y] {s : Set Y} (hs : IsClosed s) :
+    UCompactlyGeneratedSpace.{u} s := by
+  refine uCompactlyGeneratedSpace_of_isClosed.{u} fun A hA ↦ ?_
+  have hImage : IsClosed (Subtype.val '' A : Set Y) := by
+    apply UCompactlyGeneratedSpace.isClosed.{u}
+    intro T g
+    -- The pullback is a compact Hausdorff space in the same probe universe.
+    let D : Set T := g ⁻¹' s
+    have hD : IsClosed D := hs.preimage g.continuous
+    let : CompactSpace D := hD.isClosedEmbedding_subtypeVal.compactSpace
+    let q : C(D, s) :=
+      ⟨fun d ↦ ⟨g d.val, d.property⟩,
+        (g.continuous.comp continuous_subtype_val).subtype_mk (fun d ↦ d.property)⟩
+    have hq : IsClosed (q ⁻¹' A) := hA (CompHaus.of D) q
+    have heq : (Subtype.val : D → T) '' (q ⁻¹' A) =
+        g ⁻¹' (Subtype.val '' A) := by
+      ext t
+      constructor
+      · rintro ⟨d, hd, rfl⟩
+        exact ⟨q d, hd, rfl⟩
+      · rintro ⟨a, ha, hat⟩
+        have hd : g t ∈ s := by
+          rw [← hat]
+          exact a.property
+        let d : D := ⟨t, hd⟩
+        have hqd : q d = a := Subtype.ext hat.symm
+        refine ⟨d, ?_, rfl⟩
+        change q d ∈ A
+        rw [hqd]
+        exact ha
+    rw [← heq]
+    exact hD.isClosedMap_subtype_val _ hq
+  simpa only [Set.preimage_image_eq A Subtype.val_injective] using
+    hImage.preimage (continuous_subtype_val : Continuous (Subtype.val : s → Y))
+
+namespace ContinuousMap
+
+section Subtype
+
+variable {Y : Type v} [tY : TopologicalSpace Y] (s : Set Y)
+
+local notation "tS" => (@instTopologicalSpaceSubtype Y s tY)
+
+/-- The identity from the refinement of a subtype to the subtype of the refined
+ambient space. This direction is continuous for every subset. -/
+def compactlyGeneratedSubtypeComparison :
+    @ContinuousMap s s (@compactlyGenerated.{u} s tS)
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) := by
+  let f : @ContinuousMap s Y (@compactlyGenerated.{u} s tS)
+      (@compactlyGenerated.{u} Y tY) :=
+    compactlyGeneratedMap.{u} (ContinuousMap.subtypeVal s)
+  exact @ContinuousMap.mk s s (@compactlyGenerated.{u} s tS)
+    (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+    (fun p ↦ ⟨p.val, p.property⟩)
+    (@Continuous.subtype_mk Y s (@compactlyGenerated.{u} Y tY)
+      (@compactlyGenerated.{u} s tS) s (fun p ↦ p.val)
+      (@ContinuousMap.continuous_toFun s Y (@compactlyGenerated.{u} s tS)
+        (@compactlyGenerated.{u} Y tY) f)
+      (fun p ↦ p.property))
+
+/-- The forward subtype comparison leaves each point unchanged. -/
+@[simp]
+theorem compactlyGeneratedSubtypeComparison_apply (p : s) :
+    (@ContinuousMap.toFun s s (@compactlyGenerated.{u} s tS)
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+      (compactlyGeneratedSubtypeComparison.{u} s)) p = p :=
+  rfl
+
+/-- Restrict the outward comparison to a subtype, with the original subtype
+topology as codomain. No closedness assumption is needed. -/
+def compactlyGeneratedSubtypeCounit :
+    @ContinuousMap s s
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) tS := by
+  let f : @ContinuousMap s Y
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) tY :=
+    @ContinuousMap.comp s Y Y
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+      (@compactlyGenerated.{u} Y tY) tY
+      (compactlyGeneratedCounit.{u} Y)
+      (@ContinuousMap.subtypeVal Y (@compactlyGenerated.{u} Y tY) s)
+  exact @ContinuousMap.mk s s
+    (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) tS
+    (fun p ↦ ⟨p.val, p.property⟩)
+    (@Continuous.subtype_mk Y s tY
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+      s (fun p ↦ p.val)
+      (@ContinuousMap.continuous_toFun s Y
+        (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) tY f)
+      (fun p ↦ p.property))
+
+/-- The restricted outward comparison leaves each point unchanged. -/
+@[simp]
+theorem compactlyGeneratedSubtypeCounit_apply (p : s) :
+    (@ContinuousMap.toFun s s
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) tS
+      (compactlyGeneratedSubtypeCounit.{u} s)) p = p :=
+  rfl
+
+/-- The forward subtype comparison followed by the restricted outward
+comparison is the outward comparison of the original subtype. -/
+@[simp]
+theorem compactlyGeneratedSubtypeCounit_comp_comparison :
+    @ContinuousMap.comp s s s (@compactlyGenerated.{u} s tS)
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) tS
+      (compactlyGeneratedSubtypeCounit.{u} s)
+      (compactlyGeneratedSubtypeComparison.{u} s) =
+        @compactlyGeneratedCounit.{u} s tS := by
+  refine @ContinuousMap.ext s s (@compactlyGenerated.{u} s tS) tS _ _ ?_
+  intro p
+  rfl
+
+end Subtype
+
+end ContinuousMap
+
+namespace Homeomorph
+
+section Subtype
+
+variable {Y : Type v} [tY : TopologicalSpace Y] (s : Set Y) (hs : IsClosed s)
+
+local notation "tS" => (@instTopologicalSpaceSubtype Y s tY)
+
+/-- Refining the topology commutes with taking a closed subtype. Both functions
+are identities, with no compact-generation or separation assumption on the
+ambient space. -/
+def compactlyGeneratedSubtype :
+    @Homeomorph s s (@compactlyGenerated.{u} s tS)
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) := by
+  have hsκ : @IsClosed Y (@compactlyGenerated.{u} Y tY) s :=
+    @IsClosed.preimage Y Y (@compactlyGenerated.{u} Y tY) tY (_root_.id : Y → Y)
+      (@ContinuousMap.continuous_toFun Y Y (@compactlyGenerated.{u} Y tY) tY
+        (ContinuousMap.compactlyGeneratedCounit.{u} Y)) s hs
+  -- The refined ambient space is compactly generated, as is this closed subtype.
+  -- Lift its restricted counit to obtain the inverse continuous map.
+  let backward : @ContinuousMap s s
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+      (@compactlyGenerated.{u} s tS) :=
+    @ContinuousMap.toCompactlyGenerated.{u} s s
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) tS
+      (@IsClosed.uCompactlyGeneratedSpace.{u} Y (@compactlyGenerated.{u} Y tY)
+        (@instUCompactlyGeneratedSpaceCompactlyGenerated.{u} Y tY) s hsκ)
+      (ContinuousMap.compactlyGeneratedSubtypeCounit.{u} s)
+  exact @Homeomorph.mk s s (@compactlyGenerated.{u} s tS)
+    (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+    (Equiv.refl s)
+    (@ContinuousMap.continuous_toFun s s (@compactlyGenerated.{u} s tS)
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+      (ContinuousMap.compactlyGeneratedSubtypeComparison.{u} s))
+    (@ContinuousMap.continuous_toFun s s
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+      (@compactlyGenerated.{u} s tS) backward)
+
+/-- The closed-subtype homeomorphism leaves points unchanged. -/
+@[simp]
+theorem compactlyGeneratedSubtype_apply (p : s) :
+    compactlyGeneratedSubtype.{u} s hs p = p :=
+  rfl
+
+/-- The inverse closed-subtype homeomorphism leaves points unchanged. -/
+@[simp]
+theorem compactlyGeneratedSubtype_symm_apply (p : s) :
+    (@Homeomorph.symm s s (@compactlyGenerated.{u} s tS)
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+      (compactlyGeneratedSubtype.{u} s hs)) p = p :=
+  rfl
+
+/-- The continuous map underlying the closed-subtype homeomorphism is the
+forward subtype comparison, which is defined without closedness. -/
+@[simp]
+theorem compactlyGeneratedSubtype_toContinuousMap :
+    (@_root_.toContinuousMap
+      (@Homeomorph s s (@compactlyGenerated.{u} s tS)
+        (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)))
+      s s (@compactlyGenerated.{u} s tS)
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+      inferInstance inferInstance (compactlyGeneratedSubtype.{u} s hs)) =
+        ContinuousMap.compactlyGeneratedSubtypeComparison.{u} s := by
+  refine @ContinuousMap.ext s s (@compactlyGenerated.{u} s tS)
+    (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) _ _ ?_
+  intro p
+  rfl
+
+/-- The closed-subtype homeomorphism commutes with the outward comparisons. -/
+theorem compactlyGeneratedSubtype_counit :
+    @ContinuousMap.comp s s s (@compactlyGenerated.{u} s tS)
+      (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)) tS
+      (ContinuousMap.compactlyGeneratedSubtypeCounit.{u} s)
+      (@_root_.toContinuousMap
+        (@Homeomorph s s (@compactlyGenerated.{u} s tS)
+          (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY)))
+        s s (@compactlyGenerated.{u} s tS)
+        (@instTopologicalSpaceSubtype Y s (@compactlyGenerated.{u} Y tY))
+        inferInstance inferInstance (compactlyGeneratedSubtype.{u} s hs)) =
+          @ContinuousMap.compactlyGeneratedCounit.{u} s tS := by
+  rw [compactlyGeneratedSubtype_toContinuousMap]
+  exact ContinuousMap.compactlyGeneratedSubtypeCounit_comp_comparison.{u} s
+
+end Subtype
+
+end Homeomorph
+
+/-- A closed embedding remains a closed embedding after refining both topologies
+by compact Hausdorff probes in universe `u`. -/
+theorem Topology.IsClosedEmbedding.compactlyGenerated
+    {Y : Type v} {Z : Type w} [tY : TopologicalSpace Y] [tZ : TopologicalSpace Z]
+    {f : Y → Z} (hf : Topology.IsClosedEmbedding f) :
+    @Topology.IsClosedEmbedding Y Z (@TopologicalSpace.compactlyGenerated.{u} Y tY)
+      (@TopologicalSpace.compactlyGenerated.{u} Z tZ) f := by
+  let e : Y ≃ₜ Set.range f := hf.isEmbedding.toHomeomorph
+  let forward := @ContinuousMap.compactlyGeneratedMap.{u} Y (Set.range f) tY
+    (@instTopologicalSpaceSubtype Z (Set.range f) tZ) ⟨e, e.continuous⟩
+  let backward := @ContinuousMap.compactlyGeneratedMap.{u} (Set.range f) Y
+    (@instTopologicalSpaceSubtype Z (Set.range f) tZ) tY ⟨e.symm, e.symm.continuous⟩
+  let eκ : @Homeomorph Y (Set.range f) (@TopologicalSpace.compactlyGenerated.{u} Y tY)
+      (@TopologicalSpace.compactlyGenerated.{u} (Set.range f)
+        (@instTopologicalSpaceSubtype Z (Set.range f) tZ)) :=
+    @Homeomorph.mk Y (Set.range f) (@TopologicalSpace.compactlyGenerated.{u} Y tY)
+      (@TopologicalSpace.compactlyGenerated.{u} (Set.range f)
+        (@instTopologicalSpaceSubtype Z (Set.range f) tZ)) e.toEquiv
+      (@ContinuousMap.continuous_toFun Y (Set.range f)
+        (@TopologicalSpace.compactlyGenerated.{u} Y tY)
+        (@TopologicalSpace.compactlyGenerated.{u} (Set.range f)
+          (@instTopologicalSpaceSubtype Z (Set.range f) tZ)) forward)
+      (@ContinuousMap.continuous_toFun (Set.range f) Y
+        (@TopologicalSpace.compactlyGenerated.{u} (Set.range f)
+          (@instTopologicalSpaceSubtype Z (Set.range f) tZ))
+        (@TopologicalSpace.compactlyGenerated.{u} Y tY) backward)
+  let e' : @Homeomorph Y (Set.range f) (@TopologicalSpace.compactlyGenerated.{u} Y tY)
+      (@instTopologicalSpaceSubtype Z (Set.range f)
+        (@TopologicalSpace.compactlyGenerated.{u} Z tZ)) :=
+    @Homeomorph.trans Y (Set.range f) (Set.range f)
+      (@TopologicalSpace.compactlyGenerated.{u} Y tY)
+      (@TopologicalSpace.compactlyGenerated.{u} (Set.range f)
+        (@instTopologicalSpaceSubtype Z (Set.range f) tZ))
+      (@instTopologicalSpaceSubtype Z (Set.range f)
+        (@TopologicalSpace.compactlyGenerated.{u} Z tZ))
+      eκ (Homeomorph.compactlyGeneratedSubtype.{u} (Set.range f) hf.isClosed_range)
+  have hRange : @IsClosed Z (@TopologicalSpace.compactlyGenerated.{u} Z tZ)
+      (Set.range f) :=
+    @IsClosed.preimage Z Z (@TopologicalSpace.compactlyGenerated.{u} Z tZ) tZ
+      (_root_.id : Z → Z)
+      (@ContinuousMap.continuous_toFun Z Z
+        (@TopologicalSpace.compactlyGenerated.{u} Z tZ) tZ
+        (ContinuousMap.compactlyGeneratedCounit.{u} Z)) (Set.range f) hf.isClosed_range
+  let : TopologicalSpace Y := @TopologicalSpace.compactlyGenerated.{u} Y tY
+  let : TopologicalSpace Z := @TopologicalSpace.compactlyGenerated.{u} Z tZ
+  have he' : Topology.IsClosedEmbedding (fun y : Y ↦ e' y) := e'.isClosedEmbedding
+  have hval : Topology.IsClosedEmbedding (Subtype.val : Set.range f → Z) :=
+    hRange.isClosedEmbedding_subtypeVal
+  have hcomp := hval.comp he'
+  have hfun : (Subtype.val : Set.range f → Z) ∘ e' = f := by
+    funext y
+    rfl
+  exact hfun ▸ hcomp
 
 private theorem isQuotientMap_compHausEval (B : Type v) [TopologicalSpace B]
     [UCompactlyGeneratedSpace.{u} B] :
