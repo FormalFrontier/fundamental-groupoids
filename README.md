@@ -152,6 +152,20 @@ gives detailed statements, API directions, examples, conventions and credits.
   under Mathlib's multiplicative comparison. Cube and space universes are
   independent, with no separation, connectedness or finiteness assumptions.
   The module uses Mathlib alone.
+- **CompHaus-test topology comparisons** ([`HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean)).
+  Refining the target topology to Mathlib's `compactlyGenerated.{u} X` leaves
+  every boundary-relative cubical homotopy quotient canonically equivalent to
+  the original-topology quotient. The forward function is the existing
+  `HomotopyGroup.mapFun`; for nonempty indices with decidable equality the
+  comparison is multiplicative for the existing group structures, naturally
+  in based maps. Probe, cube-index and target universes are independent, with
+  no target separation or compact-generation hypothesis. Empty indices retain
+  all path components; for infinite indices both quotients are subsingletons.
+  This compares two topologies in the same cubical model, not sphere-domain
+  classes or May's weak-Hausdorff category. The
+  [continuous-map API](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean)
+  lifts unchanged functions from any `UCompactlyGeneratedSpace.{u}` source,
+  with evaluation, inverse-composition and refinement-naturality laws.
 - **Generalized-loop components** ([`HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean)).
   `HomotopyGroup.equivZerothHomotopy N x` identifies the raw quotient
   `HomotopyGroup N X x` with `ZerothHomotopy (GenLoop N X x)` by the identity
@@ -450,6 +464,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
+| [`Topology.Compactness.CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean) | Source-test continuity iff, unchanged-function lifts, refined maps and their characteristic composition laws |
+| [`Topology.Homotopy.HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean) | Natural equivalences for CompHaus-test topology comparisons on all cubical homotopy quotients, with existing-map and positive multiplicative characteristics |
 | [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Boundary-relative homotopy iff joinedness; raw quotient/component equivalence with identity representative and constant laws, based-postcomposition naturality and empty-index compatibility |
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
 | [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Zero boundary vertex for nonempty indices and path-connected coordinate-face boundaries for nontrivial indices |

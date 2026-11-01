@@ -37,6 +37,11 @@ project:
     identity, composition and based-postcomposition laws in independent universes.
     For nonempty indices with decidable equality, the same maps are multiplicative
     for the existing group structures, without requiring corresponding selected axes.
+    The continuous identity from Mathlib's CompHaus-test topology to the original
+    target topology induces a natural equivalence on every cubical homotopy
+    quotient, multiplicative for nonempty indices with decidable equality.
+    Probe, cube-index and target universes are independent. Unchanged functions
+    lift continuously from every universe-parameterized compactly generated source.
     Coverings induce canonical quotient-map injections for nonempty cube indices
     and bijections for nontrivial indices, without decidable equality.
     For nontrivial indices with decidable equality,
@@ -80,6 +85,7 @@ sources:
     location: >-
       Revised author PDF, Chapter 1 §§3, 5, 7 and Chapter 2 §§4–5, 7–8.
       Chapter 3 §§2–4, 7 for covering-space monodromy, lifting and maps of covers.
+      Chapter 5 §§1–2, printed pp. 39–41, for compact-Hausdorff tests and kification.
       Chapter 9 §§1, 4, printed pp. 65–67, for based homotopy groups and the
       classical finite-degree covering isomorphism.
     relationship: adapts
@@ -114,6 +120,11 @@ sources:
       at least two to the classical result on printed p. 66. Arbitrary index
       types give a derived cubical, coordinate-face-boundary-relative extension,
       without a comparison with sphere-domain or U-topology homotopy groups.
+      The topology comparison uses Mathlib's CompHaus-test construction without
+      a target separation hypothesis. May's compactly generated spaces include
+      weak Hausdorffness; no identification with that category is asserted.
+      All-index cubical comparisons extend the finite-degree motivation, without
+      a sphere-domain comparison or a product formula for kification.
       No open redistribution license is inferred for
       the author-hosted PDF, and no book excerpts or PDF assets are included.
 related_formalizations:
@@ -262,6 +273,19 @@ status:
     on the existing quotient by Joined for arbitrary continuous maps, with
     representative, pointwise identity/composition and homotopy-invariance laws.
     Space universes are independent, with no separation or connectedness assumptions.
+    For an arbitrary topological space X and chosen x, the continuous identity
+    from compactlyGenerated.{u} X to the original topology gives
+    HomotopyGroup.compactlyGeneratedEquiv for every cube-index type N.
+    Its forward function is the existing mapFun, and with DecidableEq N and
+    Nonempty N the same map is a multiplicative equivalence for the existing
+    groups. Both comparisons are natural in based continuous maps. Probe,
+    cube-index and target universes are independent, with no target separation
+    or compact-generation assumption. Finite raw cubes and joint cylinders use
+    source compact-generation; infinite quotients use the existing subsingleton
+    theorem. Empty-index quotients retain all path components. The supporting
+    continuity iff and unchanged-function lift apply to any
+    UCompactlyGeneratedSpace.{u} source. Neither a sphere-domain comparison nor
+    May's weak-Hausdorff category or a k-product formula is supplied.
     For an arbitrary topological domain A and a real module E with AddCommGroup E,
     Module ℝ E, TopologicalSpace E, ContinuousAdd E and ContinuousSMul ℝ E,
     ContinuousMap.HomotopyRel.affine f g hfg constructs an affine homotopy fixed
