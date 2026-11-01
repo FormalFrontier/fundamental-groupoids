@@ -251,6 +251,16 @@ directions, examples, conventions and credits.
   kification, `U`-category or finite iterated-loop comparison is asserted.
   Boundaries mean coordinate faces; for infinite indices these are not interpreted
   as ambient frontiers or infinite-dimensional spheres.
+- **Fundamental-group actions on generalized homotopy quotients** ([`HomotopyGroup.Action`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean)).
+  The existing fundamental group acts on every generalized homotopy quotient by
+  path-induced change of basepoint. Its reversed traversal product makes this a
+  left action. Representatives are related exactly by homotopies whose whole
+  cube boundary follows the chosen loop. Based maps are equivariant for their
+  induced fundamental-group maps. With the given nonempty index and decidable
+  equality, the same action preserves the existing group multiplication. Empty
+  indices fix every free path component; in degree one the native comparison
+  gives conjugation `g * a * g⁻¹`. Target and index universes are independent,
+  and no separation or local-connectivity hypothesis is required.
 - **Point-local loop rigidity and totally disconnected targets** ([`HomotopyGroup.Discrete`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Discrete.lean)).
   At any chosen point with a subsingleton path component, every generalized loop
   indexed by a nonempty type equals the constant loop, so its boundary-relative
@@ -485,6 +495,13 @@ These declarations keep the names from
 Co-importing the libraries requires a Restricted Product Duality version whose
 `HomotopyMaps` module publicly imports this module rather than defining its own copies.
 
+For the fundamental-group action, import
+`FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Action`. The explicit value
+`HomotopyGroup.fundamentalGroupMulAction N x` supplies scalar notation locally
+for any index type. Under the given `[DecidableEq N] [Nonempty N]`, use
+`HomotopyGroup.fundamentalGroupMulDistribMulAction N x` for the same action with
+its multiplication-preservation laws. No global action instances are added.
+
 For real vector spaces, import
 `FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Affine` and use
 `GenLoop.homotopic_const` or `HomotopyGroup.subsingleton N x`.
@@ -534,6 +551,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
+| [`Topology.Homotopy.HomotopyGroup.Action`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean) | Fundamental-group actions on all homotopy quotients, preservation of the given positive group structure, strict boundary characterization, based-map equivariance, empty free components and degree-one conjugation |
 | [`Topology.Compactness.CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean) | Source-test continuity, unchanged-function lifts, locally compact product closure and the identity product-refinement homeomorphism |
 | [`Topology.Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean) | Joint relative-homotopy lifts with arbitrary fixed subsets, counit inverse laws, target naturality and homotopy-existence comparison |
 | [`Topology.Homotopy.HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean) | Natural equivalences for CompHaus-test topology comparisons on all cubical homotopy quotients, with existing-map and positive multiplicative characteristics |

@@ -571,6 +571,34 @@ alignment:
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
     - lean: GenLoop.map_homotopic
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: HomotopyGroup.fundamentalGroupEndHom
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroupEndHom_fromPath
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroupMulAction
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroup_smul_def
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroup_fromPath_smul
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroupMulDistribMulAction
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroupMulDistribMulAction_toMulAction
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroup_fromPath_smul_mk
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroup_fromPath_smul_mk_eq_iff
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.mapFun_fundamentalGroup_smul
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.map_fundamentalGroup_smul
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.homotopyGroupEquivZerothHomotopyOfIsEmpty_fundamentalGroup_smul
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.fundamentalGroup_smul_eq_of_isEmpty
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
+    - lean: HomotopyGroup.pi1MulEquivFundamentalGroup_fundamentalGroup_smul
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Action.lean
     - lean: HomotopyGroup.mapFun
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
     - lean: HomotopyGroup.mapFun_eq_of_homotopyRel
