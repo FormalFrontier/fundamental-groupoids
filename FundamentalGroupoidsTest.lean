@@ -36,3 +36,4 @@ import FundamentalGroupoidsTest.Topology.Covering.Morphisms
 import FundamentalGroupoidsTest.Topology.Covering.Proper
 import FundamentalGroupoidsTest.Topology.Covering.Pullback
 import FundamentalGroupoidsTest.Topology.Homotopy.CubeBoundary
+import FundamentalGroupoidsTest.Topology.Homotopy.FiberHomeomorph

@@ -139,6 +139,7 @@ directions, examples, conventions and credits.
 - **Ordinary compact-open paths and homotopy fibers** ([`RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean),
   [`Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean),
   [`Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean),
+  [`Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean),
   [`RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean)).
   `ContinuousMap.RelativePathSpace b A` consists of paths from an arbitrary `b`
   to any point of `A`; the paths need not stay in `A`, and `b` need not lie in `A`.
@@ -148,7 +149,14 @@ directions, examples, conventions and credits.
   embedding, forgetting `e` identifies it with paths ending in `Set.range f`;
   for the original subspace inclusion, the endpoint lies in `A` itself.
   Maps act on both point and path, with identity, composition, constant and
-  naturality laws. A constant fiber point needs a specified `e` with `f e = b`;
+  naturality laws. A commuting square of source and target homeomorphisms
+  induces `HomotopyFiber.homeomorph eX eY w hy` at specified points satisfying
+  `hy : eY y = y'`. Its inverse uses the inverse coordinate homeomorphisms;
+  its forward map sends the retained point through `eX` and postcomposes the
+  whole path by `eY`, with identity, composition and projection laws.
+  All four space universes are independent, without embedding, separation or
+  nonemptiness assumptions.
+  A constant fiber point needs a specified `e` with `f e = b`;
   being outside the image does not force the homotopy fiber to be empty.
   For a constant map with value `c`, `HomotopyFiber.constHomeomorph E b c`
   identifies its fiber with `E × Path b c`, retaining the point and every path
@@ -759,6 +767,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean) | Ordinary compact-open paths from an arbitrary point to a subspace, with constructor, extensionality, evaluation, endpoint and functorial postcomposition APIs |
 | [`Topology.Homotopy.Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean) | Retained-point ordinary homotopy fibers, maps of continuous squares, pullback and embedding/subspace homeomorphisms, with projection, evaluation, constant and naturality laws |
 | [`Topology.Homotopy.Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean) | Constant-map fibers as source times fixed-endpoint Path, with coordinate laws, source naturality and a nonemptiness criterion |
+| [`Topology.Homotopy.Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean) | Homeomorphisms induced by invertible coordinate squares, with forward/inverse point and full-path laws, identity, composition and projection compatibility |
 | [`Topology.Homotopy.RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean) | Explicit time-shortening homotopy relative to the constant path, characteristic evaluation and moving-endpoint laws, and contractibility of fixed-start/free-endpoint paths |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
@@ -902,7 +911,9 @@ with his kified category. The fiber comparisons reuse Mathlib's whole
 `TopCat.pullbackHomeoPreimage`, including its inverse continuity, by Patrick Massot,
 Kim Morrison, Mario Carneiro and Andrew Yang. The constant-map product splitting
 uses Patrick Massot's `Path` topology and Mathlib's product and induced-topology
-continuity APIs. Subspace flattening uses
+continuity APIs. The coordinate-square homeomorphism is elementary invariance
+of the same fiber, using its map functoriality and Mathlib's coordinate
+homeomorphism cancellation. Subspace flattening uses
 `Equiv.subtypeSubtypeEquivSubtypeInter` from the equivalence API by Leonardo de Moura
 and Mario Carneiro, with Mathlib's subtype continuity. Evaluation and currying
 use Reid Barton's compact-open API; relative homotopies use Shing Tak Lam's API,

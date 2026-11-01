@@ -101,6 +101,9 @@ project:
     disks gives a subspace that strongly deformation retracts onto the original
     space image, for arbitrary unbased circle maps and independent space and
     disk-index universes, without connectivity or separation assumptions.
+    Commuting squares of source and target homeomorphisms induce homeomorphisms
+    of ordinary compact-open homotopy fibers at corresponding specified points,
+    with point, full-path, inverse, identity, composition and projection laws.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -290,6 +293,14 @@ status:
     finite-stage colimit step in May, Chapter 2, §7, printed p. 19 (PDF p. 27).
     No arbitrary-cover based-group theorem, wedge calculation or
     covering-space classification is asserted.
+    For continuous f and g in a commuting square with coordinate homeomorphisms
+    eX and eY, HomotopyFiber.homeomorph eX eY w hy compares the ordinary
+    product/subspace fibers over any y and y' with hy : eY y = y'. The forward
+    function maps the retained point by eX and postcomposes the whole compact-open
+    path by eY; the inverse uses their inverses. All four space universes and
+    topologies are independent, without embedding, separation, compact-generation
+    or nonemptiness hypotheses. The identity, inverse, composition and
+    point-projection laws use the existing homotopy-fiber map API.
     The fundamental-group functor on based spaces preserves every existing
     indexed product, including the empty product, without index-smallness or
     connectedness. Space and index universes are independent. The stock product
@@ -523,6 +534,14 @@ alignment:
     supporting topology built on Mathlib and GroupTheory's compact-covering
     precomposition embedding API.
   statements:
+    - lean: ContinuousMap.HomotopyFiber.homeomorph
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
+    - lean: ContinuousMap.HomotopyFiber.homeomorph_symm
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
+    - lean: ContinuousMap.HomotopyFiber.homeomorph_refl
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
+    - lean: ContinuousMap.HomotopyFiber.homeomorph_trans
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
     - lean: CategoryTheory.Iso.conj_eq_iff_mem_center
       module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
     - lean: CategoryTheory.Iso.forall_conj_eq_iff_isMulCommutative
