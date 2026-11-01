@@ -346,6 +346,14 @@ directions, examples, conventions and credits.
   point. Cube and target universes are independent; empty and infinite indices
   are allowed. No separation, norm, completeness or positive-degree group
   structure is required.
+- **Radial deformation of punctured closed balls** ([`Homotopy.Radial`](FundamentalGroupoids/Topology/Homotopy/Radial.lean)).
+  For every real normed space and positive radius, radial projection retracts
+  the closed ball with its centre removed onto its metric sphere. The scalar
+  interpolation from the identity to inclusion after projection is a
+  `ContinuousMap.HomotopyRel` fixing every boundary point. The projection and
+  inclusion give a `ContinuousMap.HomotopyEquiv`, with evaluation, endpoint,
+  boundary-fixing and retraction laws. No nontriviality, completeness or dimension
+  assumption is required; empty punctured balls and spheres are allowed.
 - **Homotopy-retraction splittings** ([`retractionOfHomotopy`](FundamentalGroupoids/FundamentalGroup.lean)).
   For `g : C(X, Y)`, `f : C(Y, X)` and a homotopy from `f.comp g` to `id X`,
   transport along its track at `x` gives an explicit left inverse of
@@ -644,9 +652,10 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
+| [`CategoryTheory.Groupoid.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Groupoid/ConnectedComponents.lean) | Equality of component classes in any groupoid iff a morphism exists, with independent object and morphism universes |
 | [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy; pretransitivity for preconnected total groupoids and total preconnectedness from pretransitivity over a preconnected groupoid base |
 | [`CategoryTheory.Groupoid.Elements`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean) | Fiber-value equivalence, compatibility with lifts and monodromy, and covering projections on groupoids |
-| [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Path connectedness and connected groupoids |
+| [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Equality of categorical component classes iff points are joined by a path; path connectedness and connected groupoids |
 | [`AlgebraicTopology.FundamentalGroupoid.SectionsPresheaf`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/SectionsPresheaf.lean) | Transport-invariant families, the representation-to-presheaf functor, canonical sections comparison with evaluation and naturality, and the sheaf condition |
 | [`AlgebraicTopology.FundamentalGroupoid.Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean) | Canonical sigma comparison equivalence, restriction isomorphism and object bijectivity |
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |

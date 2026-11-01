@@ -77,6 +77,7 @@ public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Transport
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Product
 public import FundamentalGroupoids.Topology.Homotopy.InfiniteCube
+public import FundamentalGroupoids.Topology.Homotopy.Radial
 public import FundamentalGroupoids.Topology.Homotopy.Relative
 public import FundamentalGroupoids.Topology.Path
 public import FundamentalGroupoids.Topology.Piecewise

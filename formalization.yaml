@@ -372,6 +372,16 @@ status:
     registered. At empty indices the boundary condition is empty, but affine
     interpolation still joins any cube value to x. No group structure on the
     empty-index quotient is supplied.
+    For every real normed space E and positive radius r,
+    Metric.puncturedClosedBallRetraction projects the punctured metric closed
+    ball radially onto Metric.sphere (0 : E) r. Its composite with
+    Metric.sphereToPuncturedClosedBall is the identity on the sphere.
+    Metric.puncturedClosedBallDeformation is a ContinuousMap.HomotopyRel from
+    the identity to inclusion after projection, fixing the sphere throughout.
+    Metric.puncturedClosedBallHomotopyEquivSphere packages the projection and
+    inclusion as a homotopy equivalence. Evaluation, endpoint and boundary laws
+    describe the maps without unfolding them. No nontriviality, completeness,
+    finite-dimensionality or inhabitance assumption is required.
     For IsCoveringMap f and a supplied e : E, the same canonical mapFun with
     target point f e is injective for Nonempty N and bijective for Nontrivial N,
     without DecidableEq N. With DecidableEq N and Nontrivial N,
@@ -533,6 +543,10 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
     - lean: FundamentalGroup.functor_preservesLimitsOfShape_discrete
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
+    - lean: CategoryTheory.ConnectedComponents.mk_eq_mk_iff_nonempty_hom
+      module: FundamentalGroupoids/CategoryTheory/Groupoid/ConnectedComponents.lean
+    - lean: FundamentalGroupoid.connectedComponents_mk_eq_iff_joined
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean
     - lean: FundamentalGroupoid.pathConnectedSpace_iff_isConnected
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean
     - lean: FundamentalGroupoidFunctor.sigmaComparison
