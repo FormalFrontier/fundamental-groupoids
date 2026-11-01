@@ -223,6 +223,17 @@ directions, examples, conventions and credits.
   [continuous-map API](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean)
   lifts unchanged functions from any `UCompactlyGeneratedSpace.{u}` source,
   with evaluation, inverse-composition and refinement-naturality laws.
+- **Basepoint transport of generalized homotopy classes** ([`HomotopyGroup.BasepointEquiv`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/BasepointEquiv.lean)).
+  A path `γ : Path x y` induces `HomotopyGroup.equivOfPath γ` for arbitrary
+  index types and topological targets, with independent universes. The
+  characteristic theorem `HomotopyGroup.pathMap_mk_eq_iff` identifies transport
+  of representatives with a homotopy having boundary trace exactly `γ`.
+  With the supplied `[DecidableEq N] [Nonempty N]`, `mulEquivOfPath γ` preserves
+  the existing multiplication; transport is natural and agrees with the
+  fundamental-group construction in degree one. Empty indices preserve the
+  represented component of the target; infinite-index quotients are
+  subsingletons. No separation or local compactness of the target is required,
+  and no sphere or kification model comparison is asserted.
 - **Generalized-loop components** ([`HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean)).
   `HomotopyGroup.equivZerothHomotopy N x` identifies the raw quotient
   `HomotopyGroup N X x` with `ZerothHomotopy (GenLoop N X x)` by the identity

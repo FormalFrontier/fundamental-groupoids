@@ -22,7 +22,9 @@ source, uncurrying gives the converse. No local compactness or separation
 assumption is needed on the target.
 
 Precomposing a homotopy relative to `S` along a continuous map gives a homotopy
-relative to any set mapped into `S`.
+relative to any set mapped into `S`. If the identity deforms onto a subset while
+fixing that subset, maps agreeing there admit a relative homotopy, obtained by
+postcomposition and concatenation.
 
 ## References
 
@@ -141,6 +143,35 @@ theorem precomp_apply (H : HomotopyRel f g S) (k : C(Z, X))
     (hk : Set.MapsTo k T S) (p : I × Z) :
     H.precomp k hk p = H (p.1, k p.2) :=
   rfl
+
+/-- Maps agreeing on a deformation retract are homotopic relative to that subset.
+The homotopy follows `H` through `f` and then follows `H` backwards through `g`.
+Only the deformation of the source is used; the target is an arbitrary space. -/
+def ofEqOnRetraction (r : C(X, S))
+    (H : HomotopyRel (ContinuousMap.id X) ((subtypeVal S).comp r) S)
+    (f g : C(X, Y)) (hfg : Set.EqOn f g S) : HomotopyRel f g S := by
+  have hmid : f.comp ((subtypeVal S).comp r) =
+      g.comp ((subtypeVal S).comp r) := by
+    ext x
+    exact hfg (r x).property
+  exact ((H.compContinuousMap f).trans
+    ((H.compContinuousMap g).symm.cast hmid.symm rfl)).cast
+      (f.comp_id) (g.comp_id)
+
+/-- The comparison uses the first map during the forward deformation and the
+second map during the reversed deformation. -/
+theorem ofEqOnRetraction_apply (r : C(X, S))
+    (H : HomotopyRel (ContinuousMap.id X) ((subtypeVal S).comp r) S)
+    (f g : C(X, Y)) (hfg : Set.EqOn f g S) (p : I × X) :
+    ofEqOnRetraction r H f g hfg p =
+      if h : (p.1 : ℝ) ≤ 1 / 2 then
+        f (H (⟨2 * p.1,
+          (unitInterval.mul_pos_mem_iff zero_lt_two).2 ⟨p.1.2.1, h⟩⟩, p.2))
+      else
+        g (H (σ ⟨2 * p.1 - 1,
+          unitInterval.two_mul_sub_one_mem_iff.2 ⟨(not_le.1 h).le, p.1.2.2⟩⟩, p.2)) := by
+  simp only [ofEqOnRetraction, cast_apply, trans_apply,
+    compContinuousMap_apply, symm_apply]
 
 end HomotopyRel
 

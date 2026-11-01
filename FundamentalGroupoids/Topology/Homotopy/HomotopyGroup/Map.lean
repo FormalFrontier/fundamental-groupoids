@@ -4,6 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import Mathlib.AlgebraicTopology.FundamentalGroupoid.InducedMaps
 public import Mathlib.Topology.Homotopy.HomotopyGroup
 
 /-!
@@ -23,6 +24,8 @@ A continuous map preserving supplied points acts by postcomposition on Mathlib's
 * Homotopies fixed at the supplied source point induce equal quotient maps and
   equal homomorphisms. In dimension one the homomorphism agrees with
   `FundamentalGroup.mapOfEq` through `pi1MulEquivFundamentalGroup`.
+* A free homotopy whose boundary follows a path identifies the degree-one
+  classes by change of basepoint under `pi1MulEquivFundamentalGroup`.
 
 No separation, connectedness, local path connectedness, finiteness or
 well-pointedness assumption is imposed. These constructions use Mathlib's existing
@@ -343,5 +346,55 @@ theorem pi1MulEquivFundamentalGroup_map (f : C(X, Y)) (hf : f x = y)
   apply Path.ext
   funext t
   rfl
+
+/-- A free homotopy of one-dimensional generalized loops whose boundary traces `γ`
+identifies their fundamental-group classes by change of basepoint. Transport traverses
+`γ.symm`, the first loop, and `γ` in that order. -/
+theorem pi1MulEquivFundamentalGroup_eq_of_homotopy {x' : X} (γ : Path x x')
+    (p : GenLoop (Fin 1) X x) (q : GenLoop (Fin 1) X x')
+    (H : ContinuousMap.Homotopy p.val q.val)
+    (htrace : ∀ t a, a ∈ Cube.boundary (Fin 1) → H (t, a) = γ t) :
+    pi1MulEquivFundamentalGroup (⟦q⟧ : HomotopyGroup (Fin 1) X x') =
+      FundamentalGroup.fundamentalGroupMulEquivOfPath γ
+        (pi1MulEquivFundamentalGroup (⟦p⟧ : HomotopyGroup (Fin 1) X x)) := by
+  let p₁ := genLoopEquivOfUnique (Fin 1) p
+  let q₁ := genLoopEquivOfUnique (Fin 1) q
+  let k : C(unitInterval, Fin 1 → unitInterval) :=
+    ContinuousMap.pi fun _ ↦ ContinuousMap.id unitInterval
+  let K : ContinuousMap.Homotopy p₁.toContinuousMap q₁.toContinuousMap :=
+    H.compContinuousMap k
+  have hp : (Path.id.map p₁.continuous).cast p₁.source.symm p₁.target.symm = p₁ := by
+    apply Path.ext
+    funext t
+    rfl
+  have hq : (Path.id.map q₁.continuous).cast q₁.source.symm q₁.target.symm = q₁ := by
+    apply Path.ext
+    funext t
+    rfl
+  have h0 : (K.evalAt 0).cast p₁.source.symm q₁.source.symm = γ := by
+    apply Path.ext
+    funext t
+    change H (t, fun _ : Fin 1 ↦ 0) = γ t
+    exact htrace t _ ⟨0, Or.inl rfl⟩
+  have h1 : (K.evalAt 1).cast p₁.target.symm q₁.target.symm = γ := by
+    apply Path.ext
+    funext t
+    change H (t, fun _ : Fin 1 ↦ 1) = γ t
+    exact htrace t _ ⟨0, Or.inr rfl⟩
+  have hsquare := (Path.Homotopic.map_trans_evalAt K Path.id).pathCast
+    p₁.source.symm q₁.target.symm
+  rw [Path.cast_trans _ _ p₁.source.symm p₁.target.symm q₁.target.symm,
+    Path.cast_trans _ _ p₁.source.symm q₁.source.symm q₁.target.symm,
+    hp, hq, h0, h1] at hsquare
+  have hclass :
+      (Path.Homotopic.Quotient.mk p₁).trans (Path.Homotopic.Quotient.mk γ) =
+        (Path.Homotopic.Quotient.mk γ).trans (Path.Homotopic.Quotient.mk q₁) := by
+    simpa only [Path.Homotopic.Quotient.mk_trans] using
+      (Path.Homotopic.Quotient.eq.mpr hsquare)
+  change Path.Homotopic.Quotient.mk q₁ =
+    (Path.Homotopic.Quotient.mk γ).symm.trans
+      ((Path.Homotopic.Quotient.mk p₁).trans (Path.Homotopic.Quotient.mk γ))
+  rw [hclass, ← Path.Homotopic.Quotient.trans_assoc,
+    Path.Homotopic.Quotient.symm_trans, Path.Homotopic.Quotient.refl_trans]
 
 end HomotopyGroup
