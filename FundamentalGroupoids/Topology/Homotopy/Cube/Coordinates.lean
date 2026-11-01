@@ -43,6 +43,17 @@ universe u
 
 open scoped unitInterval Topology
 
+/-- The inverse coordinate on the symmetric open unit interval commutes with
+negation over an ordered field. -/
+theorem orderIsoIooNegOneOne_symm_apply_neg {K : Type u} [Field K] [LinearOrder K]
+    [IsStrictOrderedRing K] (x : Set.Ioo (-1 : K) 1) :
+    (orderIsoIooNegOneOne K).symm
+        ⟨-(x : K), by constructor <;> linarith [x.property.1, x.property.2]⟩ =
+      -(orderIsoIooNegOneOne K).symm x := by
+  unfold orderIsoIooNegOneOne
+  change -(x : K) / (1 - |-(x : K)|) = -((x : K) / (1 - |(x : K)|))
+  simp only [abs_neg, neg_div]
+
 namespace Cube
 
 /-- A cube point avoids the coordinate-face boundary exactly when every real
@@ -81,6 +92,40 @@ theorem openIntervalOrderIsoReal_symm_apply_coe (x : ℝ) :
       (2 : ℝ)⁻¹ * ((orderIsoIooNegOneOne ℝ x : ℝ) + 1) := by
   change (2 : ℝ)⁻¹ * ((orderIsoIooNegOneOne ℝ x : ℝ) + -(-1)) = _
   simp
+
+/-- Reversing the open unit interval negates its increasing real coordinate. -/
+theorem openIntervalOrderIsoReal_one_sub (x : Set.Ioo (0 : ℝ) 1) :
+    openIntervalOrderIsoReal
+        ⟨1 - (x : ℝ), Set.Ioo.one_sub_mem x.property⟩ =
+      -openIntervalOrderIsoReal x := by
+  simp only [openIntervalOrderIsoReal_apply]
+  rw [← orderIsoIooNegOneOne_symm_apply_neg]
+  apply congrArg (orderIsoIooNegOneOne ℝ).symm
+  apply Subtype.ext
+  change 2 * (1 - (x : ℝ)) + -1 = -(2 * (x : ℝ) + -1)
+  ring
+
+/-- The increasing real coordinate on the open unit interval vanishes exactly at
+its midpoint. -/
+theorem openIntervalOrderIsoReal_eq_zero_iff (x : Set.Ioo (0 : ℝ) 1) :
+    openIntervalOrderIsoReal x = 0 ↔ (x : ℝ) = 1 / 2 := by
+  constructor
+  · intro hx
+    have h : (⟨1 - (x : ℝ), Set.Ioo.one_sub_mem x.property⟩ :
+        Set.Ioo (0 : ℝ) 1) = x :=
+      openIntervalOrderIsoReal.injective (by
+        simp only [openIntervalOrderIsoReal_one_sub, hx, neg_zero])
+    have hcoe : 1 - (x : ℝ) = (x : ℝ) := congrArg Subtype.val h
+    linarith
+  · intro hx
+    have h : (⟨1 - (x : ℝ), Set.Ioo.one_sub_mem x.property⟩ :
+        Set.Ioo (0 : ℝ) 1) = x := by
+      apply Subtype.ext
+      change 1 - (x : ℝ) = (x : ℝ)
+      linarith
+    have hneg := openIntervalOrderIsoReal_one_sub x
+    rw [h] at hneg
+    linarith
 
 /-- The complement of the coordinate-face boundary of any cube is homeomorphic
 to the real product with the same index type. Each coordinate is increasing.
