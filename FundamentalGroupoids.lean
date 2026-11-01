@@ -26,6 +26,7 @@ public import FundamentalGroupoids.CategoryTheory.Groupoid.Covering
 public import FundamentalGroupoids.CategoryTheory.Groupoid.Elements
 public import FundamentalGroupoids.CategoryTheory.SingleObj
 public import FundamentalGroupoids.FundamentalGroup
+public import FundamentalGroupoids.FundamentalGroup.DiskAttachment
 public import FundamentalGroupoids.SemilocallySimplyConnected.Basic
 public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnected
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps

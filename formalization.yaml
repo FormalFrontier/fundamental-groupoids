@@ -509,6 +509,10 @@ alignment:
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.diskAttachmentIdentityHomeomorph
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: FundamentalGroup.map_diskAttachment_boundary_eq_one
+      module: FundamentalGroupoids/FundamentalGroup/DiskAttachment.lean
+    - lean: FundamentalGroup.map_diskAttachmentInclusion_mapOfEq_eq_one
+      module: FundamentalGroupoids/FundamentalGroup/DiskAttachment.lean
     - lean: FundamentalGroup.functor_piComparison_π_fromPath
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Products.lean
     - lean: FundamentalGroup.functor_piComparison_eq_piMulEquiv
@@ -718,6 +722,12 @@ alignment:
     - lean: FundamentalGroup.range_map_eq_bot_iff
       module: FundamentalGroupoids/FundamentalGroup.lean
     - lean: FundamentalGroup.range_map_subtypeVal_eq_bot_iff
+      module: FundamentalGroupoids/FundamentalGroup.lean
+    - lean: FundamentalGroup.map_pathComponentInclusion_bijective
+      module: FundamentalGroupoids/FundamentalGroup.lean
+    - lean: FundamentalGroup.pathComponentInclusionMulEquiv
+      module: FundamentalGroupoids/FundamentalGroup.lean
+    - lean: FundamentalGroup.pathComponentInclusionMulEquiv_symm_fromPath
       module: FundamentalGroupoids/FundamentalGroup.lean
     - lean: IsSemilocallySimplyConnectedAt
       module: FundamentalGroupoids/SemilocallySimplyConnected/Basic.lean

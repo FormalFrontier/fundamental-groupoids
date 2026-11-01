@@ -8,7 +8,7 @@ public import Mathlib.Algebra.Group.Subgroup.Ker
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.InducedMaps
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected
-import FundamentalGroupoids.Topology.Path
+public import FundamentalGroupoids.Topology.Path
 
 /-!
 # Induced maps, homotopy retractions and change of basepoint
@@ -22,6 +22,8 @@ comparisons are available pointwise and as equalities of monoid homomorphisms.
 No connectedness or basedness hypothesis is needed. Loop classes are the identity
 exactly for nullhomotopic loops; trivial images of induced homomorphisms are
 characterized by ambient nullhomotopies, also for arbitrary subspace inclusions.
+Inclusion of a path component induces an isomorphism on the fundamental group at
+any point of that component. Its inverse is represented by corestriction of loops.
 
 A homotopy retraction gives an explicit splitting of the induced fundamental-group
 homomorphism, using the moving basepoint track of the homotopy. The induced map
@@ -330,5 +332,138 @@ theorem not_homotopic_comp_id (g : C(X, Y)) (f : C(Y, X)) (x : X)
   rintro ⟨H⟩
   obtain ⟨a, b, hab⟩ := exists_pair_ne (FundamentalGroup X x)
   exact hab (map_injective_of_homotopy_retraction g f H x (Subsingleton.elim _ _))
+
+end FundamentalGroup
+
+end
+
+public section
+
+universe u v
+
+namespace FundamentalGroup
+
+variable {X : Type u} [TopologicalSpace X]
+
+/-- The induced fundamental-group homomorphism sends a loop class to the class of
+its image loop. -/
+theorem map_fromPath {Y : Type v} [TopologicalSpace Y] (f : C(X, Y)) {p : X}
+    (γ : Path p p) :
+    map f p (fromPath ⟦γ⟧) = fromPath ⟦γ.map f.continuous⟧ := by
+  rfl
+
+private theorem path_range_subset_pathComponent (x : X) (p : ↥(pathComponent x))
+    {y : X} (γ : Path p.val y) : Set.range γ ⊆ pathComponent x := by
+  rintro z ⟨t, rfl⟩
+  exact p.property.trans ⟨(γ.truncateOfLE t.property.1).cast
+    γ.extend_zero.symm (γ.extend_extends' t).symm⟩
+
+/-- Inclusion of a path component induces a bijection on the fundamental group at
+any point of that component. -/
+theorem map_pathComponentInclusion_bijective (x : X) (p : ↥(pathComponent x)) :
+    Function.Bijective (map (ContinuousMap.subtypeVal (pathComponent x)) p) := by
+  change Function.Bijective
+    (map (⟨Subtype.val, continuous_subtype_val⟩ : C(↥(pathComponent x), X)) p)
+  constructor
+  · intro a b hab
+    obtain ⟨α, hα⟩ := Path.Homotopic.Quotient.mk_surjective (toPath a)
+    obtain ⟨β, hβ⟩ := Path.Homotopic.Quotient.mk_surjective (toPath b)
+    have ha : fromPath ⟦α⟧ = a := congrArg fromPath hα
+    have hb : fromPath ⟦β⟧ = b := congrArg fromPath hβ
+    rw [← ha, ← hb] at hab ⊢
+    apply congrArg fromPath
+    apply Path.Homotopic.Quotient.eq.mpr
+    have hαβ : (α.map continuous_subtype_val).Homotopic
+        (β.map continuous_subtype_val) := by
+      apply Path.Homotopic.Quotient.eq.mp
+      simp only [map_fromPath] at hab
+      exact congrArg toPath hab
+    obtain ⟨H⟩ := hαβ
+    refine Path.Homotopic.of_subtypeVal H ?_
+    rintro z ⟨⟨s, t⟩, rfl⟩
+    exact path_range_subset_pathComponent x p (H.eval s) ⟨t, rfl⟩
+  · intro a
+    obtain ⟨γ, hγ⟩ := Path.Homotopic.Quotient.mk_surjective (toPath a)
+    refine ⟨fromPath ⟦γ.codRestrict (path_range_subset_pathComponent x p γ)⟧, ?_⟩
+    calc
+      _ = fromPath ⟦γ⟧ := by rw [map_fromPath, Path.codRestrict_map_subtypeVal]
+      _ = a := congrArg fromPath hγ
+
+/-- The isomorphism on fundamental groups induced by inclusion of a path component,
+based at any point of that component. -/
+noncomputable def pathComponentInclusionMulEquiv (x : X) (p : ↥(pathComponent x)) :
+    FundamentalGroup (↥(pathComponent x)) p ≃* FundamentalGroup X p.val :=
+  MulEquiv.ofBijective (map (ContinuousMap.subtypeVal (pathComponent x)) p)
+    (map_pathComponentInclusion_bijective x p)
+
+/-- The forward homomorphism of the path-component isomorphism is induced by inclusion. -/
+@[simp]
+theorem pathComponentInclusionMulEquiv_toMonoidHom (x : X) (p : ↥(pathComponent x)) :
+    (pathComponentInclusionMulEquiv x p :
+      FundamentalGroup (↥(pathComponent x)) p →* FundamentalGroup X p.val) =
+      map (ContinuousMap.subtypeVal (pathComponent x)) p := by
+  rfl
+
+/-- The path-component isomorphism acts by the homomorphism induced by inclusion. -/
+theorem pathComponentInclusionMulEquiv_apply (x : X) (p : ↥(pathComponent x))
+    (a : FundamentalGroup (↥(pathComponent x)) p) :
+    pathComponentInclusionMulEquiv x p a =
+      map (ContinuousMap.subtypeVal (pathComponent x)) p a := by
+  rfl
+
+/-- The path-component isomorphism sends a loop class to its included loop class. -/
+@[simp]
+theorem pathComponentInclusionMulEquiv_apply_fromPath (x : X) (p : ↥(pathComponent x))
+    (δ : Path p p) :
+    pathComponentInclusionMulEquiv x p (fromPath (Path.Homotopic.Quotient.mk δ)) =
+      fromPath (Path.Homotopic.Quotient.mk (δ.map continuous_subtype_val)) := by
+  rfl
+
+/-- Inclusion after the inverse path-component isomorphism recovers the loop class. -/
+theorem map_pathComponentInclusionMulEquiv_symm_apply (x : X) (p : ↥(pathComponent x))
+    (a : FundamentalGroup X p.val) :
+    map (ContinuousMap.subtypeVal (pathComponent x)) p
+      ((pathComponentInclusionMulEquiv x p).symm a) = a := by
+  exact (pathComponentInclusionMulEquiv_apply x p
+    ((pathComponentInclusionMulEquiv x p).symm a)).symm.trans
+      ((pathComponentInclusionMulEquiv x p).apply_symm_apply a)
+
+/-- The inverse path-component isomorphism recovers a class after inclusion. -/
+theorem pathComponentInclusionMulEquiv_symm_map_apply (x : X) (p : ↥(pathComponent x))
+    (a : FundamentalGroup (↥(pathComponent x)) p) :
+    (pathComponentInclusionMulEquiv x p).symm
+      (map (ContinuousMap.subtypeVal (pathComponent x)) p a) = a := by
+  simpa only [pathComponentInclusionMulEquiv_apply] using
+    (pathComponentInclusionMulEquiv x p).symm_apply_apply a
+
+/-- Inclusion composed with the inverse path-component isomorphism is the identity. -/
+@[simp]
+theorem map_comp_pathComponentInclusionMulEquiv_symm (x : X) (p : ↥(pathComponent x)) :
+    (map (ContinuousMap.subtypeVal (pathComponent x)) p).comp
+      ((pathComponentInclusionMulEquiv x p).symm :
+        FundamentalGroup X p.val →* FundamentalGroup (↥(pathComponent x)) p) =
+        MonoidHom.id (FundamentalGroup X p.val) := by
+  apply MonoidHom.ext
+  exact map_pathComponentInclusionMulEquiv_symm_apply x p
+
+/-- The inverse path-component isomorphism composed with inclusion is the identity. -/
+@[simp]
+theorem pathComponentInclusionMulEquiv_symm_comp_map (x : X) (p : ↥(pathComponent x)) :
+    ((pathComponentInclusionMulEquiv x p).symm :
+      FundamentalGroup X p.val →* FundamentalGroup (↥(pathComponent x)) p).comp
+      (map (ContinuousMap.subtypeVal (pathComponent x)) p) =
+        MonoidHom.id (FundamentalGroup (↥(pathComponent x)) p) := by
+  apply MonoidHom.ext
+  exact pathComponentInclusionMulEquiv_symm_map_apply x p
+
+/-- The inverse path-component isomorphism is represented by corestricting an ambient loop. -/
+@[simp]
+theorem pathComponentInclusionMulEquiv_symm_fromPath (x : X) (p : ↥(pathComponent x))
+    (γ : Path p.val p.val) (hγ : Set.range γ ⊆ pathComponent x) :
+    (pathComponentInclusionMulEquiv x p).symm (fromPath (Path.Homotopic.Quotient.mk γ)) =
+      fromPath (Path.Homotopic.Quotient.mk (γ.codRestrict hγ)) := by
+  apply (pathComponentInclusionMulEquiv x p).injective
+  rw [(pathComponentInclusionMulEquiv x p).apply_symm_apply,
+    pathComponentInclusionMulEquiv_apply_fromPath, Path.codRestrict_map_subtypeVal]
 
 end FundamentalGroup

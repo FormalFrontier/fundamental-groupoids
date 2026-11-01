@@ -14,7 +14,8 @@ directions, examples, conventions and credits.
   Arbitrary families of circle maps attach closed complex unit disks, with no
   connectedness or separation assumptions. The continuous-map universal property
   allows independent universes. Empty attachments recover the original space;
-  attaching along the identity of the boundary recovers the disk.
+  attaching along the identity of the boundary recovers the disk. Every attaching
+  boundary circle induces a trivial fundamental-group homomorphism at every basepoint.
 - **Endomorphism transport** ([`Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean)).
   In any category, transports along `α β : X ≅ Y` agree iff
   `α.hom ≫ β.inv` is central in `End X`. Commutativity makes transport independent;
@@ -399,6 +400,11 @@ directions, examples, conventions and credits.
   satisfying both restriction equations; target and space universes are independent.
   The inclusion square is a pushout in `GrpCat.{u}`. These specialize indexed
   van Kampen; neither formulation adds ambient or local path connectedness.
+- **Path-component inclusion** ([`pathComponentInclusionMulEquiv`](FundamentalGroupoids/FundamentalGroup.lean)).
+  Inclusion of a path component induces an isomorphism on fundamental groups at
+  any point of the component. The inverse is represented by corestricting loops;
+  neither openness of the component nor connectedness of the ambient space is required.
+
 - **Simple-connectivity criteria** ([`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean),
   [`OpenCover`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean)).
   Simple connectivity is characterized by path connectedness and a
@@ -587,7 +593,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 
 | Module under `FundamentalGroupoids` | Contents |
 | --- | --- |
-| [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
+| [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path-component inclusion isomorphisms, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
+| [`FundamentalGroup.DiskAttachment`](FundamentalGroupoids/FundamentalGroup/DiskAttachment.lean) | Triviality of every attaching boundary-circle fundamental-group map, at arbitrary and chosen basepoints |
 | [`Topology.Connected.PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean) | Continuous maps on path components, with representative, identity, composition and homotopy-invariance laws |
 | [`Topology.Compactification.OnePoint.Collapse`](FundamentalGroupoids/Topology/Compactification/OnePoint/Collapse.lean) | Continuous open-subspace collapse for Hausdorff spaces, membership and infinity laws, and a surjective disjoint-point extension that is a quotient map for compact sources |
 | [`Topology.Compactification.OnePoint.ContinuousMap`](FundamentalGroupoids/Topology/Compactification/OnePoint/ContinuousMap.lean) | Compact-open/subtype homeomorphism between maps based at infinity and ambient maps constant outside any open in a compact Hausdorff space; collapse-precomposition, recursor and evaluation laws |

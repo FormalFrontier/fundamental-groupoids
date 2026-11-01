@@ -131,6 +131,16 @@ theorem diskAttachment_ext {Z : Type w} (f : J → C(Circle, X))
   · exact hX x.down
   · exact hD j z.down
 
+/-- A predicate on a disk attachment holds everywhere if it holds on the original
+space and on every attached disk. -/
+theorem diskAttachment_induction (f : J → C(Circle, X)) {P : diskAttachment f → Prop}
+    (hX : ∀ x, P (diskAttachmentInclusion f x))
+    (hD : ∀ j z, P (diskAttachmentDisk f j z)) (p : diskAttachment f) : P p := by
+  have h : P = fun _ => True := diskAttachment_ext f
+    (fun x => propext ⟨fun _ => True.intro, fun _ => hX x⟩)
+    (fun j z => propext ⟨fun _ => True.intro, fun _ => hD j z⟩)
+  exact Eq.mpr (congrFun h p) True.intro
+
 /-- Continuity out of an attachment is equivalent to continuity on its original
 space and on every disk, for a target in an independent universe. -/
 theorem continuous_diskAttachment_iff {Z : Type w} [TopologicalSpace Z]
@@ -159,6 +169,45 @@ theorem continuous_diskAttachment_iff {Z : Type w} [TopologicalSpace Z]
         change Continuous (fun p : Σ _ : J, ULift.{u} D =>
           a (diskAttachmentDisk f p.1 p.2.down))
         exact continuous_sigma fun j => (hD j).comp Homeomorph.ulift.continuous
+
+/-- A subset of a disk attachment is open exactly when its preimages in the original
+space and in every attached disk are open. -/
+theorem isOpen_diskAttachment_iff (f : J → C(Circle, X)) (S : Set (diskAttachment f)) :
+    IsOpen S ↔ IsOpen (diskAttachmentInclusion f ⁻¹' S) ∧
+      ∀ j, IsOpen (diskAttachmentDisk f j ⁻¹' S) := by
+  constructor
+  · intro hS
+    exact ⟨hS.preimage (diskAttachmentInclusion f).continuous,
+      fun j => hS.preimage (diskAttachmentDisk f j).continuous⟩
+  · rintro ⟨hX, hD⟩
+    apply (isOpen_iff_of_isColimit (attachmentCocone f) (attachmentIsColimit f) S).2
+    intro k
+    cases k with
+    | none =>
+      change IsOpen ((fun p : Σ _ : J, ULift.{u} Circle =>
+        diskAttachmentInclusion f (f p.1 p.2.down)) ⁻¹' S)
+      apply isOpen_sigma_iff.2
+      intro j
+      exact hX.preimage ((f j).continuous.comp Homeomorph.ulift.continuous)
+    | some k =>
+      cases k with
+      | left =>
+        change IsOpen ((fun x : ULift.{v} X => diskAttachmentInclusion f x.down) ⁻¹' S)
+        exact hX.preimage Homeomorph.ulift.continuous
+      | right =>
+        change IsOpen ((fun p : Σ _ : J, ULift.{u} D =>
+          diskAttachmentDisk f p.1 p.2.down) ⁻¹' S)
+        apply isOpen_sigma_iff.2
+        intro j
+        exact (hD j).preimage Homeomorph.ulift.continuous
+
+/-- A subset of a disk attachment is closed exactly when its preimages in the original
+space and in every attached disk are closed. -/
+theorem isClosed_diskAttachment_iff (f : J → C(Circle, X)) (S : Set (diskAttachment f)) :
+    IsClosed S ↔ IsClosed (diskAttachmentInclusion f ⁻¹' S) ∧
+      ∀ j, IsClosed (diskAttachmentDisk f j ⁻¹' S) := by
+  simpa only [Set.preimage_compl, isOpen_compl_iff] using
+    (isOpen_diskAttachment_iff f Sᶜ)
 
 end
 
