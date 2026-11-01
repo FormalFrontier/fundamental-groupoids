@@ -571,6 +571,16 @@ alignment:
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/OpenCoverDescent.lean
     - lean: FundamentalGroup.existsUnique_hom_of_isOpenCover
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
+    - lean: FundamentalGroup.existsUnique_hom_of_isOpenCover_iff_generator_eq_one
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverCyclicIntersection.lean
+    - lean: FundamentalGroup.hom_ext_of_isOpenCover_of_subsingleton
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverCyclicIntersection.lean
+    - lean: FundamentalGroup.homEquivOfIsOpenCoverCyclicIntersection
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverCyclicIntersection.lean
+    - lean: FundamentalGroup.homEquivOfIsOpenCoverCyclicIntersection_apply_val
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverCyclicIntersection.lean
+    - lean: FundamentalGroup.homEquivOfIsOpenCoverCyclicIntersection_symm_comp
+      module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverCyclicIntersection.lean
     - lean: FundamentalGroup.isPushout_of_isOpenCover
       module: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
     - lean: FundamentalGroup.commonOverlapDiagram

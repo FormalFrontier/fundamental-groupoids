@@ -474,6 +474,16 @@ directions, examples, conventions and credits.
   satisfying both restriction equations; target and space universes are independent.
   The inclusion square is a pushout in `GrpCat.{u}`. These specialize indexed
   van Kampen; neither formulation adds ambient or local path connectedness.
+- **Infinite cyclic intersections** ([`OpenCoverCyclicIntersection`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCoverCyclicIntersection.lean)).
+  For a path-connected two-open cover with path-connected intersection, suppose
+  the second open has trivial fundamental group and the intersection group is
+  classified by `Multiplicative ℤ`. A homomorphism on the first open extends
+  uniquely exactly when it kills the inclusion image of the class corresponding
+  to `Multiplicative.ofAdd (1 : ℤ)`. Restriction gives an equivalence with these
+  homomorphisms, with forward and inverse restriction laws. Restriction to the
+  first open also determines ambient homomorphisms without any cyclicity
+  assumption. Space and target-group universes are independent; no geometric
+  orientation is implicit in the supplied classification.
 - **Path-component inclusion** ([`pathComponentInclusionMulEquiv`](FundamentalGroupoids/FundamentalGroup.lean)).
   Inclusion of a path component induces an isomorphism on fundamental groups at
   any point of the component. The inverse is represented by corestricting loops;
