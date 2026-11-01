@@ -44,7 +44,24 @@ gives detailed statements, API directions, examples, conventions and credits.
 - **Cube boundaries** ([`Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean)).
   For any index type `N` with at least two elements, the coordinate-face boundary of
   `N → I` is path connected, even for infinite `N`. The zero vertex lies in the
-  boundary whenever `N` is nonempty.
+  boundary whenever `N` is nonempty. For finite `N`, the boundary is closed,
+  including the empty-index cube.
+- **Real coordinates on cube-boundary complements** ([`Cube.Coordinates`](FundamentalGroupoids/Topology/Homotopy/Cube/Coordinates.lean)).
+  For every index type `N` in any universe, `Cube.boundaryComplHomeomorphPi N`
+  identifies the boundary complement, with its subtype topology, with the product
+  `N → ℝ`. Each coordinate is increasing, using `t ↦ 2 * t - 1` followed by the
+  inverse of Mathlib's `orderIsoIooNegOneOne ℝ`; forward and inverse evaluation
+  laws are public. A theorem supplies local compactness for finite `N`.
+  Empty and infinite indices are allowed; for infinite cubes this is not an
+  ambient-interior description.
+- **Open-subspace collapse** ([`OnePoint.Collapse`](FundamentalGroupoids/Topology/Compactification/OnePoint/Collapse.lean)).
+  For a Hausdorff space `K` and any open subspace `s`, `OnePoint.collapse s`
+  continuously retains the points of `s` and sends its complement to infinity
+  in `OnePoint s`, without local compactness of `K`. The extension
+  `OnePoint.collapseWithPoint s` from `K ⊕ PUnit` is surjective even when `s` is
+  the whole space; for compact `K` it is a quotient map, giving continuous descent
+  through Mathlib's quotient-map API to arbitrary topological targets. Neither
+  nonemptiness nor properness of `s` is required.
 - **Based generalized-loop lifts** ([`GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean)).
   A covering map uniquely lifts a based generalized loop to a supplied point when
   the cube index has at least two elements. The spaces need no connectedness, local
@@ -461,6 +478,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | --- | --- |
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
 | [`Topology.Connected.PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean) | Continuous maps on path components, with representative, identity, composition and homotopy-invariance laws |
+| [`Topology.Compactification.OnePoint.Collapse`](FundamentalGroupoids/Topology/Compactification/OnePoint/Collapse.lean) | Continuous open-subspace collapse for Hausdorff spaces, membership and infinity laws, and a surjective disjoint-point extension that is a quotient map for compact sources |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
@@ -468,7 +486,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean) | Natural equivalences for CompHaus-test topology comparisons on all cubical homotopy quotients, with existing-map and positive multiplicative characteristics |
 | [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Boundary-relative homotopy iff joinedness; raw quotient/component equivalence with identity representative and constant laws, based-postcomposition naturality and empty-index compatibility |
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
-| [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Zero boundary vertex for nonempty indices and path-connected coordinate-face boundaries for nontrivial indices |
+| [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Closed coordinate-face boundaries for finite indices, zero boundary vertex for nonempty indices and path-connected boundaries for nontrivial indices |
+| [`Topology.Homotopy.Cube.Coordinates`](FundamentalGroupoids/Topology/Homotopy/Cube/Coordinates.lean) | Increasing real-product coordinates on the boundary complement for every index type, with membership and forward/inverse evaluation laws; local compactness theorem for finite indices |
 | [`Topology.Covering.GenLoop`](FundamentalGroupoids/Topology/Covering/GenLoop.lean) | Chosen unique based generalized-loop lifts through coverings for nontrivial cube indices, with projection and uniqueness laws |
 | [`Topology.Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean) | Canonical quotient-map injectivity for nonempty indices, bijectivity and stock multiplicative equivalences for nontrivial indices, with forward and inverse representative formulas |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition; `HomotopyWith.joined` without local compactness and `nonempty_iff_joined` for locally compact sources, for arbitrary predicates and independent source/target universes |

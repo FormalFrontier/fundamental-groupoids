@@ -9,11 +9,12 @@ public import Mathlib.Topology.Homotopy.HomotopyGroup
 /-!
 # Geometry of cube boundaries
 
-The coordinate-face boundary `Cube.boundary N` is path connected when the index
-type `N` has at least two elements. The index type may be infinite. This is the
-set of cube points with a coordinate equal to `0` or `1`, rather than a claim
-about a topological frontier. For a nonempty index type, the zero vertex lies
-on the boundary. For an infinite index type, the boundary is dense in the cube.
+The coordinate-face boundary `Cube.boundary N` is closed when the index type `N`
+is finite, and is path connected when `N` has at least two elements. The path
+connectedness result allows infinite index types. This is the set of cube points
+with a coordinate equal to `0` or `1`, rather than a claim about a topological
+frontier. For a nonempty index type, the zero vertex lies on the boundary.
+For an infinite index type, the boundary is dense in the cube.
 
 ## References
 
@@ -29,6 +30,17 @@ universe u
 open scoped unitInterval Topology
 
 namespace Cube
+
+/-- The coordinate-face boundary of a finite cube is closed, including the empty-index cube. -/
+theorem isClosed_boundary (N : Type u) [Finite N] : IsClosed (boundary N) := by
+  have h : boundary N =
+      ⋃ i : N, ({x : I^N | x i = 0} ∪ {x : I^N | x i = 1}) := by
+    ext x
+    simp only [boundary, Set.mem_ofPred_eq, Set.mem_iUnion, Set.mem_union]
+  rw [h]
+  exact isClosed_iUnion_of_finite fun i =>
+    (isClosed_eq (continuous_apply i) continuous_const).union
+      (isClosed_eq (continuous_apply i) continuous_const)
 
 /-- The zero vertex lies on the boundary of a cube with a nonempty index type. -/
 @[simp]

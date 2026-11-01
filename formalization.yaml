@@ -48,7 +48,14 @@ project:
     the stock homotopy groups are multiplicatively equivalent, with forward
     postcomposition and inverse represented by a chosen based generalized-loop
     lift. Coordinate-face cube boundaries are path connected for nontrivial
-    indices, including infinite ones.
+    indices, including infinite ones. Finite cube boundaries are closed, including
+    the empty-index case. For every index type, the boundary complement with its
+    subtype topology is homeomorphic to the real product on that type; for finite
+    indices it is locally compact. A Hausdorff space maps continuously to the
+    one-point compactification of any open subspace by retaining that subspace
+    and collapsing its complement to infinity, without a local compactness
+    assumption. Adding a disjoint point gives a surjection, even for
+    the whole space, and a quotient map when the ambient space is compact.
     Relative affine interpolation fixes any agreement subset for maps into real
     modules with continuous addition and scalar multiplication. Generalized loops
     in such modules are homotopic relative to the cube boundary to their constant
