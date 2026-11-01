@@ -128,6 +128,7 @@ directions, examples, conventions and credits.
   GroupTheory's compact-covering precomposition embedding API.
 - **Ordinary compact-open paths and homotopy fibers** ([`RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean),
   [`Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean),
+  [`Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean),
   [`RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean)).
   `ContinuousMap.RelativePathSpace b A` consists of paths from an arbitrary `b`
   to any point of `A`; the paths need not stay in `A`, and `b` need not lie in `A`.
@@ -139,6 +140,11 @@ directions, examples, conventions and credits.
   Maps act on both point and path, with identity, composition, constant and
   naturality laws. A constant fiber point needs a specified `e` with `f e = b`;
   being outside the image does not force the homotopy fiber to be empty.
+  For a constant map with value `c`, `HomotopyFiber.constHomeomorph E b c`
+  identifies its fiber with `E × Path b c`, retaining the point and every path
+  value, naturally in continuous source maps. The fiber is nonempty exactly when
+  both factors are nonempty; an empty source and the full loop factor for `b = c`
+  are included, with independent source and target universes.
   For every topological space `X` and chosen `b : X`,
   `RelativePathSpace.contraction b` sends `γ` to `t ↦ γ ((1 - s) * t)` at time
   `s`, fixes the constant path throughout, and gives a `ContractibleSpace`
@@ -742,6 +748,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homeomorph.Subtype`](FundamentalGroupoids/Topology/Homeomorph/Subtype.lean) | Flattening nested subspaces using Mathlib's carrier equivalence, with forward/inverse coercion laws |
 | [`Topology.Homotopy.RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean) | Ordinary compact-open paths from an arbitrary point to a subspace, with constructor, extensionality, evaluation, endpoint and functorial postcomposition APIs |
 | [`Topology.Homotopy.Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean) | Retained-point ordinary homotopy fibers, maps of continuous squares, pullback and embedding/subspace homeomorphisms, with projection, evaluation, constant and naturality laws |
+| [`Topology.Homotopy.Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean) | Constant-map fibers as source times fixed-endpoint Path, with coordinate laws, source naturality and a nonemptiness criterion |
 | [`Topology.Homotopy.RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean) | Explicit time-shortening homotopy relative to the constant path, characteristic evaluation and moving-endpoint laws, and contractibility of fixed-start/free-endpoint paths |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
@@ -881,7 +888,9 @@ printed p. 50) supplies the contraction idea; Chapters 8 §6 and 9 §1 motivate 
 fiber and endpoint-path models, without identifying their ordinary topologies
 with his kified category. The fiber comparisons reuse Mathlib's whole
 `TopCat.pullbackHomeoPreimage`, including its inverse continuity, by Patrick Massot,
-Kim Morrison, Mario Carneiro and Andrew Yang. Subspace flattening uses
+Kim Morrison, Mario Carneiro and Andrew Yang. The constant-map product splitting
+uses Patrick Massot's `Path` topology and Mathlib's product and induced-topology
+continuity APIs. Subspace flattening uses
 `Equiv.subtypeSubtypeEquivSubtypeInter` from the equivalence API by Leonardo de Moura
 and Mario Carneiro, with Mathlib's subtype continuity. Evaluation and currying
 use Reid Barton's compact-open API; relative homotopies use Shing Tak Lam's API,
