@@ -499,9 +499,23 @@ alignment:
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.diskAttachmentDisk
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachmentInterior
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.isClosedEmbedding_diskAttachmentInclusion
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.isOpenEmbedding_diskAttachmentInterior
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.disjoint_range_diskAttachmentInterior_inclusion
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.disjoint_range_diskAttachmentInterior
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.diskAttachmentDesc
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.continuous_diskAttachment_iff
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.continuousOn_diskAttachment_iff_of_isOpen
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.continuousOn_diskAttachment_iff_of_isClosed
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.diskAttachment_existsUnique
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean

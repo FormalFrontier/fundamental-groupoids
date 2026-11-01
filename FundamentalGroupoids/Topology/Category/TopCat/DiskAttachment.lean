@@ -7,6 +7,7 @@ module
 public import Mathlib.Analysis.Complex.Circle
 public import Mathlib.CategoryTheory.Limits.Types.Pushouts
 public import Mathlib.Topology.Category.TopCat.Limits.Basic
+public import Mathlib.Topology.ContinuousOn
 public import Mathlib.Topology.Homeomorph.Lemmas
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Iso
 
@@ -19,14 +20,20 @@ in types and its final topology in `TopCat`. The maps from `X` and from each
 disk have their original domains, without universe lifts in the public API.
 
 `TopCat.diskAttachmentDesc` and `TopCat.continuous_diskAttachment_iff` express
-the universal property with a target in an independent universe. Empty families
-recover `X`, and attaching a single disk along the identity of its boundary
+the universal property with a target in an independent universe. Continuity on
+an open or closed subset can likewise be tested on the original space and each disk.
+Empty families recover `X`, and attaching a single disk along the identity of its boundary
 recovers the closed disk, with the indicated original inclusion maps.
+
+The original-space inclusion is a closed embedding. Each characteristic map
+restricts to an open embedding on the open unit disk; these images are mutually
+disjoint and avoid the original space. The full closed-disk characteristic maps
+need not be embeddings.
 
 No connectedness or separation assumptions on `X` are required.
 -/
 
-open CategoryTheory CategoryTheory.Limits
+open CategoryTheory CategoryTheory.Limits Topology
 
 universe u v w
 
@@ -44,6 +51,11 @@ def diskBoundary : C(Circle, ↥(Metric.closedBall (0 : ℂ) 1)) :=
 @[simp]
 theorem diskBoundary_coe (z : Circle) : (diskBoundary z : ℂ) = z := by
   rfl
+
+/-- The circle is a closed subspace of the closed unit disk. -/
+theorem isClosedEmbedding_diskBoundary : IsClosedEmbedding diskBoundary := by
+  exact IsClosedEmbedding.inclusion Metric.sphere_subset_closedBall
+    (Metric.isClosed_sphere.preimage continuous_subtype_val)
 
 end
 
@@ -118,6 +130,19 @@ theorem diskAttachment_boundary (f : J → C(Circle, X)) (j : J) :
     (diskAttachmentDisk f j).comp diskBoundary = (diskAttachmentInclusion f).comp (f j) := by
   ext z
   exact diskAttachmentDisk_boundary f j z
+
+/-- The characteristic map restricted to the open unit disk. -/
+def diskAttachmentInterior (f : J → C(Circle, X)) (j : J) :
+    C(↥(Metric.ball (0 : ℂ) 1), diskAttachment f) :=
+  (diskAttachmentDisk f j).comp (ContinuousMap.inclusion Metric.ball_subset_closedBall)
+
+/-- The open-disk characteristic map is the closed-disk map on the same point. -/
+@[simp]
+theorem diskAttachmentInterior_apply (f : J → C(Circle, X)) (j : J)
+    (z : ↥(Metric.ball (0 : ℂ) 1)) :
+    diskAttachmentInterior f j z =
+      diskAttachmentDisk f j ⟨(z : ℂ), Metric.ball_subset_closedBall z.property⟩ := by
+  rfl
 
 /-- Functions on an attachment are determined by their restrictions to the original
 space and to every attached disk. No continuity or target-universe restriction is needed. -/
@@ -209,6 +234,61 @@ theorem isClosed_diskAttachment_iff (f : J → C(Circle, X)) (S : Set (diskAttac
   simpa only [Set.preimage_compl, isOpen_compl_iff] using
     (isOpen_diskAttachment_iff f Sᶜ)
 
+/-- Continuity on an open subset of a disk attachment is equivalent to continuity
+on its preimages in the original space and every attached disk. The target universe
+is independent, and no continuity outside the subset is required. -/
+theorem continuousOn_diskAttachment_iff_of_isOpen {Z : Type w} [TopologicalSpace Z]
+    (f : J → C(Circle, X)) (g : diskAttachment f → Z) {S : Set (diskAttachment f)}
+    (hS : IsOpen S) :
+    ContinuousOn g S ↔ ContinuousOn (g ∘ diskAttachmentInclusion f)
+      (diskAttachmentInclusion f ⁻¹' S) ∧
+      ∀ j, ContinuousOn (g ∘ diskAttachmentDisk f j) (diskAttachmentDisk f j ⁻¹' S) := by
+  constructor
+  · intro hg
+    exact ⟨hg.comp (diskAttachmentInclusion f).continuous.continuousOn (fun _ hx => hx),
+      fun j => hg.comp (diskAttachmentDisk f j).continuous.continuousOn (fun _ hx => hx)⟩
+  · rintro ⟨hX, hD⟩
+    apply (continuousOn_open_iff hS).2
+    intro V hV
+    apply (isOpen_diskAttachment_iff f (S ∩ g ⁻¹' V)).2
+    constructor
+    · simpa only [Set.preimage_inter, Set.preimage_comp] using
+        hX.isOpen_inter_preimage
+          (hS.preimage (diskAttachmentInclusion f).continuous) hV
+    · intro j
+      simpa only [Set.preimage_inter, Set.preimage_comp] using
+        (hD j).isOpen_inter_preimage
+          (hS.preimage (diskAttachmentDisk f j).continuous) hV
+
+/-- Continuity on a closed subset of a disk attachment is equivalent to continuity
+on its preimages in the original space and every attached disk. The target universe
+is independent, and no continuity outside the subset is required. -/
+theorem continuousOn_diskAttachment_iff_of_isClosed {Z : Type w} [TopologicalSpace Z]
+    (f : J → C(Circle, X)) (g : diskAttachment f → Z) {S : Set (diskAttachment f)}
+    (hS : IsClosed S) :
+    ContinuousOn g S ↔ ContinuousOn (g ∘ diskAttachmentInclusion f)
+      (diskAttachmentInclusion f ⁻¹' S) ∧
+      ∀ j, ContinuousOn (g ∘ diskAttachmentDisk f j) (diskAttachmentDisk f j ⁻¹' S) := by
+  constructor
+  · intro hg
+    exact ⟨hg.comp (diskAttachmentInclusion f).continuous.continuousOn (fun _ hx => hx),
+      fun j => hg.comp (diskAttachmentDisk f j).continuous.continuousOn (fun _ hx => hx)⟩
+  · rintro ⟨hX, hD⟩
+    apply continuousOn_iff_isClosed.2
+    intro V hV
+    refine ⟨g ⁻¹' V ∩ S, ?_, ?_⟩
+    · rw [Set.inter_comm]
+      apply (isClosed_diskAttachment_iff f (S ∩ g ⁻¹' V)).2
+      constructor
+      · simpa only [Set.preimage_inter, Set.preimage_comp] using
+          hX.preimage_isClosed_of_isClosed
+            (hS.preimage (diskAttachmentInclusion f).continuous) hV
+      · intro j
+        simpa only [Set.preimage_inter, Set.preimage_comp] using
+          (hD j).preimage_isClosed_of_isClosed
+            (hS.preimage (diskAttachmentDisk f j).continuous) hV
+    · rw [Set.inter_assoc, Set.inter_self]
+
 end
 
 private def attachmentDescFun {Z : Type w} (f : J → C(Circle, X))
@@ -218,6 +298,18 @@ private def attachmentDescFun {Z : Type w} (f : J → C(Circle, X))
     (fun p : Σ _ : J, ULift.{u} D => d p.1 p.2.down)) (by
       rintro _ _ ⟨p⟩
       exact (h p.1 p.2.down).symm)
+
+private theorem attachmentDescFun_inclusion {Z : Type w} (f : J → C(Circle, X))
+    (g : X → Z) (d : J → D → Z)
+    (h : ∀ j z, d j (diskBoundary z) = g (f j z)) (x : X) :
+    attachmentDescFun f g d h (diskAttachmentInclusion f x) = g x := by
+  rfl
+
+private theorem attachmentDescFun_disk {Z : Type w} (f : J → C(Circle, X))
+    (g : X → Z) (d : J → D → Z)
+    (h : ∀ j z, d j (diskBoundary z) = g (f j z)) (j : J) (z : D) :
+    attachmentDescFun f g d h (diskAttachmentDisk f j z) = d j z := by
+  rfl
 
 public section
 
@@ -299,6 +391,221 @@ theorem diskAttachment_existsUnique {Z : Type w} [TopologicalSpace Z]
     ⟨diskAttachmentDesc_comp_inclusion f g d h, diskAttachmentDesc_comp_disk f g d h⟩, ?_⟩
   intro a ha
   exact diskAttachmentDesc_unique f g d h a ha.1 ha.2
+
+end
+
+-- Boundary labels use preimages under the boundary inclusion, rather than
+-- identifying the circle's membership predicate with a metric-sphere predicate.
+private def attachmentDiskLabel (f : J → C(Circle, X)) (j : J) (z : D) :
+    X ⊕ (Σ _ : J, D) := by
+  classical
+  exact if hz : z ∈ Set.range diskBoundary then
+    Sum.inl (f j (Classical.choose hz)) else Sum.inr (⟨j, z⟩ : Σ _ : J, D)
+
+private theorem attachmentDiskLabel_boundary (f : J → C(Circle, X))
+    (j : J) (b : Circle) :
+    attachmentDiskLabel f j (diskBoundary b) = Sum.inl (f j b) := by
+  classical
+  have hb : diskBoundary b ∈ Set.range diskBoundary := ⟨b, rfl⟩
+  rw [attachmentDiskLabel, dite_eq_left hb]
+  exact congrArg (fun c : Circle => (Sum.inl (f j c) : X ⊕ (Σ _ : J, D)))
+    (isClosedEmbedding_diskBoundary.injective (Classical.choose_spec hb))
+
+-- This set-theoretic label distinguishes original points and disk interiors.
+-- Boundary points receive their attaching-map value; no continuity is asserted.
+private def attachmentLabel (f : J → C(Circle, X)) :
+    diskAttachment f → X ⊕ (Σ _ : J, D) :=
+  attachmentDescFun f Sum.inl (attachmentDiskLabel f) (attachmentDiskLabel_boundary f)
+
+private theorem attachmentLabel_inclusion (f : J → C(Circle, X)) (x : X) :
+    attachmentLabel f (diskAttachmentInclusion f x) = Sum.inl x := by
+  exact attachmentDescFun_inclusion f Sum.inl (attachmentDiskLabel f)
+    (attachmentDiskLabel_boundary f) x
+
+private theorem attachmentLabel_disk (f : J → C(Circle, X)) (j : J) (z : D) :
+    attachmentLabel f (diskAttachmentDisk f j z) = attachmentDiskLabel f j z := by
+  exact attachmentDescFun_disk f Sum.inl (attachmentDiskLabel f)
+    (attachmentDiskLabel_boundary f) j z
+
+private theorem attachmentLabel_disk_of_mem_range (f : J → C(Circle, X))
+    (j : J) (z : D) (hz : z ∈ Set.range diskBoundary) :
+    attachmentLabel f (diskAttachmentDisk f j z) =
+      Sum.inl (f j (Classical.choose hz)) := by
+  classical
+  rw [attachmentLabel_disk, attachmentDiskLabel, dite_eq_left hz]
+
+private theorem attachmentLabel_disk_of_not_mem_range (f : J → C(Circle, X))
+    (j : J) (z : D) (hz : z ∉ Set.range diskBoundary) :
+    attachmentLabel f (diskAttachmentDisk f j z) = Sum.inr ⟨j, z⟩ := by
+  classical
+  rw [attachmentLabel_disk, attachmentDiskLabel, dite_eq_right hz]
+
+private theorem not_mem_range_diskBoundary_of_mem_ball {z : D}
+    (hz : (z : ℂ) ∈ Metric.ball (0 : ℂ) 1) : z ∉ Set.range diskBoundary := by
+  rintro ⟨b, rfl⟩
+  have hlt := mem_ball_zero_iff.1 hz
+  rw [diskBoundary_coe, Circle.norm_coe] at hlt
+  exact (lt_irrefl (1 : ℝ)) hlt
+
+private theorem attachmentLabel_interior (f : J → C(Circle, X)) (j : J)
+    (z : ↥(Metric.ball (0 : ℂ) 1)) :
+    attachmentLabel f (diskAttachmentInterior f j z) =
+      Sum.inr ⟨j, ⟨(z : ℂ), Metric.ball_subset_closedBall z.property⟩⟩ := by
+  rw [diskAttachmentInterior_apply, attachmentLabel_disk_of_not_mem_range f j _
+    (not_mem_range_diskBoundary_of_mem_ball z.property)]
+
+public section
+
+/-- Attaching disks does not identify distinct points of the original space. -/
+theorem diskAttachmentInclusion_injective (f : J → C(Circle, X)) :
+    Function.Injective (diskAttachmentInclusion f) := by
+  intro x y h
+  have h' := congrArg (attachmentLabel f) h
+  simp only [attachmentLabel_inclusion] at h'
+  exact Sum.inl.inj h'
+
+/-- A disk point lies at an original point exactly when it is a boundary point
+with that attaching-map value. -/
+theorem diskAttachmentDisk_eq_inclusion_iff (f : J → C(Circle, X)) (j : J)
+    (z : ↥(Metric.closedBall (0 : ℂ) 1)) (x : X) :
+    diskAttachmentDisk f j z = diskAttachmentInclusion f x ↔
+      ∃ b : Circle, diskBoundary b = z ∧ f j b = x := by
+  classical
+  constructor
+  · intro h
+    have h' := congrArg (attachmentLabel f) h
+    by_cases hz : z ∈ Set.range diskBoundary
+    · rw [attachmentLabel_disk_of_mem_range f j z hz, attachmentLabel_inclusion] at h'
+      exact ⟨Classical.choose hz, Classical.choose_spec hz, Sum.inl.inj h'⟩
+    · rw [attachmentLabel_disk_of_not_mem_range f j z hz, attachmentLabel_inclusion] at h'
+      cases h'
+  · rintro ⟨b, hb, hbx⟩
+    rw [← hb, diskAttachmentDisk_boundary, hbx]
+
+/-- The preimage in a disk of an image from the original space is precisely
+its attaching-map preimage in the boundary. -/
+theorem diskAttachmentDisk_preimage_inclusion_image (f : J → C(Circle, X))
+    (j : J) (S : Set X) :
+    diskAttachmentDisk f j ⁻¹' (diskAttachmentInclusion f '' S) =
+      diskBoundary '' (f j ⁻¹' S) := by
+  ext z
+  constructor
+  · rintro ⟨x, hx, hxz⟩
+    obtain ⟨b, hb, hbx⟩ := (diskAttachmentDisk_eq_inclusion_iff f j z x).1 hxz.symm
+    refine ⟨b, ?_, hb⟩
+    change f j b ∈ S
+    rw [hbx]
+    exact hx
+  · rintro ⟨b, hb, rfl⟩
+    exact ⟨f j b, hb, (diskAttachmentDisk_boundary f j b).symm⟩
+
+/-- The original space is a closed embedded subspace of its disk attachment,
+without any separation or local connectedness assumptions. -/
+theorem isClosedEmbedding_diskAttachmentInclusion (f : J → C(Circle, X)) :
+    IsClosedEmbedding (diskAttachmentInclusion f) := by
+  refine IsClosedEmbedding.of_continuous_injective_isClosedMap
+    (diskAttachmentInclusion f).continuous (diskAttachmentInclusion_injective f) ?_
+  intro S hS
+  apply (isClosed_diskAttachment_iff f _).2
+  constructor
+  · rw [Set.preimage_image_eq _ (diskAttachmentInclusion_injective f)]
+    exact hS
+  · intro j
+    rw [diskAttachmentDisk_preimage_inclusion_image]
+    exact isClosedEmbedding_diskBoundary.isClosedMap _ (hS.preimage (f j).continuous)
+
+/-- An open-disk point never lies in the original space. -/
+theorem diskAttachmentInterior_ne_inclusion (f : J → C(Circle, X)) (j : J)
+    (z : ↥(Metric.ball (0 : ℂ) 1)) (x : X) :
+    diskAttachmentInterior f j z ≠ diskAttachmentInclusion f x := by
+  intro h
+  have h' := congrArg (attachmentLabel f) h
+  simp only [attachmentLabel_interior, attachmentLabel_inclusion] at h'
+  cases h'
+
+/-- Equality with an open-disk point forces equality of disk indices and
+of the underlying complex points, even when the other point is in a closed disk. -/
+theorem diskAttachmentInterior_eq_disk_iff (f : J → C(Circle, X)) (j : J)
+    (z : ↥(Metric.ball (0 : ℂ) 1)) (k : J)
+    (w : ↥(Metric.closedBall (0 : ℂ) 1)) :
+    diskAttachmentInterior f j z = diskAttachmentDisk f k w ↔
+      j = k ∧ (z : ℂ) = (w : ℂ) := by
+  classical
+  constructor
+  · intro h
+    have h' := congrArg (attachmentLabel f) h
+    rw [attachmentLabel_interior] at h'
+    by_cases hw : w ∈ Set.range diskBoundary
+    · rw [attachmentLabel_disk_of_mem_range f k w hw] at h'
+      cases h'
+    · rw [attachmentLabel_disk_of_not_mem_range f k w hw] at h'
+      have hp := Sum.inr.inj h'
+      exact ⟨congrArg Sigma.fst hp, congrArg (fun p : Σ _ : J, D => (p.2 : ℂ)) hp⟩
+  · rintro ⟨hjk, hzw⟩
+    rw [hjk, diskAttachmentInterior_apply]
+    exact congrArg (diskAttachmentDisk f k) (Subtype.ext hzw)
+
+/-- Each open-disk characteristic map is injective. -/
+theorem diskAttachmentInterior_injective (f : J → C(Circle, X)) (j : J) :
+    Function.Injective (diskAttachmentInterior f j) := by
+  intro z w h
+  have h' := h.trans (diskAttachmentInterior_apply f j w)
+  exact Subtype.ext ((diskAttachmentInterior_eq_disk_iff f j z j _).1 h').2
+
+/-- Each attached open disk is an open embedded subspace of the attachment. -/
+theorem isOpenEmbedding_diskAttachmentInterior (f : J → C(Circle, X)) (j : J) :
+    IsOpenEmbedding (diskAttachmentInterior f j) := by
+  classical
+  refine IsOpenEmbedding.of_continuous_injective_isOpenMap
+    (diskAttachmentInterior f j).continuous (diskAttachmentInterior_injective f j) ?_
+  intro S hS
+  apply (isOpen_diskAttachment_iff f _).2
+  constructor
+  · have hpre : diskAttachmentInclusion f ⁻¹' (diskAttachmentInterior f j '' S) = ∅ := by
+      apply Set.eq_empty_iff_forall_notMem.mpr
+      rintro x ⟨z, _, hzx⟩
+      exact diskAttachmentInterior_ne_inclusion f j z x hzx
+    rw [hpre]
+    exact isOpen_empty
+  · intro k
+    by_cases hjk : j = k
+    · subst k
+      let i : ↥(Metric.ball (0 : ℂ) 1) → D := Set.inclusion Metric.ball_subset_closedBall
+      have hi : IsOpenEmbedding i := IsOpenEmbedding.inclusion
+        Metric.ball_subset_closedBall (Metric.isOpen_ball.preimage continuous_subtype_val)
+      have hpre : diskAttachmentDisk f j ⁻¹' (diskAttachmentInterior f j '' S) = i '' S := by
+        ext w
+        constructor
+        · rintro ⟨z, hz, hzw⟩
+          exact ⟨z, hz, Subtype.ext ((diskAttachmentInterior_eq_disk_iff f j z j w).1 hzw).2⟩
+        · rintro ⟨z, hz, rfl⟩
+          exact ⟨z, hz, diskAttachmentInterior_apply f j z⟩
+      rw [hpre]
+      exact hi.isOpenMap S hS
+    · have hpre : diskAttachmentDisk f k ⁻¹' (diskAttachmentInterior f j '' S) = ∅ := by
+        apply Set.eq_empty_iff_forall_notMem.mpr
+        rintro w ⟨z, _, hzw⟩
+        exact hjk ((diskAttachmentInterior_eq_disk_iff f j z k w).1 hzw).1
+      rw [hpre]
+      exact isOpen_empty
+
+/-- The image of an attached open disk avoids the original space. -/
+theorem disjoint_range_diskAttachmentInterior_inclusion (f : J → C(Circle, X)) (j : J) :
+    Disjoint (Set.range (diskAttachmentInterior f j))
+      (Set.range (diskAttachmentInclusion f)) := by
+  rw [Set.disjoint_left]
+  rintro p ⟨z, rfl⟩ ⟨x, hx⟩
+  exact diskAttachmentInterior_ne_inclusion f j z x hx.symm
+
+/-- The images of distinct attached open disks are disjoint. -/
+theorem disjoint_range_diskAttachmentInterior (f : J → C(Circle, X))
+    {j k : J} (hjk : j ≠ k) :
+    Disjoint (Set.range (diskAttachmentInterior f j))
+      (Set.range (diskAttachmentInterior f k)) := by
+  rw [Set.disjoint_left]
+  rintro p ⟨z, rfl⟩ ⟨w, hw⟩
+  have h := hw.symm.trans (diskAttachmentInterior_apply f k w)
+  exact hjk ((diskAttachmentInterior_eq_disk_iff f j z k _).1 h).1
 
 end
 

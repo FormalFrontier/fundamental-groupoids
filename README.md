@@ -13,8 +13,12 @@ directions, examples, conventions and credits.
 - **Unpointed disk attachments** ([`DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean)).
   Arbitrary families of circle maps attach closed complex unit disks, with no
   connectedness or separation assumptions. The continuous-map universal property
-  allows independent universes. Empty attachments recover the original space;
-  attaching along the identity of the boundary recovers the disk. Every attaching
+  allows independent universes. Continuity on an open or closed subset is tested
+  on its preimages in the original space and each disk, without continuity elsewhere.
+  Empty attachments recover the original space; attaching along the identity of the
+  boundary recovers the disk. The original inclusion is a closed embedding, and the
+  open-disk characteristic maps are open embeddings with mutually disjoint images
+  avoiding the original space. Every attaching
   boundary circle induces a trivial fundamental-group homomorphism at every basepoint.
 - **Endomorphism transport** ([`Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean)).
   In any category, transports along `α β : X ≅ Y` agree iff
@@ -628,7 +632,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition; `HomotopyWith.joined` without local compactness and `nonempty_iff_joined` for locally compact sources, for arbitrary predicates and independent source/target universes |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
-| [`Topology.Category.TopCat.DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean) | Unpointed disk attachments, continuous-map universal property and empty/identity attachment homeomorphisms |
+| [`Topology.Category.TopCat.DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean) | Unpointed disk attachments, universal property, original-space closed embedding, disjoint open-disk embeddings and empty/identity attachment homeomorphisms |
 | [`AlgebraicTopology.FundamentalGroup.Circle`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean) | Signed-period additive-circle and complex-circle integer coordinates, loop/inverse/endpoint laws, nonidentity generators and homeomorphism compatibility |
 | [`AlgebraicTopology.FundamentalGroup.Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean) | Fundamental-group functor on based spaces and its unique factorization through based homotopy |
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
