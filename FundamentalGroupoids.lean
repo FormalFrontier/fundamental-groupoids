@@ -37,6 +37,8 @@ public import FundamentalGroupoids.Topology.Category.TopCat.Based.Coproducts
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.ULift
 public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment
+public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment.Punctured
+public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment.PuncturedRetraction
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.Products
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.PointMap

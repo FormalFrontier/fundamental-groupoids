@@ -313,6 +313,45 @@ private theorem attachmentDescFun_disk {Z : Type w} (f : J → C(Circle, X))
 
 public section
 
+/-- Descent of compatible functions from the original space and the closed disks.
+The target is an arbitrary type; continuity of the functions is not required. -/
+def diskAttachmentLift {Z : Type w} (f : J → C(Circle, X))
+    (g : X → Z) (d : J → ↥(Metric.closedBall (0 : ℂ) 1) → Z)
+    (h : ∀ j z, d j (diskBoundary z) = g (f j z)) : diskAttachment f → Z := by
+  exact attachmentDescFun f g d h
+
+/-- Set descent agrees with its original-space function. -/
+@[simp]
+theorem diskAttachmentLift_inclusion {Z : Type w} (f : J → C(Circle, X))
+    (g : X → Z) (d : J → ↥(Metric.closedBall (0 : ℂ) 1) → Z)
+    (h : ∀ j z, d j (diskBoundary z) = g (f j z)) (x : X) :
+    diskAttachmentLift f g d h (diskAttachmentInclusion f x) = g x := by
+  exact attachmentDescFun_inclusion f g d h x
+
+/-- Set descent agrees with each closed-disk function. -/
+@[simp]
+theorem diskAttachmentLift_disk {Z : Type w} (f : J → C(Circle, X))
+    (g : X → Z) (d : J → ↥(Metric.closedBall (0 : ℂ) 1) → Z)
+    (h : ∀ j z, d j (diskBoundary z) = g (f j z)) (j : J)
+    (z : ↥(Metric.closedBall (0 : ℂ) 1)) :
+    diskAttachmentLift f g d h (diskAttachmentDisk f j z) = d j z := by
+  exact attachmentDescFun_disk f g d h j z
+
+/-- Compatible functions have a unique descent to the underlying attachment. -/
+theorem diskAttachmentLift_unique {Z : Type w} (f : J → C(Circle, X))
+    (g : X → Z) (d : J → ↥(Metric.closedBall (0 : ℂ) 1) → Z)
+    (h : ∀ j z, d j (diskBoundary z) = g (f j z)) (k : diskAttachment f → Z)
+    (hX : ∀ x, k (diskAttachmentInclusion f x) = g x)
+    (hD : ∀ j z, k (diskAttachmentDisk f j z) = d j z) :
+    k = diskAttachmentLift f g d h := by
+  apply diskAttachment_ext f
+  · intro x
+    rw [diskAttachmentLift_inclusion]
+    exact hX x
+  · intro j z
+    rw [diskAttachmentLift_disk]
+    exact hD j z
+
 /-- Descent of coherent continuous maps from the original space and the disks.
 The target universe is independent of both source and index universes. -/
 def diskAttachmentDesc {Z : Type w} [TopologicalSpace Z]
@@ -337,6 +376,16 @@ theorem diskAttachmentDesc_disk {Z : Type w} [TopologicalSpace Z]
     (h : ∀ j z, d j (diskBoundary z) = g (f j z)) (j : J) (z : D) :
     diskAttachmentDesc f g d h (diskAttachmentDisk f j z) = d j z := by
   rfl
+
+/-- Continuous descent and set descent have the same underlying function. -/
+theorem diskAttachmentDesc_eq_lift {Z : Type w} [TopologicalSpace Z]
+    (f : J → C(Circle, X)) (g : C(X, Z))
+    (d : J → C(↥(Metric.closedBall (0 : ℂ) 1), Z))
+    (h : ∀ j z, d j (diskBoundary z) = g (f j z)) :
+    ⇑(diskAttachmentDesc f g d h) = diskAttachmentLift f g (fun j => d j) h := by
+  apply diskAttachmentLift_unique f g (fun j => d j) h
+  · exact diskAttachmentDesc_inclusion f g d h
+  · exact diskAttachmentDesc_disk f g d h
 
 /-- Descent restricts to the supplied continuous map on the original space. -/
 @[simp]

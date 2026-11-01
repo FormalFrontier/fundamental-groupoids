@@ -95,6 +95,12 @@ project:
     available in arbitrary real normed spaces. Positive real scaling identifies
     Circle with each positive-radius complex sphere. Scaling and normalization
     give strict retractions and circle-fixing deformations of punctured balls.
+    Compatible functions on a disk attachment descend uniquely to any target
+    type, and continuous descent has the same underlying function.
+    Removing the centres of an arbitrary family of attached closed complex unit
+    disks gives a subspace that strongly deformation retracts onto the original
+    space image, for arbitrary unbased circle maps and independent space and
+    disk-index universes, without connectivity or separation assumptions.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -224,6 +230,12 @@ automation:
       tool_setup: AI-assisted Lean formalization and mathematical documentation.
 status:
   scope: >-
+    Set-level descent uses arbitrary target types and agrees with continuous
+    descent whenever the presenting maps are continuous.
+    Disk centres form a closed set, and compatible functions or continuous maps
+    descend from the original space and punctured disks to its complement.
+    The normalized-direction retraction is a strict left inverse to the
+    original-space map. The radial homotopy fixes its image throughout.
     In an arbitrary category, equality of isomorphism-induced endomorphism
     transports is characterized by centrality of the relative loop.
     In a groupoid, independence from every isomorphism to a fixed explicitly
@@ -519,6 +531,30 @@ alignment:
       module: FundamentalGroupoids/CategoryTheory/SingleObj.lean
     - lean: BasedTopCat.piIsoPi
       module: FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean
+    - lean: TopCat.isClosed_diskAttachmentCenters
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean
+    - lean: TopCat.diskAttachmentPunctured
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean
+    - lean: TopCat.diskAttachmentPuncturedInclusion
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean
+    - lean: TopCat.diskAttachmentPuncturedDisk
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean
+    - lean: TopCat.diskAttachmentPuncturedDesc
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean
+    - lean: TopCat.diskAttachmentPuncturedRetraction
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean
+    - lean: TopCat.diskAttachmentPuncturedRetraction_comp_inclusion
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean
+    - lean: TopCat.diskAttachmentPuncturedDeformation
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean
+    - lean: TopCat.diskAttachmentPuncturedDeformation_disk_of_coe
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean
+    - lean: TopCat.diskAttachmentLift
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachmentLift_unique
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
+    - lean: TopCat.diskAttachmentDesc_eq_lift
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.diskAttachment
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.diskAttachmentInclusion

@@ -58,11 +58,21 @@ directions, examples, conventions and credits.
   connectedness or separation assumptions. The continuous-map universal property
   allows independent universes. Continuity on an open or closed subset is tested
   on its preimages in the original space and each disk, without continuity elsewhere.
+  Compatible functions have a unique descent to any target type, without a
+  continuity requirement; continuous descent has the same underlying function.
   Empty attachments recover the original space; attaching along the identity of the
   boundary recovers the disk. The original inclusion is a closed embedding, and the
   open-disk characteristic maps are open embeddings with mutually disjoint images
   avoiding the original space. Every attaching
   boundary circle induces a trivial fundamental-group homomorphism at every basepoint.
+- **Punctured disk attachments** ([`Punctured`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean),
+  [`PuncturedRetraction`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean)).
+  For any topological space and arbitrary unbased attaching maps, the disk centres
+  form a closed set. Their complement strongly deformation retracts onto the
+  original-space image, fixing that image throughout. On each punctured disk,
+  the retraction follows its unit direction and the deformation is radial.
+  Space and disk-index universes are independent; no connectivity, separation
+  or finiteness assumptions are needed.
 - **Endomorphism transport** ([`Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean)).
   In any category, transports along `α β : X ≅ Y` agree iff
   `α.hom ≫ β.inv` is central in `End X`. Commutativity makes transport independent;
@@ -771,6 +781,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
 | [`Topology.Category.TopCat.Based.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Based/ULift.lean) | Isomorphism from a point-wide-pushout lifted and based at its head to the based wedge of the lifted pointed factors, with underlying-map, head, factor and inverse equations |
 | [`Topology.Category.TopCat.DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean) | Unpointed disk attachments, universal property, original-space closed embedding, disjoint open-disk embeddings and empty/identity attachment homeomorphisms |
+| [`Topology.Category.TopCat.DiskAttachment.Punctured`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean) | Closed centre set, punctured subspace, characteristic maps and descent of functions and continuous maps |
+| [`Topology.Category.TopCat.DiskAttachment.PuncturedRetraction`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean) | Retraction onto the original space and radial strong deformation fixing its image |
 | [`Topology.Category.TopCat.Limits.Products`](FundamentalGroupoids/Topology/Category/TopCat/Limits/Products.lean) | Product-parameter continuity for supplied topological colimits under a locally compact pair hypothesis, and its one-point specialization |
 | [`Topology.Category.TopCat.Limits.WidePushout`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout.lean) | Head-plus-factors quotient comparison, arbitrary-target continuous descent and uniqueness, and empty/singleton diagram homeomorphisms |
 | [`Topology.Category.TopCat.Limits.WidePushout.PointMap`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout/PointMap.lean) | Point-preserving family descent with independently sized families, head and factor characteristics, uniqueness, and identity and composition laws |
