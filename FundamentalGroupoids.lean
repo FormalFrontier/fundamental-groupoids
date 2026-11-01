@@ -71,6 +71,7 @@ public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.CompactlyGene
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Congr
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Discrete
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.FinitePath
+public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Iteration
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.LoopSpace
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Transport

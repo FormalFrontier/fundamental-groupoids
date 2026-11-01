@@ -145,6 +145,19 @@ directions, examples, conventions and credits.
   concatenation along corresponding coordinates, without requiring the two
   group structures to select corresponding axes. This is a cubical transport,
   not a comparison with sphere-domain homotopy classes.
+- **Coherent loop iteration** ([`HomotopyGroup.Iteration`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Iteration.lean)).
+  The computed comparison `HomotopyGroup.genLoopEquiv N M x` flattens an
+  `N`-cube of `M`-loops to an `(N ⊕ M)`-loop using Mathlib's sum-flattening
+  homeomorphism on representatives. Its inverse, constant and based-map laws
+  are public. For nonempty `N`, with supplied decidable equality on `N` and
+  `N ⊕ M`, `genLoopMulEquiv` preserves the existing group operations; `M` may
+  be empty. Associativity uses the ordered sum associator, and the two empty
+  units retain all inner-loop components or evaluate the empty inner loop.
+  `genLoopFinEquiv n m x` orders the outer coordinates before the inner ones,
+  with associativity and zero-unit casts in every degree and a multiplicative
+  refinement when `n` is positive. Index and space universes are independent.
+  These are comparisons of the existing cubical homotopy quotients, not
+  sphere-domain or kified mapping-space identifications.
 - **Generalized loops and homotopy quotients of dependent products** ([`HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean),
   [`FundamentalGroup.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Product.lean)).
   For arbitrary spaces `X i`, points `p i` and cube index `N`,
