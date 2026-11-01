@@ -5,9 +5,11 @@ Authors: Formal Frontier Agents
 module
 
 public import Mathlib.Topology.Compactness.CompactlyGeneratedSpace
+public import Mathlib.Topology.CompactOpen
+public import Mathlib.Topology.Homeomorph.Lemmas
 
 /-!
-# Maps into the compactly generated topology
+# Maps and products for the compactly generated topology
 
 Mathlib's `TopologicalSpace.compactlyGenerated.{u} X` is a topology on the same
 carrier `X`, tested by continuous maps from `CompHaus.{u}`. The continuous
@@ -22,6 +24,12 @@ target universes are independent. `ContinuousMap.compactlyGeneratedMap` refines
 both topologies of a continuous map without changing its function, compatibly
 with identity, composition and the outward comparisons.
 
+For a locally compact `UCompactlyGeneratedSpace.{u}` factor `P`,
+`Homeomorph.compactlyGeneratedProd` compares the compactly generated topology on
+`P × A` with the product of `P` and the compactly generated topology on arbitrary
+`A`. Both directions are the identity function. This does not assert closure
+under arbitrary ordinary products of compactly generated spaces.
+
 No separation hypothesis is imposed. In particular, this is the CompHaus-test
 construction, not a claim that an arbitrary target is weak Hausdorff. May's
 term "compactly generated" includes weak Hausdorffness. No new type, topology,
@@ -34,6 +42,11 @@ category or adjunction is introduced here.
   original topology, with the weak-Hausdorff convention described above.
 * Mathlib's compactly generated topology and source-test continuity API,
   due to Dagur Asgeirsson and Etienne Marion.
+* Mathlib's compact-open formalization (Reid Barton), especially the
+  quotient-product continuity theorem
+  `Topology.IsQuotientMap.continuous_lift_prod_right` in
+  `Mathlib.Topology.CompactOpen`, which supplies the locally compact descent
+  used in the product proof.
 -/
 
 @[expose] public section
@@ -176,3 +189,172 @@ theorem compactlyGeneratedCounit_naturality (f : C(X, Y)) :
   rfl
 
 end ContinuousMap
+
+/-- The CompHaus-test compactly generated topology is `u`-compactly generated,
+with no size or separation hypothesis on the original space. -/
+instance instUCompactlyGeneratedSpaceCompactlyGenerated
+    (A : Type v) [tA : TopologicalSpace A] :
+    @UCompactlyGeneratedSpace.{u} A (compactlyGenerated.{u} A) := by
+  let E := Σ (i : (S : CompHaus.{u}) × C(S, A)), i.fst
+  let q : E → A := fun ⟨⟨_, f⟩, s⟩ ↦ f s
+  have hE : UCompactlyGeneratedSpace.{u} E := inferInstance
+  exact @uCompactlyGeneratedSpace_of_coinduced E A inferInstance
+    (compactlyGenerated.{u} A) hE q continuous_coinduced_rng rfl
+
+private theorem isQuotientMap_compHausEval (B : Type v) [TopologicalSpace B]
+    [UCompactlyGeneratedSpace.{u} B] :
+    Topology.IsQuotientMap
+      (fun p : Σ (i : (S : CompHaus.{u}) × C(S, B)), i.fst ↦ p.1.2 p.2) := by
+  refine ⟨⟨eq_compactlyGenerated (X := B)⟩, ?_⟩
+  intro b
+  exact ⟨⟨⟨CompHaus.of PUnit.{u + 1}, ContinuousMap.const _ b⟩, PUnit.unit⟩, rfl⟩
+
+-- The evaluation domain need not be small. Distribute its sigma type over the
+-- product, then descend along evaluation using local compactness of `P`.
+private theorem continuous_prod_of_compHaus_restrictions
+    {P : Type v} {B : Type w} {Y : Type z}
+    [TopologicalSpace P] [TopologicalSpace B] [TopologicalSpace Y]
+    [LocallyCompactSpace P] [UCompactlyGeneratedSpace.{u} B]
+    (f : P × B → Y)
+    (h : ∀ (S : CompHaus.{u}) (g : C(S, B)),
+      Continuous (fun p : P × S ↦ f (p.1, g p.2))) : Continuous f := by
+  let E := Σ (i : (S : CompHaus.{u}) × C(S, B)), i.fst
+  let q : E → B := fun p ↦ p.1.2 p.2
+  have hq : Topology.IsQuotientMap q := isQuotientMap_compHausEval.{u} B
+  apply hq.continuous_lift_prod_right
+  let e : E × P ≃ₜ Σ (i : (S : CompHaus.{u}) × C(S, B)), i.fst × P :=
+    Homeomorph.sigmaProdDistrib
+  have hSigma : Continuous
+      (fun p : Σ (i : (S : CompHaus.{u}) × C(S, B)), i.fst × P ↦
+        f (p.2.2, p.1.2 p.2.1)) := by
+    apply continuous_sigma
+    intro i
+    exact (h i.1 i.2).comp continuous_swap
+  exact (hSigma.comp e.continuous).comp continuous_swap
+
+private theorem uCompactlyGeneratedSpace_compHaus_prod
+    (S : CompHaus.{u}) (B : Type v) [TopologicalSpace B]
+    [UCompactlyGeneratedSpace.{u} B] : UCompactlyGeneratedSpace.{u} (S × B) := by
+  refine uCompactlyGeneratedSpace_of_continuous_maps.{u} ?_
+  intro Y tY f h
+  apply continuous_prod_of_compHaus_restrictions.{u} f
+  intro T g
+  -- Both factors belong to the probe universe, so this is a small probe.
+  exact h (CompHaus.of (S × T))
+    ⟨fun p ↦ (p.1, g p.2),
+      continuous_fst.prodMk (g.continuous.comp continuous_snd)⟩
+
+/-- The ordinary product of a locally compact `u`-compactly generated space
+with a `u`-compactly generated space is `u`-compactly generated. -/
+instance instUCompactlyGeneratedSpaceProdOfLocallyCompactSpace
+    (P : Type v) (A : Type w) [TopologicalSpace P] [TopologicalSpace A]
+    [UCompactlyGeneratedSpace.{u} P] [LocallyCompactSpace P]
+    [UCompactlyGeneratedSpace.{u} A] : UCompactlyGeneratedSpace.{u} (P × A) := by
+  refine uCompactlyGeneratedSpace_of_continuous_maps.{u} ?_
+  intro Y tY f h
+  apply continuous_prod_of_compHaus_restrictions.{u} f
+  intro S g
+  let : UCompactlyGeneratedSpace.{u} (S × P) :=
+    uCompactlyGeneratedSpace_compHaus_prod.{u} S P
+  let : UCompactlyGeneratedSpace.{u} (P × S) :=
+    uCompactlyGeneratedSpace_of_coinduced.{u}
+      (Homeomorph.prodComm S P).continuous
+      (Homeomorph.prodComm S P).isQuotientMap.eq_coinduced
+  -- `P × S` can be large: use its source-test criterion, not a small-probe claim.
+  apply continuous_from_uCompactlyGeneratedSpace.{u}
+    (fun p : P × S ↦ f (p.1, g p.2))
+  intro T k
+  exact h T
+    ⟨fun t ↦ ((k t).1, g (k t).2),
+      (continuous_fst.comp k.continuous).prodMk
+        (g.continuous.comp (continuous_snd.comp k.continuous))⟩
+
+namespace Homeomorph
+
+variable (P : Type v) (A : Type w)
+variable [tP : TopologicalSpace P] [tA : TopologicalSpace A]
+variable [UCompactlyGeneratedSpace.{u} P] [LocallyCompactSpace P]
+
+/-- For a locally compact `u`-compactly generated space `P`, the identity
+homeomorphism between the compactly generated topology on `P × A` and the
+product of `P` with the compactly generated topology on `A`. No
+compact-generation or separation hypothesis is imposed on `A`. -/
+def compactlyGeneratedProd :
+    @Homeomorph (P × A) (P × A) (compactlyGenerated.{u} (P × A))
+      (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A)) := by
+  let forward :
+      @ContinuousMap (P × A) (P × A) (compactlyGenerated.{u} (P × A))
+        (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A)) :=
+    @ContinuousMap.prodMk (P × A) (compactlyGenerated.{u} (P × A))
+      P A tP (compactlyGenerated.{u} A)
+      (@ContinuousMap.comp (P × A) (P × A) P (compactlyGenerated.{u} (P × A))
+        (@instTopologicalSpaceProd P A tP tA) tP
+        (@ContinuousMap.fst P A tP tA)
+        (ContinuousMap.compactlyGeneratedCounit.{u} (P × A)))
+      (@ContinuousMap.compactlyGeneratedMap.{u} (P × A) A
+        (@instTopologicalSpaceProd P A tP tA) tA
+        (@ContinuousMap.snd P A tP tA))
+  let backward :
+      @ContinuousMap (P × A) (P × A)
+        (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A))
+        (compactlyGenerated.{u} (P × A)) :=
+    @ContinuousMap.toCompactlyGenerated.{u} (P × A) (P × A)
+      (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A))
+      (@instTopologicalSpaceProd P A tP tA)
+      (@instUCompactlyGeneratedSpaceProdOfLocallyCompactSpace.{u} P A tP
+        (compactlyGenerated.{u} A) inferInstance inferInstance
+        (@instUCompactlyGeneratedSpaceCompactlyGenerated.{u} A tA))
+      (@ContinuousMap.prodMap P P A A tP tP (compactlyGenerated.{u} A) tA
+        (@ContinuousMap.id P tP)
+        (ContinuousMap.compactlyGeneratedCounit.{u} A))
+  exact @Homeomorph.mk (P × A) (P × A) (compactlyGenerated.{u} (P × A))
+    (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A))
+    { toFun := _root_.id
+      invFun := _root_.id
+      left_inv := fun _ ↦ rfl
+      right_inv := fun _ ↦ rfl }
+    (@ContinuousMap.continuous_toFun (P × A) (P × A)
+      (compactlyGenerated.{u} (P × A))
+      (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A)) forward)
+    (@ContinuousMap.continuous_toFun (P × A) (P × A)
+      (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A))
+      (compactlyGenerated.{u} (P × A)) backward)
+
+/-- The product comparison does not change points. -/
+@[simp]
+theorem compactlyGeneratedProd_apply (p : P × A) :
+    compactlyGeneratedProd.{u} P A p = p :=
+  rfl
+
+/-- The inverse product comparison does not change points. -/
+@[simp]
+theorem compactlyGeneratedProd_symm_apply (p : P × A) :
+    (@Homeomorph.symm (P × A) (P × A) (compactlyGenerated.{u} (P × A))
+      (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A))
+      (compactlyGeneratedProd.{u} P A)) p = p :=
+  rfl
+
+/-- The product comparison commutes with the outward comparisons
+as an equality of continuous maps. -/
+@[simp]
+theorem compactlyGeneratedProd_counit :
+    @ContinuousMap.comp (P × A) (P × A) (P × A)
+      (compactlyGenerated.{u} (P × A))
+      (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A))
+      (@instTopologicalSpaceProd P A tP tA)
+      (@ContinuousMap.prodMap P P A A tP tP (compactlyGenerated.{u} A) tA
+        (@ContinuousMap.id P tP)
+        (ContinuousMap.compactlyGeneratedCounit.{u} A))
+      (@_root_.toContinuousMap
+        (@Homeomorph (P × A) (P × A) (compactlyGenerated.{u} (P × A))
+          (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A)))
+        (P × A) (P × A) (compactlyGenerated.{u} (P × A))
+        (@instTopologicalSpaceProd P A tP (compactlyGenerated.{u} A))
+        inferInstance inferInstance (compactlyGeneratedProd.{u} P A)) =
+        ContinuousMap.compactlyGeneratedCounit.{u} (P × A) := by
+  refine @ContinuousMap.ext (P × A) (P × A) (compactlyGenerated.{u} (P × A))
+    (@instTopologicalSpaceProd P A tP tA) _ _ ?_
+  intro p
+  rfl
+
+end Homeomorph

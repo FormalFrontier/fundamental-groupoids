@@ -193,6 +193,22 @@ directions, examples, conventions and credits.
   under Mathlib's multiplicative comparison. Cube and space universes are
   independent, with no separation, connectedness or finiteness assumptions.
   The module uses Mathlib alone.
+- **Locally compact products** ([`CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean)).
+  The ordinary product of two `UCompactlyGeneratedSpace.{u}` spaces is again
+  `u`-compactly generated when the first factor is locally compact. For such
+  a first factor `P` and an arbitrary topological `A`,
+  `Homeomorph.compactlyGeneratedProd` identifies `k_u (P × A)` with `P × k_u A`
+  by the identity function in both directions, compatibly with the counits.
+  The probe and both space universes are independent, without separation or
+  smallness assumptions. This is not an arbitrary-product formula.
+- **Relative homotopies under refinement** ([`Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean)).
+  From any `UCompactlyGeneratedSpace.{u}` source, a supplied relative homotopy
+  lifts to the CompHaus-test refinement of its target with its entire joint
+  cylinder function unchanged. Endpoints and any fixed subset are preserved;
+  counit postcomposition is inverse to lifting, which is natural in target maps.
+  Source, target and probe universes are independent. The target needs no
+  separation or compact-generation assumption, and the source needs no local
+  compactness or first-countability assumption.
 - **CompHaus-test topology comparisons** ([`HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean)).
   Refining the target topology to Mathlib's `compactlyGenerated.{u} X` leaves
   every boundary-relative cubical homotopy quotient canonically equivalent to
@@ -507,7 +523,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
 | [`Topology.Homotopy.HomotopyGroup.Map`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean) | Based postcomposition on generalized loops and all homotopy quotients, positive homomorphisms, based-homotopy invariance and fundamental-group compatibility |
-| [`Topology.Compactness.CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean) | Source-test continuity iff, unchanged-function lifts, refined maps and their characteristic composition laws |
+| [`Topology.Compactness.CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean) | Source-test continuity, unchanged-function lifts, locally compact product closure and the identity product-refinement homeomorphism |
+| [`Topology.Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean) | Joint relative-homotopy lifts with arbitrary fixed subsets, counit inverse laws, target naturality and homotopy-existence comparison |
 | [`Topology.Homotopy.HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean) | Natural equivalences for CompHaus-test topology comparisons on all cubical homotopy quotients, with existing-map and positive multiplicative characteristics |
 | [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Boundary-relative homotopy iff joinedness; raw quotient/component equivalence with identity representative and constant laws, based-postcomposition naturality and empty-index compatibility |
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |

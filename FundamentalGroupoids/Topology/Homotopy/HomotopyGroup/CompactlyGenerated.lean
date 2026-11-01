@@ -4,7 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
-public import FundamentalGroupoids.Topology.Compactness.CompactlyGeneratedSpace
+public import FundamentalGroupoids.Topology.Homotopy.CompactlyGenerated
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map
 public import FundamentalGroupoids.Topology.Homotopy.InfiniteCube
 
@@ -21,13 +21,14 @@ convention. Both comparisons commute with based continuous maps, using the
 same-function map between the compactly generated topologies.
 
 The probe universe, cube-index universe and target universe are independent.
-For finite indices, the raw source cube and its full homotopy cylinder are first
-countable, hence sequential and `u`-compactly generated for every `u`; continuity
-therefore lifts without changing the underlying functions. For infinite indices,
-`HomotopyGroup.subsingleton_of_infinite` makes both quotients subsingletons,
-without separation assumptions. No product formula for compactly generated
-topologies is used. There is no compact-generation, separation or well-pointedness
-assumption on `X`.
+For finite indices, the raw source cube is first countable, hence sequential and
+`u`-compactly generated for every `u`. The relative-homotopy target-refinement
+construction uses compact generation of its product with the locally compact
+interval to lift the joint homotopy without changing its function or its fixed
+boundary. For infinite indices, `HomotopyGroup.subsingleton_of_infinite` makes
+both quotients subsingletons, without separation assumptions. No general product
+formula for compactly generated topologies is asserted. There is no
+compact-generation, separation or well-pointedness assumption on `X`.
 
 For `N = Fin n` this is the finite-degree cubical model. For an empty index, the
 coordinate-face boundary is empty, so a representative may take any value, not
@@ -52,9 +53,11 @@ or homeomorphism between them is asserted.
   due to Dagur Asgeirsson and Etienne Marion; its generalized loops and homotopy
   groups, due to Roberto Alvarez; and its relative homotopies, due to Shing Tak
   Lam and contributors.
-* Based postcomposition on generalized loops and their homotopy quotient is
-  provided by `FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map`.
-  The infinite-index subsingleton theorem is provided by
+* Target refinement of relative homotopies is provided by
+  `FundamentalGroupoids.Topology.Homotopy.CompactlyGenerated`. Based
+  postcomposition on generalized loops and their homotopy quotient is provided
+  by `FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map`. The infinite-index
+  subsingleton theorem is provided by
   `FundamentalGroupoids.Topology.Homotopy.InfiniteCube`.
 -/
 
@@ -87,12 +90,10 @@ theorem bijective_mapFun_compactlyGeneratedCounit (N : Type s) (x : X) :
   rcases finite_or_infinite N with hN | hN
   · let : Finite N := hN
     let : Countable N := inferInstance
-    -- These are the raw cube and joint cylinder, with their stock product topologies.
+    -- The raw cube is first countable with its stock product topology.
     let : FirstCountableTopology (N → unitInterval) := inferInstance
-    let : FirstCountableTopology (unitInterval × (N → unitInterval)) := inferInstance
     -- First-countable spaces are sequential, hence compactly generated for every `u`.
     let : UCompactlyGeneratedSpace.{u} (N → unitInterval) := inferInstance
-    let : UCompactlyGeneratedSpace.{u} (unitInterval × (N → unitInterval)) := inferInstance
     constructor
     · intro a b
       refine Quotient.inductionOn₂
@@ -110,16 +111,13 @@ theorem bijective_mapFun_compactlyGeneratedCounit (N : Type s) (x : X) :
       change Nonempty
         (@ContinuousMap.HomotopyRel (N → unitInterval) X inferInstance
           (compactlyGenerated.{u} X) p.1 q.1 (Cube.boundary N))
-      -- Lift the entire jointly continuous homotopy, not just its time slices.
-      exact ⟨@ContinuousMap.HomotopyWith.mk (N → unitInterval) X inferInstance
-        (compactlyGenerated.{u} X) p.1 q.1
-        (fun f ↦ ∀ a ∈ Cube.boundary N, f a = p.1 a)
-        (@ContinuousMap.Homotopy.mk (N → unitInterval) X inferInstance
-          (compactlyGenerated.{u} X) p.1 q.1
-          (@ContinuousMap.toCompactlyGenerated.{u} (unitInterval × (N → unitInterval)) X
-            inferInstance tX inferInstance H.toContinuousMap)
-          (fun a ↦ H.apply_zero a) (fun a ↦ H.apply_one a))
-        (fun t a ha ↦ H.eq_fst t ha)⟩
+      -- Lift the joint homotopy and identify its endpoints by the inverse laws.
+      exact ⟨@ContinuousMap.HomotopyRel.cast (N → unitInterval) X inferInstance
+        (compactlyGenerated.{u} X) (Cube.boundary N) _ _ p.1 q.1 H.toCompactlyGenerated.{u}
+        (@ContinuousMap.toCompactlyGenerated_comp_compactlyGeneratedCounit.{u}
+          (N → unitInterval) X inferInstance tX inferInstance p.1)
+        (@ContinuousMap.toCompactlyGenerated_comp_compactlyGeneratedCounit.{u}
+          (N → unitInterval) X inferInstance tX inferInstance q.1)⟩
     · apply Quotient.map_surjective
       intro p
       refine ⟨

@@ -42,6 +42,12 @@ project:
     quotient, multiplicative for nonempty indices with decidable equality.
     Probe, cube-index and target universes are independent. Unchanged functions
     lift continuously from every universe-parameterized compactly generated source.
+    Ordinary products preserve universe-parameterized compact generation when
+    one factor is locally compact. For such a compactly generated factor P and
+    any topological A, the refinement of P × A is homeomorphic to P times the
+    refinement of A by the identity functions. Supplied relative homotopies from
+    compactly generated sources lift with unchanged joint cylinder functions,
+    endpoints and arbitrary fixed subsets, with counit inverse and naturality laws.
     Coverings induce canonical quotient-map injections for nonempty cube indices
     and bijections for nontrivial indices, without decidable equality.
     For nontrivial indices with decidable equality,
@@ -138,7 +144,9 @@ sources:
       a target separation hypothesis. May's compactly generated spaces include
       weak Hausdorffness; no identification with that category is asserted.
       All-index cubical comparisons extend the finite-degree motivation, without
-      a sphere-domain comparison or a product formula for kification.
+      a sphere-domain comparison or an arbitrary-product formula for kification.
+      The locally compact factor comparison is supporting topology derived using
+      Mathlib's quotient-product continuity theorem.
       No open redistribution license is inferred for
       the author-hosted PDF, and no book excerpts or PDF assets are included.
 related_formalizations:
@@ -308,8 +316,21 @@ status:
     source compact-generation; infinite quotients use the existing subsingleton
     theorem. Empty-index quotients retain all path components. The supporting
     continuity iff and unchanged-function lift apply to any
-    UCompactlyGeneratedSpace.{u} source. Neither a sphere-domain comparison nor
-    May's weak-Hausdorff category or a k-product formula is supplied.
+    UCompactlyGeneratedSpace.{u} source. The ordinary product of two such spaces
+    is again u-compactly generated when the first factor is locally compact.
+    For a locally compact u-compactly generated P and arbitrary topological A,
+    Homeomorph.compactlyGeneratedProd identifies k_u (P × A) with P × k_u A by
+    identity functions, with the counit square. Probe and both space universes
+    are independent, with no separation or smallness assumptions. For any
+    u-compactly generated A, ContinuousMap.HomotopyRel.toCompactlyGenerated lifts
+    each supplied relative homotopy to the refined target with the same joint
+    cylinder function, endpoints and arbitrary fixed subset. Counit postcomposition
+    is inverse in both directions; lifting is natural under target maps and gives
+    the corresponding homotopy-existence equivalence. Source, target and probe
+    universes are independent, with no target separation or compact-generation
+    premise and no local compactness or first-countability premise on A. Neither
+    a sphere-domain comparison, May's weak-Hausdorff category nor an arbitrary
+    product formula is supplied.
     For compact Hausdorff K : Type u, any open s and any topological X : Type v
     with a chosen x : X, OnePoint.collapsePullbackHomeomorph s x identifies
     {F : C(OnePoint s, X) // F ∞ = x} with
@@ -562,6 +583,16 @@ alignment:
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
     - lean: HomotopyGroup.pi1MulEquivFundamentalGroup_map
       module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Map.lean
+    - lean: instUCompactlyGeneratedSpaceProdOfLocallyCompactSpace
+      module: FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean
+    - lean: Homeomorph.compactlyGeneratedProd
+      module: FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean
+    - lean: ContinuousMap.HomotopyRel.toCompactlyGenerated
+      module: FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean
+    - lean: ContinuousMap.HomotopyRel.toCompactlyGenerated_toContinuousMap
+      module: FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean
+    - lean: ContinuousMap.homotopicRel_toCompactlyGenerated_iff
+      module: FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean
     - lean: ContinuousMap.HomotopyRel.affine
       module: FundamentalGroupoids/Topology/Homotopy/Affine.lean
     - lean: ContinuousMap.HomotopyRel.affine_toHomotopy
