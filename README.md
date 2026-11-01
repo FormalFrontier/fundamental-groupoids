@@ -389,6 +389,12 @@ directions, examples, conventions and credits.
   point. Cube and target universes are independent; empty and infinite indices
   are allowed. No separation, norm, completeness or positive-degree group
   structure is required.
+- **Circle-fixed radial deformation of punctured complex balls** ([`Homotopy.ComplexPuncturedBall`](FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean)).
+  For `0 < a < r`, positive scaling embeds `Circle` as the radius-`a` circle
+  inside the punctured radius-`r` ball, and normalization is `z / ‖z‖`.
+  Their composite is the circle identity, and the radial deformation fixes the
+  scaled circle pointwise. Evaluation and endpoint laws describe these maps
+  without unfolding them.
 - **Radial deformation of punctured closed balls** ([`Homotopy.Radial`](FundamentalGroupoids/Topology/Homotopy/Radial.lean)).
   For every real normed space and positive radius, radial projection retracts
   the closed ball with its centre removed onto its metric sphere. The scalar
@@ -397,6 +403,10 @@ directions, examples, conventions and credits.
   inclusion give a `ContinuousMap.HomotopyEquiv`, with evaluation, endpoint,
   boundary-fixing and retraction laws. No nontriviality, completeness or dimension
   assumption is required; empty punctured balls and spheres are allowed.
+  For an open ball of radius `r` and `0 < a < r`, the same construction
+  retracts onto the radius-`a` inner sphere, with the deformation fixing the
+  range of its inclusion. Projection onto a positive-radius sphere requires
+  only `0 < a`, even when that sphere is not contained in the source ball.
 - **Homotopy-retraction splittings** ([`retractionOfHomotopy`](FundamentalGroupoids/FundamentalGroup.lean)).
   For `g : C(X, Y)`, `f : C(Y, X)` and a homotopy from `f.comp g` to `id X`,
   transport along its track at `x` gives an explicit left inverse of
@@ -752,6 +762,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Covering.FiniteIndex`](FundamentalGroupoids/Topology/Covering/FiniteIndex.lean) | Properness iff the canonical based fundamental-group image has finite index, for path-connected total space |
 | [`Topology.Covering.DeckGroup`](FundamentalGroupoids/Topology/Covering/DeckGroup.lean) | Fiber actions, evaluation embeddings and fixed-point rigidity for separated, locally injective maps with preconnected total space |
 | [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
+| [`Topology.Homotopy.Radial`](FundamentalGroupoids/Topology/Homotopy/Radial.lean) | Radial projection and strong deformation of punctured closed balls and open balls onto spheres in arbitrary real normed spaces |
+| [`Topology.Homotopy.ComplexPuncturedBall`](FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean) | Positive scaling from Circle to complex spheres, normalization and circle-fixing radial deformation |
 
 ## Conventions and limitations
 

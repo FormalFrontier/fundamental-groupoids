@@ -91,6 +91,10 @@ project:
     Semilocal simple connectivity uses chosen-center loops contracting in the
     ambient space, with induced-map reflection, local-homeomorphism transport,
     covering consequences and a locally path-connected neighborhood refinement.
+    Radial deformations of punctured closed and open balls onto spheres are
+    available in arbitrary real normed spaces. Positive real scaling identifies
+    Circle with each positive-radius complex sphere. Scaling and normalization
+    give strict retractions and circle-fixing deformations of punctured balls.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -382,6 +386,18 @@ status:
     inclusion as a homotopy equivalence. Evaluation, endpoint and boundary laws
     describe the maps without unfolding them. No nontriviality, completeness,
     finite-dimensionality or inhabitance assumption is required.
+    For 0 < a < r, Metric.sphereToPuncturedBall includes the radius-a sphere
+    into the punctured open radius-r ball, and Metric.puncturedBallDeformation
+    strongly deforms that ball onto the inclusion range. The associated
+    Metric.puncturedBallHomotopyEquivSphere has radial projection forward
+    and inclusion inverse. Metric.puncturedBallRetraction itself needs only
+    0 < a, without requiring a < r. These constructions allow the zero space.
+    In the complex plane, Complex.circleHomeomorphSphere identifies Circle
+    with every positive-radius sphere by real scaling. The continuous maps
+    Complex.circleToPuncturedBall and Complex.puncturedBallToCircle give
+    scaling and normalization, with normalization z / ‖z‖ and a left-inverse
+    law. The radial deformation fixes the scaled circle pointwise, with
+    evaluation and endpoint laws.
     For IsCoveringMap f and a supplied e : E, the same canonical mapFun with
     target point f e is injective for Nonempty N and bijective for Nontrivial N,
     without DecidableEq N. With DecidableEq N and Nontrivial N,
@@ -801,6 +817,18 @@ alignment:
       module: FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean
     - lean: isSemilocallySimplyConnectedAt_iff_exists_isOpen_isPathConnected
       module: FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean
+    - lean: Metric.puncturedBallRetraction
+      module: FundamentalGroupoids/Topology/Homotopy/Radial.lean
+    - lean: Metric.puncturedBallDeformation
+      module: FundamentalGroupoids/Topology/Homotopy/Radial.lean
+    - lean: Metric.puncturedBallHomotopyEquivSphere
+      module: FundamentalGroupoids/Topology/Homotopy/Radial.lean
+    - lean: Complex.circleHomeomorphSphere
+      module: FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean
+    - lean: Complex.circleToPuncturedBall
+      module: FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean
+    - lean: Complex.puncturedBallToCircle
+      module: FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean
 acknowledgements: >-
   Formal Frontier agents contributed Lean formalization, examples and documentation.
   May and Mathlib are credited in the module references and CONTRIBUTORS.md,
