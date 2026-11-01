@@ -49,6 +49,14 @@ namespace BasedTopCat
 /-- The selected point of a based topological space. -/
 abbrev point (X : BasedTopCat.{u}) : X.right := X.hom PUnit.unit
 
+/-- The structure map from the one-point space is constant at the selected point. -/
+theorem hom_eq_const_point (X : BasedTopCat.{u}) :
+    X.hom = TopCat.const (point X) := by
+  apply TopCat.ext
+  intro t
+  cases t
+  rfl
+
 /-- A topological space with a specified point, regarded as an object under the one-point space. -/
 def of (X : Type u) [TopologicalSpace X] (x : X) : BasedTopCat.{u} :=
   Under.mk (TopCat.ofHom (ContinuousMap.const PUnit.{u + 1} x))

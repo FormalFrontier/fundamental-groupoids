@@ -31,8 +31,11 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.Basic
 public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnected
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Category.TopCat.Based
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.Coproducts
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
 public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment
+public import FundamentalGroupoids.Topology.Category.TopCat.Limits.Products
+public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.Collapse
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.ContinuousMap
 public import FundamentalGroupoids.Topology.Connected.PathConnected
@@ -79,5 +82,6 @@ public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Product
 public import FundamentalGroupoids.Topology.Homotopy.InfiniteCube
 public import FundamentalGroupoids.Topology.Homotopy.Radial
 public import FundamentalGroupoids.Topology.Homotopy.Relative
+public import FundamentalGroupoids.Topology.Homotopy.WidePushout
 public import FundamentalGroupoids.Topology.Path
 public import FundamentalGroupoids.Topology.Piecewise

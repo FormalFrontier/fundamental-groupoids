@@ -36,6 +36,18 @@ Formal Frontier Agents. Its `CoveringLifting`, `CoveringEquivalence`,
 Their Apache-2.0 and authorship notices are retained, as are the mathematical
 references and credits to prior formalizations.
 
+The product-parameter colimit criterion, wide-pushout quotient and descent API,
+and chosen-point-relative homotopy constructor originate in
+[Sphere Topology's wide-pushout formalization](https://github.com/FormalFrontier/sphere-topology/tree/bfc9f2d9bc62bba8d904500a8eeb799482b0f093/SphereTopology/Topology)
+by Formal Frontier Agents, with retained Apache-2.0 and authorship notices.
+Formal Frontier Agents supplied the final-topology descent proofs and the shared
+free-path-space transposition approach. They reuse Mathlib's topological colimits
+by Patrick Massot, Kim Morrison, Mario Carneiro and Andrew Yang; Joël Riou's
+`Types.Pushout`; Reid Barton's compact-open currying and Mathlib's evaluation and
+locally compact pair APIs; and Shing Tak Lam's relative and interval homotopies.
+May, Chapter 2, §8, p. 19 supplies the point-wedge setting, not the pair-hypothesis
+continuity criterion or its independent-universe descent generalization.
+
 The signed-period additive-circle and complex-circle integer coordinates,
 including their loop, inverse, endpoint and homeomorphism-compatibility APIs,
 originate in [Sphere Topology's circle formalization](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/Circle.lean)

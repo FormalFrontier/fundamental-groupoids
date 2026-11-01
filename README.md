@@ -10,6 +10,28 @@ directions, examples, conventions and credits.
 
 ## Headline results
 
+- **Point-wide-pushout coproducts up to based homotopy** ([`Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean)).
+  A family `D : J → BasedTopCat.{max u w}`, indexed by `J : Type w`, has a
+  point-wide-pushout cofan with explicit descent and uniqueness, both in based
+  spaces and after quotienting based maps by homotopies fixing the point at
+  every time. Two based maps from this wedge represent the same class exactly
+  when all factor restrictions do. The colimit data retain the mapped composite
+  diagram; the binary specialization uses its explicit comparison isomorphism.
+  Empty families give initial objects. No separation, local compactness of the
+  spaces, finiteness of the index, or condition on the basepoints is required.
+- **Wide-pushout continuity and homotopy descent** ([`Limits.Products`](FundamentalGroupoids/Topology/Category/TopCat/Limits/Products.lean),
+  [`Limits.WidePushout`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout.lean),
+  [`Homotopy.WidePushout`](FundamentalGroupoids/Topology/Homotopy/WidePushout.lean)).
+  A supplied topological colimit has its characteristic continuity criterion after
+  product with `P` for maps to `Y` under `LocallyCompactPair P Y`, with independent
+  indexing-object, indexing-morphism, diagram, parameter and target universes.
+  Wide pushouts of arbitrary continuous attaching maps have a quotient comparison
+  and continuous descent to independently universed targets, with head, factor and
+  uniqueness equations. Compatible jointly continuous families and `HomotopyLike`
+  data descend with their prescribed restrictions at every time. For a point head,
+  chosen-point-relative factor homotopies and explicit equality of endpoint maps
+  at the head give a unique head-relative homotopy. Empty index families are
+  included; no separation or local compactness of the factors or target is required.
 - **Unpointed disk attachments** ([`DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean)).
   Arbitrary families of circle maps attach closed complex unit disks, with no
   connectedness or separation assumptions. The continuous-map universal property
@@ -325,7 +347,7 @@ directions, examples, conventions and credits.
   cube boundary follows the chosen loop. Based maps are equivariant for their
   induced fundamental-group maps. With the given nonempty index and decidable
   equality, the same action preserves the existing group multiplication. Empty
-  indices fix every free path component; in degree one the native comparison
+  indices fix every free path component; in degree one Mathlib's comparison
   gives conjugation `g * a * g⁻¹`. Target and index universes are independent,
   and no separation or local-connectivity hypothesis is required.
 - **Point-local loop rigidity and totally disconnected targets** ([`HomotopyGroup.Discrete`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Discrete.lean)).
@@ -597,7 +619,16 @@ or `hf.homotopyGroupMulEquiv N e` at the index hypotheses above. See the
 [covering homotopy-group guide](docs/mathematical-guide.md#covering-maps-on-homotopy-groups)
 for representative and chosen-lift inverse formulas.
 
-**Covering and circle compatibility:** these modules retain declaration names
+For product-parameter colimit continuity, import
+`FundamentalGroupoids.Topology.Category.TopCat.Limits.Products` and use
+`TopCat.continuous_prod_iff_of_isColimit c hc`. For wide-pushout families or
+homotopies, import `FundamentalGroupoids.Topology.Homotopy.WidePushout` and use
+`TopCat.widePushoutProdDesc`, `TopCat.widePushoutHomotopy` or
+`TopCat.widePushoutPointHomotopyRel`. Their head and factor equations and uniqueness
+lemmas characterize the constructed data; the last constructor requires explicit
+head equality even when there are no factors.
+
+**Covering, circle and wide-pushout compatibility:** these modules retain declaration names
 from [sphere-topology](https://github.com/FormalFrontier/sphere-topology).
 Do not co-import a version defining its own copies. Joint consumers must select
 a Sphere Topology version whose old modules publicly import the canonical
@@ -647,6 +678,9 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
 | [`Topology.Category.TopCat.DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean) | Unpointed disk attachments, universal property, original-space closed embedding, disjoint open-disk embeddings and empty/identity attachment homeomorphisms |
+| [`Topology.Category.TopCat.Limits.Products`](FundamentalGroupoids/Topology/Category/TopCat/Limits/Products.lean) | Product-parameter continuity for supplied topological colimits under a locally compact pair hypothesis, and its one-point specialization |
+| [`Topology.Category.TopCat.Limits.WidePushout`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout.lean) | Head-plus-factors quotient comparison, arbitrary-target continuous descent and uniqueness, and empty/singleton diagram homeomorphisms |
+| [`Topology.Homotopy.WidePushout`](FundamentalGroupoids/Topology/Homotopy/WidePushout.lean) | Jointly continuous family and homotopy descent, all-time restrictions, uniqueness and reparameterization; point-relative factor homotopies as a unique head-relative homotopy |
 | [`AlgebraicTopology.FundamentalGroup.Circle`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean) | Signed-period additive-circle and complex-circle integer coordinates, loop/inverse/endpoint laws, nonidentity generators and homeomorphism compatibility |
 | [`AlgebraicTopology.FundamentalGroup.Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean) | Fundamental-group functor on based spaces and its unique factorization through based homotopy |
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
@@ -731,6 +765,12 @@ with retained Apache-2.0 and authorship notices. The signed-period and complex-c
 coordinate core also
 originates in its [circle formalization](https://github.com/FormalFrontier/sphere-topology/blob/4a2b822f12e7f2b4255dfea5363265277defa35e/SphereTopology/Homotopy/Circle.lean),
 using Mathlib's quotient coverings and induced homeomorphism equivalence.
+The product-parameter colimit criterion, wide-pushout quotient/descent API and
+point-relative homotopy constructor also originate in Sphere Topology by Formal
+Frontier Agents. They reuse Mathlib's topological colimits, Joël Riou's
+`Types.Pushout`, Reid Barton's compact-open currying and evaluation, and Shing Tak
+Lam's relative homotopies. May, Chapter 2 §8, p. 19 supplies the point-wedge setting,
+not the pair-hypothesis or universe-general descent results.
 The generalized-loop and homotopy-group map API originates in Restricted Product
 Duality by Formal Frontier Agents, retaining its definitions, proofs, names and
 Apache-2.0 notice. It uses Roberto Alvarez's homotopy groups, Mark Lavrentyev's
