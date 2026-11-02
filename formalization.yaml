@@ -111,6 +111,9 @@ project:
     Commuting squares of source and target homeomorphisms induce homeomorphisms
     of ordinary compact-open homotopy fibers at corresponding specified points,
     with point, full-path, inverse, identity, composition and projection laws.
+    Fibers of product maps are homeomorphic to products of ordinary homotopy
+    fibers, preserving both retained source points and full same-time paths,
+    naturally for arbitrary continuous squares in independent universes.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -554,6 +557,9 @@ alignment:
     supporting topology built on Mathlib and GroupTheory's compact-covering
     precomposition embedding API. The strict ordered finite-wedge comparisons
     are consequences of the based coproduct universal properties, without a
+    claimed correspondence with a named theorem in May.
+    The ordinary homotopy-fiber product comparison is a structural consequence
+    of the retained-point model and Mathlib's compact-open API, without a
     claimed correspondence with a named theorem in May.
   statements:
     - lean: ZerothHomotopy.mem_range_map_iff

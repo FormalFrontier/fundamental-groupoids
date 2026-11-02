@@ -18,6 +18,7 @@ import FundamentalGroupoidsTest.CategoryTheory.Elements.ConnectedComponents
 import FundamentalGroupoidsTest.CategoryTheory.Endomorphism.Conjugation
 import FundamentalGroupoidsTest.CategoryTheory.Groupoid.Covering
 import FundamentalGroupoidsTest.FundamentalGroup
+import FundamentalGroupoidsTest.HomotopyFiberProd
 import FundamentalGroupoidsTest.LoopIteration
 import FundamentalGroupoidsTest.SectionsPresheaf
 import FundamentalGroupoidsTest.SectionsPresheafLimits
