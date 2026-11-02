@@ -731,12 +731,19 @@ directions, examples, conventions and credits.
   is equivalent to nonemptiness and pretransitive monodromy. With path-connected total
   and a chosen fiber point, the fiber is equivariantly equivalent to left cosets of the
   induced based fundamental-group image, by `[g] ↦ monodromy g`; normality is not needed.
-  Commuting squares of continuous maps intertwine monodromy across different bases;
-  neither horizontal map need be a covering. Equivariant squares of quotient covers
+  Commuting squares of continuous maps intertwine whole canonical path lifts and
+  monodromy across different bases; neither horizontal map need be a covering. Equivariant squares of quotient covers
   intertwine the canonical homomorphisms to opposite acting groups, without simple
   connectivity. All space and acting-group universes are independent.
 - **Pullbacks and double cosets** ([`Pullback`](FundamentalGroupoids/Topology/Covering/Pullback.lean),
   [`PullbackDoubleCoset`](FundamentalGroupoids/Topology/Covering/PullbackDoubleCoset.lean)).
+  For a covering `p : T → B` and any continuous `a : X → B`, the second projection
+  `p.Pullback a → X` is a covering. Its fiber over `x` is homeomorphic to `p ⁻¹' {b}`
+  for every equality `a x = b`. The fiber homeomorphism itself works for arbitrary maps,
+  with topologies only on `T` and `X`, not on `B`. Both projections of a lifted path are
+  computed as whole continuous maps, and the fiber comparison intertwines all path-class
+  monodromy and the canonical left fundamental-group actions. The three space universes
+  are independent.
   The pullback of two covers is a cover whose fiber is the product with diagonal
   monodromy. Over a path-connected base, diagonal orbits give its components,
   allowing empty/disconnected totals and independent universes. Alternatively,

@@ -269,6 +269,22 @@ variable {E : Type u} {E' : Type v} {B : Type w} {B' : Type z}
 
 namespace IsCoveringMap
 
+/-- Lifting an entire path commutes with a continuous morphism of covering maps.
+The maps between the total spaces and between the bases need only be continuous. -/
+theorem liftPath_naturality_map (covp : IsCoveringMap p) (covq : IsCoveringMap q)
+    (F : C(E, E')) (f : C(B, B')) (hF : q ∘ F = f ∘ p)
+    (γ : C(unitInterval, B)) (e : E) (hγ : γ 0 = p e) :
+    covq.liftPath (f.comp γ) (F e)
+        ((congrArg f hγ).trans (congr_fun hF e).symm) =
+      F.comp (covp.liftPath γ e hγ) := by
+  symm
+  apply (covq.eq_liftPath_iff' _).2
+  constructor
+  · funext t
+    exact (congr_fun hF (covp.liftPath γ e hγ t)).trans
+      (congrArg f (congr_fun (covp.liftPath_lifts γ e hγ) t))
+  · exact congrArg F (covp.liftPath_zero γ e hγ)
+
 /-- A commuting square of continuous maps intertwines covering monodromy along a path class
 and its image in the other base. The base map and total-space map need not be covering maps;
 neither covering needs to be surjective, and no connectivity hypotheses are required. -/

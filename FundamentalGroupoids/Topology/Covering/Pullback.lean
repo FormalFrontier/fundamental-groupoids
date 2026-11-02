@@ -16,6 +16,12 @@ Its map to the common base is `z ↦ f₁ z.fst`. The point fiber of this map is
 of the two point fibers, and this identification intertwines the covering-space
 monodromy, including transport along paths with different endpoints.
 
+The fiber of the second projection is homeomorphic to the first map's fiber after
+transporting its index along an equality. This construction needs topologies only on
+the two factors, with no topology on the common codomain or continuity of either map.
+For a covering and a continuous base change, this homeomorphism intertwines transport
+along all path classes and the canonical fundamental-group actions.
+
 There are two covering statements: stability of a projection under continuous base change,
 and the covering property of the map to the common base when both maps are coverings.
 The latter uses simultaneous evenly covered neighborhoods and product charts, not closure
@@ -40,6 +46,50 @@ universe u₁ u₂ v u₁' u₂' t
 namespace Function.Pullback
 
 variable {E₁ : Type u₁} {E₂ : Type u₂} {B : Type v}
+
+section ProjectionFibers
+
+variable [TopologicalSpace E₁] [TopologicalSpace E₂]
+
+/-- The fiber of the second pullback projection is the original fiber, after transporting
+its index along `h : a x = b`. The maps retain the first coordinate and insert `x`. -/
+def sndFiberHomeomorph (p : E₁ → B) (a : E₂ → B) (x : E₂) (b : B) (h : a x = b) :
+    ((Function.Pullback.snd (f := p) (g := a)) ⁻¹' {x}) ≃ₜ (p ⁻¹' {b}) where
+  toFun z := ⟨z.val.fst, z.val.property.trans ((congrArg a z.property).trans h)⟩
+  invFun e := ⟨⟨(e.val, x), e.property.trans h.symm⟩, rfl⟩
+  left_inv z := by
+    apply Subtype.ext
+    apply Subtype.ext
+    apply Prod.ext
+    · rfl
+    · exact z.property.symm
+  right_inv e := by rfl
+  continuous_toFun := by
+    exact (continuous_fst.comp (continuous_subtype_val.comp continuous_subtype_val)).subtype_mk
+      (fun z : (Function.Pullback.snd (f := p) (g := a)) ⁻¹' {x} ↦
+        z.val.property.trans ((congrArg a z.property).trans h))
+  continuous_invFun := by
+    exact ((continuous_subtype_val.prodMk continuous_const :
+      Continuous (fun e : p ⁻¹' {b} ↦ (e.val, x))).subtype_mk
+        (fun e ↦ e.property.trans h.symm)).subtype_mk (fun _ ↦ rfl)
+
+/-- The fiber homeomorphism retains the first total-space coordinate. -/
+@[simp] theorem sndFiberHomeomorph_apply_val
+    (p : E₁ → B) (a : E₂ → B) (x : E₂) (b : B) (h : a x = b)
+    (z : (Function.Pullback.snd (f := p) (g := a)) ⁻¹' {x}) :
+    (sndFiberHomeomorph p a x b h z).val = z.val.fst := by rfl
+
+/-- The inverse fiber homeomorphism retains the original total-space point. -/
+@[simp] theorem sndFiberHomeomorph_symm_apply_fst
+    (p : E₁ → B) (a : E₂ → B) (x : E₂) (b : B) (h : a x = b) (e : p ⁻¹' {b}) :
+    ((sndFiberHomeomorph p a x b h).symm e).val.fst = e.val := by rfl
+
+/-- The inverse fiber homeomorphism inserts the fixed point of the new base. -/
+@[simp] theorem sndFiberHomeomorph_symm_apply_snd
+    (p : E₁ → B) (a : E₂ → B) (x : E₂) (b : B) (h : a x = b) (e : p ⁻¹' {b}) :
+    ((sndFiberHomeomorph p a x b h).symm e).val.snd = x := by rfl
+
+end ProjectionFibers
 
 /-- The point fiber of the map from a pullback to the common base is the product
 of the original point fibers. The maps retain the original coordinates. -/
@@ -138,6 +188,31 @@ theorem pullback_snd (cov₁ : IsCoveringMap f₁)
         dsimp only [k]
         fun_prop }, fun _ ↦ rfl⟩
   exact hchart.to_isEvenlyCovered_preimage
+
+/-- The first projection of the entire lift in a pullback covering is the lift of the
+postcomposed base path in the original covering. -/
+theorem pullback_snd_liftPath_fst (hp : IsCoveringMap f₁) (a : C(E₂, B))
+    (γ : C(unitInterval, E₂)) (z : Function.Pullback f₁ a)
+    (hγ : γ 0 = Function.Pullback.snd z) :
+    (⟨Function.Pullback.fst, continuous_fst.comp continuous_subtype_val⟩ :
+        C(Function.Pullback f₁ a, E₁)).comp
+        ((hp.pullback_snd a a.continuous).liftPath γ z hγ) =
+      hp.liftPath (a.comp γ) (Function.Pullback.fst z)
+        ((congrArg a hγ).trans z.property.symm) := by
+  exact ((hp.pullback_snd a a.continuous).liftPath_naturality_map hp
+    (⟨Function.Pullback.fst, continuous_fst.comp continuous_subtype_val⟩ :
+      C(Function.Pullback f₁ a, E₁))
+    a (Function.pullback_comm_sq f₁ a) γ z hγ).symm
+
+/-- The second projection of the entire lift in a pullback covering is the base path. -/
+theorem pullback_snd_liftPath_snd (hp : IsCoveringMap f₁) (a : C(E₂, B))
+    (γ : C(unitInterval, E₂)) (z : Function.Pullback f₁ a)
+    (hγ : γ 0 = Function.Pullback.snd z) :
+    (⟨Function.Pullback.snd, continuous_snd.comp continuous_subtype_val⟩ :
+        C(Function.Pullback f₁ a, E₂)).comp
+        ((hp.pullback_snd a a.continuous).liftPath γ z hγ) = γ := by
+  ext t
+  exact congr_fun ((hp.pullback_snd a a.continuous).liftPath_lifts γ z hγ) t
 
 /-- The map from a pullback of two coverings to their common base is a covering.
 Simultaneous local charts, not arbitrary composition of coverings, give this property. -/
@@ -361,5 +436,57 @@ noncomputable def pullbackProdOrbitEquivZerothHomotopy [PathConnectedSpace B] :
     pullbackFiberOrbitEquivProd_apply_mk]
 
 end Orbits
+
+section BaseChange
+
+/-- The second-projection fiber homeomorphism intertwines transport along every path class
+with transport along its image, allowing independent equalities at both endpoints. -/
+theorem pullback_sndFiberHomeomorph_monodromy (hp : IsCoveringMap f₁) (a : C(E₂, B))
+    (x₀ x₁ : E₂) (b₀ b₁ : B) (h₀ : a x₀ = b₀) (h₁ : a x₁ = b₁)
+    (γ : Path.Homotopic.Quotient x₀ x₁)
+    (e : (Function.Pullback.snd (f := f₁) (g := a)) ⁻¹' {x₀}) :
+    Function.Pullback.sndFiberHomeomorph f₁ a x₁ b₁ h₁
+        ((hp.pullback_snd a a.continuous).monodromy γ e) =
+      hp.monodromy ((γ.map a).cast h₀.symm h₁.symm)
+        (Function.Pullback.sndFiberHomeomorph f₁ a x₀ b₀ h₀ e) := by
+  cases h₀
+  cases h₁
+  let π : C(f₁.Pullback a, E₁) :=
+    ⟨Function.Pullback.fst, continuous_fst.comp continuous_subtype_val⟩
+  have he :
+      (⟨π e, (congr_fun (Function.pullback_comm_sq f₁ a) e).trans
+        (congrArg a e.property)⟩ : f₁ ⁻¹' {a x₀}) =
+        Function.Pullback.sndFiberHomeomorph f₁ a x₀ (a x₀) rfl e := by
+    apply Subtype.ext
+    exact (Function.Pullback.sndFiberHomeomorph_apply_val f₁ a x₀ (a x₀) rfl e).symm
+  apply Subtype.ext
+  rw [Function.Pullback.sndFiberHomeomorph_apply_val,
+    Path.Homotopic.Quotient.cast_rfl_rfl, ← he]
+  exact (congrArg Subtype.val
+    ((hp.pullback_snd a a.continuous).monodromy_naturality_map hp π a
+      (Function.pullback_comm_sq f₁ a) γ e)).symm
+
+/-- The second-projection fiber homeomorphism intertwines the canonical left
+fundamental-group actions through the homomorphism induced by the base change. -/
+theorem pullback_sndFiberHomeomorph_smul (hp : IsCoveringMap f₁) (a : C(E₂, B))
+    (x : E₂) (b : B) (h : a x = b) (γ : FundamentalGroup E₂ x)
+    (e : (Function.Pullback.snd (f := f₁) (g := a)) ⁻¹' {x}) :
+    Function.Pullback.sndFiberHomeomorph f₁ a x b h
+        (@SMul.smul (FundamentalGroup E₂ x)
+          ((Function.Pullback.snd (f := f₁) (g := a)) ⁻¹' {x})
+          ((hp.pullback_snd a a.continuous).fundamentalGroupMulAction x).toSemigroupAction.toSMul
+          γ e) =
+      @SMul.smul (FundamentalGroup B b) (f₁ ⁻¹' {b})
+        (hp.fundamentalGroupMulAction b).toSemigroupAction.toSMul
+        (FundamentalGroup.mapOfEq a h γ)
+        (Function.Pullback.sndFiberHomeomorph f₁ a x b h e) := by
+  change Function.Pullback.sndFiberHomeomorph f₁ a x b h
+      ((hp.pullback_snd a a.continuous).monodromy γ e) =
+    hp.monodromy (FundamentalGroup.mapOfEq a h γ)
+      (Function.Pullback.sndFiberHomeomorph f₁ a x b h e)
+  rw [FundamentalGroup.mapOfEq_apply]
+  exact hp.pullback_sndFiberHomeomorph_monodromy a x x b b h h γ e
+
+end BaseChange
 
 end IsCoveringMap
