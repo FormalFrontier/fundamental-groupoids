@@ -85,6 +85,13 @@ directions, examples, conventions and credits.
   the retraction follows its unit direction and the deformation is radial.
   Space and disk-index universes are independent; no connectivity, separation
   or finiteness assumptions are needed.
+  The [punctured part of an attachment path component](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedComponent.lean)
+  retracts to the corresponding original-space component through a relative
+  deformation. Its [fundamental group](FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedComponent/Basic.lean)
+  is isomorphic to that of the original space, with forward map induced by
+  retraction followed by component inclusion. The inverse lifts to the
+  original-space component and then includes it into the punctured component.
+  Neither component is assumed open.
 - **Endomorphism transport** ([`Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean)).
   In any category, transports along `α β : X ≅ Y` agree iff
   `α.hom ≫ β.inv` is central in `End X`. Commutativity makes transport independent;

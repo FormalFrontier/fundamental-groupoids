@@ -352,6 +352,17 @@ theorem map_fromPath {Y : Type v} [TopologicalSpace Y] (f : C(X, Y)) {p : X}
     map f p (fromPath ⟦γ⟧) = fromPath ⟦γ.map f.continuous⟧ := by
   rfl
 
+/-- A based induced map sends a loop class to the mapped loop with its endpoints cast. -/
+theorem mapOfEq_fromPath {Y : Type v} [TopologicalSpace Y] (g : C(X, Y))
+    {a : X} {b : Y} (h : g a = b) (p : Path a a) :
+    mapOfEq g h (fromPath ⟦p⟧) =
+      fromPath ⟦(p.map g.continuous).cast h.symm h.symm⟧ := by
+  cases h
+  rw [mapOfEq_rfl, map_fromPath]
+  apply congrArg (fun q : Path (g a) (g a) => fromPath ⟦q⟧)
+  ext t
+  exact (congrFun (Path.cast_coe (p.map g.continuous) rfl rfl) t).symm
+
 private theorem path_range_subset_pathComponent (x : X) (p : ↥(pathComponent x))
     {y : X} (γ : Path p.val y) : Set.range γ ⊆ pathComponent x := by
   rintro z ⟨t, rfl⟩

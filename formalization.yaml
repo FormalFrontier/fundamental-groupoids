@@ -643,6 +643,14 @@ alignment:
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean
     - lean: TopCat.diskAttachmentPuncturedDeformation_disk_of_coe
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean
+    - lean: TopCat.diskAttachmentPuncturedComponent
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedComponent.lean
+    - lean: TopCat.diskAttachmentPuncturedComponentDeformation
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedComponent.lean
+    - lean: FundamentalGroup.diskAttachmentPuncturedComponentMulEquiv
+      module: FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedComponent/Basic.lean
+    - lean: FundamentalGroup.mapOfEq_diskAttachmentPuncturedComponentRetraction_bijective
+      module: FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedComponent/Basic.lean
     - lean: TopCat.diskAttachmentLift
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.diskAttachmentLift_unique
