@@ -95,6 +95,10 @@ project:
     available in arbitrary real normed spaces. Positive real scaling identifies
     Circle with each positive-radius complex sphere. Scaling and normalization
     give strict retractions and circle-fixing deformations of punctured balls.
+    Ordered two-factor based wedges are strictly isomorphic to binary wedges,
+    and both nested binary three-factor wedges flatten strictly to the finite
+    wedge. Forward and inverse maps preserve the ordered factor inclusions and
+    common point, for possibly different factors in an arbitrary common universe.
     Positive-radius inner circles classify punctured complex-ball fundamental
     groups by the integers, with normalization and scaling maps and a nontrivial
     positive generator.
@@ -296,6 +300,15 @@ status:
     finite-stage colimit step in May, Chapter 2, §7, printed p. 19 (PDF p. 27).
     No arbitrary-cover based-group theorem, wedge calculation or
     covering-space classification is asserted.
+    For D : Fin 2 → BasedTopCat in an arbitrary common universe, the explicit
+    basedWedgeFinTwoIso sends factor 0 to the left and factor 1 to the right.
+    For D : Fin 3 → BasedTopCat, basedWedgeFinThreeLeftIso and
+    basedWedgeFinThreeRightIso flatten the respective nested binary wedges
+    to basedWedge D, with ordered leaves 0, 1, 2. The inverse maps have the
+    corresponding inclusion equations, and both directions preserve the
+    common point. These are strict isomorphisms of based spaces, with no
+    separation, connectedness, local compactness or basepoint condition.
+    Their images under homotopyQuotient.mapIso use the existing quotient functor.
     For continuous f and g in a commuting square with coordinate homeomorphisms
     eX and eY, HomotopyFiber.homeomorph eX eY w hy compares the ordinary
     product/subspace fibers over any y and y' with hy : eY y = y'. The forward
@@ -539,7 +552,9 @@ alignment:
     without a claimed correspondence with a named theorem in May. The based
     compact-open collapse comparison and its finite-cube specialization are
     supporting topology built on Mathlib and GroupTheory's compact-covering
-    precomposition embedding API.
+    precomposition embedding API. The strict ordered finite-wedge comparisons
+    are consequences of the based coproduct universal properties, without a
+    claimed correspondence with a named theorem in May.
   statements:
     - lean: ContinuousMap.HomotopyFiber.homeomorph
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
@@ -557,6 +572,12 @@ alignment:
       module: FundamentalGroupoids/CategoryTheory/SingleObj.lean
     - lean: BasedTopCat.piIsoPi
       module: FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean
+    - lean: BasedTopCat.basedWedgeFinTwoIso
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean
+    - lean: BasedTopCat.basedWedgeFinThreeLeftIso
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean
+    - lean: BasedTopCat.basedWedgeFinThreeRightIso
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean
     - lean: TopCat.isClosed_diskAttachmentCenters
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean
     - lean: TopCat.diskAttachmentPunctured

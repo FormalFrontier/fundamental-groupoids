@@ -20,6 +20,15 @@ directions, examples, conventions and credits.
   diagram; the binary specialization uses its explicit comparison isomorphism.
   Empty families give initial objects. No separation, local compactness of the
   spaces, finiteness of the index, or condition on the basepoints is required.
+- **Strict ordered finite-wedge comparisons** ([`Based.FiniteWedge`](FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean)).
+  For `D : Fin 2 → BasedTopCat.{u}`, the finite wedge is isomorphic in based
+  spaces to the binary wedge, sending `0` to the left and `1` to the right.
+  For `D : Fin 3 → BasedTopCat.{u}`, both nested binary wedges flatten
+  isomorphically to the three-factor wedge, preserving leaf order `0`, `1`, `2`.
+  Forward and inverse leg equations and common-point preservation characterize
+  the comparisons. The factors may differ in an arbitrary common universe,
+  without separation, connectedness, local compactness or basepoint conditions.
+  The existing `homotopyQuotient.mapIso` gives their based-homotopy images.
 - **Chosen finite products in the opposite based-homotopy category** ([`Based.Cartesian`](FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean)).
   The ordinary opposite of `BasedTopCat.HomotopyCategory` has explicit terminal
   and binary limit cones, given by the opposite empty and ordered two-factor
@@ -715,6 +724,14 @@ homotopies, import `FundamentalGroupoids.Topology.Homotopy.WidePushout` and use
 lemmas characterize the constructed data; the last constructor requires explicit
 head equality even when there are no factors.
 
+For ordered finite wedges, import
+`FundamentalGroupoids.Topology.Category.TopCat.Based.FiniteWedge` and use
+`BasedTopCat.basedWedgeFinTwoIso D`, `BasedTopCat.basedWedgeFinThreeLeftIso D`
+or `BasedTopCat.basedWedgeFinThreeRightIso D`. The `_ι_*_hom` and `_ι_*_inv`
+equations specify every factor restriction; `_hom_point` and `_inv_point`
+record common-point preservation. Apply `BasedTopCat.homotopyQuotient.mapIso`
+to any of these isomorphisms to pass to the based-homotopy category.
+
 For finite products in the opposite based-homotopy category, import
 `FundamentalGroupoids.Topology.Category.TopCat.Based.Cartesian` and use
 `BasedTopCat.homotopyOppositeTerminalLimitCone`,
@@ -789,6 +806,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
 | [`Topology.Category.TopCat.Based.Cartesian`](FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean) | Chosen terminal and binary limit cones in the ordinary opposite based-homotopy category, and their named cartesian monoidal structure with unit, tensor, projection and terminal-map equations |
 | [`Topology.Category.TopCat.Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean) | Point-wide-pushout coproduct data in based spaces and their homotopy category, factorwise based-homotopy criterion, and empty and binary specializations |
+| [`Topology.Category.TopCat.Based.FiniteWedge`](FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean) | Strict isomorphisms between ordered two-factor and binary wedges, and from both nested binary three-factor wedges to the finite wedge, with forward/inverse leg and point equations |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
 | [`Topology.Category.TopCat.Based.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Based/ULift.lean) | Isomorphism from a point-wide-pushout lifted and based at its head to the based wedge of the lifted pointed factors, with underlying-map, head, factor and inverse equations |
 | [`Topology.Category.TopCat.DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean) | Unpointed disk attachments, universal property, original-space closed embedding, disjoint open-disk embeddings and empty/identity attachment homeomorphisms |
@@ -895,9 +913,10 @@ Frontier Agents. They reuse Mathlib's topological colimits, Joël Riou's
 Lam's relative homotopies. May, Chapter 2 §8, p. 19 supplies the point-wedge setting,
 not the pair-hypothesis or universe-general descent results.
 Formal Frontier Agents supplied the point-family map laws, the universe-lift
-homeomorphism and based isomorphism, and the chosen cartesian structure on the
-opposite based-homotopy category. These use Mathlib's homeomorphisms, under
-categories, opposite binary (co)fans and cartesian monoidal construction.
+homeomorphism and based isomorphism, the strict ordered finite-wedge comparisons,
+and the chosen cartesian structure on the opposite based-homotopy category.
+These use Mathlib's homeomorphisms, under categories, coproduct universal
+properties, opposite binary (co)fans and cartesian monoidal construction.
 Tiller and Loupe supplied point-family image/preimage and empty-head observations.
 The generalized-loop and homotopy-group map API originates in Restricted Product
 Duality by Formal Frontier Agents, retaining its definitions, proofs, names and

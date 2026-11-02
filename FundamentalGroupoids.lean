@@ -34,6 +34,7 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Category.TopCat.Based
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Cartesian
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Coproducts
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.FiniteWedge
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.ULift
 public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment
