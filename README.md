@@ -433,12 +433,14 @@ directions, examples, conventions and credits.
   point. Cube and target universes are independent; empty and infinite indices
   are allowed. No separation, norm, completeness or positive-degree group
   structure is required.
-- **Circle-fixed radial deformation of punctured complex balls** ([`Homotopy.ComplexPuncturedBall`](FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean)).
+- **Positive integer index in punctured complex balls** ([`FundamentalGroup.ComplexPuncturedBall`](FundamentalGroupoids/FundamentalGroup/ComplexPuncturedBall.lean)).
   For `0 < a < r`, positive scaling embeds `Circle` as the radius-`a` circle
   inside the punctured radius-`r` ball, and normalization is `z / ‖z‖`.
-  Their composite is the circle identity, and the radial deformation fixes the
-  scaled circle pointwise. Evaluation and endpoint laws describe these maps
-  without unfolding them.
+  The radial deformation fixes this circle pointwise. At the image of
+  `1 : Circle`, normalization induces a multiplicative equivalence of the
+  fundamental group with `Multiplicative ℤ`; its inverse scales circle classes.
+  Every scaled `Circle.loop n` has index `n`, so the positive loop is nontrivial
+  and has index one, including on the half-radius circle in the unit ball.
 - **Radial deformation of punctured closed balls** ([`Homotopy.Radial`](FundamentalGroupoids/Topology/Homotopy/Radial.lean)).
   For every real normed space and positive radius, radial projection retracts
   the closed ball with its centre removed onto its metric sphere. The scalar
@@ -835,6 +837,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Covering.DeckMonodromy`](FundamentalGroupoids/Topology/Covering/DeckMonodromy.lean) | Equivalences of over-map and equivariant fiber-map spaces; deck-centralizer restriction and multiplicative equivalences |
 | [`Topology.Homotopy.Radial`](FundamentalGroupoids/Topology/Homotopy/Radial.lean) | Radial projection and strong deformation of punctured closed balls and open balls onto spheres in arbitrary real normed spaces |
 | [`Topology.Homotopy.ComplexPuncturedBall`](FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean) | Positive scaling from Circle to complex spheres, normalization and circle-fixing radial deformation |
+| [`FundamentalGroup.ComplexPuncturedBall`](FundamentalGroupoids/FundamentalGroup/ComplexPuncturedBall.lean) | Integer classification of punctured complex balls, scaled circle-loop formulas and a nontrivial positive generator |
 
 ## Conventions and limitations
 

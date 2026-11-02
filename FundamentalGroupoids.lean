@@ -97,3 +97,4 @@ public import FundamentalGroupoids.Topology.Homotopy.WidePushout
 public import FundamentalGroupoids.Topology.Path
 public import FundamentalGroupoids.Topology.Piecewise
 public import FundamentalGroupoids.Topology.Homotopy.ComplexPuncturedBall
+public import FundamentalGroupoids.FundamentalGroup.ComplexPuncturedBall

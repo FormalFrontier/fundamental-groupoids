@@ -95,6 +95,9 @@ project:
     available in arbitrary real normed spaces. Positive real scaling identifies
     Circle with each positive-radius complex sphere. Scaling and normalization
     give strict retractions and circle-fixing deformations of punctured balls.
+    Positive-radius inner circles classify punctured complex-ball fundamental
+    groups by the integers, with normalization and scaling maps and a nontrivial
+    positive generator.
     Compatible functions on a disk attachment descend uniquely to any target
     type, and continuous descent has the same underlying function.
     Removing the centres of an arbitrary family of attached closed complex unit
@@ -419,8 +422,12 @@ status:
     with every positive-radius sphere by real scaling. The continuous maps
     Complex.circleToPuncturedBall and Complex.puncturedBallToCircle give
     scaling and normalization, with normalization z / ‖z‖ and a left-inverse
-    law. The radial deformation fixes the scaled circle pointwise, with
-    evaluation and endpoint laws.
+    law. For 0 < a < r, at the scaled image of 1 : Circle,
+    Complex.puncturedBallFundamentalGroupEquivInt is a multiplicative
+    equivalence with Multiplicative ℤ. Its forward homomorphism normalizes
+    before taking the circle index; its inverse scales circle classes.
+    Every scaled Circle.loop n has index n. The positive class is nontrivial
+    and has index one, including for a = 1/2 and r = 1.
     For IsCoveringMap f and a supplied e : E, the same canonical mapFun with
     target point f e is injective for Nonempty N and bijective for Nontrivial N,
     without DecidableEq N. With DecidableEq N and Nontrivial N,
@@ -884,6 +891,14 @@ alignment:
       module: FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean
     - lean: Complex.puncturedBallToCircle
       module: FundamentalGroupoids/Topology/Homotopy/ComplexPuncturedBall.lean
+    - lean: Complex.puncturedBallFundamentalGroupEquivInt
+      module: FundamentalGroupoids/FundamentalGroup/ComplexPuncturedBall.lean
+    - lean: Complex.puncturedBallFundamentalGroupEquivInt_symm_toMonoidHom
+      module: FundamentalGroupoids/FundamentalGroup/ComplexPuncturedBall.lean
+    - lean: Complex.puncturedBallFundamentalGroupEquivInt_loop
+      module: FundamentalGroupoids/FundamentalGroup/ComplexPuncturedBall.lean
+    - lean: Complex.puncturedBall_half_unit_positive_generator
+      module: FundamentalGroupoids/FundamentalGroup/ComplexPuncturedBall.lean
 acknowledgements: >-
   Formal Frontier agents contributed Lean formalization, examples and documentation.
   May and Mathlib are credited in the module references and CONTRIBUTORS.md,
