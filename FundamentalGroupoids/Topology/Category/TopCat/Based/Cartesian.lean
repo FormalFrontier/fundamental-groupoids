@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Coproducts
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.FiniteWedge
 public import Mathlib.CategoryTheory.Monoidal.Cartesian.Basic
 
 /-!
@@ -19,7 +20,9 @@ binary coproduct property of the two-factor wedge.
 `homotopyOppositeCartesianMonoidalCategory` packages these choices using
 `CartesianMonoidalCategory.ofChosenFiniteProducts`. Its first projection is the
 opposite of the left wedge inclusion, and its second projection is the opposite
-of the right wedge inclusion.
+of the right wedge inclusion. For three possibly different factors, the unop of
+its associator followed by left-nested flattening agrees with right-nested
+flattening in the based-homotopy category, preserving the order `0`, `1`, `2`.
 
 ## Implementation notes
 
@@ -33,7 +36,8 @@ pair of quotient objects; taking its binary opposite preserves the leg order.
 * Mathlib's `BinaryCofan.op`, `BinaryCofan.IsColimit.op` and `IsInitial.op`
   supply passage to the ordinary opposite category.
 * Mathlib's `CartesianMonoidalCategory.ofChosenFiniteProducts` supplies the
-  cartesian monoidal structure from the chosen limit cones.
+  cartesian monoidal structure from the chosen limit cones. Its projection
+  equations and product extensionality characterize the associator.
 -/
 
 @[expose] public section
@@ -144,6 +148,92 @@ theorem homotopyOpposite_toUnit (X : HomotopyCategory.{u}ᵒᵖ) :
         (fun j : PEmpty.{1} ↦ (isEmptyElim j : BasedTopCat.{u})) X.unop
         (fun j ↦ isEmptyElim j)).op :=
   CartesianMonoidalCategory.toUnit_unique _ _
+
+/-- In the based-homotopy category, the unop of the chosen cartesian associator
+followed by left-nested flattening equals right-nested flattening. -/
+theorem homotopyOpposite_associator_unop_comp_finThreeLeft
+    (D : Fin 3 → BasedTopCat.{u}) :
+    (α_ (op (homotopyQuotient.obj (D 0)))
+      (op (homotopyQuotient.obj (D 1)))
+      (op (homotopyQuotient.obj (D 2)))).hom.unop ≫
+        homotopyQuotient.map (basedWedgeFinThreeLeftIso D).hom =
+      homotopyQuotient.map (basedWedgeFinThreeRightIso D).hom := by
+  let ι01 (j : WalkingPair) : pairFunction (D 0) (D 1) j ⟶
+      basedWedge (pairFunction (D 0) (D 1)) :=
+    basedWedgeι (pairFunction (D 0) (D 1)) j
+  let ιLeft (j : WalkingPair) :
+      pairFunction (basedWedge (pairFunction (D 0) (D 1))) (D 2) j ⟶
+        basedWedge (pairFunction (basedWedge (pairFunction (D 0) (D 1))) (D 2)) :=
+    basedWedgeι (pairFunction (basedWedge (pairFunction (D 0) (D 1))) (D 2)) j
+  let ι12 (j : WalkingPair) : pairFunction (D 1) (D 2) j ⟶
+      basedWedge (pairFunction (D 1) (D 2)) :=
+    basedWedgeι (pairFunction (D 1) (D 2)) j
+  let ιRight (j : WalkingPair) :
+      pairFunction (D 0) (basedWedge (pairFunction (D 1) (D 2))) j ⟶
+        basedWedge (pairFunction (D 0) (basedWedge (pairFunction (D 1) (D 2)))) :=
+    basedWedgeι (pairFunction (D 0) (basedWedge (pairFunction (D 1) (D 2)))) j
+  -- Apply functoriality to typed factors before reversing composition in the opposite.
+  have map_comp_op {X Y Z : BasedTopCat.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) :
+      (homotopyQuotient.map (f ≫ g)).op =
+        (homotopyQuotient.map g).op ≫ (homotopyQuotient.map f).op :=
+    (congrArg Quiver.Hom.op (homotopyQuotient.map_comp f g)).trans op_comp
+  have map_comp_comp_op {W X Y Z : BasedTopCat.{u}}
+      (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z) :
+      (homotopyQuotient.map ((f ≫ g) ≫ h)).op =
+        (homotopyQuotient.map h).op ≫
+          (homotopyQuotient.map g).op ≫ (homotopyQuotient.map f).op :=
+    (map_comp_op (f ≫ g) h).trans
+      (congrArg (fun k : op (homotopyQuotient.obj Y) ⟶ op (homotopyQuotient.obj W) ↦
+        (homotopyQuotient.map h).op ≫ k) (map_comp_op f g))
+  -- In the opposite, product extensionality reduces to the three ordered leaves.
+  apply Quiver.Hom.op_inj
+  rw [op_comp, Quiver.Hom.op_unop]
+  apply CartesianMonoidalCategory.hom_ext
+    (X := op (homotopyQuotient.obj (D 0)))
+    (Y := op (homotopyQuotient.obj (D 1)) ⊗ op (homotopyQuotient.obj (D 2)))
+  · refine (Category.assoc _ _ _).trans ?_
+    refine (congrArg (fun f ↦ (homotopyQuotient.map (basedWedgeFinThreeLeftIso D).hom).op ≫ f)
+      (CartesianMonoidalCategory.associator_hom_fst
+        (op (homotopyQuotient.obj (D 0))) (op (homotopyQuotient.obj (D 1)))
+        (op (homotopyQuotient.obj (D 2))))).trans ?_
+    simp only [homotopyOpposite_fst]
+    exact (map_comp_comp_op (ι01 WalkingPair.left) (ιLeft WalkingPair.left)
+      (basedWedgeFinThreeLeftIso D).hom).symm.trans
+        ((congrArg (fun f ↦ (homotopyQuotient.map f).op)
+          ((basedWedgeFinThreeLeftIso_ι_zero_hom D).trans
+            (basedWedgeFinThreeRightIso_ι_zero_hom D).symm)).trans
+              (map_comp_op (ιRight WalkingPair.left) (basedWedgeFinThreeRightIso D).hom))
+  · apply CartesianMonoidalCategory.hom_ext
+      (X := op (homotopyQuotient.obj (D 1))) (Y := op (homotopyQuotient.obj (D 2)))
+    · refine (Category.assoc _ _ _).trans ?_
+      refine (Category.assoc _ _ _).trans ?_
+      refine (congrArg (fun f ↦ (homotopyQuotient.map (basedWedgeFinThreeLeftIso D).hom).op ≫ f)
+        (CartesianMonoidalCategory.associator_hom_snd_fst
+          (op (homotopyQuotient.obj (D 0))) (op (homotopyQuotient.obj (D 1)))
+          (op (homotopyQuotient.obj (D 2))))).trans ?_
+      refine Eq.trans ?_ (Category.assoc _ _ _).symm
+      simp only [homotopyOpposite_fst, homotopyOpposite_snd]
+      exact (map_comp_comp_op (ι01 WalkingPair.right) (ιLeft WalkingPair.left)
+        (basedWedgeFinThreeLeftIso D).hom).symm.trans
+          ((congrArg (fun f ↦ (homotopyQuotient.map f).op)
+            ((basedWedgeFinThreeLeftIso_ι_one_hom D).trans
+              (basedWedgeFinThreeRightIso_ι_one_hom D).symm)).trans
+                (map_comp_comp_op (ι12 WalkingPair.left) (ιRight WalkingPair.right)
+                  (basedWedgeFinThreeRightIso D).hom))
+    · refine (Category.assoc _ _ _).trans ?_
+      refine (Category.assoc _ _ _).trans ?_
+      refine (congrArg (fun f ↦ (homotopyQuotient.map (basedWedgeFinThreeLeftIso D).hom).op ≫ f)
+        (CartesianMonoidalCategory.associator_hom_snd_snd
+          (op (homotopyQuotient.obj (D 0))) (op (homotopyQuotient.obj (D 1)))
+          (op (homotopyQuotient.obj (D 2))))).trans ?_
+      refine Eq.trans ?_ (Category.assoc _ _ _).symm
+      simp only [homotopyOpposite_snd]
+      exact (map_comp_op (ιLeft WalkingPair.right) (basedWedgeFinThreeLeftIso D).hom).symm.trans
+        ((congrArg (fun f ↦ (homotopyQuotient.map f).op)
+          ((basedWedgeFinThreeLeftIso_ι_two_hom D).trans
+            (basedWedgeFinThreeRightIso_ι_two_hom D).symm)).trans
+              (map_comp_comp_op (ι12 WalkingPair.right) (ιRight WalkingPair.right)
+                (basedWedgeFinThreeRightIso D).hom))
 
 end Cartesian
 

@@ -99,6 +99,9 @@ project:
     and both nested binary three-factor wedges flatten strictly to the finite
     wedge. Forward and inverse maps preserve the ordered factor inclusions and
     common point, for possibly different factors in an arbitrary common universe.
+    In the named cartesian structure on the ordinary opposite based-homotopy
+    category, the unop of the associator followed by left-nested flattening
+    equals right-nested flattening after applying the quotient functor.
     Positive-radius inner circles classify punctured complex-ball fundamental
     groups by the integers, with normalization and scaling maps and a nontrivial
     positive generator.
@@ -312,6 +315,12 @@ status:
     common point. These are strict isomorphisms of based spaces, with no
     separation, connectedness, local compactness or basepoint condition.
     Their images under homotopyQuotient.mapIso use the existing quotient functor.
+    For the named homotopyOppositeCartesianMonoidalCategory, the theorem
+    homotopyOpposite_associator_unop_comp_finThreeLeft identifies the unop of
+    its associator followed by homotopyQuotient.map of left-nested flattening
+    with homotopyQuotient.map of right-nested flattening. It holds for every
+    D : Fin 3 → BasedTopCat in an arbitrary common universe, retaining leaf
+    order 0, 1, 2 and allowing different factors without additional hypotheses.
     For continuous f and g in a commuting square with coordinate homeomorphisms
     eX and eY, HomotopyFiber.homeomorph eX eY w hy compares the ordinary
     product/subspace fibers over any y and y' with hy : eY y = y'. The forward
@@ -556,8 +565,10 @@ alignment:
     compact-open collapse comparison and its finite-cube specialization are
     supporting topology built on Mathlib and GroupTheory's compact-covering
     precomposition embedding API. The strict ordered finite-wedge comparisons
-    are consequences of the based coproduct universal properties, without a
-    claimed correspondence with a named theorem in May.
+    and compatibility with the chosen opposite cartesian associator are
+    consequences of the based coproduct universal properties and Mathlib's
+    cartesian projection equations, without a claimed correspondence with a
+    named theorem in May.
     The ordinary homotopy-fiber product comparison is a structural consequence
     of the retained-point model and Mathlib's compact-open API, without a
     claimed correspondence with a named theorem in May.
@@ -594,6 +605,8 @@ alignment:
       module: FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean
     - lean: BasedTopCat.basedWedgeFinThreeRightIso
       module: FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean
+    - lean: BasedTopCat.homotopyOpposite_associator_unop_comp_finThreeLeft
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean
     - lean: TopCat.isClosed_diskAttachmentCenters
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean
     - lean: TopCat.diskAttachmentPunctured

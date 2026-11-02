@@ -35,7 +35,10 @@ directions, examples, conventions and credits.
   based wedges. The named cartesian monoidal structure uses these choices;
   its unit, tensor, two projections and map to the unit have characteristic
   equations. The projections preserve the left/right order of the wedge
-  inclusions. No global cartesian or monoidal instance is installed.
+  inclusions. For `D : Fin 3 → BasedTopCat.{u}`, the unop of the associator
+  followed by the quotient image of left-nested flattening equals the quotient
+  image of right-nested flattening, preserving the ordered leaves `0`, `1`, `2`.
+  No global cartesian or monoidal instance is installed.
 - **Point-family maps and universe lifting** ([`WidePushout.PointMap`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout/PointMap.lean),
   [`WidePushout.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Limits/WidePushout/ULift.lean),
   [`Based.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Based/ULift.lean)).
@@ -759,6 +762,8 @@ For finite products in the opposite based-homotopy category, import
 `BasedTopCat.homotopyOppositeCartesianMonoidalCategory`. Use the last as a local
 instance for monoidal notation; the `homotopyOpposite_*` equations identify the
 unit, tensor, projections and terminal map with the corresponding wedge data.
+`BasedTopCat.homotopyOpposite_associator_unop_comp_finThreeLeft D` compares the
+unop of this associator with the ordered flattenings of a three-factor wedge.
 
 For point-family maps, import
 `FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.PointMap`.
@@ -827,7 +832,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Covering.HomotopyGroup`](FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean) | Canonical quotient-map injectivity for nonempty indices, bijectivity and stock multiplicative equivalences for nontrivial indices, with forward and inverse representative formulas |
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition; `HomotopyWith.joined` without local compactness and `nonempty_iff_joined` for locally compact sources, for arbitrary predicates and independent source/target universes |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
-| [`Topology.Category.TopCat.Based.Cartesian`](FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean) | Chosen terminal and binary limit cones in the ordinary opposite based-homotopy category, and their named cartesian monoidal structure with unit, tensor, projection and terminal-map equations |
+| [`Topology.Category.TopCat.Based.Cartesian`](FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean) | Chosen terminal and binary limit cones in the ordinary opposite based-homotopy category, their named cartesian monoidal structure, and compatibility of its associator with ordered three-factor flattening |
 | [`Topology.Category.TopCat.Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean) | Point-wide-pushout coproduct data in based spaces and their homotopy category, factorwise based-homotopy criterion, and empty and binary specializations |
 | [`Topology.Category.TopCat.Based.FiniteWedge`](FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean) | Strict isomorphisms between ordered two-factor and binary wedges, and from both nested binary three-factor wedges to the finite wedge, with forward/inverse leg and point equations |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
