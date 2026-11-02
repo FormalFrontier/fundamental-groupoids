@@ -5,20 +5,33 @@ Authors: Formal Frontier Agents
 module
 
 public import Mathlib.Topology.Homotopy.Path
+public import Mathlib.AlgebraicTopology.FundamentalGroupoid.Basic
 
 /-!
-# Corestriction of paths to subspaces
+# Paths in subspaces and continuous families of homotopies
 
 A path whose range is contained in a set can be regarded as a path in that subspace.
 The inclusion recovers the original path. A homotopy between paths in a subspace
 can likewise be recovered from an ambient based homotopy whose range stays in the
 subspace.
 
+Reparametrization, right-unit, associativity and path-followed-by-reverse homotopies
+vary jointly continuously in continuous families of paths, even when the endpoints
+vary. Vertical composition of homotopies and horizontal composition of path
+homotopies also preserve joint continuity. The parameter, homotopy domain and target
+may have independent universes. These statements use joint evaluation rather than
+a topology on a homotopy space and require no local compactness or separation
+assumptions.
+
 ## References
 
 * Mathlib's paths and path homotopies supply the underlying constructions.
 * The path corestriction factors the construction used in the open-cover descent
   and fundamental-group subspace arguments in this library.
+* Mathlib's `Path.Homotopy.reparam`, `reflTransSymm`, `transRefl`, `transAssoc` and
+  `hcomp` give the path homotopies.
+* Mathlib's `ContinuousMap.Homotopy.trans` and `Path.trans_continuous_family`
+  supply composition and continuity of concatenation.
 -/
 
 @[expose] public section
@@ -87,3 +100,201 @@ theorem Homotopic.of_subtypeVal {a b : s} {γ δ : Path a b}
     prop' := fun t x hx => Subtype.ext (ContinuousMap.HomotopyRel.eq_fst H t hx) }⟩
 
 end Path
+
+open unitInterval
+
+section PathHomotopyReparametrization
+
+universe uZ uB
+
+namespace Path.Homotopy
+
+variable {Z : Type uZ} {B : Type uB}
+variable [TopologicalSpace Z] [TopologicalSpace B]
+variable {a b c d : Z → B}
+
+/-- The standard reparametrization homotopy varies jointly continuously with a
+continuous path family, allowing both endpoints to vary. -/
+theorem reparam_continuous_family
+    (p : ∀ z : Z, Path (a z) (b z))
+    (hp : Continuous (fun v : Z × I => p v.1 v.2))
+    (ρ : I → I) (hρ : Continuous ρ) (hρ₀ : ρ 0 = 0) (hρ₁ : ρ 1 = 1) :
+    Continuous (fun v : Z × I × I =>
+      Path.Homotopy.reparam (p v.1) ρ hρ hρ₀ hρ₁ (v.2.1, v.2.2)) := by
+  let R : I × I → I := Path.Homotopy.reparam Path.id ρ hρ hρ₀ hρ₁
+  have hR : Continuous R :=
+    (Path.Homotopy.reparam Path.id ρ hρ hρ₀ hρ₁).toHomotopy.continuous
+  change Continuous (fun v : Z × I × I => p v.1 (R v.2))
+  exact hp.comp (continuous_fst.prodMk (hR.comp continuous_snd))
+
+/-- The standard homotopy from a constant path to a path followed by its reverse
+varies jointly continuously with a continuous path family. -/
+theorem reflTransSymm_continuous_family
+    (p : ∀ z : Z, Path (a z) (b z))
+    (hp : Continuous (fun v : Z × I => p v.1 v.2)) :
+    Continuous (fun v : Z × I × I =>
+      Path.Homotopy.reflTransSymm (p v.1) (v.2.1, v.2.2)) := by
+  let R : I × I → I := fun v =>
+    ⟨reflTransSymmAux v, reflTransSymmAux_mem_I v⟩
+  have hR : Continuous R := continuous_reflTransSymmAux.subtype_mk _
+  change Continuous (fun v : Z × I × I => p v.1 (R v.2))
+  exact hp.comp (continuous_fst.prodMk (hR.comp continuous_snd))
+
+/-- The standard right-unit homotopy varies jointly continuously with a continuous
+path family, allowing both endpoints to vary. -/
+theorem transRefl_continuous_family
+    (p : ∀ z : Z, Path (a z) (b z))
+    (hp : Continuous (fun v : Z × I => p v.1 v.2)) :
+    Continuous (fun v : Z × I × I =>
+      Path.Homotopy.transRefl (p v.1) (v.2.1, v.2.2)) := by
+  let ρ : I → I := fun t =>
+    ⟨transReflReparamAux t, transReflReparamAux_mem_I t⟩
+  have hρ : Continuous ρ := continuous_transReflReparamAux.subtype_mk _
+  have hρ₀ : ρ 0 = 0 := Subtype.ext transReflReparamAux_zero
+  have hρ₁ : ρ 1 = 1 := Subtype.ext transReflReparamAux_one
+  have h := reparam_continuous_family p hp ρ hρ hρ₀ hρ₁
+  change Continuous (fun v : Z × I × I =>
+    Path.Homotopy.reparam (p v.1) ρ hρ hρ₀ hρ₁ (σ v.2.1, v.2.2))
+  exact h.comp (continuous_fst.prodMk
+    ((unitInterval.continuous_symm.comp (continuous_fst.comp continuous_snd)).prodMk
+      (continuous_snd.comp continuous_snd)))
+
+/-- The standard associativity homotopy varies jointly continuously with three
+continuous path families whose matching endpoints may vary. -/
+theorem transAssoc_continuous_family
+    (p : ∀ z : Z, Path (a z) (b z))
+    (q : ∀ z : Z, Path (b z) (c z))
+    (r : ∀ z : Z, Path (c z) (d z))
+    (hp : Continuous (fun v : Z × I => p v.1 v.2))
+    (hq : Continuous (fun v : Z × I => q v.1 v.2))
+    (hr : Continuous (fun v : Z × I => r v.1 v.2)) :
+    Continuous (fun v : Z × I × I =>
+      Path.Homotopy.transAssoc (p v.1) (q v.1) (r v.1) (v.2.1, v.2.2)) := by
+  let ρ : I → I := fun t =>
+    ⟨transAssocReparamAux t, transAssocReparamAux_mem_I t⟩
+  have hρ : Continuous ρ := continuous_transAssocReparamAux.subtype_mk _
+  have hρ₀ : ρ 0 = 0 := Subtype.ext transAssocReparamAux_zero
+  have hρ₁ : ρ 1 = 1 := Subtype.ext transAssocReparamAux_one
+  have hqr : Continuous (fun v : Z × I => ((q v.1).trans (r v.1)) v.2) :=
+    Path.trans_continuous_family q hq r hr
+  have hpqr : Continuous (fun v : Z × I =>
+      ((p v.1).trans ((q v.1).trans (r v.1))) v.2) :=
+    Path.trans_continuous_family p hp (fun z => (q z).trans (r z)) hqr
+  have h := reparam_continuous_family
+    (fun z => (p z).trans ((q z).trans (r z))) hpqr ρ hρ hρ₀ hρ₁
+  change Continuous (fun v : Z × I × I =>
+    Path.Homotopy.reparam ((p v.1).trans ((q v.1).trans (r v.1)))
+      ρ hρ hρ₀ hρ₁ (σ v.2.1, v.2.2))
+  exact h.comp (continuous_fst.prodMk
+    ((unitInterval.continuous_symm.comp (continuous_fst.comp continuous_snd)).prodMk
+      (continuous_snd.comp continuous_snd)))
+
+end Path.Homotopy
+
+end PathHomotopyReparametrization
+
+section HomotopyComposition
+
+universe uT uD uX
+
+variable {T : Type uT} {D : Type uD} {X : Type uX}
+variable [TopologicalSpace T] [TopologicalSpace D] [TopologicalSpace X]
+
+open unitInterval
+
+namespace ContinuousMap.Homotopy
+
+/-- Vertical composition preserves joint continuity of homotopy families, with no local
+compactness assumptions on the parameter, domain, or target. -/
+theorem trans_continuous_family {f₀ f₁ f₂ : T → C(D, X)}
+    (F : ∀ z : T, ContinuousMap.Homotopy (f₀ z) (f₁ z))
+    (G : ∀ z : T, ContinuousMap.Homotopy (f₁ z) (f₂ z))
+    (hF : Continuous (fun u : T × (I × D) => F u.1 u.2))
+    (hG : Continuous (fun u : T × (I × D) => G u.1 u.2)) :
+    Continuous (fun u : T × (I × D) => (F u.1).trans (G u.1) u.2) := by
+  -- Endpoint maps on the total domain are continuous by restricting the joint families.
+  let f₀Total : C(T × D, X) :=
+    ⟨fun u => f₀ u.1 u.2, by
+      simpa only [Function.comp_def, ContinuousMap.Homotopy.apply_zero] using
+        hF.comp (show Continuous (fun u : T × D => (u.1, ((0 : I), u.2))) from
+          continuous_fst.prodMk (continuous_const.prodMk continuous_snd))⟩
+  let f₁Total : C(T × D, X) :=
+    ⟨fun u => f₁ u.1 u.2, by
+      simpa only [Function.comp_def, ContinuousMap.Homotopy.apply_one] using
+        hF.comp (show Continuous (fun u : T × D => (u.1, ((1 : I), u.2))) from
+          continuous_fst.prodMk (continuous_const.prodMk continuous_snd))⟩
+  let f₂Total : C(T × D, X) :=
+    ⟨fun u => f₂ u.1 u.2, by
+      simpa only [Function.comp_def, ContinuousMap.Homotopy.apply_one] using
+        hG.comp (show Continuous (fun u : T × D => (u.1, ((1 : I), u.2))) from
+          continuous_fst.prodMk (continuous_const.prodMk continuous_snd))⟩
+  let Ftotal : ContinuousMap.Homotopy f₀Total f₁Total :=
+    { toFun := fun u => F u.2.1 (u.1, u.2.2)
+      continuous_toFun := hF.comp
+        (show Continuous (fun u : I × (T × D) => (u.2.1, (u.1, u.2.2))) from
+          continuous_snd.fst.prodMk (continuous_fst.prodMk continuous_snd.snd))
+      map_zero_left := fun u => (F u.1).apply_zero u.2
+      map_one_left := fun u => (F u.1).apply_one u.2 }
+  let Gtotal : ContinuousMap.Homotopy f₁Total f₂Total :=
+    { toFun := fun u => G u.2.1 (u.1, u.2.2)
+      continuous_toFun := hG.comp
+        (show Continuous (fun u : I × (T × D) => (u.2.1, (u.1, u.2.2))) from
+          continuous_snd.fst.prodMk (continuous_fst.prodMk continuous_snd.snd))
+      map_zero_left := fun u => (G u.1).apply_zero u.2
+      map_one_left := fun u => (G u.1).apply_one u.2 }
+  -- The concatenation on the total domain evaluates to the pointwise concatenations.
+  have hEq :
+      (fun u : T × (I × D) =>
+        (Ftotal.trans Gtotal) (u.2.1, (u.1, u.2.2))) =
+      (fun u : T × (I × D) => (F u.1).trans (G u.1) u.2) := by
+    funext u
+    exact (trans_apply Ftotal Gtotal (u.2.1, (u.1, u.2.2))).trans
+      (trans_apply (F u.1) (G u.1) u.2).symm
+  rw [← hEq]
+  exact (map_continuous (Ftotal.trans Gtotal)).comp
+    (show Continuous (fun u : T × (I × D) => (u.2.1, (u.1, u.2.2))) from
+      continuous_snd.fst.prodMk (continuous_fst.prodMk continuous_snd.snd))
+
+end ContinuousMap.Homotopy
+
+namespace Path.Homotopy
+
+/-- Evaluating a horizontal composition gives the concatenation of the evaluated paths. -/
+@[simp]
+theorem eval_hcomp {a b c : X} {p₀ p₁ : Path a b} {q₀ q₁ : Path b c}
+    (F : Path.Homotopy p₀ p₁) (G : Path.Homotopy q₀ q₁) (s : I) :
+    (F.hcomp G).eval s = (F.eval s).trans (G.eval s) := by
+  ext t
+  rfl
+
+/-- Horizontal composition preserves joint continuity of path-homotopy families whose
+endpoints may vary with the parameter. -/
+theorem hcomp_continuous_family {a b c : T → X}
+    {p₀ p₁ : ∀ z : T, Path (a z) (b z)}
+    {q₀ q₁ : ∀ z : T, Path (b z) (c z)}
+    (F : ∀ z : T, Path.Homotopy (p₀ z) (p₁ z))
+    (G : ∀ z : T, Path.Homotopy (q₀ z) (q₁ z))
+    (hF : Continuous (fun u : T × (I × I) => F u.1 u.2))
+    (hG : Continuous (fun u : T × (I × I) => G u.1 u.2)) :
+    Continuous (fun u : T × (I × I) => (F u.1).hcomp (G u.1) u.2) := by
+  have hF' : Continuous (fun u : (T × I) × I => (F u.1.1).eval u.1.2 u.2) :=
+    hF.comp
+      (show Continuous (fun u : (T × I) × I => (u.1.1, (u.1.2, u.2))) from
+        continuous_fst.fst.prodMk (continuous_fst.snd.prodMk continuous_snd))
+  have hG' : Continuous (fun u : (T × I) × I => (G u.1.1).eval u.1.2 u.2) :=
+    hG.comp
+      (show Continuous (fun u : (T × I) × I => (u.1.1, (u.1.2, u.2))) from
+        continuous_fst.fst.prodMk (continuous_fst.snd.prodMk continuous_snd))
+  have hTrans : Continuous (fun u : (T × I) × I =>
+      ((F u.1.1).eval u.1.2).trans ((G u.1.1).eval u.1.2) u.2) :=
+    Path.trans_continuous_family
+      (fun u : T × I => (F u.1).eval u.2) hF'
+      (fun u : T × I => (G u.1).eval u.2) hG'
+  have hEval := hTrans.comp
+    (show Continuous (fun u : T × (I × I) => ((u.1, u.2.1), u.2.2)) from
+      (continuous_fst.prodMk continuous_snd.fst).prodMk continuous_snd.snd)
+  simpa [Function.comp_def, ← eval_hcomp] using hEval
+
+end Path.Homotopy
+
+end HomotopyComposition
