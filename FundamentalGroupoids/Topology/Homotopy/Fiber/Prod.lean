@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Homotopy.Fiber
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homeomorph
 public import Mathlib.Topology.Homeomorph.Lemmas
 
 /-!
@@ -595,5 +596,348 @@ theorem compFstHomeomorph_symm_mk (x : X) (z : Z) (γ : C(I, Y))
   apply ext
   · exact point_compFstHomeomorph_symm f b (mk x γ h₀ h₁) z
   · exact path_compFstHomeomorph_symm f b (mk x γ h₀ h₁) z
+
+end ContinuousMap.HomotopyFiber
+
+/-!
+## Dependent products
+
+The ordinary homotopy fiber of a dependent product map is homeomorphic to
+the dependent product of the coordinate fibers. The comparison retains every
+source coordinate and the entire path at the original time. It preserves the
+specified original constant points, is natural for arbitrary families of
+commuting squares, and agrees with the binary comparison through `piFinTwo`.
+-/
+
+namespace ContinuousMap.HomotopyFiber
+
+universe uκ uEπ uBπ vEπ vBπ
+
+section Pi
+
+variable {κ : Type uκ} {E : κ → Type uEπ} {B : κ → Type uBπ}
+variable [∀ k, TopologicalSpace (E k)] [∀ k, TopologicalSpace (B k)]
+variable (f : ∀ k, C(E k, B k)) (b : ∀ k, B k)
+
+-- Implementation aliases for the existing projection-map and transpose composites.
+private def piForward :
+    C(HomotopyFiber (ContinuousMap.piMap f) b, ∀ k, HomotopyFiber (f k) (b k)) :=
+  ContinuousMap.pi fun k =>
+    map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+      (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl
+
+private def piInverse :
+    C((∀ k, HomotopyFiber (f k) (b k)), HomotopyFiber (ContinuousMap.piMap f) b) where
+  toFun z :=
+    mk (fun k => point (z k)) (ContinuousMap.pi fun k => path (z k))
+      (funext fun k => path_zero (z k))
+      (funext fun k => path_one (z k))
+  continuous_toFun := by
+    apply continuous_iff.2
+    constructor
+    · exact (ContinuousMap.pi fun k =>
+        (point (f := f k) (b := b k)).comp (ContinuousMap.eval k)).continuous
+    · exact ((ContinuousMap.pi fun k =>
+        ((path (f := f k) (b := b k)).comp (ContinuousMap.eval k)).uncurry).curry).continuous
+
+private theorem pi_left_inv : Function.LeftInverse (piInverse f b) (piForward f b) := by
+  intro p
+  apply ext
+  · funext k
+    exact point_map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+      (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl p
+  · apply ContinuousMap.ext
+    intro t
+    funext k
+    exact eval_map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+      (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl p t
+
+private theorem pi_right_inv : Function.RightInverse (piInverse f b) (piForward f b) := by
+  intro z
+  funext k
+  apply ext
+  · exact point_map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+      (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl (piInverse f b z)
+  · apply ContinuousMap.ext
+    intro t
+    exact eval_map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+      (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl (piInverse f b z) t
+
+/-- Split an ordinary homotopy fiber of a dependent product map into its coordinate
+fibers. The forward map retains every source coordinate and projects the entire
+path; the inverse retains the whole point family and assembles the paths at the
+same time, with the ordinary compact-open and dependent-product topologies. -/
+-- Keep the private inverse-law proofs out of the exposed constructor body.
+@[no_expose]
+def piHomeomorph :
+    HomotopyFiber (ContinuousMap.piMap f) b ≃ₜ ∀ k, HomotopyFiber (f k) (b k) where
+  toFun := piForward f b
+  invFun := piInverse f b
+  left_inv := pi_left_inv f b
+  right_inv := pi_right_inv f b
+  continuous_toFun := (piForward f b).continuous
+  continuous_invFun := (piInverse f b).continuous
+
+-- Private proved characteristic bridges allow the public constructor to stay opaque.
+private theorem piHomeomorph_apply_proof
+    (p : HomotopyFiber (ContinuousMap.piMap f) b) (k : κ) :
+    piHomeomorph f b p k =
+      map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+        (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl p := by
+  rfl
+
+/-- Each whole forward coordinate is the existing map of fibers for the projections. -/
+@[simp]
+theorem piHomeomorph_apply (p : HomotopyFiber (ContinuousMap.piMap f) b) (k : κ) :
+    piHomeomorph f b p k =
+      map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+        (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl p :=
+  piHomeomorph_apply_proof f b p k
+
+private theorem piHomeomorph_toContinuousMap_proof :
+    (piHomeomorph f b :
+      C(HomotopyFiber (ContinuousMap.piMap f) b, ∀ k, HomotopyFiber (f k) (b k))) =
+      ContinuousMap.pi (fun k =>
+        map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+          (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl) := by
+  rfl
+
+/-- The whole forward continuous map is the product of the existing fiber maps. -/
+theorem piHomeomorph_toContinuousMap :
+    (piHomeomorph f b :
+      C(HomotopyFiber (ContinuousMap.piMap f) b, ∀ k, HomotopyFiber (f k) (b k))) =
+      ContinuousMap.pi (fun k =>
+        map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+          (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl) :=
+  piHomeomorph_toContinuousMap_proof f b
+
+/-- Each forward fiber retains the corresponding original source coordinate. -/
+theorem point_piHomeomorph (p : HomotopyFiber (ContinuousMap.piMap f) b) (k : κ) :
+    point (piHomeomorph f b p k) = point p k := by
+  rw [piHomeomorph_apply]
+  exact point_map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+    (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl p
+
+/-- Each forward fiber retains the whole postcomposed compact-open path. -/
+theorem path_piHomeomorph (p : HomotopyFiber (ContinuousMap.piMap f) b) (k : κ) :
+    path (piHomeomorph f b p k) = (ContinuousMap.eval k).comp (path p) := by
+  rw [piHomeomorph_apply]
+  exact path_map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+    (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl p
+
+/-- Forward path evaluation keeps the original time and selects one coordinate. -/
+theorem eval_piHomeomorph (p : HomotopyFiber (ContinuousMap.piMap f) b) (k : κ) (t : I) :
+    eval t (piHomeomorph f b p k) = eval t p k := by
+  exact congrArg (fun γ : C(I, B k) => γ t) (path_piHomeomorph f b p k)
+
+private theorem point_piHomeomorph_symm_proof (z : ∀ k, HomotopyFiber (f k) (b k)) :
+    point ((piHomeomorph f b).symm z) = fun k => point (z k) := by
+  rfl
+
+/-- The inverse retains the entire family of source points. -/
+@[simp]
+theorem point_piHomeomorph_symm (z : ∀ k, HomotopyFiber (f k) (b k)) :
+    point ((piHomeomorph f b).symm z) = fun k => point (z k) :=
+  point_piHomeomorph_symm_proof f b z
+
+private theorem path_piHomeomorph_symm_proof (z : ∀ k, HomotopyFiber (f k) (b k)) :
+    path ((piHomeomorph f b).symm z) = ContinuousMap.pi (fun k => path (z k)) := by
+  rfl
+
+/-- The inverse assembles the whole compact-open path at the same original time. -/
+@[simp]
+theorem path_piHomeomorph_symm (z : ∀ k, HomotopyFiber (f k) (b k)) :
+    path ((piHomeomorph f b).symm z) = ContinuousMap.pi (fun k => path (z k)) :=
+  path_piHomeomorph_symm_proof f b z
+
+/-- Inverse evaluation assembles every coordinate at one and the same time. -/
+theorem eval_piHomeomorph_symm (z : ∀ k, HomotopyFiber (f k) (b k)) (t : I) :
+    eval t ((piHomeomorph f b).symm z) = fun k => eval t (z k) := by
+  exact congrArg (fun γ : C(I, ∀ k, B k) => γ t) (path_piHomeomorph_symm f b z)
+
+/-- Each whole bundled projection square is the existing map of ordinary fibers. -/
+theorem eval_comp_piHomeomorph (k : κ) :
+    (ContinuousMap.eval k :
+      C((∀ j, HomotopyFiber (f j) (b j)), HomotopyFiber (f k) (b k))).comp
+        (piHomeomorph f b :
+          C(HomotopyFiber (ContinuousMap.piMap f) b, ∀ j, HomotopyFiber (f j) (b j))) =
+      map (f := ContinuousMap.piMap f) (f' := f k) (b := b) (b' := b k)
+        (ContinuousMap.eval k) (ContinuousMap.eval k) (fun _ => rfl) rfl := by
+  apply ContinuousMap.ext
+  intro p
+  exact piHomeomorph_apply f b p k
+
+/-- The forward comparison preserves the specified family of original constant points. -/
+theorem piHomeomorph_const (e₀ : ∀ k, E k) (h : ∀ k, f k (e₀ k) = b k) :
+    piHomeomorph f b (const e₀ (funext h)) = fun k => const (e₀ k) (h k) := by
+  funext k
+  apply ext
+  · simpa only [point_const] using point_piHomeomorph f b (const e₀ (funext h)) k
+  · apply ContinuousMap.ext
+    intro t
+    simpa only [eval_apply, path_const, ContinuousMap.const_apply] using
+      eval_piHomeomorph f b (const e₀ (funext h)) k t
+
+/-- The inverse comparison preserves the same specified original constant points. -/
+theorem piHomeomorph_symm_const (e₀ : ∀ k, E k) (h : ∀ k, f k (e₀ k) = b k) :
+    (piHomeomorph f b).symm (fun k => const (e₀ k) (h k)) =
+      const e₀ (funext h) := by
+  rw [← piHomeomorph_const f b e₀ h]
+  exact (piHomeomorph f b).symm_apply_apply (const e₀ (funext h))
+
+section Naturality
+
+variable {E' : κ → Type vEπ} {B' : κ → Type vBπ}
+variable [∀ k, TopologicalSpace (E' k)] [∀ k, TopologicalSpace (B' k)]
+variable {f' : ∀ k, C(E' k, B' k)} {b' : ∀ k, B' k}
+
+/-- The dependent-product comparison is natural for arbitrary families of continuous
+commuting squares and specified target-anchor equalities. The index, source and
+target family universe levels are independent. -/
+theorem piHomeomorph_naturality
+    (F : ∀ k, C(E k, E' k)) (G : ∀ k, C(B k, B' k))
+    (w : ∀ k e, f' k (F k e) = G k (f k e)) (hb : ∀ k, G k (b k) = b' k) :
+    (piHomeomorph f' b' :
+        C(HomotopyFiber (ContinuousMap.piMap f') b', ∀ k, HomotopyFiber (f' k) (b' k))).comp
+      (map (f := ContinuousMap.piMap f) (f' := ContinuousMap.piMap f')
+        (b := b) (b' := b') (ContinuousMap.piMap F) (ContinuousMap.piMap G)
+        (fun e => funext (fun k => w k (e k))) (funext hb)) =
+      (ContinuousMap.piMap fun k =>
+        map (f := f k) (f' := f' k) (b := b k) (b' := b' k) (F k) (G k) (w k) (hb k)).comp
+        (piHomeomorph f b :
+          C(HomotopyFiber (ContinuousMap.piMap f) b, ∀ k, HomotopyFiber (f k) (b k))) := by
+  let M := map (f := ContinuousMap.piMap f) (f' := ContinuousMap.piMap f')
+    (b := b) (b' := b') (ContinuousMap.piMap F) (ContinuousMap.piMap G)
+    (fun e => funext (fun k => w k (e k))) (funext hb)
+  apply ContinuousMap.ext
+  intro p
+  have hp : point (M p) = (ContinuousMap.piMap F) (point p) :=
+    point_map (ContinuousMap.piMap F) (ContinuousMap.piMap G)
+      (fun e => funext (fun k => w k (e k))) (funext hb) p
+  have hγ : path (M p) = (ContinuousMap.piMap G).comp (path p) :=
+    path_map (ContinuousMap.piMap F) (ContinuousMap.piMap G)
+      (fun e => funext (fun k => w k (e k))) (funext hb) p
+  funext k
+  apply ext
+  · calc
+      point (piHomeomorph f' b' (M p) k) = point (M p) k :=
+        point_piHomeomorph f' b' (M p) k
+      _ = F k (point p k) := congrFun hp k
+      _ = F k (point (piHomeomorph f b p k)) :=
+        congrArg (F k) (point_piHomeomorph f b p k).symm
+      _ = point (map (F k) (G k) (w k) (hb k) (piHomeomorph f b p k)) :=
+        (point_map (F k) (G k) (w k) (hb k) _).symm
+  · apply ContinuousMap.ext
+    intro t
+    calc
+      path (piHomeomorph f' b' (M p) k) t = path (M p) t k :=
+        eval_piHomeomorph f' b' (M p) k t
+      _ = G k (path p t k) :=
+        congrArg (fun γ : C(I, ∀ j, B' j) => γ t k) hγ
+      _ = G k (path (piHomeomorph f b p k) t) :=
+        congrArg (G k) (eval_piHomeomorph f b p k t).symm
+      _ = path (map (F k) (G k) (w k) (hb k) (piHomeomorph f b p k)) t :=
+        (eval_map (F k) (G k) (w k) (hb k) (piHomeomorph f b p k) t).symm
+
+end Naturality
+end Pi
+
+section FinTwo
+
+variable {E : Fin 2 → Type uEπ} {B : Fin 2 → Type uBπ}
+variable [∀ k, TopologicalSpace (E k)] [∀ k, TopologicalSpace (B k)]
+variable (f : ∀ k, C(E k, B k)) (b : ∀ k, B k)
+
+/-- For common-universe two-coordinate families, the dependent-product comparison
+agrees with the binary comparison after the coordinate `piFinTwo` homeomorphisms.
+This diagram does not restrict the four independent universes of the binary API. -/
+theorem piHomeomorph_finTwo :
+    let σE := Homeomorph.piFinTwo E
+    let σB := Homeomorph.piFinTwo B
+    let σHF := Homeomorph.piFinTwo (fun k => HomotopyFiber (f k) (b k))
+    let S := homeomorph (f := ContinuousMap.piMap f) (g := (f 0).prodMap (f 1))
+      (y := b) (y' := (b 0, b 1)) σE σB (fun _ => rfl) rfl
+    S.trans (prodHomeomorph (f 0) (f 1) (b 0) (b 1)) =
+      (piHomeomorph f b).trans σHF := by
+  let σE := Homeomorph.piFinTwo E
+  let σB := Homeomorph.piFinTwo B
+  let S := homeomorph (f := ContinuousMap.piMap f) (g := (f 0).prodMap (f 1))
+    (y := b) (y' := (b 0, b 1)) σE σB (fun _ => rfl) rfl
+  apply Homeomorph.ext
+  intro p
+  have hp : point (S p) = σE (point p) :=
+    point_homeomorph σE σB (fun _ => rfl) rfl p
+  have hγ : path (S p) = (σB : C((∀ k, B k), B 0 × B 1)).comp (path p) :=
+    path_homeomorph σE σB (fun _ => rfl) rfl p
+  apply Prod.ext
+  · apply ext
+    · calc
+        point (prodHomeomorph (f 0) (f 1) (b 0) (b 1) (S p)).1 =
+            (point (S p)).1 :=
+          point_prodHomeomorph_fst (f 0) (f 1) (b 0) (b 1) (S p)
+        _ = point p 0 :=
+          congrArg Prod.fst hp
+        _ = point (piHomeomorph f b p 0) := (point_piHomeomorph f b p 0).symm
+    · apply ContinuousMap.ext
+      intro t
+      calc
+        path (prodHomeomorph (f 0) (f 1) (b 0) (b 1) (S p)).1 t =
+            (path (S p) t).1 :=
+          eval_prodHomeomorph_fst (f 0) (f 1) (b 0) (b 1) (S p) t
+        _ = path p t 0 :=
+          congrArg (fun γ : C(I, B 0 × B 1) => (γ t).1) hγ
+        _ = path (piHomeomorph f b p 0) t := (eval_piHomeomorph f b p 0 t).symm
+  · apply ext
+    · calc
+        point (prodHomeomorph (f 0) (f 1) (b 0) (b 1) (S p)).2 =
+            (point (S p)).2 :=
+          point_prodHomeomorph_snd (f 0) (f 1) (b 0) (b 1) (S p)
+        _ = point p 1 :=
+          congrArg Prod.snd hp
+        _ = point (piHomeomorph f b p 1) := (point_piHomeomorph f b p 1).symm
+    · apply ContinuousMap.ext
+      intro t
+      calc
+        path (prodHomeomorph (f 0) (f 1) (b 0) (b 1) (S p)).2 t =
+            (path (S p) t).2 :=
+          eval_prodHomeomorph_snd (f 0) (f 1) (b 0) (b 1) (S p) t
+        _ = path p t 1 :=
+          congrArg (fun γ : C(I, B 0 × B 1) => (γ t).2) hγ
+        _ = path (piHomeomorph f b p 1) t := (eval_piHomeomorph f b p 1 t).symm
+
+end FinTwo
+
+section ProdConst
+
+universe uE₀ uB₀ uE₁ uB₁
+
+variable {E₀ : Type uE₀} {B₀ : Type uB₀} {E₁ : Type uE₁} {B₁ : Type uB₁}
+variable [TopologicalSpace E₀] [TopologicalSpace B₀]
+variable [TopologicalSpace E₁] [TopologicalSpace B₁]
+variable (f : C(E₀, B₀)) (g : C(E₁, B₁)) (b₀ : B₀) (b₁ : B₁)
+
+/-- The binary comparison preserves both specified original constant points, with
+all four ambient universes independent. -/
+theorem prodHomeomorph_const (e₀ : E₀) (e₁ : E₁)
+    (h₀ : f e₀ = b₀) (h₁ : g e₁ = b₁) :
+    prodHomeomorph f g b₀ b₁ (const (e₀, e₁) (Prod.ext h₀ h₁)) =
+      (const e₀ h₀, const e₁ h₁) := by
+  apply Prod.ext
+  · apply ext
+    · simpa only [point_const] using
+        point_prodHomeomorph_fst f g b₀ b₁ (const (e₀, e₁) (Prod.ext h₀ h₁))
+    · apply ContinuousMap.ext
+      intro t
+      simpa only [eval_apply, path_const, ContinuousMap.const_apply] using
+        eval_prodHomeomorph_fst f g b₀ b₁ (const (e₀, e₁) (Prod.ext h₀ h₁)) t
+  · apply ext
+    · simpa only [point_const] using
+        point_prodHomeomorph_snd f g b₀ b₁ (const (e₀, e₁) (Prod.ext h₀ h₁))
+    · apply ContinuousMap.ext
+      intro t
+      simpa only [eval_apply, path_const, ContinuousMap.const_apply] using
+        eval_prodHomeomorph_snd f g b₀ b₁ (const (e₀, e₁) (Prod.ext h₀ h₁)) t
+
+end ProdConst
 
 end ContinuousMap.HomotopyFiber

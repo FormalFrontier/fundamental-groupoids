@@ -1106,3 +1106,28 @@ both specified constant points, and is natural for based commuting squares.
 See `ContinuousMap.HomotopyFiber.genLoopHomeomorph` and
 `ContinuousMap.HomotopyFiber.genLoopHomeomorph_naturality` in
 [`Topology/Homotopy/Fiber/GenLoop.lean`](FundamentalGroupoids/Topology/Homotopy/Fiber/GenLoop.lean).
+
+
+## Dependent products of homotopy fibers
+
+For an arbitrary index type and topological families `E k` and `B k`, the
+[product-fiber module](FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean)
+constructs `ContinuousMap.HomotopyFiber.piHomeomorph f b`:
+
+```text
+HomotopyFiber (ContinuousMap.piMap f) b ≃ₜ (∀ k, HomotopyFiber (f k) (b k)).
+```
+
+The comparison retains every original source point and the entire compact-open
+path at the same time. Its inverse transposes the whole family of paths; only
+the interval needs local compactness. The index, source and target universes are
+independent, with no finiteness, nonemptiness or separation assumptions.
+The original constant `const e₀ (funext h)` corresponds in both directions to
+`fun k => const (e₀ k) (h k)`.
+
+`piHomeomorph_naturality` expresses naturality as equality of whole bundled
+continuous maps for arbitrary families of commuting squares. For `Fin 2`,
+`piHomeomorph_finTwo` identifies the composite homeomorphisms through
+`Homeomorph.piFinTwo`, the homotopy-fiber `homeomorph`, and `prodHomeomorph`.
+This common-universe family diagram leaves the binary comparison's four
+independent ambient universes and its eight-universe naturality law unchanged.
