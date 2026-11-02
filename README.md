@@ -282,6 +282,12 @@ directions, examples, conventions and credits.
   of the ordinary topological loop space `Path b b`, not just the component
   of `Path.refl b`. The unpointed zeroth projection formula also allows
   empty `E`, without choosing `e₀` or `h`.
+  At the base-space position, [`HomotopyGroup.Fiber`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber.lean)
+  identifies the image of `π_(N ⊕ Unit) f` with the preimage of the constant
+  class under inverse loop iteration, the singleton-loop homeomorphism and `π_N J`.
+  This holds for every `N`, with the subgroup range–kernel form for
+  `[DecidableEq N] [Nonempty N]`; the sum order is `N` followed by `Unit`,
+  and the whole forward path is retained without reversal.
   For continuous `g : C(E', B)` and `u : C(E', E)` with `f (u x) = g x`,
   the induced fiber map `K` over `id B` satisfies
   `range (π₀ K) = (π₀ p) ⁻¹' range (π₀ u)`; `E'` may be empty.
@@ -290,10 +296,10 @@ directions, examples, conventions and credits.
   `δ ⁻¹' {δ 1} = Set.range (FundamentalGroup.mapOfEq f h)`.
   These are the positions at `π₀HF` and `π₁B`, distinct from projection
   exactness at `HomotopyGroup N E e₀`. No group structure on `π₀HF` or full
-  long exact sequence is supplied. The finite-degree projection and loop-inclusion
-  formulas adapt May, Chapter 8 §6, printed pp. 61–62; the all-index statements
-  are ordinary-topology cubical extensions, without a sphere-domain or degree-shift
-  comparison or an identification with his category `U`. See the
+  long exact sequence is supplied. The finite-degree exactness formulas adapt
+  May, Chapter 8 §6, printed pp. 61–62; the all-index statements are ordinary-topology
+  cubical extensions, without a sphere-domain comparison or identification with
+  his signed degree-indexed sequence or category `U`. See the
   [exactness guide](docs/mathematical-guide.md#path-component-exactness-for-homotopy-fibers).
 - **Finite generalized loops as based compact-open maps** ([`GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean)).
   For every finite index type `N` (`[Finite N]`) and every topological space `X`
@@ -926,6 +932,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Compactness.CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean) | Source-test continuity, unchanged-function lifts, locally compact product closure and the identity product-refinement homeomorphism; closed-subtype compact generation and refinement homeomorphisms, and preservation of closed embeddings |
 | [`Topology.Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean) | Joint relative-homotopy lifts with arbitrary fixed subsets, counit inverse laws, target naturality and homotopy-existence comparison; fixed-evaluation-fiber refinement homeomorphisms and based naturality; counit bijectivity on path components for arbitrary spaces, subtypes and fixed-evaluation fibers |
 | [`Topology.Homotopy.HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean) | Natural equivalences for CompHaus-test topology comparisons on all cubical homotopy quotients, with existing-map and positive multiplicative characteristics |
+| [`Topology.Homotopy.HomotopyGroup.Fiber`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber.lean) | All-index image–preimage exactness at the base of a homotopy fiber via inverse iteration and the forward loop inclusion; range–kernel form for nonempty indices with decidable equality |
 | [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Singleton-indexed generalized-loop/based-path homeomorphism retaining the underlying equivalence, full evaluation and based-map laws; boundary-relative homotopy iff joinedness; raw quotient/component equivalence with constant, naturality and empty-index laws |
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
 | [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Closed coordinate-face boundaries for finite indices, zero boundary vertex for nonempty indices and path-connected boundaries for nontrivial indices |

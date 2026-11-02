@@ -84,8 +84,8 @@ public import FundamentalGroupoids.Topology.Homotopy.Fiber
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Const
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Exact
-public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homeomorph
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.GenLoop
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homeomorph
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homotopy
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Loop
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.PathComponent
@@ -101,6 +101,7 @@ public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Circle
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.CompactlyGenerated
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Congr
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Discrete
+public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Fiber
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.FinitePath
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Iteration
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.LoopSpace
