@@ -117,6 +117,13 @@ project:
     Fibers of product maps are homeomorphic to products of ordinary homotopy
     fibers, preserving both retained source points and full same-time paths,
     naturally for arbitrary continuous squares in independent universes.
+    A free source factor splits from the fiber of f composed with first projection:
+    the result is HomotopyFiber f b times the free factor, retaining both source
+    coordinates and the entire original path. Whole continuous-map diagrams,
+    inverse and constructor laws and same-time evaluation hold for arbitrary
+    topologies in three independent universes; arbitrary-square naturality with
+    a continuous free-factor map uses six independent universes. For f equal to
+    identity, the full identity-fiber factor remains.
   authors:
     - Formal Frontier Agents
   responsible_maintainers:
@@ -572,6 +579,9 @@ alignment:
     The ordinary homotopy-fiber product comparison is a structural consequence
     of the retained-point model and Mathlib's compact-open API, without a
     claimed correspondence with a named theorem in May.
+    The free-source-factor comparison is structural derived support, assembled
+    from the existing canonical pullback provider and Mathlib's restricted
+    associator and set-product homeomorphisms, not a theorem quoted from May.
   statements:
     - lean: ZerothHomotopy.mem_range_map_iff
       module: FundamentalGroupoids/Topology/Connected/PathConnected.lean
@@ -591,6 +601,14 @@ alignment:
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph_trans
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
+    - lean: ContinuousMap.HomotopyFiber.compFstHomeomorph
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean
+    - lean: ContinuousMap.HomotopyFiber.point_comp_compFstHomeomorph
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean
+    - lean: ContinuousMap.HomotopyFiber.path_comp_compFstHomeomorph
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean
+    - lean: ContinuousMap.HomotopyFiber.compFstHomeomorph_naturality
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean
     - lean: CategoryTheory.Iso.conj_eq_iff_mem_center
       module: FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean
     - lean: CategoryTheory.Iso.forall_conj_eq_iff_isMulCommutative
@@ -951,6 +969,10 @@ alignment:
       module: FundamentalGroupoids/FundamentalGroup/ComplexPuncturedBall.lean
 acknowledgements: >-
   Formal Frontier agents contributed Lean formalization, examples and documentation.
+  The free-source-factor comparison reuses the library's canonical
+  pullbackHomeomorph provider and Mathlib's homeomorphism composition, restricted
+  product associator and set-product homeomorphisms, without a separate inverse
+  or continuity construction.
   May and Mathlib are credited in the module references and CONTRIBUTORS.md,
   including the Mathlib contributors whose subdivision and generation APIs are used.
   The generic covering formalizations originate in sphere-topology by Formal

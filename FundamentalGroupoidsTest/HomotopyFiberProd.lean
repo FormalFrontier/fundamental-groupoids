@@ -13,7 +13,9 @@ import Mathlib.Tactic.NormNum
 Two zero maps on the real line retain independent source points and the full
 loops `t ↦ t * (1 - t)` and `t ↦ 2 * t * (1 - t)`. The product comparison keeps
 both loops at the same time, and distinguishes points with identical paths but
-different source coordinates. This uses the public root and product-fiber API.
+different source coordinates. The free-source comparison also keeps the same
+nonconstant loop while either source coordinate varies independently. These use
+the public root and product-fiber API.
 -/
 
 open unitInterval
@@ -97,5 +99,67 @@ example :
       (point_prodHomeomorph_fst zeroMap zeroMap 0 0 (zeroProductPoint 2 3)).symm.trans
         (hfst.trans (point_prodHomeomorph_fst zeroMap zeroMap 0 0 (zeroProductPoint 5 3)))
     norm_num at h25
+
+private def freeSourceInput (x z : ℝ) :
+    HomotopyFiber (zeroMap.comp (ContinuousMap.fst : C(ℝ × ℝ, ℝ))) 0 :=
+  mk (x, z) quadraticLoop quadraticLoop_zero quadraticLoop_one
+
+private def freeSourceFiber (x : ℝ) : HomotopyFiber zeroMap 0 :=
+  mk x quadraticLoop quadraticLoop_zero quadraticLoop_one
+
+/-- A noninjective zero map keeps both source coordinates and the same nonconstant
+whole path. Each coordinate varies independently, while the original midpoint
+and its quarter-value are unchanged. -/
+example :
+    let e := compFstHomeomorph (Z := ℝ) zeroMap 0
+    ¬ Function.Injective zeroMap ∧
+      e (freeSourceInput 2 3) = (freeSourceFiber 2, 3) ∧
+      e (freeSourceInput 5 3) = (freeSourceFiber 5, 3) ∧
+      e (freeSourceInput 2 7) = (freeSourceFiber 2, 7) ∧
+      path (e (freeSourceInput 2 3)).1 = quadraticLoop ∧
+      path (e (freeSourceInput 5 3)).1 = quadraticLoop ∧
+      path (e (freeSourceInput 2 7)).1 = quadraticLoop ∧
+      eval midpoint (e (freeSourceInput 2 3)).1 = eval midpoint (freeSourceInput 2 3) ∧
+      eval midpoint (e (freeSourceInput 2 3)).1 = (1 / 4 : ℝ) ∧
+      quadraticLoop midpoint ≠ quadraticLoop 0 ∧
+      freeSourceInput 2 3 ≠ freeSourceInput 5 3 ∧
+      freeSourceInput 2 3 ≠ freeSourceInput 2 7 ∧
+      e (freeSourceInput 2 3) ≠ e (freeSourceInput 5 3) ∧
+      e (freeSourceInput 2 3) ≠ e (freeSourceInput 2 7) := by
+  dsimp only
+  have himage (x z : ℝ) :
+      compFstHomeomorph (Z := ℝ) zeroMap 0 (freeSourceInput x z) =
+        (freeSourceFiber x, z) :=
+    compFstHomeomorph_mk zeroMap 0 x z quadraticLoop quadraticLoop_zero quadraticLoop_one
+  have hx : freeSourceInput 2 3 ≠ freeSourceInput 5 3 := by
+    intro h
+    have h25 : (2 : ℝ) = 5 := congrArg (fun q => (point q).1) h
+    norm_num at h25
+  have hz : freeSourceInput 2 3 ≠ freeSourceInput 2 7 := by
+    intro h
+    have h37 : (3 : ℝ) = 7 := congrArg (fun q => (point q).2) h
+    norm_num at h37
+  refine ⟨?_, himage 2 3, himage 5 3, himage 2 7, ?_, ?_, ?_, ?_, ?_, ?_, hx, hz, ?_, ?_⟩
+  · intro h
+    have h01 : (0 : ℝ) = 1 := h rfl
+    norm_num at h01
+  · rw [himage]
+    exact path_mk 2 quadraticLoop quadraticLoop_zero quadraticLoop_one
+  · rw [himage]
+    exact path_mk 5 quadraticLoop quadraticLoop_zero quadraticLoop_one
+  · rw [himage]
+    exact path_mk 2 quadraticLoop quadraticLoop_zero quadraticLoop_one
+  · exact eval_compFstHomeomorph_fst zeroMap 0 (freeSourceInput 2 3) midpoint
+  · calc
+      eval midpoint (compFstHomeomorph (Z := ℝ) zeroMap 0 (freeSourceInput 2 3)).1 =
+          eval midpoint (freeSourceInput 2 3) :=
+        eval_compFstHomeomorph_fst zeroMap 0 (freeSourceInput 2 3) midpoint
+      _ = (1 / 4 : ℝ) := by
+        norm_num [eval_apply, freeSourceInput, quadraticLoop, midpoint]
+  · norm_num [quadraticLoop, midpoint]
+  · intro h
+    exact hx ((compFstHomeomorph (Z := ℝ) zeroMap 0).injective h)
+  · intro h
+    exact hz ((compFstHomeomorph (Z := ℝ) zeroMap 0).injective h)
 
 end ContinuousMap.HomotopyFiber

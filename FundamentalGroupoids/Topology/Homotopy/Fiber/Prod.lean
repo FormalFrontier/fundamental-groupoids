@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Homotopy.Fiber
+public import Mathlib.Topology.Homeomorph.Lemmas
 
 /-!
 # Products of ordinary homotopy fibers
@@ -23,11 +24,27 @@ The path-pairing continuity argument uses Mathlib's bundled evaluation and
 currying operations; local compactness is used only for the interval, not for
 any ambient space. No path quotient or change of time parameter is involved.
 
+`ContinuousMap.HomotopyFiber.compFstHomeomorph (Z := Z) f b` separates a
+free source factor from the fiber of `f.comp ContinuousMap.fst`, giving the
+product of the original fiber of `f` with `Z`. It keeps both source coordinates
+and the entire original path at the same time. The three space universes are
+independent, as are all six in its naturality law for an arbitrary continuous
+square and arbitrary map of the free factor. For `f = id`, the full identity-fiber
+factor remains; this comparison does not contract it.
+
+The free-factor comparison composes the existing canonical pullback provider,
+a restricted inverse product associator, Mathlib's set-product homeomorphism,
+and the inverse canonical provider. No new continuity or inverse construction
+is needed.
+
 ## References
 
 * `FundamentalGroupoids.Topology.Homotopy.Fiber`, for the retained-point model,
   its coordinate and constructor API, and maps of continuous commuting squares.
 * Mathlib's compact-open continuous-map API, for evaluation, currying and products.
+* `ContinuousMap.HomotopyFiber.pullbackHomeomorph` and its point/path API;
+  Mathlib's `Homeomorph.subtype`, `prodAssoc`, `Set.prod` and `Set.univ`, for
+  separating a free source coordinate.
 -/
 
 @[expose] public section
@@ -308,5 +325,275 @@ theorem prodHomeomorph_naturality
           congrArg G₂ (eval_prodHomeomorph_snd f g y z p t).symm
         _ = path (map F₂ G₂ w₂ h₂ (prodHomeomorph f g y z p).2) t :=
           (eval_map F₂ G₂ w₂ h₂ (prodHomeomorph f g y z p).2 t).symm
+
+end ContinuousMap.HomotopyFiber
+
+namespace ContinuousMap.HomotopyFiber
+
+universe uX uY uZ vX vY vZ
+
+variable {X : Type uX} {Y : Type uY} {Z : Type uZ}
+variable [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
+variable (f : C(X, Y)) (b : Y)
+
+-- Local notation only for the existing canonical provider's target expressions.
+local notation "P_b" => {γ : C(I, Y) // γ 0 = b}
+local notation "S" =>
+  ((fun p : P_b × X => terminalEvaluation b (Prod.fst p) = f (Prod.snd p)) : Set (P_b × X))
+
+/-- Separate a free source factor while retaining the original fiber and its full path.
+The construction composes the canonical pullback providers with Mathlib homeomorphisms. -/
+def compFstHomeomorph :
+    HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b ≃ₜ
+      HomotopyFiber f b × Z :=
+  let h_iff : ∀ q : P_b × (X × Z),
+      terminalEvaluation b q.1 = (f.comp (ContinuousMap.fst : C(X × Z, X))) q.2 ↔
+        ((Homeomorph.prodAssoc P_b X Z).symm q) ∈ Set.prod S (Set.univ : Set Z) := by
+    intro q
+    change (terminalEvaluation b q.1 = f q.2.1) ↔
+      (terminalEvaluation b q.1 = f q.2.1) ∧ True
+    exact ⟨fun h => ⟨h, trivial⟩, fun h => h.1⟩
+  (pullbackHomeomorph (f.comp (ContinuousMap.fst : C(X × Z, X))) b).trans
+    ((Homeomorph.subtype
+      (p := fun q : P_b × (X × Z) =>
+        terminalEvaluation b q.1 = (f.comp (ContinuousMap.fst : C(X × Z, X))) q.2)
+      (q := fun r : (P_b × X) × Z => r ∈ Set.prod S (Set.univ : Set Z))
+      (Homeomorph.prodAssoc P_b X Z).symm h_iff).trans
+      ((Homeomorph.Set.prod S (Set.univ : Set Z)).trans
+        ((pullbackHomeomorph f b).symm.prodCongr (Homeomorph.Set.univ Z))))
+
+/-- The first forward fiber is the existing map for first projection and identity. -/
+@[simp]
+theorem compFstHomeomorph_fst
+    (p : HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b) :
+    (compFstHomeomorph (Z := Z) f b p).1 =
+      map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+        (b := b) (b' := b) (ContinuousMap.fst : C(X × Z, X))
+        (ContinuousMap.id Y) (fun _ => rfl) rfl p := by
+  apply ext
+  · calc
+      point (compFstHomeomorph (Z := Z) f b p).1 =
+          ((pullbackHomeomorph (f.comp (ContinuousMap.fst : C(X × Z, X))) b p).1.2).1 :=
+        pullbackHomeomorph_symm_point (f := f) (b := b) _
+      _ = (point p).1 := congrArg Prod.fst (pullbackHomeomorph_point p)
+      _ = point (map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+          (b := b) (b' := b) ContinuousMap.fst (ContinuousMap.id Y)
+          (fun _ => rfl) rfl p) :=
+        (point_map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+          (b := b) (b' := b) (ContinuousMap.fst : C(X × Z, X))
+          (ContinuousMap.id Y) (fun _ : X × Z => rfl) rfl p).symm
+  · calc
+      path (compFstHomeomorph (Z := Z) f b p).1 =
+          (pullbackHomeomorph (f.comp (ContinuousMap.fst : C(X × Z, X))) b p).1.1.1 :=
+        pullbackHomeomorph_symm_path (f := f) (b := b) _
+      _ = path p := pullbackHomeomorph_path p
+      _ = (ContinuousMap.id Y).comp (path p) := (ContinuousMap.id_comp (path p)).symm
+      _ = path (map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+          (b := b) (b' := b) ContinuousMap.fst (ContinuousMap.id Y)
+          (fun _ => rfl) rfl p) :=
+        (path_map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+          (b := b) (b' := b) (ContinuousMap.fst : C(X × Z, X))
+          (ContinuousMap.id Y) (fun _ : X × Z => rfl) rfl p).symm
+
+/-- The forward free coordinate is the original second source coordinate. -/
+@[simp]
+theorem compFstHomeomorph_snd
+    (p : HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b) :
+    (compFstHomeomorph (Z := Z) f b p).2 = (point p).2 := by
+  exact congrArg Prod.snd (pullbackHomeomorph_point p)
+
+/-- The point of the first forward fiber is the original first source coordinate. -/
+theorem point_compFstHomeomorph_fst
+    (p : HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b) :
+    point (compFstHomeomorph (Z := Z) f b p).1 = (point p).1 := by
+  calc
+    point (compFstHomeomorph (Z := Z) f b p).1 =
+        point (map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+          (b := b) (b' := b) (ContinuousMap.fst : C(X × Z, X))
+          (ContinuousMap.id Y) (fun _ : X × Z => rfl) rfl p) :=
+      congrArg (fun a : HomotopyFiber f b => point a) (compFstHomeomorph_fst f b p)
+    _ = (point p).1 :=
+      point_map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+        (b := b) (b' := b) (ContinuousMap.fst : C(X × Z, X))
+        (ContinuousMap.id Y) (fun _ : X × Z => rfl) rfl p
+
+/-- The first forward fiber retains the entire original compact-open path. -/
+theorem path_compFstHomeomorph_fst
+    (p : HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b) :
+    path (compFstHomeomorph (Z := Z) f b p).1 = path p := by
+  calc
+    path (compFstHomeomorph (Z := Z) f b p).1 =
+        path (map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+          (b := b) (b' := b) (ContinuousMap.fst : C(X × Z, X))
+          (ContinuousMap.id Y) (fun _ : X × Z => rfl) rfl p) :=
+      congrArg (fun a : HomotopyFiber f b => path a) (compFstHomeomorph_fst f b p)
+    _ = (ContinuousMap.id Y).comp (path p) :=
+      path_map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+        (b := b) (b' := b) (ContinuousMap.fst : C(X × Z, X))
+        (ContinuousMap.id Y) (fun _ : X × Z => rfl) rfl p
+    _ = path p := ContinuousMap.id_comp (path p)
+
+/-- Forward evaluation uses the same original time, at every time. -/
+theorem eval_compFstHomeomorph_fst
+    (p : HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b) (t : I) :
+    eval t (compFstHomeomorph (Z := Z) f b p).1 = eval t p := by
+  exact congrArg (fun γ : C(I, Y) => γ t) (path_compFstHomeomorph_fst f b p)
+
+/-- The inverse retains the first fiber's point and the specified free coordinate. -/
+@[simp]
+theorem point_compFstHomeomorph_symm (a : HomotopyFiber f b) (z : Z) :
+    point ((compFstHomeomorph (Z := Z) f b).symm (a, z)) = (point a, z) := by
+  calc
+    point ((compFstHomeomorph (Z := Z) f b).symm (a, z)) =
+        ((pullbackHomeomorph f b a).1.2, z) :=
+      pullbackHomeomorph_symm_point
+        (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (b := b) _
+    _ = (point a, z) := congrArg (fun x : X => (x, z)) (pullbackHomeomorph_point a)
+
+/-- The inverse retains the entire original compact-open path. -/
+@[simp]
+theorem path_compFstHomeomorph_symm (a : HomotopyFiber f b) (z : Z) :
+    path ((compFstHomeomorph (Z := Z) f b).symm (a, z)) = path a := by
+  calc
+    path ((compFstHomeomorph (Z := Z) f b).symm (a, z)) =
+        (pullbackHomeomorph f b a).1.1.1 :=
+      pullbackHomeomorph_symm_path
+        (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (b := b) _
+    _ = path a := pullbackHomeomorph_path a
+
+/-- Inverse evaluation also uses the same original time, at every time. -/
+theorem eval_compFstHomeomorph_symm (a : HomotopyFiber f b) (z : Z) (t : I) :
+    eval t ((compFstHomeomorph (Z := Z) f b).symm (a, z)) = eval t a := by
+  exact congrArg (fun γ : C(I, Y) => γ t) (path_compFstHomeomorph_symm f b a z)
+
+/-- The whole first continuous-map projection is the existing fiber map. -/
+theorem fst_comp_compFstHomeomorph :
+    (ContinuousMap.fst : C(HomotopyFiber f b × Z, HomotopyFiber f b)).comp
+        (compFstHomeomorph (Z := Z) f b :
+          C(HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b,
+            HomotopyFiber f b × Z)) =
+      map (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (f' := f)
+        (b := b) (b' := b) (ContinuousMap.fst : C(X × Z, X))
+        (ContinuousMap.id Y) (fun _ => rfl) rfl := by
+  apply ContinuousMap.ext
+  intro p
+  exact compFstHomeomorph_fst f b p
+
+/-- The whole second continuous-map projection recovers the free source coordinate. -/
+theorem snd_comp_compFstHomeomorph :
+    (ContinuousMap.snd : C(HomotopyFiber f b × Z, Z)).comp
+        (compFstHomeomorph (Z := Z) f b :
+          C(HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b,
+            HomotopyFiber f b × Z)) =
+      (ContinuousMap.snd : C(X × Z, Z)).comp
+        (point (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (b := b)) := by
+  apply ContinuousMap.ext
+  intro p
+  exact compFstHomeomorph_snd f b p
+
+/-- The whole original-point diagram retains both source coordinates. -/
+theorem point_comp_compFstHomeomorph :
+    ((point (f := f) (b := b)).prodMap (ContinuousMap.id Z)).comp
+        (compFstHomeomorph (Z := Z) f b :
+          C(HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b,
+            HomotopyFiber f b × Z)) =
+      (point (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (b := b) :
+        C(HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b, X × Z)) := by
+  apply ContinuousMap.ext
+  intro p
+  exact Prod.ext (point_compFstHomeomorph_fst f b p) (compFstHomeomorph_snd f b p)
+
+/-- The whole path diagram preserves the original bundled compact-open path map. -/
+theorem path_comp_compFstHomeomorph :
+    ((path (f := f) (b := b) : C(HomotopyFiber f b, C(I, Y))).comp
+        (ContinuousMap.fst : C(HomotopyFiber f b × Z, HomotopyFiber f b))).comp
+        (compFstHomeomorph (Z := Z) f b :
+          C(HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b,
+            HomotopyFiber f b × Z)) =
+      (path (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (b := b) :
+        C(HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b, C(I, Y))) := by
+  apply ContinuousMap.ext
+  intro p
+  exact path_compFstHomeomorph_fst f b p
+
+/-- Naturality for an arbitrary continuous commuting square and arbitrary free map,
+with six independently universe-polymorphic spaces and no embedding assumptions. -/
+theorem compFstHomeomorph_naturality
+    {X' : Type vX} {Y' : Type vY} {Z' : Type vZ}
+    [TopologicalSpace X'] [TopologicalSpace Y'] [TopologicalSpace Z']
+    {f' : C(X', Y')} {b' : Y'}
+    (F : C(X, X')) (G : C(Y, Y')) (H : C(Z, Z'))
+    (w : ∀ x, f' (F x) = G (f x)) (hb : G b = b') :
+    (compFstHomeomorph (Z := Z') f' b' :
+        C(HomotopyFiber (f'.comp (ContinuousMap.fst : C(X' × Z', X'))) b',
+          HomotopyFiber f' b' × Z')).comp
+      (map (f := f.comp (ContinuousMap.fst : C(X × Z, X)))
+        (f' := f'.comp (ContinuousMap.fst : C(X' × Z', X')))
+        (b := b) (b' := b') (F.prodMap H) G (fun p => w p.1) hb) =
+      ((map (f := f) (f' := f') (b := b) (b' := b') F G w hb).prodMap H).comp
+        (compFstHomeomorph (Z := Z) f b :
+          C(HomotopyFiber (f.comp (ContinuousMap.fst : C(X × Z, X))) b,
+            HomotopyFiber f b × Z)) := by
+  let M := map (f := f.comp (ContinuousMap.fst : C(X × Z, X)))
+    (f' := f'.comp (ContinuousMap.fst : C(X' × Z', X')))
+    (b := b) (b' := b') (F.prodMap H) G (fun p => w p.1) hb
+  apply ContinuousMap.ext
+  intro p
+  have hp : point (M p) = (F.prodMap H) (point p) :=
+    point_map (f := f.comp (ContinuousMap.fst : C(X × Z, X)))
+      (f' := f'.comp (ContinuousMap.fst : C(X' × Z', X')))
+      (b := b) (b' := b') (F.prodMap H) G (fun p => w p.1) hb p
+  have hγ : path (M p) = G.comp (path p) :=
+    path_map (f := f.comp (ContinuousMap.fst : C(X × Z, X)))
+      (f' := f'.comp (ContinuousMap.fst : C(X' × Z', X')))
+      (b := b) (b' := b') (F.prodMap H) G (fun p => w p.1) hb p
+  apply Prod.ext
+  · apply ext
+    · calc
+        point (compFstHomeomorph (Z := Z') f' b' (M p)).1 = (point (M p)).1 :=
+          point_compFstHomeomorph_fst f' b' (M p)
+        _ = F ((point p).1) := congrArg Prod.fst hp
+        _ = F (point (compFstHomeomorph (Z := Z) f b p).1) :=
+          congrArg F (point_compFstHomeomorph_fst f b p).symm
+        _ = point (map F G w hb (compFstHomeomorph (Z := Z) f b p).1) :=
+          (point_map F G w hb (compFstHomeomorph (Z := Z) f b p).1).symm
+    · calc
+        path (compFstHomeomorph (Z := Z') f' b' (M p)).1 = path (M p) :=
+          path_compFstHomeomorph_fst f' b' (M p)
+        _ = G.comp (path p) := hγ
+        _ = G.comp (path (compFstHomeomorph (Z := Z) f b p).1) :=
+          congrArg (fun γ : C(I, Y) => G.comp γ) (path_compFstHomeomorph_fst f b p).symm
+        _ = path (map F G w hb (compFstHomeomorph (Z := Z) f b p).1) :=
+          (path_map F G w hb (compFstHomeomorph (Z := Z) f b p).1).symm
+  · calc
+      (compFstHomeomorph (Z := Z') f' b' (M p)).2 = (point (M p)).2 :=
+        compFstHomeomorph_snd f' b' (M p)
+      _ = H ((point p).2) := congrArg Prod.snd hp
+      _ = H (compFstHomeomorph (Z := Z) f b p).2 :=
+        congrArg H (compFstHomeomorph_snd f b p).symm
+
+/-- The forward comparison splits a canonical constructor without changing its path. -/
+theorem compFstHomeomorph_mk (x : X) (z : Z) (γ : C(I, Y))
+    (h₀ : γ 0 = b) (h₁ : γ 1 = f x) :
+    compFstHomeomorph (Z := Z) f b
+        (mk (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (b := b)
+          (x, z) γ h₀ h₁) =
+      (mk (f := f) (b := b) x γ h₀ h₁, z) := by
+  apply Prod.ext
+  · apply ext
+    · exact point_compFstHomeomorph_fst f b (mk (x, z) γ h₀ h₁)
+    · exact path_compFstHomeomorph_fst f b (mk (x, z) γ h₀ h₁)
+  · exact compFstHomeomorph_snd f b (mk (x, z) γ h₀ h₁)
+
+/-- The inverse comparison rejoins a canonical constructor and the free coordinate. -/
+theorem compFstHomeomorph_symm_mk (x : X) (z : Z) (γ : C(I, Y))
+    (h₀ : γ 0 = b) (h₁ : γ 1 = f x) :
+    (compFstHomeomorph (Z := Z) f b).symm
+        (mk (f := f) (b := b) x γ h₀ h₁, z) =
+      mk (f := f.comp (ContinuousMap.fst : C(X × Z, X))) (b := b)
+        (x, z) γ h₀ h₁ := by
+  apply ext
+  · exact point_compFstHomeomorph_symm f b (mk x γ h₀ h₁) z
+  · exact path_compFstHomeomorph_symm f b (mk x γ h₀ h₁) z
 
 end ContinuousMap.HomotopyFiber

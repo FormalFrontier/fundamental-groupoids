@@ -177,6 +177,16 @@ directions, examples, conventions and credits.
   comparison commutes with both projections and is natural for two arbitrary
   continuous squares, with eight independent universes and no separation or
   ambient local-compactness assumptions.
+  `HomotopyFiber.compFstHomeomorph (Z := Z) f b` identifies the fiber of
+  `f.comp (ContinuousMap.fst : C(X × Z, X))` over `b` with
+  `HomotopyFiber f b × Z`. It preserves both source coordinates and the full
+  original path, with forward and inverse same-time evaluation and constructor
+  laws. Whole continuous-map diagrams describe the first-fiber, free-coordinate,
+  point and path projections. Naturality permits any continuous commuting square
+  and any continuous map of the free factor, with six independent universes;
+  the comparison itself uses three independent universes and arbitrary topologies.
+  Empty spaces are allowed. For `f = id`, the full identity-fiber factor remains;
+  this is not a homeomorphism from the projection's fiber to `Z` alone.
   A constant fiber point needs a specified `e` with `f e = b`;
   being outside the image does not force the homotopy fiber to be empty.
   For arbitrary `f`, nonemptiness is equivalent to `∃ e, Joined b (f e)`, or
@@ -814,7 +824,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Fiber.Contractible`](FundamentalGroupoids/Topology/Homotopy/Fiber/Contractible.lean) | Identity-map fiber contraction relative to its constant-path point, with moving-point, whole-path, evaluation, endpoint and fixed-point laws, and a contractibility instance for arbitrary targets |
 | [`Topology.Homotopy.Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean) | Homeomorphisms induced by invertible coordinate squares, with forward/inverse point and full-path laws, identity, composition and projection compatibility |
 | [`Topology.Homotopy.Fiber.PathComponent`](FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean) | Homotopy-fiber nonemptiness, surjectivity on path components iff all fibers are nonempty, and the point projection's component image as the preimage of the basepoint component, for independent universes and arbitrary topologies |
-| [`Topology.Homotopy.Fiber.Prod`](FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean) | Product fibers as products of fibers, preserving retained points and full same-time paths, with projection diagrams and naturality for arbitrary continuous squares |
+| [`Topology.Homotopy.Fiber.Prod`](FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean) | Product fibers as products of fibers, preserving retained points and full same-time paths, with projection diagrams and naturality for arbitrary continuous squares; free source factors split off with whole point/path diagrams, constructor laws and six-universe naturality |
 | [`Topology.Homotopy.RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean) | Explicit time-shortening homotopy relative to the constant path, characteristic evaluation and moving-endpoint laws, and contractibility of fixed-start/free-endpoint paths |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
@@ -966,7 +976,11 @@ Kim Morrison, Mario Carneiro and Andrew Yang. The constant-map product splitting
 uses Patrick Massot's `Path` topology and Mathlib's product and induced-topology
 continuity APIs. The coordinate-square homeomorphism is elementary invariance
 of the same fiber, using its map functoriality and Mathlib's coordinate
-homeomorphism cancellation. Subspace flattening uses
+homeomorphism cancellation. The free-source-factor comparison composes the
+existing canonical `pullbackHomeomorph` provider and its inverse with Mathlib's
+restricted product associator and set-product homeomorphisms; it is structural
+support for the retained-point model, not a named theorem quoted from May.
+Subspace flattening uses
 `Equiv.subtypeSubtypeEquivSubtypeInter` from the equivalence API by Leonardo de Moura
 and Mario Carneiro, with Mathlib's subtype continuity. Evaluation and currying
 use Reid Barton's compact-open API; relative homotopies use Shing Tak Lam's API,
