@@ -1096,3 +1096,13 @@ are in [CONTRIBUTORS.md](CONTRIBUTORS.md), module documentation and the
 [guide](docs/mathematical-guide.md#credits-and-license).
 No open redistribution license is inferred for May's author-hosted book; no
 book excerpts or PDF assets are included. Licensed under Apache-2.0; see [LICENSE](LICENSE).
+
+## Generalized loops and homotopy fibers
+
+For any cube index and based continuous map, generalized loops commute with its ordinary
+homotopy fiber. The comparison preserves the retained point functions, complete paths and
+both specified constant points, and is natural for based commuting squares.
+
+See `ContinuousMap.HomotopyFiber.genLoopHomeomorph` and
+`ContinuousMap.HomotopyFiber.genLoopHomeomorph_naturality` in
+[`Topology/Homotopy/Fiber/GenLoop.lean`](FundamentalGroupoids/Topology/Homotopy/Fiber/GenLoop.lean).
