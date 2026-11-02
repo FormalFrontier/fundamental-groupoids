@@ -537,19 +537,45 @@ For any `e₀ : E` and `h : f e₀ = b`,
 [`ZerothHomotopy.range_homotopyFiber_loop_classes`](../FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean)
 describes the composite from `FundamentalGroup B b` through the unique-index
 generalized-loop comparison, `HomotopyGroup.equivZerothHomotopy` and the map
-from the constant `Unit → B` homotopy fiber. On a raw loop `γ : Path b b`,
-it retains `e₀` and the same entire forward path `γ`, with endpoint equation
-`γ.target.trans h.symm`. Writing `δ([γ]) = [(e₀, γ)]` for this composite,
-its image is `range δ = (π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}`.
-The equality `h` concerns only the specified point; `f` need not be constant.
-These are image statements, not assertions of injectivity or a full long exact
-sequence.
+from the constant `Unit → B` homotopy fiber. Write `δ` for exactly this composite,
+with the local data `S`, `c`, `e`, `L`, `P`, `R`, `J` and `A` displayed in that
+theorem; `δ` is notation here, not a separately exported definition. Its image is
+`range δ = (π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}`.
 
-The loop-image formula is the ordinary-topology version of May's fiber-sequence
-exactness (Chapter 8 §6, “Fiber sequences”, printed pp. 61–62). The fixed-base
-component-image formula is a structural extension of that case. Products,
-subspaces and compact-open spaces carry their ordinary topologies; no
-identification with May's weak-Hausdorff, compactly generated category is asserted.
+- `ZerothHomotopy.homotopyFiber_loop_classes_fromPath f b e₀ h γ` gives
+  `δ([γ]) = [(e₀, γ)]` for **every** raw loop `γ : Path b b`. Here `[γ]` means
+  `FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ)`, and `(e₀, γ)`
+  retains the same entire forward path, with endpoint certificate
+  `γ.target.trans h.symm`. In particular,
+  `δ 1 = ZerothHomotopy.mk (ContinuousMap.HomotopyFiber.const e₀ h)`:
+  the distinguished component contains the genuine constant-path point.
+- `FundamentalGroup.mem_range_mapOfEq_iff_joined_homotopyFiber f b e₀ h γ`
+  says that `[γ]` lies in the image of `FundamentalGroup.mapOfEq f h` exactly
+  when `(e₀, γ)` is joined by a path in the homotopy fiber to
+  `ContinuousMap.HomotopyFiber.const e₀ h`. This uses Mathlib's induced
+  homomorphism `FundamentalGroup E e₀ →* FundamentalGroup B b`; on a loop
+  `α : Path e₀ e₀`, its representative is
+  `(α.map f.continuous).cast h.symm h.symm`.
+- `ZerothHomotopy.preimage_homotopyFiber_loop_classes_one f b e₀ h` gives
+  the pointed-set exactness formula
+  `δ ⁻¹' {δ 1} = Set.range (FundamentalGroup.mapOfEq f h)`.
+  Thus `δ q = δ 1` precisely when `q` comes from the source fundamental group.
+
+The spaces `E` and `B` have independent universes and arbitrary topologies.
+The equality `h` concerns only the specified point; `f` need not be constant.
+Choosing `e₀` excludes an empty source, but neither space need be connected,
+and components away from `e₀` impose no restriction. No group structure on the
+fiber's path components is used or supplied. These formulas assert neither
+injectivity nor surjectivity of `δ`, nor a full long exact sequence.
+
+The loop-image and fundamental-group-position formulas adapt May's fiber-sequence
+exactness (Chapter 8 §6, “Fiber sequences”, printed pp. 61–62, especially p. 62).
+May writes the preceding arrow as `−Ωf`; reversing loops leaves its group image
+equal to that of the induced fundamental-group map, without changing the
+forward-loop convention for `δ`. The fixed-base component-image formula is a
+structural extension. Products, subspaces and compact-open spaces carry their
+ordinary topologies; no identification with May's weak-Hausdorff, compactly
+generated category is asserted.
 
 ## Using the library
 

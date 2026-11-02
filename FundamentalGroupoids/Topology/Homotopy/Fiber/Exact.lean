@@ -7,6 +7,7 @@ module
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Const
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.PathComponent
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.LoopSpace
+import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
 
 /-!
 # Images on components of maps of homotopy fibers
@@ -23,6 +24,11 @@ group, generalized-loop class comparison and continuous maps of homotopy fibers.
 The ordinary fiber retains the whole forward path from the basepoint to the
 image of the source point.
 
+The preimage of the constant-loop image under the loop-class map is the image
+of the induced fundamental-group homomorphism. May's preceding arrow on p. 62
+is `−Ωf`; reversing loops does not change that group image. The loop-class map
+here retains the whole forward loop.
+
 The loop-image statement is the ordinary-topology version of the fiber-sequence
 exactness theorem in May, Chapter 8, Section 6 (pp. 61–62). The fixed-base
 component-image statements are a structural extension of this loop-source case,
@@ -37,6 +43,8 @@ weak-Hausdorff, compactly generated category is asserted.
   of the associated sequence of pointed homotopy sets.
 * Mathlib's paths and path components, due to Patrick Massot and contributors,
   and generalized loops and homotopy groups, due to Roberto Alvarez.
+* Mathlib's `Path.Homotopic.map_trans_evalAt`, due to Praneeth Kolichala and
+  Yury Kudryashov, for naturality of endpoint tracks.
 * `ContinuousMap.HomotopyFiber.map` and
   `ContinuousMap.HomotopyFiber.constHomeomorph`, for maps of ordinary fibers and
   the constant-map fiber comparison.
@@ -283,5 +291,352 @@ theorem range_homotopyFiber_loop_classes
         (range_map_homotopyFiber_map_id f
           (ContinuousMap.const Unit b) (ContinuousMap.const Unit e₀)
           (fun _ => h) b)
+
+end ZerothHomotopy
+
+namespace FundamentalGroup
+
+private theorem mem_range_of_joined_homotopyFiber
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) (γ : Path b b)
+    (hjoined : Joined
+      (ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+        e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm))
+      (ContinuousMap.HomotopyFiber.const e₀ h)) :
+    FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ) ∈
+      Set.range (FundamentalGroup.mapOfEq (x := e₀) (y := b) f h) := by
+  obtain ⟨ζ⟩ := hjoined
+  let η : Path e₀ e₀ :=
+    ζ.map (ContinuousMap.HomotopyFiber.point (f := f) (b := b)).continuous
+  let q : Path b b := Path.refl b
+  let H : ContinuousMap.Homotopy γ.toContinuousMap q.toContinuousMap :=
+    { toContinuousMap :=
+        ((ContinuousMap.HomotopyFiber.path (f := f) (b := b)).comp
+          ζ.toContinuousMap).uncurry
+      map_zero_left := by
+        intro s
+        change ContinuousMap.HomotopyFiber.path (ζ 0) s = γ s
+        exact congrArg
+          (fun z : ContinuousMap.HomotopyFiber f b =>
+            ContinuousMap.HomotopyFiber.path z s) ζ.source
+      map_one_left := by
+        intro s
+        change ContinuousMap.HomotopyFiber.path (ζ 1) s = b
+        exact congrArg
+          (fun z : ContinuousMap.HomotopyFiber f b =>
+            ContinuousMap.HomotopyFiber.path z s) ζ.target }
+  have hp : (Path.id.map γ.continuous).cast γ.source.symm γ.target.symm = γ := by
+    apply Path.ext
+    funext s
+    rfl
+  have hq : (Path.id.map q.continuous).cast q.source.symm q.target.symm = q := by
+    apply Path.ext
+    funext s
+    rfl
+  have h0 : (H.evalAt 0).cast γ.source.symm q.source.symm = Path.refl b := by
+    apply Path.ext
+    funext t
+    change ContinuousMap.HomotopyFiber.path (ζ t) 0 = b
+    exact ContinuousMap.HomotopyFiber.path_zero (ζ t)
+  have h1 : (H.evalAt 1).cast γ.target.symm q.target.symm =
+      (η.map f.continuous).cast h.symm h.symm := by
+    apply Path.ext
+    funext t
+    change ContinuousMap.HomotopyFiber.path (ζ t) 1 =
+      f (ContinuousMap.HomotopyFiber.point (ζ t))
+    exact ContinuousMap.HomotopyFiber.path_one (ζ t)
+  -- The moving endpoint traces the mapped point loop; the starting endpoint is fixed.
+  have hsquare := (Path.Homotopic.map_trans_evalAt H Path.id).pathCast
+    γ.source.symm q.target.symm
+  rw [Path.cast_trans _ _ γ.source.symm γ.target.symm q.target.symm,
+    Path.cast_trans _ _ γ.source.symm q.source.symm q.target.symm,
+    hp, hq, h0, h1] at hsquare
+  have hclass :
+      (Path.Homotopic.Quotient.mk γ).trans
+          (Path.Homotopic.Quotient.mk ((η.map f.continuous).cast h.symm h.symm)) =
+        Path.Homotopic.Quotient.refl b := by
+    simpa only [q, Path.Homotopic.Quotient.mk_trans,
+      Path.Homotopic.Quotient.mk_refl, Path.Homotopic.Quotient.refl_trans] using
+        (Path.Homotopic.Quotient.eq.mpr hsquare)
+  have hγ := congrArg
+    (fun p : Path.Homotopic.Quotient b b =>
+      p.trans
+        (Path.Homotopic.Quotient.mk ((η.map f.continuous).cast h.symm h.symm)).symm)
+    hclass
+  rw [Path.Homotopic.Quotient.trans_assoc, Path.Homotopic.Quotient.trans_symm,
+    Path.Homotopic.Quotient.trans_refl, Path.Homotopic.Quotient.refl_trans] at hγ
+  -- Thus γ is the class of the reversed point loop's image, not the point loop's image.
+  refine ⟨FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk η.symm), ?_⟩
+  rw [FundamentalGroup.mapOfEq_apply, ← Path.Homotopic.Quotient.mk_map,
+    ← Path.Homotopic.Quotient.mk_cast]
+  change Path.Homotopic.Quotient.mk ((η.symm.map f.continuous).cast h.symm h.symm) =
+    Path.Homotopic.Quotient.mk γ
+  rw [← Path.map_symm, Path.cast_symm, Path.Homotopic.Quotient.mk_symm]
+  exact hγ.symm
+
+private theorem joined_homotopyFiber_of_mem_range
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) (γ : Path b b)
+    (hmem : FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ) ∈
+      Set.range (FundamentalGroup.mapOfEq (x := e₀) (y := b) f h)) :
+    Joined
+      (ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+        e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm))
+      (ContinuousMap.HomotopyFiber.const e₀ h) := by
+  obtain ⟨q, hq⟩ := hmem
+  obtain ⟨α, hα⟩ := Path.Homotopic.Quotient.mk_surjective
+    (FundamentalGroup.toPath q)
+  have hrep : FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk α) = q :=
+    congrArg FundamentalGroup.fromPath hα
+  rw [← hrep, FundamentalGroup.mapOfEq_apply] at hq
+  have hγ : γ.Homotopic ((α.map f.continuous).cast h.symm h.symm) := by
+    apply Path.Homotopic.Quotient.exact
+    simpa only [← Path.Homotopic.Quotient.mk_map,
+      ← Path.Homotopic.Quotient.mk_cast] using
+      congrArg FundamentalGroup.toPath hq.symm
+  obtain ⟨H⟩ := hγ
+  let zα : ContinuousMap.HomotopyFiber (ContinuousMap.id E) e₀ :=
+    ContinuousMap.HomotopyFiber.mk e₀ α.toContinuousMap α.source α.target
+  let F : C(ContinuousMap.HomotopyFiber (ContinuousMap.id E) e₀,
+      ContinuousMap.HomotopyFiber f b) :=
+    ContinuousMap.HomotopyFiber.map
+      (f := ContinuousMap.id E) (f' := f) (b := e₀) (b' := b)
+      (ContinuousMap.id E) f (fun _ => rfl) h
+  -- The change of representative fixes the retained source point.
+  have hγmap : Joined
+      (ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+        e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm))
+      (F zα) := by
+    refine ⟨{
+      toFun := fun t => ContinuousMap.HomotopyFiber.mk e₀
+        (H.toHomotopy.curry t) (H.source t) ((H.target t).trans h.symm)
+      continuous_toFun := ContinuousMap.HomotopyFiber.continuous_iff.2
+        ⟨continuous_const, H.toHomotopy.curry.continuous⟩
+      source' := ?_
+      target' := ?_ }⟩
+    · apply ContinuousMap.HomotopyFiber.ext
+      · rfl
+      · exact H.toHomotopy.curry_zero
+    · apply ContinuousMap.HomotopyFiber.ext
+      · rfl
+      · exact H.toHomotopy.curry_one
+  -- Contract in the identity fiber, then map the entire joining through the square.
+  have hαconst : Joined zα
+      (ContinuousMap.HomotopyFiber.const (f := ContinuousMap.id E) e₀ rfl) :=
+    ⟨(ContinuousMap.HomotopyFiber.idContraction e₀).toHomotopy.evalAt zα⟩
+  have hmapped := hαconst.map F.continuous
+  have hFconst :
+      F (ContinuousMap.HomotopyFiber.const (f := ContinuousMap.id E) e₀ rfl) =
+        ContinuousMap.HomotopyFiber.const (f := f) e₀ h := by
+    exact ContinuousMap.HomotopyFiber.map_const
+      (f := ContinuousMap.id E) (f' := f) (b := e₀) (b' := b)
+      (ContinuousMap.id E) f (fun _ => rfl) h e₀ rfl
+  exact hγmap.trans (hFconst ▸ hmapped)
+
+/-- A loop class lies in the image of the induced fundamental-group map exactly
+when the homotopy-fiber point retaining that forward loop is joined to the
+constant-path point. This is the fundamental-group position of May's
+fiber-sequence exactness, Chapter 8, Section 6 (p. 62), with ordinary topologies. -/
+theorem mem_range_mapOfEq_iff_joined_homotopyFiber
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) (γ : Path b b) :
+    FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ) ∈
+        Set.range (FundamentalGroup.mapOfEq (x := e₀) (y := b) f h) ↔
+      Joined
+        (ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+          e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm))
+        (ContinuousMap.HomotopyFiber.const e₀ h) := by
+  exact ⟨joined_homotopyFiber_of_mem_range f b e₀ h γ,
+    mem_range_of_joined_homotopyFiber f b e₀ h γ⟩
+
+end FundamentalGroup
+
+namespace ZerothHomotopy
+
+/-- The loop-class map of `range_homotopyFiber_loop_classes` sends each based
+loop class to the component of the homotopy-fiber point retaining that same
+forward loop at the specified source point. This describes the loop inclusion
+in May, Chapter 8, Section 6 (pp. 61–62), for ordinary topologies. -/
+theorem homotopyFiber_loop_classes_fromPath
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) (γ : Path b b) :
+    let S : Type := {j : Unit // j ≠ ()}
+    let c : GenLoop S B b := GenLoop.const
+    let e : GenLoop S B b ≃ₜ B :=
+      @genLoopHomeoOfIsEmpty (N := S) (X := B) (x := b) tB
+        (⟨fun j => j.property (Subsingleton.elim j.val ())⟩ : IsEmpty S)
+    let L : GenLoop Unit B b ≃ₜ Path c c :=
+      GenLoop.loopHomeo (N := Unit) (X := B) (x := b) ()
+    let P : C(Path c c, Path b b) :=
+      { toFun := fun q => q.map e.continuous
+        continuous_toFun :=
+          Path.continuous_uncurry_iff.mp
+            (e.continuous.comp
+              (continuous_eval :
+                Continuous
+                  (fun z : Path c c × unitInterval => z.1 z.2))) }
+    let R : C(GenLoop Unit B b, Path b b) :=
+      P.comp (L : C(GenLoop Unit B b, Path c c))
+    let J : C(Path b b, ContinuousMap.HomotopyFiber f b) :=
+      (ContinuousMap.HomotopyFiber.map
+        (f := ContinuousMap.const Unit b) (f' := f)
+        (b := b) (b' := b)
+        (ContinuousMap.const Unit e₀) (ContinuousMap.id B)
+        (fun _ => h) rfl).comp
+          (((ContinuousMap.HomotopyFiber.constHomeomorph Unit b b).symm :
+              C(Unit × Path b b,
+                ContinuousMap.HomotopyFiber
+                  (ContinuousMap.const Unit b) b)).comp
+            ((ContinuousMap.const (Path b b) ()).prodMk
+              (ContinuousMap.id (Path b b))))
+    let A : HomotopyGroup Unit B b ≃ FundamentalGroup B b :=
+      homotopyGroupEquivFundamentalGroupOfUnique (X := B) (x := b) Unit
+    (fun q : FundamentalGroup B b =>
+      ZerothHomotopy.map (J.comp R)
+        (HomotopyGroup.equivZerothHomotopy Unit b (A.symm q)))
+        (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ)) =
+      ZerothHomotopy.mk
+        (ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+          e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm)) := by
+  intro S c e L P R J A
+  let U := genLoopEquivOfUnique (X := B) (x := b) Unit
+  let p : GenLoop Unit B b := U.symm γ
+  have hA : A.symm (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ)) =
+      (⟦p⟧ : HomotopyGroup Unit B b) := by
+    have hquot : A (⟦p⟧ : HomotopyGroup Unit B b) =
+        FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (U p)) :=
+      Quotient.congr_mk
+        (ra := GenLoop.Homotopic.setoid Unit b)
+        (rb := Path.Homotopic.setoid b b) U _ p
+    apply A.symm_apply_eq.mpr
+    exact (congrArg (fun q : Path b b =>
+      FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk q))
+        (U.apply_symm_apply γ).symm).trans hquot.symm
+  -- The original parameterization recovers this entire forward loop.
+  have hR : R p = γ := by
+    apply Path.ext
+    funext t
+    change γ ((Cube.insertAt () (t, (0 : S → unitInterval))) ()) = γ t
+    rfl
+  have hJ : J γ =
+      ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+        e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm) := by
+    apply ContinuousMap.HomotopyFiber.ext
+    · exact ContinuousMap.HomotopyFiber.point_map
+        (f := ContinuousMap.const Unit b) (f' := f) (b := b) (b' := b)
+        (ContinuousMap.const Unit e₀) (ContinuousMap.id B) (fun _ => h) rfl
+        ((ContinuousMap.HomotopyFiber.constHomeomorph Unit b b).symm ((), γ))
+    · apply ContinuousMap.ext
+      intro t
+      exact (DFunLike.congr_fun
+        (ContinuousMap.HomotopyFiber.path_map
+          (f := ContinuousMap.const Unit b) (f' := f) (b := b) (b' := b)
+          (ContinuousMap.const Unit e₀) (ContinuousMap.id B) (fun _ => h) rfl
+          ((ContinuousMap.HomotopyFiber.constHomeomorph Unit b b).symm ((), γ)))
+        t).trans
+          (ContinuousMap.HomotopyFiber.constHomeomorph_symm_path_apply ((), γ) t)
+  change ZerothHomotopy.map (J.comp R)
+      (HomotopyGroup.equivZerothHomotopy Unit b
+        (A.symm (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ)))) = _
+  rw [hA, HomotopyGroup.equivZerothHomotopy_class, ZerothHomotopy.map_mk,
+    ContinuousMap.comp_apply, hR, hJ]
+
+/-- The preimage of the constant-loop image under the loop-class map is the
+image of the induced fundamental-group homomorphism. This is pointed-set
+exactness at the fundamental group in May, Chapter 8, Section 6 (p. 62), with
+ordinary topologies. May writes the preceding arrow as `−Ωf`; its group image
+agrees with that of `FundamentalGroup.mapOfEq f h`, while the forward-loop
+convention of the loop-class map is unchanged. -/
+theorem preimage_homotopyFiber_loop_classes_one
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    let S : Type := {j : Unit // j ≠ ()}
+    let c : GenLoop S B b := GenLoop.const
+    let e : GenLoop S B b ≃ₜ B :=
+      @genLoopHomeoOfIsEmpty (N := S) (X := B) (x := b) tB
+        (⟨fun j => j.property (Subsingleton.elim j.val ())⟩ : IsEmpty S)
+    let L : GenLoop Unit B b ≃ₜ Path c c :=
+      GenLoop.loopHomeo (N := Unit) (X := B) (x := b) ()
+    let P : C(Path c c, Path b b) :=
+      { toFun := fun q => q.map e.continuous
+        continuous_toFun :=
+          Path.continuous_uncurry_iff.mp
+            (e.continuous.comp
+              (continuous_eval :
+                Continuous
+                  (fun z : Path c c × unitInterval => z.1 z.2))) }
+    let R : C(GenLoop Unit B b, Path b b) :=
+      P.comp (L : C(GenLoop Unit B b, Path c c))
+    let J : C(Path b b, ContinuousMap.HomotopyFiber f b) :=
+      (ContinuousMap.HomotopyFiber.map
+        (f := ContinuousMap.const Unit b) (f' := f)
+        (b := b) (b' := b)
+        (ContinuousMap.const Unit e₀) (ContinuousMap.id B)
+        (fun _ => h) rfl).comp
+          (((ContinuousMap.HomotopyFiber.constHomeomorph Unit b b).symm :
+              C(Unit × Path b b,
+                ContinuousMap.HomotopyFiber
+                  (ContinuousMap.const Unit b) b)).comp
+            ((ContinuousMap.const (Path b b) ()).prodMk
+              (ContinuousMap.id (Path b b))))
+    let A : HomotopyGroup Unit B b ≃ FundamentalGroup B b :=
+      homotopyGroupEquivFundamentalGroupOfUnique (X := B) (x := b) Unit
+    let delta : FundamentalGroup B b → ZerothHomotopy (ContinuousMap.HomotopyFiber f b) :=
+      fun q => ZerothHomotopy.map (J.comp R)
+        (HomotopyGroup.equivZerothHomotopy Unit b (A.symm q))
+    delta ⁻¹' {delta 1} =
+      Set.range (FundamentalGroup.mapOfEq (x := e₀) (y := b) f h) := by
+  intro S c e L P R J A delta
+  have hdelta (γ : Path b b) :
+      delta (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ)) =
+        ZerothHomotopy.mk
+          (ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+            e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm)) :=
+    homotopyFiber_loop_classes_fromPath f b e₀ h γ
+  have hdelta_one :
+      delta 1 = ZerothHomotopy.mk (ContinuousMap.HomotopyFiber.const e₀ h) := by
+    have hone :
+        FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (Path.refl b)) =
+          (1 : FundamentalGroup B b) := by
+      calc
+        FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (Path.refl b)) =
+            FundamentalGroup.fromPath (Path.Homotopic.Quotient.refl b) :=
+          congrArg (FundamentalGroup.fromPath :
+            Path.Homotopic.Quotient b b → FundamentalGroup B b)
+              (Path.Homotopic.Quotient.mk_refl b)
+        _ = 1 := (FundamentalGroup.one_def (x := b)).symm
+    have hconst :
+        ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+            e₀ (Path.refl b).toContinuousMap (Path.refl b).source
+              ((Path.refl b).target.trans h.symm) =
+          ContinuousMap.HomotopyFiber.const e₀ h := by
+      apply ContinuousMap.HomotopyFiber.ext
+      · exact (ContinuousMap.HomotopyFiber.point_mk (f := f) (b := b)
+          e₀ _ _ _).trans
+            (ContinuousMap.HomotopyFiber.point_const (f := f) e₀ h).symm
+      · apply ContinuousMap.ext
+        intro t
+        exact (DFunLike.congr_fun
+          (ContinuousMap.HomotopyFiber.path_mk (f := f) (b := b)
+            e₀ (Path.refl b).toContinuousMap (Path.refl b).source
+              ((Path.refl b).target.trans h.symm)) t).trans
+          ((Path.refl_apply b t).trans
+            (DFunLike.congr_fun
+              (ContinuousMap.HomotopyFiber.path_const (f := f) e₀ h) t).symm)
+    calc
+      delta 1 = delta
+          (FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk (Path.refl b))) :=
+        congrArg delta hone.symm
+      _ = ZerothHomotopy.mk
+          (ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+            e₀ (Path.refl b).toContinuousMap (Path.refl b).source
+              ((Path.refl b).target.trans h.symm)) := hdelta (Path.refl b)
+      _ = ZerothHomotopy.mk (ContinuousMap.HomotopyFiber.const e₀ h) :=
+        congrArg (ZerothHomotopy.mk :
+          ContinuousMap.HomotopyFiber f b →
+            ZerothHomotopy (ContinuousMap.HomotopyFiber f b)) hconst
+  ext q
+  change delta q = delta 1 ↔
+    q ∈ Set.range (FundamentalGroup.mapOfEq (x := e₀) (y := b) f h)
+  induction q using Path.Homotopic.Quotient.ind with
+  | mk γ =>
+    rw [hdelta γ, hdelta_one]
+    exact Quotient.eq.trans
+      (FundamentalGroup.mem_range_mapOfEq_iff_joined_homotopyFiber f b e₀ h γ).symm
 
 end ZerothHomotopy

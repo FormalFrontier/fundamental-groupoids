@@ -584,9 +584,17 @@ alignment:
     from the existing canonical pullback provider and Mathlib's restricted
     associator and set-product homeomorphisms, not a theorem quoted from May.
     The loop-image formula adapts Chapter 8 §6 to ordinary homotopy fibers,
-    retaining the whole forward loop at a specified source point. The component-image
-    formula for arbitrary commuting squares over the identity base is a structural
-    extension, not a statement quoted from May or an identification with his category.
+    retaining the whole forward loop at a specified source point. For the same
+    loop-class composite delta, the preimage of {delta 1} is the image of
+    FundamentalGroup.mapOfEq f h, where h identifies the chosen point's image
+    with the basepoint. The representative law holds for every raw forward loop,
+    and delta 1 is the component of the constant-path point. May's preceding
+    arrow on p. 62 is minus Omega f, with the same group image; no group structure
+    on the fiber's path components, surjectivity of delta or full long exact
+    sequence is asserted. Source and base universes are independent and their
+    topologies arbitrary. The component-image formula for arbitrary commuting
+    squares over the identity base is a structural extension, not a statement
+    quoted from May or an identification with his category.
   statements:
     - lean: ZerothHomotopy.mem_range_map_iff
       module: FundamentalGroupoids/Topology/Connected/PathConnected.lean
@@ -603,6 +611,12 @@ alignment:
     - lean: ZerothHomotopy.range_map_homotopyFiber_map_id
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
     - lean: ZerothHomotopy.range_homotopyFiber_loop_classes
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: FundamentalGroup.mem_range_mapOfEq_iff_joined_homotopyFiber
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: ZerothHomotopy.homotopyFiber_loop_classes_fromPath
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: ZerothHomotopy.preimage_homotopyFiber_loop_classes_one
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
