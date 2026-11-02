@@ -468,7 +468,14 @@ directions, examples, conventions and credits.
   represented component of the target; infinite-index quotients are
   subsingletons. No separation or local compactness of the target is required,
   and no sphere or kification model comparison is asserted.
-- **Generalized-loop components** ([`HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean)).
+- **Generalized-loop spaces and components** ([`HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean)).
+  For a singleton index type `J`, `genLoopHomeoOfUnique J x` is a homeomorphism
+  from `GenLoop J X x` to the compact-open based path space `Path x x`, with
+  underlying equivalence `genLoopEquivOfUnique J`. It evaluates a generalized
+  loop on constant coordinates and its inverse evaluates a path at the unique
+  coordinate. Constant loops correspond to reflexive paths, and the comparison
+  commutes with based postcomposition, including endpoint casts. Index and target
+  universes are independent; no separation or local compactness of `X` is needed.
   `HomotopyGroup.equivZerothHomotopy N x` identifies the raw quotient
   `HomotopyGroup N X x` with `ZerothHomotopy (GenLoop N X x)` by the identity
   on representatives in both directions, preserving the chosen constant class.
@@ -872,7 +879,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Compactness.CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean) | Source-test continuity, unchanged-function lifts, locally compact product closure and the identity product-refinement homeomorphism; closed-subtype compact generation and refinement homeomorphisms, and preservation of closed embeddings |
 | [`Topology.Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean) | Joint relative-homotopy lifts with arbitrary fixed subsets, counit inverse laws, target naturality and homotopy-existence comparison; fixed-evaluation-fiber refinement homeomorphisms and based naturality; counit bijectivity on path components for arbitrary spaces, subtypes and fixed-evaluation fibers |
 | [`Topology.Homotopy.HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean) | Natural equivalences for CompHaus-test topology comparisons on all cubical homotopy quotients, with existing-map and positive multiplicative characteristics |
-| [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Boundary-relative homotopy iff joinedness; raw quotient/component equivalence with identity representative and constant laws, based-postcomposition naturality and empty-index compatibility |
+| [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Singleton-indexed generalized-loop/based-path homeomorphism retaining the underlying equivalence, full evaluation and based-map laws; boundary-relative homotopy iff joinedness; raw quotient/component equivalence with constant, naturality and empty-index laws |
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
 | [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Closed coordinate-face boundaries for finite indices, zero boundary vertex for nonempty indices and path-connected boundaries for nontrivial indices |
 | [`Topology.Homotopy.Cube.Coordinates`](FundamentalGroupoids/Topology/Homotopy/Cube/Coordinates.lean) | Increasing real-product coordinates on the boundary complement for every index type, with membership and forward/inverse evaluation laws; local compactness theorem for finite indices |

@@ -32,7 +32,12 @@ project:
     this is a multiplicative equivalence for the existing group structures.
     Raw cubical homotopy quotients canonically identify with path components of
     the same compact-open generalized-loop spaces, naturally in based postcomposition
-    and compatibly with the empty-index comparison. The based homotopy-fiber
+    and compatibly with the empty-index comparison. For singleton index types,
+    the generalized-loop space is homeomorphic to the compact-open based path
+    space through Mathlib's singleton-coordinate equivalence, with full forward
+    and inverse evaluation, constant/reflexive-path laws and based-postcomposition
+    naturality. Index and space universes are independent, without separation or
+    local compactness assumptions on the target. The based homotopy-fiber
     point projection has class image equal to the preimage of the constant class
     for every cube index, with range–kernel form for the existing positive groups. Equivalences of cube-index
     types induce quotient equivalences by reindexing representatives, with inverse,

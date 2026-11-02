@@ -16,6 +16,10 @@ with being joined by a path in the same generalized-loop space. The topology on
 `GenLoop N X x` is the subtype topology inherited from the compact-open topology
 on continuous cube maps; no topology is changed in making this comparison.
 
+`genLoopHomeoOfUnique` identifies generalized loops indexed by a singleton type
+with `Path x x`, with underlying equivalence `genLoopEquivOfUnique`. It commutes
+with based postcomposition, including the endpoint casts.
+
 `HomotopyGroup.equivZerothHomotopy` descends the identity on representatives to
 an equivalence between the existing boundary-relative homotopy quotient and the
 path components of that generalized-loop space. Its forward and inverse laws
@@ -51,6 +55,76 @@ factor before the left factor.
 @[expose] public section
 
 universe u v w
+
+/-- The singleton-coordinate equivalence to the based path space is continuous. -/
+theorem continuous_genLoopEquivOfUnique (J : Type u) [Unique J]
+    {X : Type v} [TopologicalSpace X] (x : X) :
+    Continuous (genLoopEquivOfUnique (X := X) (x := x) J) := by
+  apply continuous_induced_rng.mpr
+  exact (ContinuousMap.continuous_precomp
+    (⟨fun t _ ↦ t, continuous_pi fun _ ↦ continuous_id⟩ :
+      C(unitInterval, J → unitInterval))).comp continuous_subtype_val
+
+/-- The inverse singleton-coordinate equivalence from the based path space is continuous. -/
+theorem continuous_genLoopEquivOfUnique_symm (J : Type u) [Unique J]
+    {X : Type v} [TopologicalSpace X] (x : X) :
+    Continuous ((genLoopEquivOfUnique (X := X) (x := x) J).symm) := by
+  exact ((ContinuousMap.continuous_precomp
+    (⟨fun c ↦ c default, continuous_apply default⟩ :
+      C(J → unitInterval, unitInterval))).comp continuous_induced_dom).subtype_mk _
+
+/-- Generalized loops indexed by a singleton are homeomorphic to the based path space,
+with underlying equivalence `genLoopEquivOfUnique`. -/
+def genLoopHomeoOfUnique (J : Type u) [Unique J]
+    {X : Type v} [TopologicalSpace X] (x : X) :
+    GenLoop J X x ≃ₜ Path x x where
+  toEquiv := genLoopEquivOfUnique (X := X) (x := x) J
+  continuous_toFun := continuous_genLoopEquivOfUnique J x
+  continuous_invFun := continuous_genLoopEquivOfUnique_symm J x
+
+/-- Forgetting the topology recovers the singleton-coordinate equivalence. -/
+@[simp]
+theorem genLoopHomeoOfUnique_toEquiv (J : Type u) [Unique J]
+    {X : Type v} [TopologicalSpace X] (x : X) :
+    (genLoopHomeoOfUnique J x).toEquiv = genLoopEquivOfUnique (X := X) (x := x) J :=
+  rfl
+
+/-- The forward homeomorphism evaluates a generalized loop on constant coordinates. -/
+@[simp]
+theorem genLoopHomeoOfUnique_apply (J : Type u) [Unique J]
+    {X : Type v} [TopologicalSpace X] (x : X) (p : GenLoop J X x) (t : unitInterval) :
+    genLoopHomeoOfUnique J x p t = p (fun _ : J ↦ t) :=
+  rfl
+
+/-- The inverse homeomorphism evaluates a path at the unique coordinate. -/
+@[simp]
+theorem genLoopHomeoOfUnique_symm_apply (J : Type u) [Unique J]
+    {X : Type v} [TopologicalSpace X] (x : X) (γ : Path x x) (c : J → unitInterval) :
+    (genLoopHomeoOfUnique J x).symm γ c = γ (c default) :=
+  rfl
+
+/-- The constant generalized loop maps to the constant path. -/
+@[simp]
+theorem genLoopHomeoOfUnique_const (J : Type u) [Unique J]
+    {X : Type v} [TopologicalSpace X] (x : X) :
+    genLoopHomeoOfUnique J x GenLoop.const = Path.refl x :=
+  rfl
+
+/-- The constant path maps back to the constant generalized loop. -/
+@[simp]
+theorem genLoopHomeoOfUnique_symm_refl (J : Type u) [Unique J]
+    {X : Type v} [TopologicalSpace X] (x : X) :
+    (genLoopHomeoOfUnique J x).symm (Path.refl x) = GenLoop.const :=
+  rfl
+
+/-- The singleton-coordinate homeomorphism commutes with based postcomposition. -/
+@[simp]
+theorem genLoopHomeoOfUnique_map (J : Type u) [Unique J]
+    {X : Type v} {Y : Type w} [TopologicalSpace X] [TopologicalSpace Y]
+    {x : X} {y : Y} (f : C(X, Y)) (hf : f x = y) (p : GenLoop J X x) :
+    genLoopHomeoOfUnique J y (GenLoop.map f hf p) =
+      ((genLoopHomeoOfUnique J x p).map f.continuous).cast hf.symm hf.symm :=
+  rfl
 
 namespace GenLoop
 
