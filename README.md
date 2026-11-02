@@ -21,6 +21,15 @@ directions, examples, conventions and credits.
   `E`-point at every time. No separation or local-compactness assumptions on `E` or
   `B` are required. See [homotopy invariance](FundamentalGroupoids/Topology/Homotopy/Fiber/Homotopy.lean).
 
+- **Strict fibers of covering maps** ([`Fiber.Covering`](FundamentalGroupoids/Topology/Homotopy/Fiber/Covering.lean)).
+  For `f : C(E, B)` with `cov : IsCoveringMap f` and any `b : B`,
+  `HomotopyFiber.fiberHomotopyEquiv cov` is the canonical homotopy equivalence
+  from `{e : E // f e = b}` to `HomotopyFiber f b`. Its forward map uses the
+  constant path, its inverse lifts the reversed retained path, and the homotopy
+  fixes every included strict-fiber point throughout. The source and target
+  universes are independent; no separation, local compactness or surjectivity
+  assumption is required.
+
 - **Point-wide-pushout coproducts up to based homotopy** ([`Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean)).
   A family `D : J → BasedTopCat.{max u w}`, indexed by `J : Type w`, has a
   point-wide-pushout cofan with explicit descent and uniqueness, both in based

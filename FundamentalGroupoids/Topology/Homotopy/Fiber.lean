@@ -177,6 +177,49 @@ theorem path_const (e₀ : E) (h : f e₀ = b) :
 theorem eval_const (e₀ : E) (h : f e₀ = b) (t : I) : eval t (const e₀ h) = b :=
   rfl
 
+section FiberInclusion
+
+noncomputable section
+
+universe uB
+
+variable {B : Type uB} [TopologicalSpace B]
+
+/-- Include the strict fiber by the original constant-path construction.
+This construction does not require a covering map. -/
+def fiberInclusion (f : C(E, B)) (b : B) :
+    C({e : E // f e = b}, HomotopyFiber f b) where
+  toFun e := const e.1 e.2
+  continuous_toFun := by
+    apply continuous_iff.2
+    constructor
+    · simpa only [point_const] using
+        (continuous_subtype_val : Continuous (fun e : {e : E // f e = b} => (e : E)))
+    · simpa only [path_const] using
+        (continuous_const : Continuous
+          (fun _ : {e : E // f e = b} => ContinuousMap.const I b))
+
+/-- The inclusion agrees with `const` at every independently specified equality. -/
+@[simp]
+theorem fiberInclusion_apply (f : C(E, B)) (b : B) (e : E) (h : f e = b) :
+    fiberInclusion f b ⟨e, h⟩ = const e h :=
+  rfl
+
+@[simp]
+theorem point_fiberInclusion (f : C(E, B)) (b : B) (e : {e : E // f e = b}) :
+    point (fiberInclusion f b e) = (e : E) :=
+  point_const e.1 e.2
+
+/-- The inclusion retains the entire constant path at the specified base point. -/
+@[simp]
+theorem path_fiberInclusion (f : C(E, B)) (b : B) (e : {e : E // f e = b}) :
+    path (fiberInclusion f b e) = ContinuousMap.const I b :=
+  path_const e.1 e.2
+
+end
+
+end FiberInclusion
+
 section Map
 
 variable {E' : Type uE'} {X' : Type uX'} {E'' : Type uE''} {X'' : Type uX''}

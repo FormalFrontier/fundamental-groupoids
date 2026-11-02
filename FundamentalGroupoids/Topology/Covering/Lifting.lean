@@ -66,3 +66,28 @@ public theorem IsCoveringMap.existsUnique_continuousMap_lifts_iff_range_le
     rw [← hπ, MonoidHom.range_comp]
     exact Subgroup.map_le_range _ _
   · exact cov.existsUnique_continuousMap_lifts_of_range_le he
+
+universe u'
+
+open unitInterval in
+/-- Homotopy lifting commutes with continuous maps of the parameter space. -/
+public theorem IsCoveringMap.liftHomotopy_comp_prodMap
+    {E : Type u} {B : Type v} {A : Type w} {A' : Type u'}
+    [TopologicalSpace E] [TopologicalSpace B] [TopologicalSpace A] [TopologicalSpace A']
+    {p : E → B} (cov : IsCoveringMap p)
+    (H : C(I × A, B)) (q : C(A, E))
+    (H_0 : ∀ a, H (0, a) = p (q a)) (k : C(A', A)) :
+    cov.liftHomotopy (H.comp ((ContinuousMap.id I).prodMap k)) (q.comp k)
+        (fun a => H_0 (k a)) =
+      (cov.liftHomotopy H q H_0).comp ((ContinuousMap.id I).prodMap k) := by
+  symm
+  apply (cov.eq_liftHomotopy_iff'
+    (H := H.comp ((ContinuousMap.id I).prodMap k)) (f := q.comp k)
+    (fun a => H_0 (k a)) _).2
+  constructor
+  · funext x
+    simpa only [Function.comp_apply, ContinuousMap.comp_apply] using
+      congrFun (cov.liftHomotopy_lifts H q H_0) (((ContinuousMap.id I).prodMap k) x)
+  · intro a
+    simpa only [ContinuousMap.comp_apply, ContinuousMap.prodMap_apply,
+      Prod.map_apply, ContinuousMap.id_apply] using cov.liftHomotopy_zero H q H_0 (k a)
