@@ -241,6 +241,23 @@ directions, examples, conventions and credits.
   for the existing groups and homomorphisms. These instances supply operation
   data, not geometric assumptions. Index and space universes are independent,
   and all topologies are arbitrary.
+  For the adjacent position, let `J : C(Path b b, HF)` be the continuous
+  composite through `HomotopyFiber.constHomeomorph Unit b b` and
+  `HomotopyFiber.map`, retaining `e₀` and the whole forward loop `γ`.
+  It sends `Path.refl b` to `HomotopyFiber.const e₀ h`; only the pointwise
+  equation `h` is required, not constancy of `f`.
+  `HomotopyGroup.range_mapFun_homotopyFiber_loop` gives
+  `range (π_N J) = (π_N p) ⁻¹' {constant class}` for every `N`, again without
+  index instances. This is exactness at
+  `HomotopyGroup N HF (HomotopyFiber.const e₀ h)`.
+  With `[DecidableEq N] [Nonempty N]`,
+  `HomotopyGroup.range_map_homotopyFiber_loop` gives the subgroup range–kernel
+  form for the same maps. The empty-index consequence
+  `ZerothHomotopy.range_map_homotopyFiber_loop` is
+  `range (π₀ J) = (π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}` on all path components
+  of the ordinary topological loop space `Path b b`, not just the component
+  of `Path.refl b`. The unpointed zeroth projection formula also allows
+  empty `E`, without choosing `e₀` or `h`.
   For continuous `g : C(E', B)` and `u : C(E', E)` with `f (u x) = g x`,
   the induced fiber map `K` over `id B` satisfies
   `range (π₀ K) = (π₀ p) ⁻¹' range (π₀ u)`; `E'` may be empty.
@@ -249,7 +266,11 @@ directions, examples, conventions and credits.
   `δ ⁻¹' {δ 1} = Set.range (FundamentalGroup.mapOfEq f h)`.
   These are the positions at `π₀HF` and `π₁B`, distinct from projection
   exactness at `HomotopyGroup N E e₀`. No group structure on `π₀HF` or full
-  long exact sequence is supplied. See the [exactness guide](docs/mathematical-guide.md#path-component-exactness-for-homotopy-fibers).
+  long exact sequence is supplied. The finite-degree projection and loop-inclusion
+  formulas adapt May, Chapter 8 §6, printed pp. 61–62; the all-index statements
+  are ordinary-topology cubical extensions, without a sphere-domain or degree-shift
+  comparison or an identification with his category `U`. See the
+  [exactness guide](docs/mathematical-guide.md#path-component-exactness-for-homotopy-fibers).
 - **Finite generalized loops as based compact-open maps** ([`GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean)).
   For every finite index type `N` (`[Finite N]`) and every topological space `X`
   with chosen `x`, `GenLoop.onePointHomeomorph N x` identifies `GenLoop N X x`
@@ -867,7 +888,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean) | Retained-point ordinary homotopy fibers, maps of continuous squares, pullback and embedding/subspace homeomorphisms, with projection, evaluation, constant and naturality laws |
 | [`Topology.Homotopy.Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean) | Constant-map fibers as source times fixed-endpoint Path, with coordinate laws, source naturality and a nonemptiness criterion |
 | [`Topology.Homotopy.Fiber.Contractible`](FundamentalGroupoids/Topology/Homotopy/Fiber/Contractible.lean) | Identity-map fiber contraction relative to its constant-path point, with moving-point, whole-path, evaluation, endpoint and fixed-point laws, and a contractibility instance for arbitrary targets |
-| [`Topology.Homotopy.Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean) | Component-image formula for fiber maps over the identity base, forward-loop representative and image laws, and pointed-set exactness at the fundamental group, with arbitrary topologies and independent universes |
+| [`Topology.Homotopy.Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean) | Component images for fiber maps over the identity base; all-index loop-inclusion and point-projection exactness, positive range–kernel forms, all-loop-component image and fundamental-group exactness, with arbitrary topologies and independent universes |
 | [`Topology.Homotopy.Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean) | Homeomorphisms induced by invertible coordinate squares, with forward/inverse point and full-path laws, identity, composition and projection compatibility |
 | [`Topology.Homotopy.Fiber.PathComponent`](FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean) | Homotopy-fiber nonemptiness, surjectivity on path components iff all fibers are nonempty, and the point projection's component image as the preimage of the basepoint component, for independent universes and arbitrary topologies |
 | [`Topology.Homotopy.Fiber.Prod`](FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean) | Product fibers as products of fibers, preserving retained points and full same-time paths, with projection diagrams and naturality for arbitrary continuous squares; free source factors split off with whole point/path diagrams, constructor laws and six-universe naturality |

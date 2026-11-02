@@ -616,7 +616,21 @@ alignment:
     Chapter 8 §6, printed pp. 61–62 (PDF pp. 69–70), especially printed p. 62;
     the arbitrary-index formula is a cubical extension. It is distinct from the
     adjacent positions at the fundamental group of B and the path components of
-    the fiber. Products, subspaces and compact-open spaces use ordinary,
+    the fiber. The finite-dimensional loop-inclusion formula adapts the same
+    passage at the homotopy-fiber position; its arbitrary-index statement is a
+    cubical extension. For f : C(E, B), b : B, e0 : E and h : f e0 = b, the
+    source is the ordinary topological Path b b based at Path.refl b. The
+    continuous composite through HomotopyFiber.constHomeomorph Unit b b and
+    HomotopyFiber.map retains e0 and the whole forward loop, sending Path.refl b
+    to HomotopyFiber.const e0 h; f need not be constant. Its image under mapFun
+    for every N equals the retained-point map's preimage of the constant class,
+    with no index instances. DecidableEq N and Nonempty N give the corresponding
+    subgroup range–kernel formula for the existing map homomorphisms. The
+    empty-index consequence uses all components of Path b b, not only the
+    component of Path.refl b. Index and space universes are independent, with
+    arbitrary topologies and no degree-shift comparison. The unpointed zeroth
+    projection formula still permits empty E without e0 or h.
+    Products, subspaces and compact-open spaces use ordinary,
     non-kified topologies; no sphere-domain comparison or identification with
     May's weak-Hausdorff, compactly generated category U is asserted.
   statements:
@@ -645,6 +659,12 @@ alignment:
     - lean: HomotopyGroup.range_mapFun_homotopyFiber_point
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
     - lean: HomotopyGroup.range_map_homotopyFiber_point
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: HomotopyGroup.range_mapFun_homotopyFiber_loop
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: HomotopyGroup.range_map_homotopyFiber_loop
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: ZerothHomotopy.range_map_homotopyFiber_loop
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean

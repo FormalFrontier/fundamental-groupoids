@@ -81,6 +81,15 @@ theorem map_const (f : C(X, Y)) (hf : f x = y) :
   intro t
   exact hf
 
+/-- Postcomposition by a constant continuous map sends every loop to the constant loop. -/
+@[simp]
+theorem map_const_map (p : GenLoop N X x) :
+    map (ContinuousMap.const X y) (x := x) (y := y)
+      (by simp only [ContinuousMap.const_apply]) p = GenLoop.const := by
+  apply GenLoop.ext
+  intro t
+  simp only [map_apply, GenLoop.const_apply, ContinuousMap.const_apply]
+
 /-- Based postcomposition by the identity fixes every loop. -/
 @[simp]
 theorem map_id (p : GenLoop N X x) :
@@ -161,11 +170,32 @@ theorem mapFun_class (N : Type s) (f : C(X, Y)) (hf : f x = y)
       (⟦GenLoop.map f hf p⟧ : HomotopyGroup N Y y) :=
   rfl
 
+/-- Equal continuous maps induce equal maps on the homotopy quotient, independently
+of the proofs that they preserve the supplied points. -/
+theorem mapFun_congr (N : Type s) {f g : C(X, Y)} (hfg : f = g)
+    (hf : f x = y) (hg : g x = y) :
+    mapFun N f hf = mapFun N g hg := by
+  cases hfg
+  rfl
+
 /-- The chosen constant class maps to the chosen constant class. -/
 theorem mapFun_const (N : Type s) (f : C(X, Y)) (hf : f x = y) :
     mapFun N f hf (⟦GenLoop.const⟧ : HomotopyGroup N X x) =
       (⟦GenLoop.const⟧ : HomotopyGroup N Y y) := by
   rw [mapFun_class, GenLoop.map_const]
+
+/-- A constant continuous map induces the constant function on the homotopy quotient. -/
+@[simp]
+theorem mapFun_const_map (N : Type s) :
+    mapFun N (ContinuousMap.const X y) (x := x) (y := y)
+      (by simp only [ContinuousMap.const_apply]) =
+      fun _ : HomotopyGroup N X x => (⟦GenLoop.const⟧ : HomotopyGroup N Y y) := by
+  funext a
+  refine Quotient.inductionOn' a ?_
+  intro p
+  refine (mapFun_class N _ _ p).trans ?_
+  exact congrArg (fun q : GenLoop N Y y => (⟦q⟧ : HomotopyGroup N Y y))
+    (GenLoop.map_const_map p)
 
 /-- The identity acts as the identity on the homotopy quotient in every dimension. -/
 @[simp]
