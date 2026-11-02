@@ -279,6 +279,17 @@ theorem map_const (F : C(E, E')) (G : C(X, X'))
   · simp only [point_map, point_const]
   · simp only [path_map, path_const, ContinuousMap.comp_const, hb]
 
+/-- A square preserves separately specified constant fiber points when its source-coordinate
+map preserves their underlying points. -/
+theorem map_const_of_point_eq (F : C(E, E')) (G : C(X, X'))
+    (w : ∀ e, f' (F e) = G (f e)) (hb : G b = b')
+    (e₀ : E) (e₀' : E') (h : f e₀ = b) (h' : f' e₀' = b')
+    (he : F e₀ = e₀') :
+    map F G w hb (const e₀ h) = const e₀' h' := by
+  rw [map_const]
+  cases he
+  rfl
+
 /-- A commutative square induces the corresponding map between the ranges. -/
 theorem mapsTo_range (F : C(E, E')) (G : C(X, X'))
     (w : ∀ e, f' (F e) = G (f e)) :
