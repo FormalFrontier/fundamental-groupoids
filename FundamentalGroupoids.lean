@@ -74,6 +74,7 @@ public import FundamentalGroupoids.Topology.Covering.Proper
 public import FundamentalGroupoids.Topology.Covering.Pullback
 public import FundamentalGroupoids.Topology.Covering.PullbackDoubleCoset
 public import FundamentalGroupoids.Topology.Homotopy.Affine
+public import FundamentalGroupoids.Topology.Homotopy.ContinuousMap
 public import FundamentalGroupoids.Topology.Homotopy.Cube
 public import FundamentalGroupoids.Topology.Homotopy.Cube.Comparison
 public import FundamentalGroupoids.Topology.Homotopy.Cube.Coordinates
