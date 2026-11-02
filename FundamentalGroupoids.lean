@@ -27,8 +27,14 @@ public import FundamentalGroupoids.CategoryTheory.Groupoid.Covering
 public import FundamentalGroupoids.CategoryTheory.Groupoid.Elements
 public import FundamentalGroupoids.CategoryTheory.SingleObj
 public import FundamentalGroupoids.FundamentalGroup
+public import FundamentalGroupoids.FundamentalGroup.HomotopyEquiv
 public import FundamentalGroupoids.FundamentalGroup.DiskAttachment
 public import FundamentalGroupoids.FundamentalGroup.DiskAttachment.PuncturedComponent.Basic
+public import FundamentalGroupoids.FundamentalGroup.DiskAttachment.PuncturedComponent
+public import FundamentalGroupoids.FundamentalGroup.DiskAttachment.PuncturedChart
+public import FundamentalGroupoids.FundamentalGroup.DiskAttachment.OpenCover
+public import FundamentalGroupoids.FundamentalGroup.DiskAttachment.Homomorphisms
+public import FundamentalGroupoids.FundamentalGroup.DiskAttachment.Quotient
 public import FundamentalGroupoids.SemilocallySimplyConnected.Basic
 public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnected
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
@@ -41,6 +47,9 @@ public import FundamentalGroupoids.Topology.Category.TopCat.Based.ULift
 public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment
 public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment.Punctured
 public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment.PuncturedRetraction
+public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment.PuncturedCircle
+public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment.PuncturedChart
+public import FundamentalGroupoids.Topology.Category.TopCat.DiskAttachment.OpenCover
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.Products
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.PointMap
@@ -100,6 +109,7 @@ public import FundamentalGroupoids.Topology.Homotopy.InfiniteCube
 public import FundamentalGroupoids.Topology.Homotopy.Radial
 public import FundamentalGroupoids.Topology.Homotopy.Relative
 public import FundamentalGroupoids.Topology.Homotopy.RelativePathSpace.Contractible
+public import FundamentalGroupoids.Topology.MetricSpace.PuncturedBall
 public import FundamentalGroupoids.Topology.Homotopy.WidePushout
 public import FundamentalGroupoids.Topology.Path
 public import FundamentalGroupoids.Topology.Piecewise

@@ -1,5 +1,77 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/99c678e569c7c4c0772db297c5ddd5e4c9b6322e/schema/v0.4.schema.json
 version: "v0.4"
+highlights:
+  - title: Based van Kampen for intersection-closed open covers
+    statement: >-
+      For an arbitrarily indexed, binary-intersection-closed open cover of X by
+      path-connected neighborhoods of a common point x, homomorphisms from the
+      local fundamental groups to any group, compatible along every inclusion,
+      determine a unique homomorphism from π₁(X,x), and the inclusion cocone is
+      a colimit in GrpCat at the space universe, with independent space, index
+      and target-group universes.
+    declarations:
+      - declaration: FundamentalGroup.existsUnique_hom_of_isOpenCover_of_infClosed
+        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
+      - declaration: FundamentalGroup.isColimitOfIsOpenCover
+        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
+  - title: The fundamental group of the circle is ℤ
+    statement: >-
+      The complex unit circle has π₁(Circle,1) ≃* Multiplicative ℤ with its
+      counterclockwise generator sent to +1, while for every nonzero real period
+      T the equivalence π₁(AddCircle T,0) ≃* Multiplicative ℤ sends the projected
+      real segment from 0 to Tn to n for every integer n.
+    declarations:
+      - declaration: Circle.fundamentalGroupEquivInt
+        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+      - declaration: Circle.fundamentalGroupEquivInt_loop
+        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+      - declaration: AddCircle.fundamentalGroupEquivInt
+        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+      - declaration: AddCircle.fundamentalGroupEquivInt_loop
+        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
+  - title: Covering fibers, cosets and properness
+    statement: >-
+      A covering p : E → B between arbitrary topological spaces in independent
+      universes is proper exactly when every point fiber is finite, and when E
+      is path connected with chosen e₀, monodromy identifies the fiber over
+      p(e₀) with the left cosets of im(π₁(E,e₀) → π₁(B,p(e₀))) and properness
+      is equivalent to finite index of that image subgroup.
+    declarations:
+      - declaration: IsCoveringMap.isProperMap_iff_finite_fibers
+        file: FundamentalGroupoids/Topology/Covering/Proper.lean
+      - declaration: IsCoveringMap.monodromyQuotientEquiv
+        file: FundamentalGroupoids/Topology/Covering/Monodromy.lean
+      - declaration: IsCoveringMap.isProperMap_iff_finiteIndex
+        file: FundamentalGroupoids/Topology/Covering/FiniteIndex.lean
+  - title: Covering maps on positive cubical homotopy groups
+    statement: >-
+      Given a covering p : E → B and e : E, postcomposition on homotopy classes
+      of N-cubes relative to their coordinate-face boundary is injective for
+      nonempty N and bijective when N has at least two elements, with independent
+      cube and space universes and, in the latter case with decidable equality
+      on N, a multiplicative equivalence HomotopyGroup N E e ≃*
+      HomotopyGroup N B (p e) for the existing group structures.
+    declarations:
+      - declaration: IsCoveringMap.injective_homotopyGroup_mapFun
+        file: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+      - declaration: IsCoveringMap.bijective_homotopyGroup_mapFun
+        file: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+      - declaration: IsCoveringMap.homotopyGroupMulEquiv
+        file: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
+  - title: Fundamental groups of based disk attachments
+    statement: >-
+      For arbitrary based disk attachments, the fundamental group is the quotient
+      by the normal closure of the positive attaching loop classes, compatibly
+      with inclusion and with homomorphisms into every group.
+    declarations:
+      - declaration: FundamentalGroup.surjective_map_diskAttachmentInclusion
+        file: FundamentalGroupoids/FundamentalGroup/DiskAttachment/Quotient.lean
+      - declaration: FundamentalGroup.ker_map_diskAttachmentInclusion
+        file: FundamentalGroupoids/FundamentalGroup/DiskAttachment/Quotient.lean
+      - declaration: FundamentalGroup.diskAttachmentFundamentalGroupQuotientEquiv
+        file: FundamentalGroupoids/FundamentalGroup/DiskAttachment/Quotient.lean
+      - declaration: FundamentalGroup.diskAttachmentFundamentalGroupHomEquiv
+        file: FundamentalGroupoids/FundamentalGroup/DiskAttachment/Homomorphisms.lean
 project:
   name: Fundamental Groupoids
   description: >-
@@ -118,6 +190,13 @@ project:
     disks gives a subspace that strongly deformation retracts onto the original
     space image, for arbitrary unbased circle maps and independent space and
     disk-index universes, without connectivity or separation assumptions.
+    For a selected attaching map taking 1 to a chosen point, the punctured
+    component has a path-connected thickened chart with contractible disk piece
+    and punctured-open-disk overlap. Its positive half-radius generator retracts
+    to the positive attaching loop class. For an entirely based family, these
+    charts and the core form an Option-indexed open cover of the attachment
+    component with path-connected members and pairwise intersections, including
+    the empty disk family.
     Commuting squares of source and target homeomorphisms induce homeomorphisms
     of ordinary compact-open homotopy fibers at corresponding specified points,
     with point, full-path, inverse, identity, composition and projection laws.
@@ -136,64 +215,6 @@ project:
   responsible_maintainers:
     - Formal Frontier source maintainers
   license: Apache-2.0
-highlights:
-  - title: Based van Kampen for intersection-closed open covers
-    statement: >-
-      For an arbitrarily indexed, binary-intersection-closed open cover of X by
-      path-connected neighborhoods of a common point x, homomorphisms from the
-      local fundamental groups to any group, compatible along every inclusion,
-      determine a unique homomorphism from π₁(X,x), and the inclusion cocone is
-      a colimit in GrpCat at the space universe, with independent space, index
-      and target-group universes.
-    declarations:
-      - declaration: FundamentalGroup.existsUnique_hom_of_isOpenCover_of_infClosed
-        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
-      - declaration: FundamentalGroup.isColimitOfIsOpenCover
-        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/OpenCover.lean
-  - title: The fundamental group of the circle is ℤ
-    statement: >-
-      The complex unit circle has π₁(Circle,1) ≃* Multiplicative ℤ with its
-      counterclockwise generator sent to +1, while for every nonzero real period
-      T the equivalence π₁(AddCircle T,0) ≃* Multiplicative ℤ sends the projected
-      real segment from 0 to Tn to n for every integer n.
-    declarations:
-      - declaration: Circle.fundamentalGroupEquivInt
-        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
-      - declaration: Circle.fundamentalGroupEquivInt_loop
-        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
-      - declaration: AddCircle.fundamentalGroupEquivInt
-        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
-      - declaration: AddCircle.fundamentalGroupEquivInt_loop
-        file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
-  - title: Covering fibers, cosets and properness
-    statement: >-
-      A covering p : E → B between arbitrary topological spaces in independent
-      universes is proper exactly when every point fiber is finite, and when E
-      is path connected with chosen e₀, monodromy identifies the fiber over
-      p(e₀) with the left cosets of im(π₁(E,e₀) → π₁(B,p(e₀))) and properness
-      is equivalent to finite index of that image subgroup.
-    declarations:
-      - declaration: IsCoveringMap.isProperMap_iff_finite_fibers
-        file: FundamentalGroupoids/Topology/Covering/Proper.lean
-      - declaration: IsCoveringMap.monodromyQuotientEquiv
-        file: FundamentalGroupoids/Topology/Covering/Monodromy.lean
-      - declaration: IsCoveringMap.isProperMap_iff_finiteIndex
-        file: FundamentalGroupoids/Topology/Covering/FiniteIndex.lean
-  - title: Covering maps on positive cubical homotopy groups
-    statement: >-
-      Given a covering p : E → B and e : E, postcomposition on homotopy classes
-      of N-cubes relative to their coordinate-face boundary is injective for
-      nonempty N and bijective when N has at least two elements, with independent
-      cube and space universes and, in the latter case with decidable equality
-      on N, a multiplicative equivalence HomotopyGroup N E e ≃*
-      HomotopyGroup N B (p e) for the existing group structures.
-    declarations:
-      - declaration: IsCoveringMap.injective_homotopyGroup_mapFun
-        file: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
-      - declaration: IsCoveringMap.bijective_homotopyGroup_mapFun
-        file: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
-      - declaration: IsCoveringMap.homotopyGroupMulEquiv
-        file: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
 sources:
   - title: A Concise Course in Algebraic Topology
     authors:
@@ -782,6 +803,20 @@ alignment:
       module: FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedComponent/Basic.lean
     - lean: FundamentalGroup.mapOfEq_diskAttachmentPuncturedComponentRetraction_bijective
       module: FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedComponent/Basic.lean
+    - lean: TopCat.DiskAttachment.PuncturedChart
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedChart.lean
+    - lean: TopCat.DiskAttachment.overlapHomeomorph
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedChart.lean
+    - lean: TopCat.DiskAttachment.contractibleSpace_diskCover
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedChart.lean
+    - lean: FundamentalGroup.mapOfEq_diskAttachmentPuncturedComponentGenerator
+      module: FundamentalGroupoids/FundamentalGroup/DiskAttachment.lean
+    - lean: FundamentalGroup.diskAttachmentPuncturedComponentMulEquiv_generator
+      module: FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedComponent.lean
+    - lean: TopCat.DiskAttachment.componentOpenCover
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/OpenCover.lean
+    - lean: TopCat.DiskAttachment.isOpenCover_componentOpenNhds
+      module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/OpenCover.lean
     - lean: TopCat.diskAttachmentLift
       module: FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean
     - lean: TopCat.diskAttachmentLift_unique

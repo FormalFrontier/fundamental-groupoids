@@ -165,6 +165,14 @@ theorem mapOfEq_rfl (f : C(X, Y)) (x : X) :
   intro γ
   simp only [mapOfEq_apply, Path.Homotopic.Quotient.cast_rfl_rfl, map_apply]
 
+/-- Equal continuous maps induce equal homomorphisms at fixed basepoints,
+independently of the proofs that they preserve the basepoint. -/
+theorem mapOfEq_congr {f g : C(X, Y)} {x : X} {y : Y}
+    (hfg : f = g) (hf : f x = y) (hg : g x = y) :
+    mapOfEq f hf = mapOfEq g hg := by
+  subst g
+  rfl
+
 /-- The identity continuous map with its basepoint equality induces the identity homomorphism. -/
 theorem mapOfEq_id (x : X) :
     mapOfEq (ContinuousMap.id X) (rfl : ContinuousMap.id X x = x) =
@@ -218,6 +226,18 @@ theorem map_comp_fundamentalGroupMulEquivOfPath (f : C(X, Y)) {x x' : X}
     (map f x').comp (fundamentalGroupMulEquivOfPath a).toMonoidHom =
       (fundamentalGroupMulEquivOfPath (a.map f.continuous)).toMonoidHom.comp (map f x) :=
   MonoidHom.ext fun γ => map_fundamentalGroupMulEquivOfPath f a γ
+
+/-- The change-of-basepoint square for a continuous map with specified target endpoints,
+as an equality of homomorphisms. The image path is cast to those endpoints. -/
+theorem mapOfEq_comp_fundamentalGroupMulEquivOfPath (f : C(X, Y))
+    {x₀ x₁ : X} {y₀ y₁ : Y} (p : Path x₀ x₁) (h₀ : f x₀ = y₀) (h₁ : f x₁ = y₁) :
+    (mapOfEq f h₁).comp (fundamentalGroupMulEquivOfPath p).toMonoidHom =
+      (fundamentalGroupMulEquivOfPath
+        ((p.map f.continuous).cast h₀.symm h₁.symm)).toMonoidHom.comp (mapOfEq f h₀) := by
+  cases h₀
+  cases h₁
+  simpa only [mapOfEq_rfl, Path.cast_rfl_rfl] using
+    map_comp_fundamentalGroupMulEquivOfPath f p
 
 /-- A homotopy compares the induced maps by change of basepoint along its component path.
 This is the homotopy comparison of May, Chapter 1, §4, with time in the first coordinate. -/
@@ -351,6 +371,15 @@ theorem map_fromPath {Y : Type v} [TopologicalSpace Y] (f : C(X, Y)) {p : X}
     (γ : Path p p) :
     map f p (fromPath ⟦γ⟧) = fromPath ⟦γ.map f.continuous⟧ := by
   rfl
+
+/-- Change of basepoint along a path represents a loop by the reverse path,
+then the loop, then the path. -/
+theorem fundamentalGroupMulEquivOfPath_fromPath {x x' : X} (a : Path x x')
+    (γ : Path x x) :
+    fundamentalGroupMulEquivOfPath a (fromPath ⟦γ⟧) =
+      fromPath ⟦(a.symm.trans γ).trans a⟧ := by
+  rw [fundamentalGroupMulEquivOfPath, CategoryTheory.Iso.conj_apply]
+  exact (Path.Homotopic.Quotient.trans_assoc ⟦a.symm⟧ ⟦γ⟧ ⟦a⟧).symm
 
 /-- A based induced map sends a loop class to the mapped loop with its endpoints cast. -/
 theorem mapOfEq_fromPath {Y : Type v} [TopologicalSpace Y] (g : C(X, Y))

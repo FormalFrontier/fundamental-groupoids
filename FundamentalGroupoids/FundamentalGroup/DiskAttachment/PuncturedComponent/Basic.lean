@@ -210,6 +210,63 @@ theorem diskAttachmentPuncturedComponentMulEquiv_apply_fromPath
   rw [diskAttachmentPuncturedComponentMulEquiv_apply]
   exact mapOfEq_fromPath _ _ p
 
+/-- Inclusion into the attachment after the retraction isomorphism equals direct
+inclusion of the punctured component, on the whole fundamental group. The radial
+deformation is relative to the included original-space component, which contains
+the chosen basepoint, so its basepoint track is constant. -/
+theorem map_diskAttachmentInclusion_comp_puncturedComponentMulEquiv
+    (f : J → C(Circle, X)) (x : X) :
+    (map (diskAttachmentInclusion f) x).comp
+        (diskAttachmentPuncturedComponentMulEquiv f x).toMonoidHom =
+      mapOfEq
+        ((ContinuousMap.subtypeVal ((diskAttachmentCenters f)ᶜ)).comp
+          (ContinuousMap.subtypeVal (diskAttachmentPuncturedComponentSet f x)))
+        (by
+          exact (congrArg Subtype.val
+            (diskAttachmentPuncturedComponentBasepoint_coe f x)).trans
+              (diskAttachmentPuncturedInclusion_coe f x)) := by
+  let k : C(diskAttachmentPuncturedComponent f x, diskAttachment f) :=
+    (ContinuousMap.subtypeVal ((diskAttachmentCenters f)ᶜ)).comp
+      (ContinuousMap.subtypeVal (diskAttachmentPuncturedComponentSet f x))
+  let r : C(diskAttachmentPuncturedComponent f x, X) :=
+    (ContinuousMap.subtypeVal (pathComponent x)).comp
+      (diskAttachmentPuncturedComponentRetraction f x)
+  have hk : k (diskAttachmentPuncturedComponentBasepoint f x) =
+      diskAttachmentInclusion f x :=
+    (congrArg Subtype.val (diskAttachmentPuncturedComponentBasepoint_coe f x)).trans
+      (diskAttachmentPuncturedInclusion_coe f x)
+  have hr : r (diskAttachmentPuncturedComponentBasepoint f x) = x :=
+    diskAttachmentPuncturedComponentRetraction_basepoint_coe f x
+  have H : k.HomotopicRel ((diskAttachmentInclusion f).comp r)
+      (Set.range (diskAttachmentPuncturedComponentInclusion f x)) := by
+    refine ⟨((diskAttachmentPuncturedComponentDeformation f x).compContinuousMap k).cast
+      (ContinuousMap.comp_id k) ?_⟩
+    apply ContinuousMap.ext
+    intro w
+    exact (congrArg Subtype.val (diskAttachmentPuncturedComponentInclusion_coe f x
+      (diskAttachmentPuncturedComponentRetraction f x w))).trans
+        (diskAttachmentPuncturedInclusion_coe f _)
+  have hc : diskAttachmentPuncturedComponentBasepoint f x ∈
+      Set.range (diskAttachmentPuncturedComponentInclusion f x) := by
+    refine ⟨⟨x, Joined.refl x⟩, ?_⟩
+    apply Subtype.ext
+    exact (diskAttachmentPuncturedComponentInclusion_coe f x _).trans
+      (diskAttachmentPuncturedComponentBasepoint_coe f x).symm
+  have hmap : mapOfEq k hk =
+      mapOfEq ((diskAttachmentInclusion f).comp r)
+        (congrArg (diskAttachmentInclusion f) hr) :=
+    mapOfEq_eq_of_homotopicRel H hc hk (congrArg (diskAttachmentInclusion f) hr)
+  rw [MulEquiv.toMonoidHom_eq_coe,
+    diskAttachmentPuncturedComponentMulEquiv_toMonoidHom]
+  calc
+    (map (diskAttachmentInclusion f) x).comp (mapOfEq r hr) =
+        mapOfEq ((diskAttachmentInclusion f).comp r)
+          (congrArg (diskAttachmentInclusion f) hr) := by
+      simpa only [mapOfEq_rfl] using
+        (mapOfEq_comp (diskAttachmentInclusion f) r hr
+          (rfl : diskAttachmentInclusion f x = diskAttachmentInclusion f x)).symm
+    _ = mapOfEq k hk := hmap.symm
+
 /-- The inverse homomorphism is induced by inclusion of the original-space
 component, composed with the inverse path-component inclusion isomorphism. -/
 theorem diskAttachmentPuncturedComponentMulEquiv_symm_toMonoidHom

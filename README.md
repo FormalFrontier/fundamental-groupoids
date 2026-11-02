@@ -102,6 +102,30 @@ directions, examples, conventions and credits.
   retraction followed by component inclusion. The inverse lifts to the
   original-space component and then includes it into the punctured component.
   Neither component is assumed open.
+  For a selected attaching map taking `1` to the chosen point, its
+  [thickened chart](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedChart.lean)
+  is path connected, with a contractible open-disk piece and punctured-open-disk
+  overlap with the core. The positive radial-whiskered half-radius loop maps to
+  the positive attaching loop class under the retraction isomorphism
+  ([generator comparison](FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedComponent.lean)).
+  [Restriction to the core](FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedChart.lean)
+  identifies homomorphisms from the chart fundamental group with core
+  homomorphisms killing that selected generator, for an arbitrary target group
+  in an independent universe. Both directions restrict along the same inclusion
+  at the component basepoint.
+  When every attaching map takes `1` to the chosen point, the core and charts
+  give an [`Option`-indexed open cover](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/OpenCover.lean)
+  of the attachment component, with common core intersection, path-connected
+  members and pairwise intersections. This includes the empty disk family.
+  [Homomorphisms from the attachment fundamental group](FundamentalGroupoids/FundamentalGroup/DiskAttachment/Homomorphisms.lean)
+  correspond to homomorphisms from the original fundamental group killing all
+  positive attaching loop classes, for any target group in an independent universe.
+  The forward map restricts along the original-space inclusion, and the inverse
+  restricts back to the supplied homomorphism along that same inclusion.
+  The [inclusion-induced homomorphism](FundamentalGroupoids/FundamentalGroup/DiskAttachment/Quotient.lean)
+  is surjective, with kernel the normal closure of the positive attaching loop
+  classes. Its induced quotient isomorphism commutes with the inclusion-induced
+  homomorphism and the quotient projection in both directions.
 - **Endomorphism transport** ([`Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean)).
   In any category, transports along `α β : X ≅ Y` agree iff
   `α.hom ≫ β.inv` is central in `End X`. Commutativity makes transport independent;
@@ -880,6 +904,8 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | --- | --- |
 | [`FundamentalGroup`](FundamentalGroupoids/FundamentalGroup.lean) | Induced-map and basepoint-equality laws, null-loop/trivial-image criteria, path-component inclusion isomorphisms, path transport, relative and moving-track homotopy comparisons, and retraction splittings |
 | [`FundamentalGroup.DiskAttachment`](FundamentalGroupoids/FundamentalGroup/DiskAttachment.lean) | Triviality of every attaching boundary-circle fundamental-group map, at arbitrary and chosen basepoints |
+| [`FundamentalGroup.DiskAttachment.PuncturedChart`](FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedChart.lean) | Chart homomorphisms as core homomorphisms killing the selected positive generator, with both restriction laws |
+| [`FundamentalGroup.DiskAttachment.Homomorphisms`](FundamentalGroupoids/FundamentalGroup/DiskAttachment/Homomorphisms.lean) | Homomorphisms killing all positive attaching loop classes, with restriction and extension along the original-space inclusion |
 | [`Topology.Connected.PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean) | Continuous maps on path components, with representative, identity, composition and homotopy-invariance laws |
 | [`Topology.Compactification.OnePoint.Collapse`](FundamentalGroupoids/Topology/Compactification/OnePoint/Collapse.lean) | Continuous open-subspace collapse for Hausdorff spaces, membership and infinity laws, and a surjective disjoint-point extension that is a quotient map for compact sources |
 | [`Topology.Compactification.OnePoint.ContinuousMap`](FundamentalGroupoids/Topology/Compactification/OnePoint/ContinuousMap.lean) | Compact-open/subtype homeomorphism between maps based at infinity and ambient maps constant outside any open in a compact Hausdorff space; collapse-precomposition, recursor and evaluation laws |
