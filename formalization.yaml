@@ -568,6 +568,10 @@ alignment:
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean
     - lean: ZerothHomotopy.surjective_map_iff_nonempty_homotopyFiber
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean
+    - lean: ZerothHomotopy.mem_range_map_homotopyFiber_point_iff
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean
+    - lean: ZerothHomotopy.range_map_homotopyFiber_point
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph_symm
