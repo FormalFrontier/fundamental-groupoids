@@ -11,6 +11,16 @@ directions, examples, conventions and credits.
 
 ## Headline results
 
+- **Homotopy invariance of ordinary homotopy fibers.** For topological spaces `E` and
+  `B`, continuous maps `f g : C(E, B)`, a specified homotopy
+  `H : ContinuousMap.Homotopy f g`, and any `b : B`,
+  `ContinuousMap.HomotopyFiber.homotopyEquiv H b` constructs an unbased
+  homotopy equivalence `HomotopyFiber f b ≃ₕ HomotopyFiber g b`. The forward map
+  retains the `E`-point and appends the path traced by `H` after the whole supplied
+  path; the inverse appends its reverse. The named inverse homotopies retain the
+  `E`-point at every time. No separation or local-compactness assumptions on `E` or
+  `B` are required. See [homotopy invariance](FundamentalGroupoids/Topology/Homotopy/Fiber/Homotopy.lean).
+
 - **Point-wide-pushout coproducts up to based homotopy** ([`Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean)).
   A family `D : J → BasedTopCat.{max u w}`, indexed by `J : Type w`, has a
   point-wide-pushout cofan with explicit descent and uniqueness, both in based

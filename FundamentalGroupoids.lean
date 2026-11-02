@@ -76,6 +76,7 @@ public import FundamentalGroupoids.Topology.Homotopy.Fiber.Const
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Exact
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homeomorph
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homotopy
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.PathComponent
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Prod
 public import FundamentalGroupoids.Topology.Homotopy.GenLoop.OnePoint
