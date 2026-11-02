@@ -556,6 +556,12 @@ alignment:
     are consequences of the based coproduct universal properties, without a
     claimed correspondence with a named theorem in May.
   statements:
+    - lean: ZerothHomotopy.mem_range_map_iff
+      module: FundamentalGroupoids/Topology/Connected/PathConnected.lean
+    - lean: ContinuousMap.HomotopyFiber.nonempty_iff_exists_joined
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean
+    - lean: ZerothHomotopy.surjective_map_iff_nonempty_homotopyFiber
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph_symm

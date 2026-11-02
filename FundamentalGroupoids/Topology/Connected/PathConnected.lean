@@ -48,6 +48,20 @@ theorem map_mk (f : C(X, Y)) (x : X) :
     map f (mk x) = mk (f x) :=
   rfl
 
+/-- A point's component is in the induced map's range exactly when the image of some
+source point can be joined to it by a path. -/
+theorem mem_range_map_iff (f : C(X, Y)) (y : Y) :
+    mk y ∈ Set.range (map f) ↔ ∃ x : X, Joined y (f x) := by
+  constructor
+  · rintro ⟨q, hq⟩
+    obtain ⟨x, rfl⟩ := mk_surjective q
+    rw [map_mk] at hq
+    exact ⟨x, Joined.symm (Quotient.eq.mp hq)⟩
+  · rintro ⟨x, h⟩
+    refine ⟨mk x, ?_⟩
+    rw [map_mk]
+    exact Quotient.eq.mpr h.symm
+
 /-- The identity fixes every path component. -/
 @[simp]
 theorem map_id (q : ZerothHomotopy X) :

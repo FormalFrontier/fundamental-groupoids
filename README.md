@@ -150,6 +150,7 @@ directions, examples, conventions and credits.
   [`Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean),
   [`Fiber.Contractible`](FundamentalGroupoids/Topology/Homotopy/Fiber/Contractible.lean),
   [`Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean),
+  [`Fiber.PathComponent`](FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean),
   [`RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean)).
   `ContinuousMap.RelativePathSpace b A` consists of paths from an arbitrary `b`
   to any point of `A`; the paths need not stay in `A`, and `b` need not lie in `A`.
@@ -168,6 +169,11 @@ directions, examples, conventions and credits.
   nonemptiness assumptions.
   A constant fiber point needs a specified `e` with `f e = b`;
   being outside the image does not force the homotopy fiber to be empty.
+  For arbitrary `f`, nonemptiness is equivalent to `∃ e, Joined b (f e)`, or
+  to membership of `ZerothHomotopy.mk b` in the range of `ZerothHomotopy.map f`.
+  The induced path-component map is therefore surjective exactly when every
+  homotopy fiber is nonempty. Source and target universes are independent,
+  without connectivity assumptions.
   For a constant map with value `c`, `HomotopyFiber.constHomeomorph E b c`
   identifies its fiber with `E × Path b c`, retaining the point and every path
   value, naturally in continuous source maps. The fiber is nonempty exactly when
@@ -793,6 +799,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean) | Constant-map fibers as source times fixed-endpoint Path, with coordinate laws, source naturality and a nonemptiness criterion |
 | [`Topology.Homotopy.Fiber.Contractible`](FundamentalGroupoids/Topology/Homotopy/Fiber/Contractible.lean) | Identity-map fiber contraction relative to its constant-path point, with moving-point, whole-path, evaluation, endpoint and fixed-point laws, and a contractibility instance for arbitrary targets |
 | [`Topology.Homotopy.Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean) | Homeomorphisms induced by invertible coordinate squares, with forward/inverse point and full-path laws, identity, composition and projection compatibility |
+| [`Topology.Homotopy.Fiber.PathComponent`](FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean) | Homotopy-fiber nonemptiness as path-component image membership, and surjectivity on path components iff all fibers are nonempty, for independent universes and arbitrary topologies |
 | [`Topology.Homotopy.RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean) | Explicit time-shortening homotopy relative to the constant path, characteristic evaluation and moving-endpoint laws, and contractibility of fixed-start/free-endpoint paths |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
 | [`Topology.Homotopy.HomotopyGroup.Affine`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Affine.lean) | Boundary-relative contraction of generalized loops in real topological vector spaces and subsingleton homotopy quotients for every index type |
