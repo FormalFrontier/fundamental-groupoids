@@ -515,6 +515,42 @@ boundary-relative extension. No comparison with sphere-domain or U-topology
 homotopy groups is supplied. No injectivity assertion is made for an empty
 index, nor a surjectivity assertion for a singleton index (degree one).
 
+## Path-component exactness for homotopy fibers
+
+Import
+[`FundamentalGroupoids.Topology.Homotopy.Fiber.Exact`](../FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean).
+Let `E'`, `E` and `B` be topological spaces in independent universes, with
+`f : C(E, B)`, `g : C(E', B)`, `u : C(E', E)`, `w : ∀ x, f (u x) = g x`
+and `b : B`. Write `π₀ X = ZerothHomotopy X` for path components and
+`π₀ v = ZerothHomotopy.map v`. Let `K` be the induced map from
+`HomotopyFiber g b` to `HomotopyFiber f b`, given by
+`ContinuousMap.HomotopyFiber.map u (ContinuousMap.id B) w rfl`, and let
+`p = ContinuousMap.HomotopyFiber.point` on the target fiber. Then
+`range (π₀ K) = (π₀ p) ⁻¹' range (π₀ u)`.
+Use `ZerothHomotopy.mem_range_map_homotopyFiber_map_id_iff f g u w b c`
+for membership of a component `c`, and
+`ZerothHomotopy.range_map_homotopyFiber_map_id f g u w b` for the set equality.
+All topologies are arbitrary, and `E'` may be empty. The base map here is the
+identity, not an arbitrary continuous base map.
+
+For any `e₀ : E` and `h : f e₀ = b`,
+[`ZerothHomotopy.range_homotopyFiber_loop_classes`](../FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean)
+describes the composite from `FundamentalGroup B b` through the unique-index
+generalized-loop comparison, `HomotopyGroup.equivZerothHomotopy` and the map
+from the constant `Unit → B` homotopy fiber. On a raw loop `γ : Path b b`,
+it retains `e₀` and the same entire forward path `γ`, with endpoint equation
+`γ.target.trans h.symm`. Writing `δ([γ]) = [(e₀, γ)]` for this composite,
+its image is `range δ = (π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}`.
+The equality `h` concerns only the specified point; `f` need not be constant.
+These are image statements, not assertions of injectivity or a full long exact
+sequence.
+
+The loop-image formula is the ordinary-topology version of May's fiber-sequence
+exactness (Chapter 8 §6, “Fiber sequences”, printed pp. 61–62). The fixed-base
+component-image formula is a structural extension of that case. Products,
+subspaces and compact-open spaces carry their ordinary topologies; no
+identification with May's weak-Hausdorff, compactly generated category is asserted.
+
 ## Using the library
 
 The Lake package is `fundamental-groupoids`. Import the complete interface with:
@@ -774,6 +810,8 @@ a fiber, not a group structure on that fiber.
   Chapter 3, §§2–4, 7 supplies the covering-space lifting and monodromy arguments.
   The categorical preconnectedness criterion is a derived consequence of the
   fiber-translation argument in §4, rather than a theorem stated there.
+  Chapter 8 §6, “Fiber sequences” (printed pp. 61–62), supplies the loop-image
+  exactness statement.
   Chapter 9, §§1, 4 (printed pp. 65–67) describes based homotopy groups and the
   classical finite-degree covering isomorphism. The arbitrary-index results
   here are a cubical boundary-relative extension, without a comparison with

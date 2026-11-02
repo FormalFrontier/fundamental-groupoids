@@ -219,6 +219,16 @@ directions, examples, conventions and credits.
   No target separation or local compactness is required. These are ordinary,
   non-kified spaces, not an identification with May's category `U`; this contracts
   neither loop spaces nor `X`.
+- **Path-component exactness for homotopy fibers** ([`Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean)).
+  For continuous `f : C(E, B)`, `g : C(E', B)` and `u : C(E', E)`
+  with `f (u x) = g x`, let `K` be the induced fiber map over `id B` at `b`.
+  Then `range (π₀ K) = (π₀ p) ⁻¹' range (π₀ u)`, where `p` retains
+  the target fiber's source point and `π₀` denotes path components.
+  For any `e₀` with `f e₀ = b`, loop classes from `FundamentalGroup B b`
+  have image `(π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}`. Representatives retain
+  the whole forward loop at `e₀`.
+  All three space universes are independent and all topologies arbitrary;
+  `E'` may be empty. See the [exactness guide](docs/mathematical-guide.md#path-component-exactness-for-homotopy-fibers).
 - **Finite generalized loops as based compact-open maps** ([`GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean)).
   For every finite index type `N` (`[Finite N]`) and every topological space `X`
   with chosen `x`, `GenLoop.onePointHomeomorph N x` identifies `GenLoop N X x`
@@ -829,6 +839,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean) | Retained-point ordinary homotopy fibers, maps of continuous squares, pullback and embedding/subspace homeomorphisms, with projection, evaluation, constant and naturality laws |
 | [`Topology.Homotopy.Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean) | Constant-map fibers as source times fixed-endpoint Path, with coordinate laws, source naturality and a nonemptiness criterion |
 | [`Topology.Homotopy.Fiber.Contractible`](FundamentalGroupoids/Topology/Homotopy/Fiber/Contractible.lean) | Identity-map fiber contraction relative to its constant-path point, with moving-point, whole-path, evaluation, endpoint and fixed-point laws, and a contractibility instance for arbitrary targets |
+| [`Topology.Homotopy.Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean) | Component-image formula for fiber maps over the identity base, and the forward-loop class image over a specified source-point component, with arbitrary topologies and independent universes |
 | [`Topology.Homotopy.Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean) | Homeomorphisms induced by invertible coordinate squares, with forward/inverse point and full-path laws, identity, composition and projection compatibility |
 | [`Topology.Homotopy.Fiber.PathComponent`](FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean) | Homotopy-fiber nonemptiness, surjectivity on path components iff all fibers are nonempty, and the point projection's component image as the preimage of the basepoint component, for independent universes and arbitrary topologies |
 | [`Topology.Homotopy.Fiber.Prod`](FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean) | Product fibers as products of fibers, preserving retained points and full same-time paths, with projection diagrams and naturality for arbitrary continuous squares; free source factors split off with whole point/path diagrams, constructor laws and six-universe naturality |
@@ -928,7 +939,8 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 - J. Peter May, *A Concise Course in Algebraic Topology*, revised author PDF,
   Chapter 1 §§3–5, 7, Chapter 2 §§5, 7–8, Chapter 3 §§2–4, 7,
   Chapter 7 §3 (printed p. 50, time-shortening deformation),
-  Chapter 8 §6 (printed p. 61, path direction and pullback fibers), and
+  Chapter 8 §6 (printed pp. 61–62, path direction, pullback fibers and
+  loop-image exactness), and
   Chapter 9 §§1, 4 (printed pp. 65–67, including subspace endpoint paths).
   [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
