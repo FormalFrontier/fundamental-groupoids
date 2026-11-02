@@ -72,6 +72,7 @@ public import FundamentalGroupoids.Topology.Homotopy.Cube.Extension
 public import FundamentalGroupoids.Topology.Homotopy.Cube.Radius
 public import FundamentalGroupoids.Topology.Homotopy.Fiber
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Const
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homeomorph
 public import FundamentalGroupoids.Topology.Homotopy.GenLoop.OnePoint
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Action

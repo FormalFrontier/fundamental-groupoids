@@ -148,6 +148,7 @@ directions, examples, conventions and credits.
 - **Ordinary compact-open paths and homotopy fibers** ([`RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean),
   [`Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean),
   [`Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean),
+  [`Fiber.Contractible`](FundamentalGroupoids/Topology/Homotopy/Fiber/Contractible.lean),
   [`Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean),
   [`RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean)).
   `ContinuousMap.RelativePathSpace b A` consists of paths from an arbitrary `b`
@@ -176,6 +177,10 @@ directions, examples, conventions and credits.
   `RelativePathSpace.contraction b` sends `γ` to `t ↦ γ ((1 - s) * t)` at time
   `s`, fixes the constant path throughout, and gives a `ContractibleSpace`
   instance on `RelativePathSpace b Set.univ`. Its endpoint is free to move.
+  `HomotopyFiber.idContraction b` transports this to the identity map's homotopy
+  fiber, giving a `ContractibleSpace` instance and fixing its constant-path point.
+  At time `s`, the retained source point is `γ (1 - s)` and the whole path is
+  `t ↦ γ ((1 - s) * t)`, with its original direction and starting point.
   No target separation or local compactness is required. These are ordinary,
   non-kified spaces, not an identification with May's category `U`; this contracts
   neither loop spaces nor `X`.
@@ -786,6 +791,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean) | Ordinary compact-open paths from an arbitrary point to a subspace, with constructor, extensionality, evaluation, endpoint and functorial postcomposition APIs |
 | [`Topology.Homotopy.Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean) | Retained-point ordinary homotopy fibers, maps of continuous squares, pullback and embedding/subspace homeomorphisms, with projection, evaluation, constant and naturality laws |
 | [`Topology.Homotopy.Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean) | Constant-map fibers as source times fixed-endpoint Path, with coordinate laws, source naturality and a nonemptiness criterion |
+| [`Topology.Homotopy.Fiber.Contractible`](FundamentalGroupoids/Topology/Homotopy/Fiber/Contractible.lean) | Identity-map fiber contraction relative to its constant-path point, with moving-point, whole-path, evaluation, endpoint and fixed-point laws, and a contractibility instance for arbitrary targets |
 | [`Topology.Homotopy.Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean) | Homeomorphisms induced by invertible coordinate squares, with forward/inverse point and full-path laws, identity, composition and projection compatibility |
 | [`Topology.Homotopy.RelativePathSpace.Contractible`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace/Contractible.lean) | Explicit time-shortening homotopy relative to the constant path, characteristic evaluation and moving-endpoint laws, and contractibility of fixed-start/free-endpoint paths |
 | [`Topology.Homotopy.Affine`](FundamentalGroupoids/Topology/Homotopy/Affine.lean) | Affine homotopies fixed on an agreement subset, with evaluation and underlying-homotopy equations |
@@ -925,11 +931,14 @@ fundamental groups and Shing Tak Lam's homotopies in Mathlib. The based compact-
 collapse comparisons use Yourong Zang and Yury Kudryashov's one-point
 compactification and Mathlib's compact-open topology, together with GroupTheory's
 compact-covering precomposition embedding API.
-The relative-path spaces, retained-point homotopy fibers and fixed-start contraction
-are by Formal Frontier Agents. May's time-shortening deformation (Chapter 7 §3,
-printed p. 50) supplies the contraction idea; Chapters 8 §6 and 9 §1 motivate the
+The relative-path spaces, retained-point homotopy fibers, fixed-start contraction
+and identity-fiber contraction are by Formal Frontier Agents. May's time-shortening
+deformation (Chapter 7 §3, printed p. 50) supplies the contraction idea;
+Chapters 8 §6 and 9 §1 motivate the
 fiber and endpoint-path models, without identifying their ordinary topologies
-with his kified category. The fiber comparisons reuse Mathlib's whole
+with his kified category. The identity-fiber contraction transports the fixed-start
+deformation through the embedding comparison using relative-homotopy precomposition,
+postcomposition and endpoint casts. The fiber comparisons reuse Mathlib's whole
 `TopCat.pullbackHomeoPreimage`, including its inverse continuity, by Patrick Massot,
 Kim Morrison, Mario Carneiro and Andrew Yang. The constant-map product splitting
 uses Patrick Massot's `Path` topology and Mathlib's product and induced-topology
