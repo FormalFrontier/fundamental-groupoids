@@ -32,7 +32,9 @@ project:
     this is a multiplicative equivalence for the existing group structures.
     Raw cubical homotopy quotients canonically identify with path components of
     the same compact-open generalized-loop spaces, naturally in based postcomposition
-    and compatibly with the empty-index comparison. Equivalences of cube-index
+    and compatibly with the empty-index comparison. The based homotopy-fiber
+    point projection has class image equal to the preimage of the constant class
+    for every cube index, with range–kernel form for the existing positive groups. Equivalences of cube-index
     types induce quotient equivalences by reindexing representatives, with inverse,
     identity, composition and based-postcomposition laws in independent universes.
     For nonempty indices with decidable equality, the same maps are multiplicative
@@ -139,7 +141,8 @@ sources:
       Revised author PDF, Chapter 1 §§3, 5, 7 and Chapter 2 §§4–5, 7–8.
       Chapter 3 §§2–4, 7 for covering-space monodromy, lifting and maps of covers.
       Chapter 5 §§1–2, printed pp. 39–41, for compact-Hausdorff tests and kification.
-      Chapter 8 §6, “Fiber sequences”, printed pp. 61–62, for loop-image exactness.
+      Chapter 8 §6, “Fiber sequences”, printed pp. 61–62 (PDF pp. 69–70),
+      especially printed p. 62, for loop-image and projection exactness.
       Chapter 9 §§1, 4, printed pp. 65–67, for based homotopy groups and the
       classical finite-degree covering isomorphism.
     relationship: adapts
@@ -368,6 +371,15 @@ status:
     on the existing quotient by Joined for arbitrary continuous maps, with
     representative, pointwise identity/composition and homotopy-invariance laws.
     Space universes are independent, with no separation or connectedness assumptions.
+    For f : C(E, B), e0 : E, b : B and h : f e0 = b, base the ordinary homotopy
+    fiber at HomotopyFiber.const e0 h. For every cube index N, the point-projection
+    mapFun has range equal to the preimage of the constant class under mapFun N f h.
+    No index instances are needed. With exactly DecidableEq N and Nonempty N,
+    the existing map homomorphisms give range equal to kernel; these instances
+    supply operation data, not geometric hypotheses. Index, source and base
+    universes are independent, and all topologies arbitrary. Empty-index classes
+    retain all path components; the zeroth projection theorem also allows empty E
+    without e0 or h. Infinite-index quotients are already subsingletons.
     For an arbitrary topological space X and chosen x, the continuous identity
     from compactlyGenerated.{u} X to the original topology gives
     HomotopyGroup.compactlyGeneratedEquiv for every cube-index type N.
@@ -594,7 +606,14 @@ alignment:
     sequence is asserted. Source and base universes are independent and their
     topologies arbitrary. The component-image formula for arbitrary commuting
     squares over the identity base is a structural extension, not a statement
-    quoted from May or an identification with his category.
+    quoted from May or an identification with his category. Projection exactness
+    at HomotopyGroup N E e0 adapts the finite-dimensional projection position in
+    Chapter 8 §6, printed pp. 61–62 (PDF pp. 69–70), especially printed p. 62;
+    the arbitrary-index formula is a cubical extension. It is distinct from the
+    adjacent positions at the fundamental group of B and the path components of
+    the fiber. Products, subspaces and compact-open spaces use ordinary,
+    non-kified topologies; no sphere-domain comparison or identification with
+    May's weak-Hausdorff, compactly generated category U is asserted.
   statements:
     - lean: ZerothHomotopy.mem_range_map_iff
       module: FundamentalGroupoids/Topology/Connected/PathConnected.lean
@@ -617,6 +636,10 @@ alignment:
     - lean: ZerothHomotopy.homotopyFiber_loop_classes_fromPath
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
     - lean: ZerothHomotopy.preimage_homotopyFiber_loop_classes_one
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: HomotopyGroup.range_mapFun_homotopyFiber_point
+      module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: HomotopyGroup.range_map_homotopyFiber_point
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean

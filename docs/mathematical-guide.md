@@ -548,7 +548,7 @@ theorem; `δ` is notation here, not a separately exported definition. Its image 
   retains the same entire forward path, with endpoint certificate
   `γ.target.trans h.symm`. In particular,
   `δ 1 = ZerothHomotopy.mk (ContinuousMap.HomotopyFiber.const e₀ h)`:
-  the distinguished component contains the genuine constant-path point.
+  the distinguished component contains the constant-path point.
 - `FundamentalGroup.mem_range_mapOfEq_iff_joined_homotopyFiber f b e₀ h γ`
   says that `[γ]` lies in the image of `FundamentalGroup.mapOfEq f h` exactly
   when `(e₀, γ)` is joined by a path in the homotopy fiber to
@@ -561,21 +561,56 @@ theorem; `δ` is notation here, not a separately exported definition. Its image 
   `δ ⁻¹' {δ 1} = Set.range (FundamentalGroup.mapOfEq f h)`.
   Thus `δ q = δ 1` precisely when `q` comes from the source fundamental group.
 
+For the point-projection position, take any cube index `N` in a universe
+independent of `E` and `B`. Base `HF = ContinuousMap.HomotopyFiber f b` at
+`ContinuousMap.HomotopyFiber.const e₀ h`, and let `p : C(HF, E)` retain the
+source point. Write `hp` for
+`ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h`.
+Then `HomotopyGroup.range_mapFun_homotopyFiber_point N f b e₀ h` gives
+
+```text
+Set.range (HomotopyGroup.mapFun N p hp) =
+  (HomotopyGroup.mapFun N f h) ⁻¹' {⟦GenLoop.const⟧}.
+```
+
+This is an equality of sets of boundary-relative cubical classes, with no
+instances on `N`. With exactly `[DecidableEq N] [Nonempty N]`,
+`HomotopyGroup.range_map_homotopyFiber_point N f b e₀ h` gives
+
+```text
+(HomotopyGroup.map N p hp).range = (HomotopyGroup.map N f h).ker.
+```
+
+The instances supply the existing group operations and induced homomorphisms;
+they impose no geometric conditions on `E` or `B`. For empty `N`, the quotient
+retains all path components, including those away from `e₀`. The theorem
+`ZerothHomotopy.range_map_homotopyFiber_point` gives the zeroth projection
+formula without choosing `e₀` or `h`, and even allows empty `E`. For infinite
+`N`, the quotients are already subsingletons; this does not assert nontrivial
+infinite-dimensional homotopy.
+
+Thus the formulas distinguish the adjacent exactness positions
+`π₁E → π₁B → π₀HF` and `π₁B → π₀HF → π₀E` from
+`HomotopyGroup N HF → HomotopyGroup N E → HomotopyGroup N B`,
+where projection exactness is at the middle term `HomotopyGroup N E e₀`.
 The spaces `E` and `B` have independent universes and arbitrary topologies.
 The equality `h` concerns only the specified point; `f` need not be constant.
-Choosing `e₀` excludes an empty source, but neither space need be connected,
-and components away from `e₀` impose no restriction. No group structure on the
-fiber's path components is used or supplied. These formulas assert neither
-injectivity nor surjectivity of `δ`, nor a full long exact sequence.
+Choosing `e₀` excludes an empty source, but neither space need be connected.
+No group structure on the fiber's path components is used or supplied. These
+formulas assert neither injectivity nor surjectivity of `δ`, nor a full long
+exact sequence.
 
-The loop-image and fundamental-group-position formulas adapt May's fiber-sequence
-exactness (Chapter 8 §6, “Fiber sequences”, printed pp. 61–62, especially p. 62).
-May writes the preceding arrow as `−Ωf`; reversing loops leaves its group image
-equal to that of the induced fundamental-group map, without changing the
-forward-loop convention for `δ`. The fixed-base component-image formula is a
-structural extension. Products, subspaces and compact-open spaces carry their
-ordinary topologies; no identification with May's weak-Hausdorff, compactly
-generated category is asserted.
+The loop-image and fundamental-group-position formulas, together with the
+finite-dimensional projection case, adapt May's fiber-sequence exactness
+(Chapter 8 §6, “Fiber sequences”, printed pp. 61–62, PDF pp. 69–70,
+especially printed p. 62). May writes the preceding arrow as `−Ωf`; reversing
+loops leaves its group image equal to that of the induced fundamental-group
+map, without changing the forward-loop convention for `δ`. The arbitrary-index
+projection formula is a cubical extension; the fixed-base component-image
+formula is a structural extension. Products, subspaces and compact-open spaces
+carry their ordinary, non-kified topologies; no sphere-domain comparison or
+identification with May's weak-Hausdorff, compactly generated category `U` is
+asserted.
 
 ## Using the library
 
@@ -836,8 +871,9 @@ a fiber, not a group structure on that fiber.
   Chapter 3, §§2–4, 7 supplies the covering-space lifting and monodromy arguments.
   The categorical preconnectedness criterion is a derived consequence of the
   fiber-translation argument in §4, rather than a theorem stated there.
-  Chapter 8 §6, “Fiber sequences” (printed pp. 61–62), supplies the loop-image
-  exactness statement.
+  Chapter 8 §6, “Fiber sequences” (printed pp. 61–62, PDF pp. 69–70,
+  especially printed p. 62), supplies the loop-image and finite-dimensional
+  projection exactness statements.
   Chapter 9, §§1, 4 (printed pp. 65–67) describes based homotopy groups and the
   classical finite-degree covering isomorphism. The arbitrary-index results
   here are a cubical boundary-relative extension, without a comparison with

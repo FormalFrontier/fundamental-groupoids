@@ -10,7 +10,7 @@ public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.LoopSpace
 import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
 
 /-!
-# Images on components of maps of homotopy fibers
+# Image exactness for homotopy fibers
 
 For a commutative square over the identity of a fixed base, the image on path
 components of the induced map of ordinary homotopy fibers is the retained-point
@@ -29,18 +29,34 @@ of the induced fundamental-group homomorphism. May's preceding arrow on p. 62
 is `−Ωf`; reversing loops does not change that group image. The loop-class map
 here retains the whole forward loop.
 
-The loop-image statement is the ordinary-topology version of the fiber-sequence
-exactness theorem in May, Chapter 8, Section 6 (pp. 61–62). The fixed-base
-component-image statements are a structural extension of this loop-source case,
-not statements quoted from that section. Here products, subspaces and compact-open
-mapping spaces carry their ordinary topologies; no comparison with May's
-weak-Hausdorff, compactly generated category is asserted.
+For every cube index `N`, the image of the based point projection on
+`HomotopyGroup` classes is the preimage of the constant class under
+`HomotopyGroup.mapFun N f h`, with no index instances. The fiber is based at
+`ContinuousMap.HomotopyFiber.const e₀ h`. With `[DecidableEq N] [Nonempty N]`,
+this is range–kernel exactness for the existing `HomotopyGroup.map`
+homomorphisms. These instances supply operation data, not conditions on the
+spaces. This position is exact at `HomotopyGroup N E e₀`, distinct from the
+positions at the fundamental group of the base and the path components of the
+fiber above. No group structure on those components or full long exact sequence
+is supplied. Index and space universes are independent. Empty-index classes
+retain all path components; the zeroth projection theorem also applies without
+`e₀` or `h`, even for an empty source. Infinite-index quotients are already
+subsingletons.
+
+The loop-image statements and finite-dimensional projection case adapt the
+fiber-sequence exactness theorem in May, Chapter 8, Section 6, printed pp. 61–62
+(PDF pp. 69–70), especially printed p. 62. The arbitrary-index projection
+formula is a cubical extension; the fixed-base component-image statements are
+structural extensions, not statements quoted from that section. Here products,
+subspaces and compact-open mapping spaces carry their ordinary, non-kified
+topologies; no sphere-domain comparison or identification with May's
+weak-Hausdorff, compactly generated category `U` is asserted.
 
 ## References
 
 * J. P. May, *A Concise Course in Algebraic Topology*, Chapter 8, Section 6,
-  "Fiber sequences", pp. 61–62: the homotopy fiber, loop inclusion and exactness
-  of the associated sequence of pointed homotopy sets.
+  "Fiber sequences", printed pp. 61–62 (PDF pp. 69–70), especially printed p. 62:
+  the homotopy fiber, loop inclusion and projection positions of exactness.
 * Mathlib's paths and path components, due to Patrick Massot and contributors,
   and generalized loops and homotopy groups, due to Roberto Alvarez.
 * Mathlib's `Path.Homotopic.map_trans_evalAt`, due to Praneeth Kolichala and
@@ -640,3 +656,171 @@ theorem preimage_homotopyFiber_loop_classes_one
       (FundamentalGroup.mem_range_mapOfEq_iff_joined_homotopyFiber f b e₀ h γ).symm
 
 end ZerothHomotopy
+
+namespace HomotopyGroup
+
+universe uI
+
+private theorem exists_genLoop_homotopyFiber_point (N : Type uI)
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (α : GenLoop N E e₀)
+    (H : (GenLoop.const : GenLoop N B b).val.HomotopyRel
+      (GenLoop.map f h α).val (Cube.boundary N)) :
+    ∃ β : GenLoop N (ContinuousMap.HomotopyFiber f b)
+        (ContinuousMap.HomotopyFiber.const e₀ h),
+      GenLoop.map (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
+        (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) β = α := by
+  let γ : C((N → unitInterval), C(unitInterval, B)) :=
+    (⟨fun p : (N → unitInterval) × unitInterval => H (p.2, p.1),
+      H.continuous.comp continuous_swap⟩ : C((N → unitInterval) × unitInterval, B)).curry
+  have hγ (x : N → unitInterval) (t : unitInterval) : γ x t = H (t, x) := rfl
+  have hγ₀ (x : N → unitInterval) : γ x 0 = b := by
+    calc
+      γ x 0 = H (0, x) := hγ x 0
+      _ = (GenLoop.const : GenLoop N B b).val x :=
+        ContinuousMap.HomotopyWith.apply_zero H x
+      _ = (GenLoop.const : GenLoop N B b) x :=
+        congrFun (GenLoop.coe_coe (GenLoop.const : GenLoop N B b)) x
+      _ = b := GenLoop.const_apply
+  have hγ₁ (x : N → unitInterval) : γ x 1 = f (α x) := by
+    rw [hγ]
+    simpa only [GenLoop.coe_coe, GenLoop.map_apply] using H.apply_one x
+  let k : (N → unitInterval) → ContinuousMap.HomotopyFiber f b := fun x =>
+    ContinuousMap.HomotopyFiber.mk (α x) (γ x) (hγ₀ x) (hγ₁ x)
+  have hk : Continuous k := by
+    apply ContinuousMap.HomotopyFiber.continuous_iff.2
+    constructor
+    · simpa only [k, ContinuousMap.HomotopyFiber.point_mk, GenLoop.coe_coe] using
+        α.val.continuous
+    · simpa only [k, ContinuousMap.HomotopyFiber.path_mk] using γ.continuous
+  have hk_boundary (x : N → unitInterval) (hx : x ∈ Cube.boundary N) :
+      k x = ContinuousMap.HomotopyFiber.const e₀ h := by
+    apply ContinuousMap.HomotopyFiber.ext
+    · simpa only [k, ContinuousMap.HomotopyFiber.point_mk,
+        ContinuousMap.HomotopyFiber.point_const] using GenLoop.boundary α x hx
+    · apply ContinuousMap.ext
+      intro t
+      simpa only [k, ContinuousMap.HomotopyFiber.path_mk,
+        ContinuousMap.HomotopyFiber.path_const, ContinuousMap.const_apply, hγ,
+        GenLoop.coe_coe, GenLoop.const_apply] using
+        H.eq_fst t hx
+  refine ⟨⟨⟨k, hk⟩, hk_boundary⟩, ?_⟩
+  apply GenLoop.ext
+  intro x
+  exact ContinuousMap.HomotopyFiber.point_mk (α x) (γ x) (hγ₀ x) (hγ₁ x)
+
+private theorem homotopic_const_map_homotopyFiber_point (N : Type uI)
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (β : GenLoop N (ContinuousMap.HomotopyFiber f b)
+      (ContinuousMap.HomotopyFiber.const e₀ h)) :
+    GenLoop.Homotopic (GenLoop.const : GenLoop N B b)
+      (GenLoop.map f h
+        (GenLoop.map (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
+          (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) β)) := by
+  refine ⟨{
+    toFun := fun z => ContinuousMap.HomotopyFiber.path (β z.2) z.1
+    continuous_toFun := ?_
+    map_zero_left := ?_
+    map_one_left := ?_
+    prop' := ?_ }⟩
+  · exact (continuous_eval :
+        Continuous (fun z : C(unitInterval, B) × unitInterval => z.1 z.2)).comp
+      (((ContinuousMap.HomotopyFiber.path (f := f) (b := b)).continuous.comp
+        (β.val.continuous.comp continuous_snd)).prodMk continuous_fst)
+  · intro x
+    simpa only [GenLoop.coe_coe, GenLoop.const_apply] using
+      (ContinuousMap.HomotopyFiber.path_zero (β x))
+  · intro x
+    simpa only [GenLoop.coe_coe, GenLoop.map_apply] using
+      (ContinuousMap.HomotopyFiber.path_one (β x))
+  · intro t x hx
+    change ContinuousMap.HomotopyFiber.path (β x) t = b
+    rw [GenLoop.boundary β x hx, ContinuousMap.HomotopyFiber.path_const]
+    rfl
+
+/-- For every cube index, the image of the based homotopy-fiber point projection
+consists exactly of the generalized-loop classes sent by `f` to the constant
+class. The fiber retains paths from `b` to `f e` and is based at
+`ContinuousMap.HomotopyFiber.const e₀ h`. No index instances are required.
+
+The finite-dimensional case adapts the projection position of fiber-sequence
+exactness in J. P. May, *A Concise Course in Algebraic Topology*, Chapter 8, §6,
+printed pp. 61–62 (PDF pp. 69–70), especially printed p. 62, using ordinary
+topologies. Empty indices retain all path components; infinite-index quotients
+are already subsingletons. -/
+theorem range_mapFun_homotopyFiber_point (N : Type uI)
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    Set.range
+        (HomotopyGroup.mapFun N
+          (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
+          (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h)) =
+      (HomotopyGroup.mapFun N f h) ⁻¹' {(⟦GenLoop.const⟧ : HomotopyGroup N B b)} := by
+  ext c
+  change (∃ q, HomotopyGroup.mapFun N
+      (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
+      (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) q = c) ↔
+    HomotopyGroup.mapFun N f h c = (⟦GenLoop.const⟧ : HomotopyGroup N B b)
+  constructor
+  · rintro ⟨q, rfl⟩
+    refine Quotient.inductionOn
+      (motive := fun q : HomotopyGroup N (ContinuousMap.HomotopyFiber f b)
+          (ContinuousMap.HomotopyFiber.const e₀ h) =>
+        HomotopyGroup.mapFun N f h
+          (HomotopyGroup.mapFun N
+            (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
+            (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) q) =
+          (⟦GenLoop.const⟧ : HomotopyGroup N B b)) q ?_
+    intro β
+    simp only [mapFun_class]
+    exact Quotient.sound
+      (GenLoop.Homotopic.symm
+        (homotopic_const_map_homotopyFiber_point N f b e₀ h β))
+  · refine Quotient.inductionOn
+      (motive := fun c : HomotopyGroup N E e₀ =>
+        HomotopyGroup.mapFun N f h c = (⟦GenLoop.const⟧ : HomotopyGroup N B b) →
+          ∃ q, HomotopyGroup.mapFun N
+            (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
+            (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) q = c)
+      c ?_
+    intro α hα
+    rw [mapFun_class] at hα
+    have hhom : GenLoop.Homotopic (GenLoop.map f h α)
+        (GenLoop.const : GenLoop N B b) := Quotient.exact hα
+    rcases hhom with ⟨H⟩
+    obtain ⟨β, hβ⟩ := exists_genLoop_homotopyFiber_point N f b e₀ h α H.symm
+    refine ⟨(⟦β⟧ : HomotopyGroup N (ContinuousMap.HomotopyFiber f b)
+      (ContinuousMap.HomotopyFiber.const e₀ h)), ?_⟩
+    rw [mapFun_class, hβ]
+
+/-- For a nonempty cube index with decidable equality, the image of the based
+homotopy-fiber point projection is the kernel of the homomorphism induced by
+`f`. The fiber is based at `ContinuousMap.HomotopyFiber.const e₀ h`. The supplied
+`[DecidableEq N] [Nonempty N]` provide the existing group structures and induced
+homomorphisms, not geometric hypotheses on the spaces.
+
+The finite-dimensional case adapts the projection position in J. P. May,
+*A Concise Course in Algebraic Topology*, Chapter 8, §6, printed pp. 61–62
+(PDF pp. 69–70), especially printed p. 62, using ordinary topologies. -/
+theorem range_map_homotopyFiber_point (N : Type uI) [DecidableEq N] [Nonempty N]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    (HomotopyGroup.map N
+      (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
+      (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h)).range =
+      (HomotopyGroup.map N f h).ker := by
+  apply SetLike.coe_injective
+  change Set.range
+      (HomotopyGroup.map N
+        (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
+        (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) :
+        HomotopyGroup N (ContinuousMap.HomotopyFiber f b)
+          (ContinuousMap.HomotopyFiber.const e₀ h) → HomotopyGroup N E e₀) =
+    {c : HomotopyGroup N E e₀ | HomotopyGroup.map N f h c = 1}
+  rw [HomotopyGroup.coe_map_eq_mapFun, range_mapFun_homotopyFiber_point]
+  ext c
+  change HomotopyGroup.mapFun N f h c =
+      (⟦GenLoop.const⟧ : HomotopyGroup N B b) ↔
+    HomotopyGroup.map N f h c = 1
+  rw [← HomotopyGroup.one_def (N := N) (X := B) (x := b)]
+  rfl
+
+end HomotopyGroup

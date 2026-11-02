@@ -219,20 +219,27 @@ directions, examples, conventions and credits.
   No target separation or local compactness is required. These are ordinary,
   non-kified spaces, not an identification with May's category `U`; this contracts
   neither loop spaces nor `X`.
-- **Path-component exactness for homotopy fibers** ([`Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean)).
-  For continuous `f : C(E, B)`, `g : C(E', B)` and `u : C(E', E)`
-  with `f (u x) = g x`, let `K` be the induced fiber map over `id B` at `b`.
-  Then `range (π₀ K) = (π₀ p) ⁻¹' range (π₀ u)`, where `p` retains
-  the target fiber's source point and `π₀` denotes path components.
-  For any `e₀` and `h : f e₀ = b`, the loop-class map `δ` from
-  `FundamentalGroup B b` has image `(π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}`.
-  It sends every raw loop's class to the component retaining that whole forward
-  loop at `e₀`, and `δ 1` is the constant-path component. Pointed-set exactness
-  at the fundamental group says
-  `δ ⁻¹' {δ 1} = Set.range (FundamentalGroup.mapOfEq f h)`;
-  no group structure on the fiber's path components is used or supplied.
-  All three space universes are independent and all topologies arbitrary;
-  `E'` may be empty. See the [exactness guide](docs/mathematical-guide.md#path-component-exactness-for-homotopy-fibers).
+- **Homotopy-fiber exactness** ([`Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean)).
+  For `f : C(E, B)`, `e₀ : E`, `b : B` and `h : f e₀ = b`, base
+  `HF = ContinuousMap.HomotopyFiber f b` at its constant-path point, and let
+  `p` retain the source point. For every cube index `N`,
+  `HomotopyGroup.range_mapFun_homotopyFiber_point` gives
+  `range (π_N p) = (π_N f) ⁻¹' {constant class}`, where `π_N` denotes
+  `HomotopyGroup.mapFun` with these point equations. No index instances are
+  needed. With `[DecidableEq N] [Nonempty N]`,
+  `HomotopyGroup.range_map_homotopyFiber_point` gives the range–kernel form
+  for the existing groups and homomorphisms. These instances supply operation
+  data, not geometric assumptions. Index and space universes are independent,
+  and all topologies are arbitrary.
+  For continuous `g : C(E', B)` and `u : C(E', E)` with `f (u x) = g x`,
+  the induced fiber map `K` over `id B` satisfies
+  `range (π₀ K) = (π₀ p) ⁻¹' range (π₀ u)`; `E'` may be empty.
+  The loop-class map `δ : π₁B → π₀HF` retains the whole forward loop at `e₀`,
+  with image `(π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}` and
+  `δ ⁻¹' {δ 1} = Set.range (FundamentalGroup.mapOfEq f h)`.
+  These are the positions at `π₀HF` and `π₁B`, distinct from projection
+  exactness at `HomotopyGroup N E e₀`. No group structure on `π₀HF` or full
+  long exact sequence is supplied. See the [exactness guide](docs/mathematical-guide.md#path-component-exactness-for-homotopy-fibers).
 - **Finite generalized loops as based compact-open maps** ([`GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean)).
   For every finite index type `N` (`[Finite N]`) and every topological space `X`
   with chosen `x`, `GenLoop.onePointHomeomorph N x` identifies `GenLoop N X x`
