@@ -65,6 +65,7 @@ public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.P
 public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.ULift
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.Collapse
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.ContinuousMap
+public import FundamentalGroupoids.Topology.CompactOpen.CompactlyGenerated
 public import FundamentalGroupoids.Topology.Connected.PathConnected
 public import FundamentalGroupoids.Topology.Connected.ZerothHomotopy
 public import FundamentalGroupoids.Topology.Connected.ZerothHomotopy.HomotopyEquiv
