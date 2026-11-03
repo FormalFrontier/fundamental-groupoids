@@ -585,6 +585,19 @@ directions, examples, conventions and credits.
   under Mathlib's multiplicative comparison. Cube and space universes are
   independent, with no separation, connectedness or finiteness assumptions.
   The module uses Mathlib alone.
+- **Based-homotopy classes under refinement** ([`Based.CompactlyGenerated`](FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean)).
+  For an original `UCompactlyGeneratedSpace.{p}` source `Z` and arbitrary target
+  `Y`, `BasedTopCat.compactlyGeneratedCounitEquiv` identifies the whole based
+  hom-sets `[Z, κ_p Y]_*` and `[Z, Y]_*`. Its forward map is postcomposition by
+  the continuous identity, and its inverse sends every original continuous based
+  representative to its unchanged-function lift into `κ_p Y`. Joint homotopy
+  relative to the source point is preserved and reflected. The forward comparison
+  is natural under arbitrary based source and target maps without generatedness;
+  inverse naturality requires generatedness only of the original source spaces.
+  The fixed probe universe and both original carrier universes are independent.
+  Refinement of the original target precedes ordinary `ULift` to a common carrier
+  universe; no commutation of refinement with `ULift` is assumed. There are no
+  separation, closed-basepoint or local-compactness hypotheses.
 - **Locally compact products** ([`CompactlyGeneratedSpace`](FundamentalGroupoids/Topology/Compactness/CompactlyGeneratedSpace.lean)).
   The ordinary product of two `UCompactlyGeneratedSpace.{u}` spaces is again
   `u`-compactly generated when the first factor is locally compact. For such
@@ -1108,6 +1121,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Relative`](FundamentalGroupoids/Topology/Homotopy/Relative.lean) | Relative-homotopy precomposition; `HomotopyWith.joined` without local compactness and `nonempty_iff_joined` for locally compact sources, for arbitrary predicates and independent source/target universes |
 | [`Topology.Category.TopCat.Based`](FundamentalGroupoids/Topology/Category/TopCat/Based.lean) | Based spaces as an under category, based-homotopy congruence and categorical quotient |
 | [`Topology.Category.TopCat.Based.Cartesian`](FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean) | Chosen terminal and binary limit cones in the ordinary opposite based-homotopy category, their named cartesian monoidal structure, and compatibility of its associator with ordered three-factor flattening |
+| [`Topology.Category.TopCat.Based.CompactlyGenerated`](FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean) | Canonical counit equivalence on whole point-relative based hom-sets, original-representative formulas and source/target naturality with independent probe and carrier universes |
 | [`Topology.Category.TopCat.Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean) | Point-wide-pushout coproduct data in based spaces and their homotopy category, factorwise based-homotopy criterion, and empty and binary specializations |
 | [`Topology.Category.TopCat.Based.FiniteWedge`](FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean) | Strict isomorphisms between ordered two-factor and binary wedges, and from both nested binary three-factor wedges to the finite wedge, with forward/inverse leg and point equations |
 | [`Topology.Category.TopCat.Based.HomotopyFiber`](FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber.lean) | Based projection, loop inclusion and loop map on ordinary lifts of the original fiber and path spaces, with evaluation, point and functoriality laws |

@@ -527,6 +527,17 @@ status:
     are handled by ordinary ULift of the original models, with original-space
     representatives and equality exactly by homotopy relative to {z0}. No local
     compactness, separation, closed-basepoint or fibration assumptions are needed.
+    For an original UCompactlyGeneratedSpace.{p} source Z and arbitrary target Y,
+    BasedTopCat.compactlyGeneratedCounitEquiv identifies the whole point-relative
+    based hom-sets [Z,k_p Y]_* and [Z,Y]_*. Its forward map is counit
+    postcomposition on every class, and its inverse sends every original based
+    continuous representative to its unchanged-function lift. Joint homotopy
+    relative to the original source point is preserved and reflected. The
+    forward comparison is natural under arbitrary based source and target maps,
+    without generatedness; inverse naturality requires generatedness only of the
+    original source spaces. Probe and original carrier universes are independent;
+    refinement of the original target precedes ordinary ULift to a common level.
+    No separation, closed-basepoint or local-compactness assumptions are needed.
     For an arbitrary topological space X and chosen x, the continuous identity
     from compactlyGenerated.{u} X to the original topology gives
     HomotopyGroup.compactlyGeneratedEquiv for every cube-index type N.
@@ -823,6 +834,20 @@ alignment:
       module: FundamentalGroupoids/Topology/Category/TopCat/Based/Universe.lean
     - lean: BasedTopCat.homotopyQuotient_map_ofHomULift_eq_iff
       module: FundamentalGroupoids/Topology/Category/TopCat/Based/Universe.lean
+    - lean: BasedTopCat.bijective_compactlyGeneratedCounitPostcomp
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean
+    - lean: BasedTopCat.compactlyGeneratedCounitEquiv
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean
+    - lean: BasedTopCat.compactlyGeneratedCounitEquiv_apply
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean
+    - lean: BasedTopCat.compactlyGeneratedCounitEquiv_symm_apply_map_ofHomULift
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean
+    - lean: BasedTopCat.homotopicRel_compactlyGeneratedCounit_iff
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean
+    - lean: BasedTopCat.compactlyGeneratedCounitPostcomp_naturality
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean
+    - lean: BasedTopCat.compactlyGeneratedCounitEquiv_symm_naturality
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/CompactlyGenerated.lean
     - lean: BasedTopCat.homotopyFiberPoint
       module: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber.lean
     - lean: BasedTopCat.homotopyFiberLoopInclusion

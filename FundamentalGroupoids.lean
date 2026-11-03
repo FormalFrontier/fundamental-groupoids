@@ -44,6 +44,7 @@ public import FundamentalGroupoids.SemilocallySimplyConnected.LocallyPathConnect
 public import FundamentalGroupoids.SemilocallySimplyConnected.Maps
 public import FundamentalGroupoids.Topology.Category.TopCat.Based
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Cartesian
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.CompactlyGenerated
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Coproducts
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.FiniteWedge
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.HomotopyFiber
