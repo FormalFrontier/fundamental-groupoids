@@ -12,6 +12,15 @@ directions, examples, conventions and credits.
 
 ## Headline results
 
+- **Components of a covering homotopy fiber.** For a covering map `f : C(E, B)`
+  and `b : B`, `ContinuousMap.HomotopyFiber.zerothHomotopyHomeomorphFiber` identifies
+  `ZerothHomotopy (HomotopyFiber f b)`, with its quotient topology, homeomorphically
+  with the strict subtype fiber `{e : E // f e = b}`. The comparison evaluates
+  point classes using the fiber retraction, and its inverse takes the class of the
+  constant-path inclusion. It is natural in continuous commuting squares between
+  coverings, including empty fibers, with independent universes and no covering
+  assumptions on the horizontal maps. See [path components of covering fibers](FundamentalGroupoids/Topology/Homotopy/Fiber/Covering/ZerothHomotopy.lean).
+
 - **Homotopy invariance of ordinary homotopy fibers.** For topological spaces `E` and
   `B`, continuous maps `f g : C(E, B)`, a specified homotopy
   `H : ContinuousMap.Homotopy f g`, and any `b : B`,

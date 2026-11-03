@@ -62,6 +62,7 @@ public import FundamentalGroupoids.Topology.Compactification.OnePoint.Collapse
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.ContinuousMap
 public import FundamentalGroupoids.Topology.Connected.PathConnected
 public import FundamentalGroupoids.Topology.Connected.ZerothHomotopy
+public import FundamentalGroupoids.Topology.Connected.ZerothHomotopy.HomotopyEquiv
 public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.Composition
@@ -92,6 +93,7 @@ public import FundamentalGroupoids.Topology.Homotopy.Fiber.Const
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Covering
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Covering.Naturality
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Covering.ZerothHomotopy
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Exact
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.GenLoop
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homeomorph
@@ -120,6 +122,7 @@ public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.LoopSpace
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Transport
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Product
+public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.ZerothHomotopy
 public import FundamentalGroupoids.Topology.Homotopy.InfiniteCube
 public import FundamentalGroupoids.Topology.Homotopy.MappingPath
 public import FundamentalGroupoids.Topology.Homotopy.PathSpace
