@@ -4,6 +4,9 @@ Authors: Formal Frontier Agents
 -/
 module
 
+import FundamentalGroupoidsTest.DiscreteGroupoidData
+import FundamentalGroupoidsTest.ZerothEvaluationData
+
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.DirectedOpenCover
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.DirectedPreorderCover
 import FundamentalGroupoidsTest.AlgebraicTopology.FundamentalGroup.IndexedOpenCover

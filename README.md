@@ -164,6 +164,15 @@ directions, examples, conventions and credits.
 - **Path connectedness** ([`Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean)).
   A space is path connected iff its fundamental groupoid is connected, including
   nonemptiness on both sides; no local path connectedness or separation is needed.
+- **Pointlike path components** ([`FundamentalGroupoid.Discrete`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Discrete.lean),
+  [`Connected.ZerothHomotopy`](FundamentalGroupoids/Topology/Connected/ZerothHomotopy.lean)).
+  If every path component is a subsingleton, the fundamental groupoid is canonically
+  equivalent to the discrete category on the same points, and evaluation identifies
+  `ZerothHomotopy X` homeomorphically with `X` in its original topology. The inverse
+  maps are the point inclusion and continuous class map. Both comparisons commute
+  with continuous maps and specialize to totally disconnected spaces, including
+  discrete spaces. No basepoint or nonemptiness assumption is required; categorical
+  discreteness does not assert that the topology on `X` is discrete.
 - **Maps on path components** ([`PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean)).
   Every continuous map induces `ZerothHomotopy.map`, preserving representatives,
   identity and composition; homotopic maps induce equal functions. Space universes
@@ -873,6 +882,16 @@ and use `ZerothHomotopy.map f`. Its representative law is `map_mk`; `map_id` and
 `map_comp` are pointwise laws, and `map_eq_of_homotopy f g H` gives equality of
 functions for a homotopy `H : ContinuousMap.Homotopy f g`.
 
+For spaces with subsingleton path components, import
+`FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Discrete` for
+`FundamentalGroupoid.equivDiscrete hX`, and
+`FundamentalGroupoids.Topology.Connected.ZerothHomotopy` for
+`ZerothHomotopy.homeomorphOfSubsingletonPathComponent hX`, where
+`hX : ∀ x, (pathComponent x).Subsingleton`. Their functor and evaluation laws
+retain the original points; the inverse of the homeomorphism is `mkContinuousMap`.
+The named `OfTotallyDisconnectedSpace` specializations use the existing typeclasses,
+so discrete topologies need no separate comparison construction.
+
 For generalized loops and homotopy groups, import
 `FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Map` and use
 `GenLoop.map f hf`, `HomotopyGroup.mapFun N f hf` or, for a nonempty index with
@@ -974,6 +993,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`FundamentalGroup.DiskAttachment.PuncturedChart`](FundamentalGroupoids/FundamentalGroup/DiskAttachment/PuncturedChart.lean) | Chart homomorphisms as core homomorphisms killing the selected positive generator, with both restriction laws |
 | [`FundamentalGroup.DiskAttachment.Homomorphisms`](FundamentalGroupoids/FundamentalGroup/DiskAttachment/Homomorphisms.lean) | Homomorphisms killing all positive attaching loop classes, with restriction and extension along the original-space inclusion |
 | [`Topology.Connected.PathConnected`](FundamentalGroupoids/Topology/Connected/PathConnected.lean) | Continuous maps on path components, with representative, identity, composition and homotopy-invariance laws |
+| [`Topology.Connected.ZerothHomotopy`](FundamentalGroupoids/Topology/Connected/ZerothHomotopy.lean) | Evaluation homeomorphism for subsingleton path components, continuous class-map inverse, naturality and totally disconnected specialization |
 | [`Topology.Compactification.OnePoint.Collapse`](FundamentalGroupoids/Topology/Compactification/OnePoint/Collapse.lean) | Continuous open-subspace collapse for Hausdorff spaces, membership and infinity laws, and a surjective disjoint-point extension that is a quotient map for compact sources |
 | [`Topology.Compactification.OnePoint.ContinuousMap`](FundamentalGroupoids/Topology/Compactification/OnePoint/ContinuousMap.lean) | Compact-open/subtype homeomorphism between maps based at infinity and ambient maps constant outside any open in a compact Hausdorff space; collapse-precomposition, recursor and evaluation laws |
 | [`Topology.Homeomorph.Subtype`](FundamentalGroupoids/Topology/Homeomorph/Subtype.lean) | Flattening nested subspaces using Mathlib's carrier equivalence, with forward/inverse coercion laws |
@@ -1033,6 +1053,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`CategoryTheory.Groupoid.Covering`](FundamentalGroupoids/CategoryTheory/Groupoid/Covering.lean) | Canonical fiber monodromy; pretransitivity for preconnected total groupoids and total preconnectedness from pretransitivity over a preconnected groupoid base |
 | [`CategoryTheory.Groupoid.Elements`](FundamentalGroupoids/CategoryTheory/Groupoid/Elements.lean) | Fiber-value equivalence, compatibility with lifts and monodromy, and covering projections on groupoids |
 | [`AlgebraicTopology.FundamentalGroupoid.Connected`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Connected.lean) | Equality of categorical component classes iff points are joined by a path; path connectedness and connected groupoids |
+| [`AlgebraicTopology.FundamentalGroupoid.Discrete`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Discrete.lean) | Point-preserving equivalence with the discrete category for subsingleton path components, strict functor naturality and totally disconnected specialization |
 | [`AlgebraicTopology.FundamentalGroupoid.SectionsPresheaf`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/SectionsPresheaf.lean) | Transport-invariant families, the representation-to-presheaf functor, canonical sections comparison with evaluation and naturality, and the sheaf condition |
 | [`AlgebraicTopology.FundamentalGroupoid.Coproduct`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Coproduct.lean) | Canonical sigma comparison equivalence, restriction isomorphism and object bijectivity |
 | [`AlgebraicTopology.FundamentalGroupoid.Product`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroupoid/Product.lean) | Dependent-product comparison, projection, assembly and agreement with Mathlib |

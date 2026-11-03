@@ -15,6 +15,7 @@ public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Product
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroup.Products
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Connected
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Coproduct
+public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Discrete
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCover
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCoverDescent
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.OpenCoverInclusions
@@ -58,6 +59,7 @@ public import FundamentalGroupoids.Topology.Category.TopCat.Limits.WidePushout.U
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.Collapse
 public import FundamentalGroupoids.Topology.Compactification.OnePoint.ContinuousMap
 public import FundamentalGroupoids.Topology.Connected.PathConnected
+public import FundamentalGroupoids.Topology.Connected.ZerothHomotopy
 public import FundamentalGroupoids.Topology.Covering.Cardinality
 public import FundamentalGroupoids.Topology.Covering.Components
 public import FundamentalGroupoids.Topology.Covering.Composition
