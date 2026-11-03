@@ -23,6 +23,8 @@ public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.Product
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.SectionsPresheaf
 public import FundamentalGroupoids.AlgebraicTopology.FundamentalGroupoid.SectionsPresheafLimits
 public import FundamentalGroupoids.CategoryTheory.Category.Pointed
+public import FundamentalGroupoids.CategoryTheory.Category.Pointed.Exact
+public import FundamentalGroupoids.CategoryTheory.Category.Pointed.Limits
 public import FundamentalGroupoids.CategoryTheory.Elements.ConnectedComponents
 public import FundamentalGroupoids.CategoryTheory.Endomorphism.Conjugation
 public import FundamentalGroupoids.CategoryTheory.Groupoid.Covering
