@@ -8,10 +8,12 @@ public import Mathlib.CategoryTheory.Category.Pointed
 public import Mathlib.CategoryTheory.Limits.Shapes.ZeroMorphisms
 
 /-!
-# Zero morphisms of pointed types
+# Zero objects and zero morphisms of pointed types
 
 The zero morphism between pointed types is the constant map to the target's
 distinguished point. Composition with any pointed map on either side is zero.
+A pointed type is a zero object exactly when its underlying type is a subsingleton.
+The pointed singleton supplies a zero object in every universe.
 -/
 
 @[expose] public section
@@ -49,5 +51,21 @@ target's distinguished point. -/
 theorem comp_eq_zero_iff {X Y Z : Pointed.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) :
     f ≫ g = 0 ↔ ∀ x : X, g (f x) = Z.point := by
   simpa only [CategoryTheory.comp_apply] using (eq_zero_iff (f ≫ g))
+
+/-- A pointed type is a zero object if and only if its underlying type is a subsingleton. -/
+@[simp]
+theorem isZero_iff_subsingleton (X : Pointed.{u}) : IsZero X ↔ Subsingleton X := by
+  rw [IsZero.iff_id_eq_zero, eq_zero_iff]
+  change (∀ x : X, x = X.point) ↔ Subsingleton X
+  constructor
+  · intro h
+    exact ⟨fun x y => (h x).trans (h y).symm⟩
+  · intro h x
+    exact @Subsingleton.elim X h x X.point
+
+/-- Pointed singletons provide a zero object in every universe. -/
+instance hasZeroObject : HasZeroObject Pointed.{u} :=
+  IsZero.hasZeroObject
+    ((isZero_iff_subsingleton (Pointed.of (PUnit.unit : PUnit.{u + 1}))).2 inferInstance)
 
 end Pointed
