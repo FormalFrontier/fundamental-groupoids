@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Const
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Loop
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.PathComponent
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.LoopSpace
 import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
@@ -70,13 +71,282 @@ weak-Hausdorff, compactly generated category `U` is asserted.
 
 @[expose] public section
 
-universe uE uB uE'
+universe uZ uE uB uE'
 
-open scoped Topology
+open scoped Topology unitInterval
 
 variable {E : Type uE} {B : Type uB} {E' : Type uE'}
 variable [tE : TopologicalSpace E] [tB : TopologicalSpace B]
 variable [tE' : TopologicalSpace E']
+
+namespace ContinuousMap.HomotopyFiber
+
+variable {Z : Type*} [TopologicalSpace Z]
+
+/-- A nullhomotopy of `f ∘ a` relative to an arbitrary selected subset lifts the
+original map `a` to the homotopy fiber, retaining the whole nullhomotopy path.
+This is the relative, arbitrary-source form of the projection position in May's
+fiber-sequence exactness (Chapter 8, §6, pp. 61–62). -/
+theorem exists_lift_of_nullhomotopyRel
+    (A : Set Z) (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (a : C(Z, E)) (ha : ∀ z ∈ A, a z = e₀)
+    (H : (ContinuousMap.const Z b).HomotopyRel (f.comp a) A) :
+    ∃ k : C(Z, HomotopyFiber f b),
+      (∀ z ∈ A, k z = const e₀ h) ∧ point.comp k = a ∧
+        ∀ z t, path (k z) t = H (t, z) := by
+  let q : C(Z, C(unitInterval, B)) :=
+    (⟨fun z : Z × unitInterval => H (z.2, z.1),
+      H.continuous.comp continuous_swap⟩ : C(Z × unitInterval, B)).curry
+  have hq₀ (z : Z) : q z 0 = b := H.apply_zero z
+  have hq₁ (z : Z) : q z 1 = f (a z) := H.apply_one z
+  let k : Z → HomotopyFiber f b := fun z => mk (a z) (q z) (hq₀ z) (hq₁ z)
+  have hk : Continuous k := continuous_iff.2 ⟨a.continuous, q.continuous⟩
+  have hkA (z : Z) (hz : z ∈ A) : k z = const e₀ h := by
+    apply ext
+    · exact ha z hz
+    · apply ContinuousMap.ext
+      intro t
+      exact H.eq_fst t hz
+  refine ⟨⟨k, hk⟩, hkA, ?_, ?_⟩
+  · apply ContinuousMap.ext
+    intro z
+    rfl
+  · intro z t
+    rfl
+
+-- Normalize the retained paths before adjoining the projected prefixes.
+private theorem exists_homotopyRel_rightUnit
+    (A : Set Z) (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (g : C(Z, HomotopyFiber f b)) (hg : ∀ z ∈ A, g z = const e₀ h) :
+    ∃ gunit : C(Z, HomotopyFiber f b),
+      Nonempty (g.HomotopyRel gunit A) ∧
+      (∀ z, point (gunit z) = point (g z)) ∧
+      (∀ z t, path (gunit z) t =
+        path (g z) ((Path.id.trans (Path.refl 1)) t)) := by
+  let a : ∀ z : Z, Path b (f (point (g z))) := fun z =>
+    Path.mk (path (g z)) (path_zero (g z)) (path_one (g z))
+  have ha : Continuous (fun z : Z × unitInterval => a z.1 z.2) :=
+    (continuous_eval : Continuous (fun z : C(unitInterval, B) × unitInterval =>
+      z.1 z.2)).comp
+        ((path.continuous.comp (g.continuous.comp continuous_fst)).prodMk continuous_snd)
+  let U := (Path.Homotopy.transRefl Path.id).symm
+  let W : unitInterval × Z → HomotopyFiber f b := fun z =>
+    mk (point (g z.2))
+      ((a z.2).toContinuousMap.comp (U.toHomotopy.curry z.1))
+      (by
+        change a z.2 (U (z.1, 0)) = b
+        rw [U.source]
+        exact (a z.2).source)
+      (by
+        change a z.2 (U (z.1, 1)) = f (point (g z.2))
+        rw [U.target]
+        exact (a z.2).target)
+  have hW : Continuous W := by
+    apply continuous_iff.2
+    constructor
+    · change Continuous (fun z : unitInterval × Z => point (g z.2))
+      exact point.continuous.comp (g.continuous.comp continuous_snd)
+    · apply ContinuousMap.continuous_of_continuous_uncurry
+      change Continuous (fun z : (unitInterval × Z) × unitInterval =>
+        a z.1.2 (U (z.1.1, z.2)))
+      exact ha.comp ((continuous_snd.comp continuous_fst).prodMk
+        (U.continuous.comp ((continuous_fst.comp continuous_fst).prodMk continuous_snd)))
+  have hW₀ (z : Z) : W (0, z) = g z := by
+    apply ext
+    · rfl
+    · apply ContinuousMap.ext
+      intro t
+      change a z (U (0, t)) = path (g z) t
+      rw [U.apply_zero]
+      rfl
+  have hWA (s : unitInterval) (z : Z) (hz : z ∈ A) : W (s, z) = g z := by
+    apply ext
+    · rfl
+    · apply ContinuousMap.ext
+      intro t
+      change path (g z) (U (s, t)) = path (g z) t
+      rw [hg z hz, path_const]
+      rfl
+  let gunit : C(Z, HomotopyFiber f b) :=
+    ⟨fun z => W (1, z), hW.comp (continuous_const.prodMk continuous_id)⟩
+  have hunit : g.HomotopyRel gunit A :=
+    { toFun := W
+      continuous_toFun := hW
+      map_zero_left := hW₀
+      map_one_left := fun _ => rfl
+      prop' := hWA }
+  refine ⟨gunit, ⟨hunit⟩, ?_, ?_⟩
+  · intro z
+    rfl
+  · intro z t
+    change a z (U (1, t)) = a z ((Path.id.trans (Path.refl 1)) t)
+    rw [U.apply_one]
+    rfl
+
+-- The prefix family is jointly continuous in its homotopy and source variables.
+private theorem exists_prefix_family
+    (A : Set Z) (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (g : C(Z, HomotopyFiber f b)) (hg : ∀ z ∈ A, g z = const e₀ h)
+    (H : (point.comp g).HomotopyRel (ContinuousMap.const Z e₀) A) :
+    ∃ v : C(unitInterval × Z, HomotopyFiber f b),
+      (∀ z, point (v (0, z)) = point (g z)) ∧
+      (∀ z t, path (v (0, z)) t =
+        path (g z) ((Path.id.trans (Path.refl 1)) t)) ∧
+      (∀ z, point (v (1, z)) = e₀) ∧
+      (∀ s z, z ∈ A → v (s, z) = const e₀ h) := by
+  have hH₀ (z : Z) : H (0, z) = point (g z) := H.apply_zero z
+  have hH₁ (z : Z) : H (1, z) = e₀ := H.apply_one z
+  have hHA (s : unitInterval) (z : Z) (hz : z ∈ A) : H (s, z) = e₀ :=
+    H.eq_snd s hz
+  let a : ∀ z : Z, Path b (f (point (g z))) := fun z =>
+    Path.mk (path (g z)) (path_zero (g z)) (path_one (g z))
+  have ha : Continuous (fun z : Z × unitInterval => a z.1 z.2) :=
+    (continuous_eval : Continuous (fun z : C(unitInterval, B) × unitInterval =>
+      z.1 z.2)).comp
+        ((path.continuous.comp (g.continuous.comp continuous_fst)).prodMk continuous_snd)
+  have hscale : Continuous
+      (fun z : (unitInterval × Z) × unitInterval => (z.1.1 * z.2, z.1.2)) :=
+    (((continuous_subtype_val.comp (continuous_fst.comp continuous_fst)).mul
+      (continuous_subtype_val.comp continuous_snd)).subtype_mk _).prodMk
+        (continuous_snd.comp continuous_fst)
+  let q : ∀ z : unitInterval × Z, Path (point (g z.2)) (H z) := fun z =>
+    { toFun := fun t => H (z.1 * t, z.2)
+      continuous_toFun := (H.continuous.comp hscale).comp
+        (continuous_const.prodMk continuous_id)
+      source' := by simpa only [mul_zero] using hH₀ z.2
+      target' := by simp only [mul_one] }
+  have hq : Continuous
+      (fun z : (unitInterval × Z) × unitInterval => q z.1 z.2) :=
+    H.continuous.comp hscale
+  let r : ∀ z : unitInterval × Z, Path b (f (H z)) := fun z =>
+    (a z.2).trans ((q z).map f.continuous)
+  have hr : Continuous
+      (fun z : (unitInterval × Z) × unitInterval => r z.1 z.2) :=
+    Path.trans_continuous_family (fun z => a z.2)
+      (ha.comp ((continuous_snd.comp continuous_fst).prodMk continuous_snd))
+      (fun z => (q z).map f.continuous) (f.continuous.comp hq)
+  have hrA (s : unitInterval) (z : Z) (hz : z ∈ A) (t : unitInterval) :
+      r (s, z) t = b := by
+    change ((a z).trans ((q (s, z)).map f.continuous)) t = b
+    rw [Path.trans_apply]
+    split_ifs
+    · change path (g z) _ = b
+      rw [hg z hz, path_const]
+      rfl
+    · change f (H (s * _, z)) = b
+      rw [hHA _ z hz, h]
+  let v : unitInterval × Z → HomotopyFiber f b := fun z =>
+    mk (H z) (r z).toContinuousMap (r z).source (r z).target
+  have hv : Continuous v := continuous_iff.2
+    ⟨H.continuous, ContinuousMap.continuous_of_continuous_uncurry _ hr⟩
+  refine ⟨⟨v, hv⟩, ?_, ?_, ?_, ?_⟩
+  · intro z
+    exact hH₀ z
+  · intro z t
+    change ((a z).trans ((q (0, z)).map f.continuous)) t =
+      a z ((Path.id.trans (Path.refl 1)) t)
+    rw [Path.trans_apply, Path.trans_apply]
+    split_ifs
+    · rfl
+    · change f (H (0 * _, z)) = a z 1
+      rw [zero_mul, hH₀]
+      exact (a z).target.symm
+  · intro z
+    exact hH₁ z
+  · intro s z hz
+    apply ext
+    · exact hHA s z hz
+    · apply ContinuousMap.ext
+      intro t
+      exact hrA s z hz t
+
+-- Extract the entire endpoint loop using only the endpoint laws of the family.
+private theorem exists_loop_of_family
+    (A : Set Z) (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (J : C(Path b b, HomotopyFiber f b))
+    (J_refl : J (Path.refl b) = const e₀ h)
+    (J_point : ∀ γ, point (J γ) = e₀)
+    (J_path : ∀ γ t, path (J γ) t = γ t)
+    (gunit : C(Z, HomotopyFiber f b))
+    (v : C(unitInterval × Z, HomotopyFiber f b))
+    (hv₀ : ∀ z, v (0, z) = gunit z)
+    (hv₁ : ∀ z, point (v (1, z)) = e₀)
+    (hvA : ∀ s z, z ∈ A → v (s, z) = const e₀ h) :
+    ∃ γ : C(Z, Path b b), (∀ z ∈ A, γ z = Path.refl b) ∧
+      Nonempty ((J.comp γ).HomotopyRel gunit A) := by
+  let ℓ : Z → Path b b := fun z =>
+    Path.mk (path (v (1, z))) (path_zero (v (1, z)))
+      ((path_one (v (1, z))).trans ((congrArg f (hv₁ z)).trans h))
+  have hpath : Continuous (fun z : Z × unitInterval => path (v (1, z.1)) z.2) :=
+    (continuous_eval : Continuous (fun z : C(unitInterval, B) × unitInterval =>
+      z.1 z.2)).comp
+        ((path.continuous.comp
+          (v.continuous.comp (continuous_const.prodMk continuous_fst))).prodMk continuous_snd)
+  have hℓ : Continuous ℓ := Path.continuous_uncurry_iff.mp hpath
+  have hℓA (z : Z) (hz : z ∈ A) : ℓ z = Path.refl b := by
+    apply Path.ext
+    funext t
+    change path (v (1, z)) t = b
+    rw [hvA 1 z hz, path_const]
+    rfl
+  let γ : C(Z, Path b b) := ⟨ℓ, hℓ⟩
+  have hvJ (z : Z) : v (1, z) = J (γ z) := by
+    apply ext
+    · exact (hv₁ z).trans (J_point (γ z)).symm
+    · apply ContinuousMap.ext
+      intro t
+      exact (J_path (γ z) t).symm
+  let V : gunit.Homotopy (J.comp γ) :=
+    { toFun := v
+      continuous_toFun := v.continuous
+      map_zero_left := hv₀
+      map_one_left := hvJ }
+  refine ⟨γ, hℓA, ⟨{ toHomotopy := V.symm, prop' := ?_ }⟩⟩
+  intro s z hz
+  change v (unitInterval.symm s, z) = J (γ z)
+  exact (hvA _ z hz).trans (J_refl.symm.trans (congrArg J (hℓA z hz).symm))
+
+private theorem exists_loop_of_projection_nullhomotopyRel_aux
+    (A : Set Z) (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (J : C(Path b b, HomotopyFiber f b))
+    (J_refl : J (Path.refl b) = const e₀ h)
+    (J_point : ∀ γ, point (J γ) = e₀)
+    (J_path : ∀ γ t, path (J γ) t = γ t)
+    (g : C(Z, HomotopyFiber f b)) (hg : ∀ z ∈ A, g z = const e₀ h)
+    (H : (point.comp g).HomotopyRel (ContinuousMap.const Z e₀) A) :
+    ∃ γ : C(Z, Path b b), (∀ z ∈ A, γ z = Path.refl b) ∧
+      Nonempty ((J.comp γ).HomotopyRel g A) := by
+  obtain ⟨gunit, ⟨hunit⟩, hunit_point, hunit_path⟩ :=
+    exists_homotopyRel_rightUnit A f b e₀ h g hg
+  obtain ⟨v, hv_point, hv_path, hv₁, hvA⟩ :=
+    exists_prefix_family A f b e₀ h g hg H
+  have hv₀ (z : Z) : v (0, z) = gunit z := by
+    apply ext
+    · exact (hv_point z).trans (hunit_point z).symm
+    · apply ContinuousMap.ext
+      intro t
+      exact (hv_path z t).trans (hunit_path z t).symm
+  obtain ⟨γ, hγ, ⟨K⟩⟩ := exists_loop_of_family
+    A f b e₀ h J J_refl J_point J_path gunit v hv₀ hv₁ hvA
+  exact ⟨γ, hγ, ⟨ContinuousMap.HomotopyRel.symm
+    (ContinuousMap.HomotopyRel.trans hunit (ContinuousMap.HomotopyRel.symm K))⟩⟩
+
+/-- A relative nullhomotopy of the point projection of a homotopy-fiber family
+produces a continuous family of loops, constant on the selected subset, whose
+loop inclusion is homotopic to the original family relative to that subset.
+This is the relative, arbitrary-source form of the fiber position in May's
+fiber-sequence exactness (Chapter 8, §6, pp. 61–62). -/
+theorem exists_loop_of_projection_nullhomotopyRel
+    (A : Set Z) (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (g : C(Z, HomotopyFiber f b)) (hg : ∀ z ∈ A, g z = const e₀ h)
+    (H : (point.comp g).HomotopyRel (ContinuousMap.const Z e₀) A) :
+    ∃ γ : C(Z, Path b b), (∀ z ∈ A, γ z = Path.refl b) ∧
+      Nonempty (((loopInclusion f b e₀ h).comp γ).HomotopyRel g A) := by
+  exact exists_loop_of_projection_nullhomotopyRel_aux A f b e₀ h
+    (loopInclusion f b e₀ h) (loopInclusion_refl f b e₀ h)
+    (loopInclusion_point f b e₀ h) (loopInclusion_path_apply f b e₀ h) g hg H
+
+end ContinuousMap.HomotopyFiber
 
 namespace ContinuousMap.HomotopyFiber
 
@@ -310,6 +580,176 @@ theorem range_homotopyFiber_loop_classes
 
 end ZerothHomotopy
 
+namespace ContinuousMap.HomotopyFiber
+
+-- A square with two constant adjacent edges identifies its other two loop families.
+-- Keep the square abstract while constructing the deformations, so that their
+-- endpoint proofs use boundary laws rather than normalizing a fiber homotopy.
+private theorem homotopicRel_of_adjacent_square_edges
+    {Z : Type uZ} [TopologicalSpace Z]
+    (b : B) (A : Set Z) (β γ : C(Z, Path b b))
+    (Q : C((I × Z) × I, B))
+    (hQ₀ : ∀ z t, Q ((0, z), t) = b)
+    (hQ₁ : ∀ z t, Q ((1, z), t) = γ z t)
+    (hQ_bottom : ∀ s z, Q ((s, z), 0) = b)
+    (hQ_top : ∀ s z, Q ((s, z), 1) = β z s)
+    (hQ_A : ∀ s z, z ∈ A → ∀ t, Q ((s, z), t) = b) :
+    β.HomotopicRel γ A := by
+  have hβ_A (z : Z) (hz : z ∈ A) : β z = Path.refl b := by
+    apply Path.ext
+    funext t
+    exact (hQ_top t z).symm.trans (hQ_A t z hz 1)
+  have hmul : Continuous (fun w : I × I => w.1 * w.2) :=
+    ((continuous_subtype_val.comp continuous_fst).mul
+      (continuous_subtype_val.comp continuous_snd)).subtype_mk _
+  -- First slide the top edge to the diagonal, then the diagonal to the right edge.
+  have hR₀ : Continuous (fun w : (I × Z) × I =>
+      Q ((w.2, w.1.2), unitInterval.symm (w.1.1 * unitInterval.symm w.2))) :=
+    Q.continuous.comp
+      ((continuous_snd.prodMk (continuous_snd.comp continuous_fst)).prodMk
+        (unitInterval.continuous_symm.comp (hmul.comp
+          ((continuous_fst.comp continuous_fst).prodMk
+            (unitInterval.continuous_symm.comp continuous_snd)))))
+  have hR₁ : Continuous (fun w : (I × Z) × I =>
+      Q ((unitInterval.symm (unitInterval.symm w.1.1 * unitInterval.symm w.2),
+        w.1.2), w.2)) :=
+    Q.continuous.comp
+      (((unitInterval.continuous_symm.comp (hmul.comp
+        ((unitInterval.continuous_symm.comp (continuous_fst.comp continuous_fst)).prodMk
+          (unitInterval.continuous_symm.comp continuous_snd)))).prodMk
+            (continuous_snd.comp continuous_fst)).prodMk continuous_snd)
+  let R₀ : I × Z → Path b b := fun w =>
+    { toFun := fun t => Q ((t, w.2), unitInterval.symm (w.1 * unitInterval.symm t))
+      continuous_toFun := hR₀.comp (continuous_const.prodMk continuous_id)
+      source' := hQ₀ w.2 (unitInterval.symm (w.1 * unitInterval.symm 0))
+      target' := by
+        rw [unitInterval.symm_one, mul_zero, unitInterval.symm_zero, hQ₁]
+        exact (γ w.2).target }
+  let R₁ : I × Z → Path b b := fun w =>
+    { toFun := fun t =>
+        Q ((unitInterval.symm (unitInterval.symm w.1 * unitInterval.symm t), w.2), t)
+      continuous_toFun := hR₁.comp (continuous_const.prodMk continuous_id)
+      source' := hQ_bottom
+        (unitInterval.symm (unitInterval.symm w.1 * unitInterval.symm 0)) w.2
+      target' := by
+        rw [unitInterval.symm_one, mul_zero, unitInterval.symm_zero, hQ₁]
+        exact (γ w.2).target }
+  have hR₀_cont : Continuous R₀ := Path.continuous_uncurry_iff.mp hR₀
+  have hR₁_cont : Continuous R₁ := Path.continuous_uncurry_iff.mp hR₁
+  have hR₀_A (r : I) (z : Z) (hz : z ∈ A) : R₀ (r, z) = Path.refl b := by
+    apply Path.ext
+    funext t
+    exact hQ_A t z hz (unitInterval.symm (r * unitInterval.symm t))
+  have hR₁_A (r : I) (z : Z) (hz : z ∈ A) : R₁ (r, z) = Path.refl b := by
+    apply Path.ext
+    funext t
+    exact hQ_A (unitInterval.symm (unitInterval.symm r * unitInterval.symm t)) z hz t
+  let d : C(Z, Path b b) :=
+    ⟨fun z => R₀ (1, z), hR₀_cont.comp (continuous_const.prodMk continuous_id)⟩
+  let K₀ : β.HomotopyRel d A :=
+    { toFun := R₀
+      continuous_toFun := hR₀_cont
+      map_zero_left := by
+        intro z
+        apply Path.ext
+        funext t
+        change Q ((t, z), unitInterval.symm (0 * unitInterval.symm t)) = β z t
+        rw [zero_mul, unitInterval.symm_zero, hQ_top]
+      map_one_left := fun _ => rfl
+      prop' := by
+        intro r z hz
+        change R₀ (r, z) = β z
+        exact (hR₀_A r z hz).trans (hβ_A z hz).symm }
+  let K₁ : d.HomotopyRel γ A :=
+    { toFun := R₁
+      continuous_toFun := hR₁_cont
+      map_zero_left := by
+        intro z
+        apply Path.ext
+        funext t
+        change Q ((unitInterval.symm (unitInterval.symm 0 * unitInterval.symm t), z), t) =
+          Q ((t, z), unitInterval.symm (1 * unitInterval.symm t))
+        simp only [unitInterval.symm_zero, one_mul, unitInterval.symm_symm]
+      map_one_left := by
+        intro z
+        apply Path.ext
+        funext t
+        change Q ((unitInterval.symm (unitInterval.symm 1 * unitInterval.symm t), z), t) =
+          γ z t
+        simp only [unitInterval.symm_one, zero_mul, unitInterval.symm_zero, hQ₁]
+      prop' := by
+        intro r z hz
+        change R₁ (r, z) = R₀ (1, z)
+        exact (hR₁_A r z hz).trans (hR₀_A 1 z hz).symm }
+  exact ⟨K₀.trans K₁⟩
+
+/-- A relative nullhomotopy of the loop inclusion produces an original loop family
+whose image is relatively homotopic to the given family. The source, selected subset,
+and both target universes are arbitrary; no local compactness assumption is needed. -/
+theorem exists_loop_preimage_of_inclusion_nullhomotopyRel
+    {Z : Type uZ} [TopologicalSpace Z]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (A : Set Z) (γ : C(Z, Path b b))
+    (hγ : ∀ z ∈ A, γ z = Path.refl b)
+    (H : ((loopInclusion f b e₀ h).comp γ).HomotopyRel
+      (ContinuousMap.const Z (const (f := f) (b := b) e₀ h)) A) :
+    ∃ α : C(Z, Path e₀ e₀), (∀ z ∈ A, α z = Path.refl e₀) ∧
+      ((f.loopMap e₀ b h).comp α).HomotopicRel γ A := by
+  let V : (ContinuousMap.const Z (const (f := f) (b := b) e₀ h)).HomotopyRel
+      ((loopInclusion f b e₀ h).comp γ) A := H.symm
+  have hV₀ (z : Z) : V (0, z) = const (f := f) (b := b) e₀ h :=
+    V.apply_zero z
+  have hV₁ (z : Z) : V (1, z) = loopInclusion f b e₀ h (γ z) :=
+    V.apply_one z
+  have hV_A (s : I) (z : Z) (hz : z ∈ A) :
+      V (s, z) = const (f := f) (b := b) e₀ h := by
+    calc
+      V (s, z) = loopInclusion f b e₀ h (γ z) := V.eq_snd s hz
+      _ = const (f := f) (b := b) e₀ h := by
+        rw [hγ z hz, loopInclusion_refl]
+  let a : Z → Path e₀ e₀ := fun z =>
+    { toFun := fun t => point (V (t, z))
+      continuous_toFun := point.continuous.comp
+        (V.continuous.comp (continuous_id.prodMk continuous_const))
+      source' := (congrArg (point (f := f) (b := b)) (hV₀ z)).trans
+        (point_const e₀ h)
+      target' := (congrArg (point (f := f) (b := b)) (hV₁ z)).trans
+        (loopInclusion_point f b e₀ h (γ z)) }
+  have ha : Continuous (fun w : Z × I => a w.1 w.2) :=
+    point.continuous.comp (V.continuous.comp continuous_swap)
+  let α : C(Z, Path e₀ e₀) := ⟨a, Path.continuous_uncurry_iff.mp ha⟩
+  have hα_A (z : Z) (hz : z ∈ A) : α z = Path.refl e₀ := by
+    apply Path.ext
+    funext t
+    change point (V (t, z)) = e₀
+    exact (congrArg (point (f := f) (b := b)) (hV_A t z hz)).trans
+      (point_const e₀ h)
+  -- Q has two constant adjacent edges. Its other two edges are Ωf α and γ.
+  let Q : C((I × Z) × I, B) :=
+    ⟨fun w => path (V w.1) w.2,
+      (continuous_eval : Continuous (fun w : C(I, B) × I => w.1 w.2)).comp
+        (((path (f := f) (b := b)).continuous.comp
+          (V.continuous.comp continuous_fst)).prodMk continuous_snd)⟩
+  have hQ₀ (z : Z) (t : I) : Q ((0, z), t) = b :=
+    (congrArg (fun x : HomotopyFiber f b => path x t) (hV₀ z)).trans
+      (DFunLike.congr_fun (path_const e₀ h) t)
+  have hQ₁ (z : Z) (t : I) : Q ((1, z), t) = γ z t :=
+    (congrArg (fun x : HomotopyFiber f b => path x t) (hV₁ z)).trans
+      (loopInclusion_path_apply f b e₀ h (γ z) t)
+  have hQ_bottom (s : I) (z : Z) : Q ((s, z), 0) = b :=
+    path_zero (V (s, z))
+  have hQ_top (s : I) (z : Z) :
+      Q ((s, z), 1) = ((f.loopMap e₀ b h).comp α) z s :=
+    (path_one (V (s, z))).trans
+      (ContinuousMap.loopMap_apply_apply f e₀ b h (α z) s).symm
+  have hQ_A (s : I) (z : Z) (hz : z ∈ A) (t : I) : Q ((s, z), t) = b :=
+    (congrArg (fun x : HomotopyFiber f b => path x t) (hV_A s z hz)).trans
+      (DFunLike.congr_fun (path_const e₀ h) t)
+  exact ⟨α, hα_A, homotopicRel_of_adjacent_square_edges b A
+    ((f.loopMap e₀ b h).comp α) γ Q hQ₀ hQ₁ hQ_bottom hQ_top hQ_A⟩
+
+end ContinuousMap.HomotopyFiber
+
 namespace FundamentalGroup
 
 private theorem mem_range_of_joined_homotopyFiber
@@ -321,73 +761,58 @@ private theorem mem_range_of_joined_homotopyFiber
     FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk γ) ∈
       Set.range (FundamentalGroup.mapOfEq (x := e₀) (y := b) f h) := by
   obtain ⟨ζ⟩ := hjoined
-  let η : Path e₀ e₀ :=
-    ζ.map (ContinuousMap.HomotopyFiber.point (f := f) (b := b)).continuous
-  let q : Path b b := Path.refl b
-  let H : ContinuousMap.Homotopy γ.toContinuousMap q.toContinuousMap :=
-    { toContinuousMap :=
-        ((ContinuousMap.HomotopyFiber.path (f := f) (b := b)).comp
-          ζ.toContinuousMap).uncurry
-      map_zero_left := by
-        intro s
-        change ContinuousMap.HomotopyFiber.path (ζ 0) s = γ s
-        exact congrArg
-          (fun z : ContinuousMap.HomotopyFiber f b =>
-            ContinuousMap.HomotopyFiber.path z s) ζ.source
-      map_one_left := by
-        intro s
-        change ContinuousMap.HomotopyFiber.path (ζ 1) s = b
-        exact congrArg
-          (fun z : ContinuousMap.HomotopyFiber f b =>
-            ContinuousMap.HomotopyFiber.path z s) ζ.target }
-  have hp : (Path.id.map γ.continuous).cast γ.source.symm γ.target.symm = γ := by
-    apply Path.ext
-    funext s
-    rfl
-  have hq : (Path.id.map q.continuous).cast q.source.symm q.target.symm = q := by
-    apply Path.ext
-    funext s
-    rfl
-  have h0 : (H.evalAt 0).cast γ.source.symm q.source.symm = Path.refl b := by
-    apply Path.ext
-    funext t
-    change ContinuousMap.HomotopyFiber.path (ζ t) 0 = b
-    exact ContinuousMap.HomotopyFiber.path_zero (ζ t)
-  have h1 : (H.evalAt 1).cast γ.target.symm q.target.symm =
-      (η.map f.continuous).cast h.symm h.symm := by
-    apply Path.ext
-    funext t
-    change ContinuousMap.HomotopyFiber.path (ζ t) 1 =
-      f (ContinuousMap.HomotopyFiber.point (ζ t))
-    exact ContinuousMap.HomotopyFiber.path_one (ζ t)
-  -- The moving endpoint traces the mapped point loop; the starting endpoint is fixed.
-  have hsquare := (Path.Homotopic.map_trans_evalAt H Path.id).pathCast
-    γ.source.symm q.target.symm
-  rw [Path.cast_trans _ _ γ.source.symm γ.target.symm q.target.symm,
-    Path.cast_trans _ _ γ.source.symm q.source.symm q.target.symm,
-    hp, hq, h0, h1] at hsquare
-  have hclass :
-      (Path.Homotopic.Quotient.mk γ).trans
-          (Path.Homotopic.Quotient.mk ((η.map f.continuous).cast h.symm h.symm)) =
-        Path.Homotopic.Quotient.refl b := by
-    simpa only [q, Path.Homotopic.Quotient.mk_trans,
-      Path.Homotopic.Quotient.mk_refl, Path.Homotopic.Quotient.refl_trans] using
-        (Path.Homotopic.Quotient.eq.mpr hsquare)
-  have hγ := congrArg
-    (fun p : Path.Homotopic.Quotient b b =>
-      p.trans
-        (Path.Homotopic.Quotient.mk ((η.map f.continuous).cast h.symm h.symm)).symm)
-    hclass
-  rw [Path.Homotopic.Quotient.trans_assoc, Path.Homotopic.Quotient.trans_symm,
-    Path.Homotopic.Quotient.trans_refl, Path.Homotopic.Quotient.refl_trans] at hγ
-  -- Thus γ is the class of the reversed point loop's image, not the point loop's image.
-  refine ⟨FundamentalGroup.fromPath (Path.Homotopic.Quotient.mk η.symm), ?_⟩
+  have hJ :
+      ContinuousMap.HomotopyFiber.mk (f := f) (b := b)
+          e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm) =
+        ContinuousMap.HomotopyFiber.loopInclusion f b e₀ h γ := by
+    apply ContinuousMap.HomotopyFiber.ext
+    · rw [ContinuousMap.HomotopyFiber.point_mk,
+        ContinuousMap.HomotopyFiber.loopInclusion_point]
+    · rw [ContinuousMap.HomotopyFiber.path_mk,
+        ContinuousMap.HomotopyFiber.loopInclusion_path]
+  let H :
+      ((ContinuousMap.HomotopyFiber.loopInclusion f b e₀ h).comp
+        (ContinuousMap.const PUnit.{1} γ)).HomotopyRel
+          (ContinuousMap.const PUnit.{1}
+            (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h)) ∅ :=
+    { toFun := fun w : I × PUnit.{1} => ζ w.1
+      continuous_toFun := ζ.continuous.comp continuous_fst
+      map_zero_left := fun _ => ζ.source.trans hJ
+      map_one_left := fun _ => ζ.target
+      prop' := by
+        intro s z hz
+        exact False.elim hz }
+  obtain ⟨α, _, ⟨K⟩⟩ :=
+    ContinuousMap.HomotopyFiber.exists_loop_preimage_of_inclusion_nullhomotopyRel
+      (Z := PUnit.{1}) f b e₀ h (∅ : Set PUnit.{1}) (ContinuousMap.const PUnit.{1} γ)
+      (by intro z hz; exact False.elim hz) H
+  let mapped : Path b b := f.loopMap e₀ b h (α PUnit.unit)
+  have hmapped : mapped.Homotopic γ := by
+    refine ⟨{
+      toFun := fun w : I × I => K (w.1, PUnit.unit) w.2
+      continuous_toFun := Path.continuous_uncurry_iff.mpr
+        (K.continuous.comp (continuous_id.prodMk continuous_const))
+      map_zero_left := ?_
+      map_one_left := ?_
+      prop' := ?_ }⟩
+    · intro t
+      exact congrArg (fun q : Path b b => q t) (K.apply_zero PUnit.unit)
+    · intro t
+      exact congrArg (fun q : Path b b => q t) (K.apply_one PUnit.unit)
+    · intro s t ht
+      simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at ht
+      rcases ht with rfl | rfl
+      · exact (K (s, PUnit.unit)).source.trans mapped.source.symm
+      · exact (K (s, PUnit.unit)).target.trans mapped.target.symm
+  refine ⟨FundamentalGroup.fromPath
+    (Path.Homotopic.Quotient.mk (α PUnit.unit)), ?_⟩
   rw [FundamentalGroup.mapOfEq_apply, ← Path.Homotopic.Quotient.mk_map,
     ← Path.Homotopic.Quotient.mk_cast]
-  change Path.Homotopic.Quotient.mk ((η.symm.map f.continuous).cast h.symm h.symm) =
+  change Path.Homotopic.Quotient.mk
+      (((α PUnit.unit).map f.continuous).cast h.symm h.symm) =
     Path.Homotopic.Quotient.mk γ
-  rw [← Path.map_symm, Path.cast_symm, Path.Homotopic.Quotient.mk_symm]
-  exact hγ.symm
+  simpa only [mapped, ContinuousMap.loopMap_apply] using
+    (Path.Homotopic.Quotient.eq.mpr hmapped)
 
 private theorem joined_homotopyFiber_of_mem_range
     (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) (γ : Path b b)
@@ -670,44 +1095,13 @@ private theorem exists_genLoop_homotopyFiber_point (N : Type uI)
         (ContinuousMap.HomotopyFiber.const e₀ h),
       GenLoop.map (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
         (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) β = α := by
-  let γ : C((N → unitInterval), C(unitInterval, B)) :=
-    (⟨fun p : (N → unitInterval) × unitInterval => H (p.2, p.1),
-      H.continuous.comp continuous_swap⟩ : C((N → unitInterval) × unitInterval, B)).curry
-  have hγ (x : N → unitInterval) (t : unitInterval) : γ x t = H (t, x) := rfl
-  have hγ₀ (x : N → unitInterval) : γ x 0 = b := by
-    calc
-      γ x 0 = H (0, x) := hγ x 0
-      _ = (GenLoop.const : GenLoop N B b).val x :=
-        ContinuousMap.HomotopyWith.apply_zero H x
-      _ = (GenLoop.const : GenLoop N B b) x :=
-        congrFun (GenLoop.coe_coe (GenLoop.const : GenLoop N B b)) x
-      _ = b := GenLoop.const_apply
-  have hγ₁ (x : N → unitInterval) : γ x 1 = f (α x) := by
-    rw [hγ]
-    simpa only [GenLoop.coe_coe, GenLoop.map_apply] using H.apply_one x
-  let k : (N → unitInterval) → ContinuousMap.HomotopyFiber f b := fun x =>
-    ContinuousMap.HomotopyFiber.mk (α x) (γ x) (hγ₀ x) (hγ₁ x)
-  have hk : Continuous k := by
-    apply ContinuousMap.HomotopyFiber.continuous_iff.2
-    constructor
-    · simpa only [k, ContinuousMap.HomotopyFiber.point_mk, GenLoop.coe_coe] using
-        α.val.continuous
-    · simpa only [k, ContinuousMap.HomotopyFiber.path_mk] using γ.continuous
-  have hk_boundary (x : N → unitInterval) (hx : x ∈ Cube.boundary N) :
-      k x = ContinuousMap.HomotopyFiber.const e₀ h := by
-    apply ContinuousMap.HomotopyFiber.ext
-    · simpa only [k, ContinuousMap.HomotopyFiber.point_mk,
-        ContinuousMap.HomotopyFiber.point_const] using GenLoop.boundary α x hx
-    · apply ContinuousMap.ext
-      intro t
-      simpa only [k, ContinuousMap.HomotopyFiber.path_mk,
-        ContinuousMap.HomotopyFiber.path_const, ContinuousMap.const_apply, hγ,
-        GenLoop.coe_coe, GenLoop.const_apply] using
-        H.eq_fst t hx
-  refine ⟨⟨⟨k, hk⟩, hk_boundary⟩, ?_⟩
+  obtain ⟨k, hk, hpoint, _⟩ :=
+    ContinuousMap.HomotopyFiber.exists_lift_of_nullhomotopyRel
+      (Cube.boundary N) f b e₀ h α.val (GenLoop.boundary α) H
+  refine ⟨⟨k, hk⟩, ?_⟩
   apply GenLoop.ext
   intro x
-  exact ContinuousMap.HomotopyFiber.point_mk (α x) (γ x) (hγ₀ x) (hγ₁ x)
+  exact DFunLike.congr_fun hpoint x
 
 private theorem homotopic_const_map_homotopyFiber_point (N : Type uI)
     (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
@@ -829,239 +1223,6 @@ namespace HomotopyGroup
 
 universe uN
 
--- The right-unit correction is independent of the projected nullhomotopy.
--- Its witness is kept abstract in the prefix-family argument below.
-private theorem exists_genLoop_homotopic_homotopyFiber_rightUnit (N : Type uN)
-    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
-    (α : GenLoop N (ContinuousMap.HomotopyFiber f b)
-      (ContinuousMap.HomotopyFiber.const e₀ h)) :
-    ∃ αunit : GenLoop N (ContinuousMap.HomotopyFiber f b)
-        (ContinuousMap.HomotopyFiber.const e₀ h),
-      GenLoop.Homotopic α αunit ∧
-      (∀ x, ContinuousMap.HomotopyFiber.point (αunit x) =
-        ContinuousMap.HomotopyFiber.point (α x)) ∧
-      (∀ x t, ContinuousMap.HomotopyFiber.path (αunit x) t =
-        ContinuousMap.HomotopyFiber.path (α x) ((Path.id.trans (Path.refl 1)) t)) := by
-  let a : ∀ x : N → unitInterval,
-      Path b (f (ContinuousMap.HomotopyFiber.point (α x))) := fun x =>
-    Path.mk (ContinuousMap.HomotopyFiber.path (α x))
-      (ContinuousMap.HomotopyFiber.path_zero (α x))
-      (ContinuousMap.HomotopyFiber.path_one (α x))
-  have ha : Continuous (fun z : (N → unitInterval) × unitInterval => a z.1 z.2) :=
-    (continuous_eval : Continuous (fun z : C(unitInterval, B) × unitInterval =>
-      z.1 z.2)).comp
-        (((ContinuousMap.HomotopyFiber.path (f := f) (b := b)).continuous.comp
-          (α.val.continuous.comp continuous_fst)).prodMk continuous_snd)
-  let U := (Path.Homotopy.transRefl Path.id).symm
-  let W : unitInterval × (N → unitInterval) → ContinuousMap.HomotopyFiber f b := fun z =>
-    ContinuousMap.HomotopyFiber.mk (ContinuousMap.HomotopyFiber.point (α z.2))
-      ((a z.2).toContinuousMap.comp (U.toHomotopy.curry z.1))
-      (by
-        change a z.2 (U (z.1, 0)) = b
-        rw [U.source]
-        exact (a z.2).source)
-      (by
-        change a z.2 (U (z.1, 1)) = f (ContinuousMap.HomotopyFiber.point (α z.2))
-        rw [U.target]
-        exact (a z.2).target)
-  have hW : Continuous W := by
-    apply ContinuousMap.HomotopyFiber.continuous_iff.2
-    constructor
-    · change Continuous (fun z : unitInterval × (N → unitInterval) =>
-        ContinuousMap.HomotopyFiber.point (α z.2))
-      exact (ContinuousMap.HomotopyFiber.point (f := f) (b := b)).continuous.comp
-        (α.val.continuous.comp continuous_snd)
-    · apply ContinuousMap.continuous_of_continuous_uncurry
-      change Continuous (fun z : (unitInterval × (N → unitInterval)) × unitInterval =>
-        a z.1.2 (U (z.1.1, z.2)))
-      exact ha.comp ((continuous_snd.comp continuous_fst).prodMk
-        (U.continuous.comp ((continuous_fst.comp continuous_fst).prodMk continuous_snd)))
-  have hW₀ (x : N → unitInterval) : W (0, x) = α x := by
-    apply ContinuousMap.HomotopyFiber.ext
-    · rfl
-    · apply ContinuousMap.ext
-      intro t
-      change a x (U (0, t)) = ContinuousMap.HomotopyFiber.path (α x) t
-      rw [U.apply_zero]
-      rfl
-  have hW_boundary (s : unitInterval) (x : N → unitInterval)
-      (hx : x ∈ Cube.boundary N) : W (s, x) = α x := by
-    apply ContinuousMap.HomotopyFiber.ext
-    · rfl
-    · apply ContinuousMap.ext
-      intro t
-      change ContinuousMap.HomotopyFiber.path (α x) (U (s, t)) =
-        ContinuousMap.HomotopyFiber.path (α x) t
-      rw [GenLoop.boundary α x hx, ContinuousMap.HomotopyFiber.path_const]
-      rfl
-  let αunit : GenLoop N (ContinuousMap.HomotopyFiber f b)
-      (ContinuousMap.HomotopyFiber.const e₀ h) :=
-    ⟨⟨fun x => W (1, x), hW.comp (continuous_const.prodMk continuous_id)⟩,
-      fun x hx => (hW_boundary 1 x hx).trans (GenLoop.boundary α x hx)⟩
-  have hunit : GenLoop.Homotopic α αunit :=
-    ⟨{ toFun := W
-       continuous_toFun := hW
-       map_zero_left := hW₀
-       map_one_left := fun _ => rfl
-       prop' := hW_boundary }⟩
-  refine ⟨αunit, hunit, ?_, ?_⟩
-  · intro x
-    rfl
-  · intro x t
-    change a x (U (1, t)) = a x ((Path.id.trans (Path.refl 1)) t)
-    rw [U.apply_one]
-    rfl
-
--- Build the joint prefix family separately from either homotopy packaging.
--- Only its endpoint coordinates and relative boundary law escape this proof.
-private theorem exists_homotopyFiber_prefix_family (N : Type uN)
-    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
-    (α : GenLoop N (ContinuousMap.HomotopyFiber f b)
-      (ContinuousMap.HomotopyFiber.const e₀ h))
-    (H : (GenLoop.map (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
-        (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) α).val.HomotopyRel
-      (GenLoop.const : GenLoop N E e₀).val (Cube.boundary N)) :
-    ∃ v : C(unitInterval × (N → unitInterval), ContinuousMap.HomotopyFiber f b),
-      (∀ x, ContinuousMap.HomotopyFiber.point (v (0, x)) =
-        ContinuousMap.HomotopyFiber.point (α x)) ∧
-      (∀ x t, ContinuousMap.HomotopyFiber.path (v (0, x)) t =
-        ContinuousMap.HomotopyFiber.path (α x) ((Path.id.trans (Path.refl 1)) t)) ∧
-      (∀ x, ContinuousMap.HomotopyFiber.point (v (1, x)) = e₀) ∧
-      (∀ s x, x ∈ Cube.boundary N →
-        v (s, x) = ContinuousMap.HomotopyFiber.const e₀ h) := by
-  have hH₀ (x : N → unitInterval) :
-      H (0, x) = ContinuousMap.HomotopyFiber.point (α x) := by
-    exact Eq.trans (α := E) (H.apply_zero x)
-      (GenLoop.map_apply
-        (ContinuousMap.HomotopyFiber.point (f := f) (b := b))
-        (ContinuousMap.HomotopyFiber.point_const (f := f) (b := b) e₀ h) α x)
-  have hH₁ (x : N → unitInterval) : H (1, x) = e₀ := by
-    exact Eq.trans (α := E) (H.apply_one x)
-      (GenLoop.const_apply (N := N) (X := E) (x := e₀) (t := x))
-  have hH_boundary (s : unitInterval) (x : N → unitInterval)
-      (hx : x ∈ Cube.boundary N) : H (s, x) = e₀ := by
-    exact Eq.trans (α := E) (H.eq_snd s hx)
-      (GenLoop.const_apply (N := N) (X := E) (x := e₀) (t := x))
-  let a : ∀ x : N → unitInterval,
-      Path b (f (ContinuousMap.HomotopyFiber.point (α x))) := fun x =>
-    Path.mk (ContinuousMap.HomotopyFiber.path (α x))
-      (ContinuousMap.HomotopyFiber.path_zero (α x))
-      (ContinuousMap.HomotopyFiber.path_one (α x))
-  have ha : Continuous (fun z : (N → unitInterval) × unitInterval => a z.1 z.2) :=
-    (continuous_eval : Continuous (fun z : C(unitInterval, B) × unitInterval =>
-      z.1 z.2)).comp
-        (((ContinuousMap.HomotopyFiber.path (f := f) (b := b)).continuous.comp
-          (α.val.continuous.comp continuous_fst)).prodMk continuous_snd)
-  have hscale : Continuous
-      (fun z : (unitInterval × (N → unitInterval)) × unitInterval =>
-        (z.1.1 * z.2, z.1.2)) :=
-    (((continuous_subtype_val.comp (continuous_fst.comp continuous_fst)).mul
-      (continuous_subtype_val.comp continuous_snd)).subtype_mk _).prodMk
-        (continuous_snd.comp continuous_fst)
-  let q : ∀ z : unitInterval × (N → unitInterval),
-      Path (ContinuousMap.HomotopyFiber.point (α z.2)) (H z) := fun z =>
-    { toFun := fun t => H (z.1 * t, z.2)
-      continuous_toFun := (H.continuous.comp hscale).comp
-        (continuous_const.prodMk continuous_id)
-      source' := by simpa only [mul_zero] using hH₀ z.2
-      target' := by simp only [mul_one] }
-  have hq : Continuous
-      (fun z : (unitInterval × (N → unitInterval)) × unitInterval => q z.1 z.2) :=
-    H.continuous.comp hscale
-  let r : ∀ z : unitInterval × (N → unitInterval), Path b (f (H z)) := fun z =>
-    (a z.2).trans ((q z).map f.continuous)
-  have hr : Continuous
-      (fun z : (unitInterval × (N → unitInterval)) × unitInterval => r z.1 z.2) :=
-    Path.trans_continuous_family (fun z => a z.2)
-      (ha.comp ((continuous_snd.comp continuous_fst).prodMk continuous_snd))
-      (fun z => (q z).map f.continuous) (f.continuous.comp hq)
-  have hr_boundary (s : unitInterval) (x : N → unitInterval)
-      (hx : x ∈ Cube.boundary N) (t : unitInterval) : r (s, x) t = b := by
-    change ((a x).trans ((q (s, x)).map f.continuous)) t = b
-    rw [Path.trans_apply]
-    split_ifs
-    · change ContinuousMap.HomotopyFiber.path (α x) _ = b
-      rw [GenLoop.boundary α x hx, ContinuousMap.HomotopyFiber.path_const]
-      rfl
-    · change f (H (s * _, x)) = b
-      rw [hH_boundary _ x hx, h]
-  let v : unitInterval × (N → unitInterval) → ContinuousMap.HomotopyFiber f b := fun z =>
-    ContinuousMap.HomotopyFiber.mk (H z) (r z).toContinuousMap (r z).source (r z).target
-  have hv : Continuous v := ContinuousMap.HomotopyFiber.continuous_iff.2
-    ⟨H.continuous, ContinuousMap.continuous_of_continuous_uncurry _ hr⟩
-  refine ⟨⟨v, hv⟩, ?_, ?_, ?_, ?_⟩
-  · intro x
-    exact hH₀ x
-  · intro x t
-    change ((a x).trans ((q (0, x)).map f.continuous)) t =
-      a x ((Path.id.trans (Path.refl 1)) t)
-    rw [Path.trans_apply, Path.trans_apply]
-    split_ifs
-    · rfl
-    · change f (H (0 * _, x)) = a x 1
-      rw [zero_mul, hH₀]
-      exact (a x).target.symm
-  · intro x
-    exact hH₁ x
-  · intro s x hx
-    apply ContinuousMap.HomotopyFiber.ext
-    · exact hH_boundary s x hx
-    · apply ContinuousMap.ext
-      intro t
-      exact hr_boundary s x hx t
-
--- Here v is a variable, not a reducible prefix-family constructor. Loop-space
--- currying and the endpoint homotopy therefore use just the characteristic laws.
-private theorem exists_genLoop_homotopic_homotopyFiber_family (N : Type uN)
-    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
-    (J : C(Path b b, ContinuousMap.HomotopyFiber f b))
-    (J_refl : J (Path.refl b) = ContinuousMap.HomotopyFiber.const e₀ h)
-    (J_point : ∀ γ, ContinuousMap.HomotopyFiber.point (J γ) = e₀)
-    (J_path : ∀ γ t, ContinuousMap.HomotopyFiber.path (J γ) t = γ t)
-    (αunit : GenLoop N (ContinuousMap.HomotopyFiber f b)
-      (ContinuousMap.HomotopyFiber.const e₀ h))
-    (v : C(unitInterval × (N → unitInterval), ContinuousMap.HomotopyFiber f b))
-    (hv₀ : ∀ x, v (0, x) = αunit x)
-    (hv₁ : ∀ x, ContinuousMap.HomotopyFiber.point (v (1, x)) = e₀)
-    (hv_boundary : ∀ s x, x ∈ Cube.boundary N →
-      v (s, x) = ContinuousMap.HomotopyFiber.const e₀ h) :
-    ∃ β : GenLoop N (Path b b) (Path.refl b),
-      GenLoop.Homotopic αunit (GenLoop.map J J_refl β) := by
-  let ℓ : (N → unitInterval) → Path b b := fun x =>
-    Path.mk (ContinuousMap.HomotopyFiber.path (v (1, x)))
-      (ContinuousMap.HomotopyFiber.path_zero (v (1, x)))
-      ((ContinuousMap.HomotopyFiber.path_one (v (1, x))).trans
-        ((congrArg f (hv₁ x)).trans h))
-  have hpath : Continuous (fun z : (N → unitInterval) × unitInterval =>
-      ContinuousMap.HomotopyFiber.path (v (1, z.1)) z.2) :=
-    (continuous_eval : Continuous (fun z : C(unitInterval, B) × unitInterval =>
-      z.1 z.2)).comp
-        (((ContinuousMap.HomotopyFiber.path (f := f) (b := b)).continuous.comp
-          (v.continuous.comp (continuous_const.prodMk continuous_fst))).prodMk continuous_snd)
-  have hℓ : Continuous ℓ := Path.continuous_uncurry_iff.mp hpath
-  have hℓ_boundary (x : N → unitInterval) (hx : x ∈ Cube.boundary N) :
-      ℓ x = Path.refl b := by
-    apply Path.ext
-    funext t
-    change ContinuousMap.HomotopyFiber.path (v (1, x)) t = b
-    rw [hv_boundary 1 x hx, ContinuousMap.HomotopyFiber.path_const]
-    rfl
-  let β : GenLoop N (Path b b) (Path.refl b) := ⟨⟨ℓ, hℓ⟩, hℓ_boundary⟩
-  have hvJ (x : N → unitInterval) : v (1, x) = J (β x) := by
-    apply ContinuousMap.HomotopyFiber.ext
-    · exact (hv₁ x).trans (J_point (β x)).symm
-    · apply ContinuousMap.ext
-      intro t
-      exact (J_path (β x) t).symm
-  refine ⟨β, ⟨{
-    toFun := v
-    continuous_toFun := v.continuous
-    map_zero_left := hv₀
-    map_one_left := hvJ
-    prop' := ?_ }⟩⟩
-  intro s x hx
-  exact (hv_boundary s x hx).trans (GenLoop.boundary αunit x hx).symm
-
 private theorem exists_genLoop_homotopic_homotopyFiber_loop (N : Type uN)
     (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
     (J : C(Path b b, ContinuousMap.HomotopyFiber f b))
@@ -1075,19 +1236,10 @@ private theorem exists_genLoop_homotopic_homotopyFiber_loop (N : Type uN)
       (GenLoop.const : GenLoop N E e₀).val (Cube.boundary N)) :
     ∃ β : GenLoop N (Path b b) (Path.refl b),
       GenLoop.Homotopic (GenLoop.map J J_refl β) α := by
-  obtain ⟨αunit, hunit, hunit_point, hunit_path⟩ :=
-    exists_genLoop_homotopic_homotopyFiber_rightUnit N f b e₀ h α
-  obtain ⟨v, hv_point, hv_path, hv₁, hv_boundary⟩ :=
-    exists_homotopyFiber_prefix_family N f b e₀ h α H
-  have hv₀ (x : N → unitInterval) : v (0, x) = αunit x := by
-    apply ContinuousMap.HomotopyFiber.ext
-    · exact (hv_point x).trans (hunit_point x).symm
-    · apply ContinuousMap.ext
-      intro t
-      exact (hv_path x t).trans (hunit_path x t).symm
-  obtain ⟨β, hβ⟩ := exists_genLoop_homotopic_homotopyFiber_family
-    N f b e₀ h J J_refl J_point J_path αunit v hv₀ hv₁ hv_boundary
-  exact ⟨β, (hunit.trans hβ).symm⟩
+  obtain ⟨γ, hγ, hγhom⟩ :=
+    ContinuousMap.HomotopyFiber.exists_loop_of_projection_nullhomotopyRel_aux
+      (Cube.boundary N) f b e₀ h J J_refl J_point J_path α.val (GenLoop.boundary α) H
+  exact ⟨⟨γ, hγ⟩, hγhom⟩
 
 /-- For every cube index, the image of the loop inclusion into the ordinary homotopy
 fiber consists exactly of the classes whose retained-point classes are constant.

@@ -8,9 +8,12 @@ public import Mathlib.Topology.Homotopy.Path
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.Basic
 
 /-!
-# Paths in subspaces and continuous families of homotopies
+# Maps on path spaces, paths in subspaces and continuous families of homotopies
 
-A path whose range is contained in a set can be regarded as a path in that subspace.
+A continuous map of spaces induces a continuous map on each fixed-endpoint path
+space. Endpoint transport specializes this to based loops for a map with a specified
+basepoint equation. A path whose range is contained in a set can be regarded as a path in that
+subspace.
 The inclusion recovers the original path. A homotopy between paths in a subspace
 can likewise be recovered from an ambient based homotopy whose range stays in the
 subspace.
@@ -39,6 +42,48 @@ assumptions.
 namespace Path
 
 variable {X : Type*} [TopologicalSpace X] {a b : X} {s : Set X}
+
+/-- The continuous map on path spaces induced by a continuous map of spaces. -/
+def mapContinuousMap {Y : Type*} [TopologicalSpace Y] (g : C(X, Y)) (a a' : X) :
+    C(Path a a', Path (g a) (g a')) where
+  toFun γ := γ.map g.continuous
+  continuous_toFun := by
+    apply Path.continuous_uncurry_iff.mp
+    exact g.continuous.comp (Path.continuous_uncurry_iff.mpr
+      (continuous_id : Continuous (id : Path a a' → Path a a')))
+
+/-- The induced map on paths is `Path.map`. -/
+theorem mapContinuousMap_apply {Y : Type*} [TopologicalSpace Y]
+    (g : C(X, Y)) (a a' : X) (γ : Path a a') :
+    mapContinuousMap g a a' γ = γ.map g.continuous := rfl
+
+/-- Evaluation of an induced path is pointwise evaluation of the original map. -/
+@[simp]
+theorem mapContinuousMap_apply_apply {Y : Type*} [TopologicalSpace Y]
+    (g : C(X, Y)) (a a' : X) (γ : Path a a') (t : unitInterval) :
+    mapContinuousMap g a a' γ t = g (γ t) := rfl
+
+/-- A constant path is mapped to a constant path. -/
+@[simp]
+theorem mapContinuousMap_refl {Y : Type*} [TopologicalSpace Y] (g : C(X, Y)) (a : X) :
+    mapContinuousMap g a a (Path.refl a) = Path.refl (g a) := by
+  ext t
+  rfl
+
+/-- The identity map induces the identity on path spaces. -/
+@[simp]
+theorem mapContinuousMap_id (a a' : X) :
+    mapContinuousMap (ContinuousMap.id X) a a' = ContinuousMap.id (Path a a') := by
+  ext γ t
+  rfl
+
+/-- Mapping paths preserves composition of continuous maps. -/
+theorem mapContinuousMap_comp {Y T : Type*} [TopologicalSpace Y] [TopologicalSpace T]
+    (f : C(X, Y)) (g : C(Y, T)) (a a' : X) :
+    mapContinuousMap (g.comp f) a a' =
+      (mapContinuousMap g (f a) (f a')).comp (mapContinuousMap f a a') := by
+  ext γ t
+  rfl
 
 /-- Regard a path whose range lies in a set as a path in the corresponding subspace. -/
 def codRestrict (γ : Path a b) (hγ : Set.range γ ⊆ s) :
@@ -100,6 +145,59 @@ theorem Homotopic.of_subtypeVal {a b : s} {γ δ : Path a b}
     prop' := fun t x hx => Subtype.ext (ContinuousMap.HomotopyRel.eq_fst H t hx) }⟩
 
 end Path
+
+
+namespace ContinuousMap
+
+/-- Pointwise application of a based map to based loops, with transported endpoints. -/
+def loopMap.{u, v} {E : Type u} {B : Type v} [TopologicalSpace E] [TopologicalSpace B]
+    (f : C(E, B)) (e₀ : E) (b : B) (h : f e₀ = b) : C(Path e₀ e₀, Path b b) where
+  toFun γ := (Path.mapContinuousMap f e₀ e₀ γ).cast h.symm h.symm
+  continuous_toFun := by
+    apply Path.continuous_uncurry_iff.mp
+    exact f.continuous.comp (Path.continuous_uncurry_iff.mpr
+      (continuous_id : Continuous (id : Path e₀ e₀ → Path e₀ e₀)))
+
+/-- The loop map is the mapped path with its endpoints cast along the basepoint equation. -/
+theorem loopMap_apply.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B]
+    (f : C(E, B)) (e₀ : E) (b : B) (h : f e₀ = b) (γ : Path e₀ e₀) :
+    f.loopMap e₀ b h γ = (γ.map f.continuous).cast h.symm h.symm := rfl
+
+/-- The whole forward loop is mapped pointwise, without reversal or reparametrization. -/
+@[simp]
+theorem loopMap_apply_apply.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B]
+    (f : C(E, B)) (e₀ : E) (b : B) (h : f e₀ = b) (γ : Path e₀ e₀) (t : unitInterval) :
+    f.loopMap e₀ b h γ t = f (γ t) := rfl
+
+/-- The loop map preserves the constant loop. -/
+@[simp]
+theorem loopMap_refl.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B]
+    (f : C(E, B)) (e₀ : E) (b : B) (h : f e₀ = b) :
+    f.loopMap e₀ b h (Path.refl e₀) = Path.refl b := by
+  ext t
+  exact h
+
+/-- The identity based map induces the identity on based loops. -/
+@[simp]
+theorem loopMap_id.{u} {E : Type u} [TopologicalSpace E] (e₀ : E) :
+    (ContinuousMap.id E).loopMap e₀ e₀ rfl = ContinuousMap.id (Path e₀ e₀) := by
+  ext γ t
+  rfl
+
+/-- Pointwise maps on based loops preserve composition of based maps. -/
+theorem loopMap_comp.{u, v, t} {E : Type u} {B : Type v} {T : Type t}
+    [TopologicalSpace E] [TopologicalSpace B] [TopologicalSpace T]
+    (f : C(E, B)) (g : C(B, T)) (e₀ : E) (b : B) (c : T)
+    (hf : f e₀ = b) (hg : g b = c) :
+    (g.comp f).loopMap e₀ c ((congrArg g hf).trans hg) =
+      (g.loopMap b c hg).comp (f.loopMap e₀ b hf) := by
+  ext γ s
+  rfl
+
+end ContinuousMap
 
 open unitInterval
 

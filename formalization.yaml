@@ -68,19 +68,28 @@ highlights:
         file: FundamentalGroupoids/FundamentalGroup/DiskAttachment/Quotient.lean
       - declaration: FundamentalGroup.diskAttachmentFundamentalGroupHomEquiv
         file: FundamentalGroupoids/FundamentalGroup/DiskAttachment/Homomorphisms.lean
-  - title: Positive-degree exactness of the pointed homotopy-fiber sequence
+  - title: Based-source and positive-degree homotopy-fiber exactness
     statement: >-
-      For arbitrary topological spaces E and B in independent universes,
-      f : C(E, B), b : B, e0 : E and h : f e0 = b, the pointed chain complex
-      S = homotopyFiberSequence f b e0 h, functorial under strict based
-      commuting squares and having lifted cubical homotopy quotients of B, E
-      and the ordinary homotopy fiber in degrees 3n, 3n+1 and 3n+2, satisfies
-      range (S.d (n+2) (n+1)).toFun equal to the preimage of {(S.X n).point}
-      under (S.d (n+1) n).toFun for every natural n, without asserting
-      surjectivity onto the terminal path-component term of B, and for every
-      nonempty cube index with decidable equality the connecting map is a natural
-      group homomorphism whose kernel is the range of based postcomposition by f.
+      For every original based source (Z,z0), topological E,B in independent
+      Z,E,B universes, f : C(E,B), e0 : E, b : B and h : f e0 = b, let F be the ordinary
+      homotopy fiber, p its projection, J the forward-loop inclusion and Ωf the
+      loop map; on whole based hom-sets [Z,-] relative to {z0}, transported by
+      ordinary ULift, range p_* = f_*⁻¹{c_B}, range J_* = p_*⁻¹{c_E} and
+      range (Ωf)_* = J_*⁻¹{c_F} for constant classes c_X without geometric
+      hypotheses, while the pointed complex S = homotopyFiberSequence f b e0 h,
+      functorial under strict based squares with lifted cubical quotients of
+      B,E,F in degrees 3n,3n+1,3n+2, satisfies
+      range (S.d (n+2) (n+1)).toFun = (S.d (n+1) n).toFun ⁻¹' {(S.X n).point}
+      for every natural n, without asserting terminal π₀B surjectivity, and every
+      nonempty cube index with decidable equality has a natural connecting group
+      homomorphism whose kernel is the range of based postcomposition by f.
     declarations:
+      - declaration: BasedTopCat.range_homotopyFiberProjection
+        file: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean
+      - declaration: BasedTopCat.range_homotopyFiberLoopInclusion
+        file: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean
+      - declaration: BasedTopCat.range_homotopyFiberLoopMap
+        file: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean
       - declaration: HomotopyGroup.homotopyFiberSequence
         file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
       - declaration: HomotopyGroup.homotopyFiberSequenceMap
@@ -137,6 +146,11 @@ project:
     local compactness assumptions on the target. The based homotopy-fiber
     point projection has class image equal to the preimage of the constant class
     for every cube index, with range–kernel form for the existing positive groups.
+    On whole based quotient hom-sets [Z,-], the original fiber projection,
+    forward-loop inclusion and loop map give three successive range–constant-class
+    preimage identities for every original based source (Z,z0). Ordinary ULift
+    handles independent Z,E,B universes; homotopy is relative to {z0}, with
+    arbitrary ordinary topologies and no geometric hypotheses.
     The pointed homotopy-fiber chain complex has lifted cubical homotopy quotients
     of the base, total space and fiber in successive degrees, is exact in the
     pointed-set sense at every positive chain degree, and admits chain maps for
@@ -257,7 +271,8 @@ sources:
       Chapter 3 §§2–4, 7 for covering-space monodromy, lifting and maps of covers.
       Chapter 5 §§1–2, printed pp. 39–41, for compact-Hausdorff tests and kification.
       Chapter 8 §§5–6, printed pp. 61–62 (PDF pp. 69–70), for the
-      homotopy-fiber model and finite-degree exactness, especially printed p. 62.
+      homotopy-fiber model, arbitrary-based-source and finite-degree exactness,
+      especially printed p. 62.
       Chapter 9 §§1, 4, printed pp. 65–67, for based homotopy groups and the
       classical finite-degree covering isomorphism.
     relationship: adapts
@@ -301,7 +316,10 @@ sources:
       Mathlib's quotient-product continuity theorem. The pointed chain complex
       uses the ordinary compact-open homotopy fiber and cubical homotopy quotients.
       Its finite-degree pointed-set exactness adapts Chapter 8 §§5–6, without
-      identifying it with the signed sequence or the category U. Strict-square
+      identifying it with the signed sequence or the category U. The three
+      arbitrary-based-source range identities also adapt §6, using homotopy
+      relative to the source point and ordinary lifts of the original models,
+      not mapping-space components or the kified model. Strict-square
       chain maps and all-index connecting-map naturality are structural
       extensions, not statements quoted from May.
       No open redistribution license is inferred for
@@ -500,6 +518,15 @@ status:
     universes are independent, and all topologies arbitrary. Empty-index classes
     retain all path components; the zeroth projection theorem also allows empty E
     without e0 or h. Infinite-index quotients are already subsingletons.
+    For every original based source (Z,z0), postcomposition by the original
+    fiber projection p, forward-loop inclusion J and unsigned loop map Ωf
+    satisfies range p_* = f_*⁻¹{c_B}, range J_* = p_*⁻¹{c_E} and
+    range (Ωf)_* = J_*⁻¹{c_F}, where c_X is the constant class in [Z,X]_* and
+    F is based at HomotopyFiber.const e0 h. These are whole hom-sets of the
+    existing point-relative based-homotopy category. Independent Z,E,B universes
+    are handled by ordinary ULift of the original models, with original-space
+    representatives and equality exactly by homotopy relative to {z0}. No local
+    compactness, separation, closed-basepoint or fibration assumptions are needed.
     For an arbitrary topological space X and chosen x, the continuous identity
     from compactlyGenerated.{u} X to the original topology gives
     HomotopyGroup.compactlyGeneratedEquiv for every cube-index type N.
@@ -715,6 +742,17 @@ alignment:
     The free-source-factor comparison is structural derived support, assembled
     from the existing canonical pullback provider and Mathlib's restricted
     associator and set-product homeomorphisms, not a theorem quoted from May.
+    The three arbitrary-source identities adapt Chapter 8 §6, printed
+    pp. 61–62, on whole based quotient hom-sets [Z,-] relative to {z0}:
+    range p_* = f_*⁻¹{c_B}, range J_* = p_*⁻¹{c_E} and
+    range (Ωf)_* = J_*⁻¹{c_F}, with constants at b, e0 and
+    HomotopyFiber.const e0 h respectively. The source, total and base carriers
+    have independent universes via ordinary ULift of the original fiber and
+    path models. Every lifted quotient morphism has an original based-map
+    representative, with equality exactly by point-relative homotopy. No
+    identification with components of arbitrary mapping spaces is asserted.
+    The displayed Ωf is unsigned, distinct from May's signed arrow; no full
+    signed or group-valued long exact sequence is asserted.
     The loop-image formula adapts Chapter 8 §6 to ordinary homotopy fibers,
     retaining the whole forward loop at a specified source point. For the same
     loop-class composite delta, the preimage of {delta 1} is the image of
@@ -775,6 +813,22 @@ alignment:
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean
     - lean: ZerothHomotopy.range_map_homotopyFiber_point
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean
+    - lean: BasedTopCat.range_homotopyFiberProjection
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean
+    - lean: BasedTopCat.range_homotopyFiberLoopInclusion
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean
+    - lean: BasedTopCat.range_homotopyFiberLoopMap
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean
+    - lean: BasedTopCat.exists_homotopyQuotient_map_ofHomULift_eq
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/Universe.lean
+    - lean: BasedTopCat.homotopyQuotient_map_ofHomULift_eq_iff
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/Universe.lean
+    - lean: BasedTopCat.homotopyFiberPoint
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber.lean
+    - lean: BasedTopCat.homotopyFiberLoopInclusion
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber.lean
+    - lean: BasedTopCat.loopMapHom
+      module: FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber.lean
     - lean: ZerothHomotopy.mem_range_map_homotopyFiber_map_id_iff
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
     - lean: ZerothHomotopy.range_map_homotopyFiber_map_id

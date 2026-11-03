@@ -292,10 +292,47 @@ directions, examples, conventions and credits.
   No target separation or local compactness is required. These are ordinary,
   non-kified spaces, not an identification with May's category `U`; this contracts
   neither loop spaces nor `X`.
-- **Homotopy-fiber exactness** ([`Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean)).
+- **Homotopy-fiber exactness** ([`Based.HomotopyFiber.Exact`](FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean),
+  [`Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean)).
   For `f : C(E, B)`, `e₀ : E`, `b : B` and `h : f e₀ = b`, base
   `HF = ContinuousMap.HomotopyFiber f b` at its constant-path point, and let
-  `p` retain the source point. For every cube index `N`,
+  `p` retain the source point.
+
+  For any original based source `(Z, z₀)`, write
+  `[Z, X]_*` for the whole hom-set in `BasedTopCat.HomotopyCategory`:
+  `Under(TopCat.of PUnit)` modulo homotopy relative to `{z₀}`, not the under
+  category of an unbased homotopy category. Put `ΩE = Path e₀ e₀` and
+  `ΩB = Path b b`, based at their constant loops; let `J : ΩB → HF` retain
+  `e₀` and the whole forward loop, and let `Ωf : ΩE → ΩB` apply `f` pointwise.
+  With `k_*` denoting based postcomposition and `c_X` the constant class in
+  `[Z, X]_*`, the three identities are
+  ```text
+  range p_*    = f_* ⁻¹' {c_B}     in [Z, E]_*,
+  range J_*    = p_* ⁻¹' {c_E}     in [Z, HF]_*,
+  range (Ωf)_* = J_* ⁻¹' {c_HF}    in [Z, ΩB]_*.
+  ```
+
+  They are
+  [`BasedTopCat.range_homotopyFiberProjection`](FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean#L99),
+  [`BasedTopCat.range_homotopyFiberLoopInclusion`](FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean#L143), and
+  [`BasedTopCat.range_homotopyFiberLoopMap`](FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean#L190).
+
+  The original carriers `Z`, `E`, `B` have independent universes. Ordinary
+  `ULift` puts the original source, fiber and loop-space models in the common
+  universe `max uZ uE uB`, with their ordinary product/subtype/compact-open
+  topologies transported unchanged. In [`Based.Universe`](FundamentalGroupoids/Topology/Category/TopCat/Based/Universe.lean),
+  `BasedTopCat.exists_homotopyQuotient_map_ofHomULift_eq` supplies original-space
+  representatives for every lifted quotient morphism, and
+  `BasedTopCat.homotopyQuotient_map_ofHomULift_eq_iff` characterizes equality by
+  homotopy relative to `{z₀}`. No commutation of lifting with fibers or loops
+  is used.
+
+  No local compactness, separation, closed-basepoint or fibration hypotheses
+  are imposed. The displayed `Ωf` is unsigned, distinct from May's signed arrow.
+  These are pointed-set identities, not identifications with components of
+  arbitrary mapping spaces or a signed, kified or group-valued long exact sequence.
+
+  For every cube index `N`,
   `HomotopyGroup.range_mapFun_homotopyFiber_point` gives
   `range (π_N p) = (π_N f) ⁻¹' {constant class}`, where `π_N` denotes
   `HomotopyGroup.mapFun` with these point equations. No index instances are
@@ -304,11 +341,13 @@ directions, examples, conventions and credits.
   for the existing groups and homomorphisms. These instances supply operation
   data, not geometric assumptions. Index and space universes are independent,
   and all topologies are arbitrary.
-  For the adjacent position, let `J : C(Path b b, HF)` be the continuous
+
+  For the adjacent cubical position, `J : C(Path b b, HF)` is the continuous
   composite through `HomotopyFiber.constHomeomorph Unit b b` and
   `HomotopyFiber.map`, retaining `e₀` and the whole forward loop `γ`.
   It sends `Path.refl b` to `HomotopyFiber.const e₀ h`; only the pointwise
   equation `h` is required, not constancy of `f`.
+
   `HomotopyGroup.range_mapFun_homotopyFiber_loop` gives
   `range (π_N J) = (π_N p) ⁻¹' {constant class}` for every `N`, again without
   index instances. This is exactness at
@@ -321,21 +360,25 @@ directions, examples, conventions and credits.
   of the ordinary topological loop space `Path b b`, not just the component
   of `Path.refl b`. The unpointed zeroth projection formula also allows
   empty `E`, without choosing `e₀` or `h`.
+
   At the base-space position, [`HomotopyGroup.Fiber`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber.lean)
   identifies the image of `π_(N ⊕ Unit) f` with the preimage of the constant
   class under inverse loop iteration, the singleton-loop homeomorphism and `π_N J`.
   This holds for every `N`, with the subgroup range–kernel form for
   `[DecidableEq N] [Nonempty N]`; the sum order is `N` followed by `Unit`,
   and the whole forward path is retained without reversal.
+
   For continuous `g : C(E', B)` and `u : C(E', E)` with `f (u x) = g x`,
   the induced fiber map `K` over `id B` satisfies
   `range (π₀ K) = (π₀ p) ⁻¹' range (π₀ u)`; `E'` may be empty.
+
   The loop-class map `δ : π₁B → π₀HF` retains the whole forward loop at `e₀`,
   with image `(π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}` and
   `δ ⁻¹' {δ 1} = Set.range (FundamentalGroup.mapOfEq f h)`.
   These are the positions at `π₀HF` and `π₁B`, distinct from projection
   exactness at `HomotopyGroup N E e₀`. No group structure on `π₀HF` is supplied.
-  The finite-degree exactness formulas adapt
+
+  The arbitrary-source based identities and finite-degree exactness formulas adapt
   May, Chapter 8 §6, printed pp. 61–62; the all-index statements are ordinary-topology
   cubical extensions, without a sphere-domain comparison or identification with
   his signed degree-indexed sequence or category `U`. See the
@@ -1067,8 +1110,11 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Category.TopCat.Based.Cartesian`](FundamentalGroupoids/Topology/Category/TopCat/Based/Cartesian.lean) | Chosen terminal and binary limit cones in the ordinary opposite based-homotopy category, their named cartesian monoidal structure, and compatibility of its associator with ordered three-factor flattening |
 | [`Topology.Category.TopCat.Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean) | Point-wide-pushout coproduct data in based spaces and their homotopy category, factorwise based-homotopy criterion, and empty and binary specializations |
 | [`Topology.Category.TopCat.Based.FiniteWedge`](FundamentalGroupoids/Topology/Category/TopCat/Based/FiniteWedge.lean) | Strict isomorphisms between ordered two-factor and binary wedges, and from both nested binary three-factor wedges to the finite wedge, with forward/inverse leg and point equations |
+| [`Topology.Category.TopCat.Based.HomotopyFiber`](FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber.lean) | Based projection, loop inclusion and loop map on ordinary lifts of the original fiber and path spaces, with evaluation, point and functoriality laws |
+| [`Topology.Category.TopCat.Based.HomotopyFiber.Exact`](FundamentalGroupoids/Topology/Category/TopCat/Based/HomotopyFiber/Exact.lean) | Three range–constant-preimage identities on whole point-relative based hom-sets for every original based source, with independent source, total and base universes and no geometric hypotheses |
 | [`Topology.Category.TopCat.Based.Products`](FundamentalGroupoids/Topology/Category/TopCat/Based/Products.lean) | Canonical based product identification with the dependent product and its coordinate equations |
 | [`Topology.Category.TopCat.Based.ULift`](FundamentalGroupoids/Topology/Category/TopCat/Based/ULift.lean) | Isomorphism from a point-wide-pushout lifted and based at its head to the based wedge of the lifted pointed factors, with underlying-map, head, factor and inverse equations |
+| [`Topology.Category.TopCat.Based.Universe`](FundamentalGroupoids/Topology/Category/TopCat/Based/Universe.lean) | Ordinary universe lifts of based spaces and maps, original-space representatives of every lifted quotient morphism, and equality exactly by point-relative homotopy |
 | [`Topology.Category.TopCat.DiskAttachment`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment.lean) | Unpointed disk attachments, universal property, original-space closed embedding, disjoint open-disk embeddings and empty/identity attachment homeomorphisms |
 | [`Topology.Category.TopCat.DiskAttachment.Punctured`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/Punctured.lean) | Closed centre set, punctured subspace, characteristic maps and descent of functions and continuous maps |
 | [`Topology.Category.TopCat.DiskAttachment.PuncturedRetraction`](FundamentalGroupoids/Topology/Category/TopCat/DiskAttachment/PuncturedRetraction.lean) | Retraction onto the original space and radial strong deformation fixing its image |
@@ -1146,8 +1192,8 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 - J. Peter May, *A Concise Course in Algebraic Topology*, revised author PDF,
   Chapter 1 §§3–5, 7, Chapter 2 §§5, 7–8, Chapter 3 §§2–4, 7,
   Chapter 7 §3 (printed p. 50, time-shortening deformation),
-  Chapter 8 §§5–6 (printed pp. 61–62, path direction, pullback fibers and
-  finite-degree homotopy-fiber exactness), and
+  Chapter 8 §§5–6 (printed pp. 61–62, path direction, pullback fibers,
+  arbitrary-based-source and finite-degree homotopy-fiber exactness), and
   Chapter 9 §§1, 4 (printed pp. 65–67, including subspace endpoint paths).
   [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and

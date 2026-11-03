@@ -5,6 +5,8 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Const
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homotopy
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.LoopSpace
 
 /-!
@@ -22,6 +24,13 @@ continuous based postcomposition transported through `genLoopHomeoOfUnique`.
 Both sides retain the specified target source point, and their paths evaluate
 to the postcomposed loop at every time. The latter assertion needs no equality
 between the specified source points.
+
+The retained-point projection of the loop inclusion is constant. The loop
+inclusion after the original map on loops contracts by shortening the source
+loop, relative to the constant loop. This is obtained from `idContraction` by
+precomposition and the induced map of homotopy fibers. The retained-path
+homotopy also nullhomotopes the original map after the retained-point projection,
+relative to each specified constant-path point.
 
 Only the ordinary compact-open and subspace topologies are used, with no
 separation or local compactness assumptions on the spaces.
@@ -104,6 +113,107 @@ theorem loopInclusion_path_apply (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = 
 theorem loopInclusion_refl (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
     loopInclusion f b e₀ h (Path.refl b) = const (f := f) (b := b) e₀ h :=
   loopInclusion_apply e₀ h (Path.refl b)
+
+/-- The retained-path homotopy fixes the constant-path point throughout. -/
+def pathHomotopyRel (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    (ContinuousMap.const (HomotopyFiber f b) b).HomotopyRel
+      (f.comp (point (f := f) (b := b))) {const e₀ h} where
+  toHomotopy := pathHomotopy f b
+  prop' t z hz := by
+    have hz' : z = const e₀ h := Set.mem_singleton_iff.mp hz
+    subst z
+    rfl
+
+/-- The relative homotopy evaluates the whole retained path at its time parameter. -/
+theorem pathHomotopyRel_apply (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (t : unitInterval) (z : HomotopyFiber f b) :
+    pathHomotopyRel f b e₀ h (t, z) = path z t :=
+  rfl
+
+/-- The composite of the retained-point projection with the original map is
+nullhomotopic relative to the specified constant-path point. -/
+theorem homotopicRel_comp_point_const (f : C(E, B)) (b : B) (e₀ : E)
+    (h : f e₀ = b) :
+    (f.comp (point (f := f) (b := b))).HomotopicRel
+      (ContinuousMap.const (HomotopyFiber f b) b) {const e₀ h} :=
+  ⟨(pathHomotopyRel f b e₀ h).symm⟩
+
+/-- Projecting the loop inclusion to its retained point is the constant map. -/
+theorem point_comp_loopInclusion (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    (point (f := f) (b := b)).comp (loopInclusion f b e₀ h) =
+      ContinuousMap.const (Path b b) e₀ := by
+  ext γ
+  rfl
+
+/-- Contract the loop inclusion of the mapped loop by shortening the source loop,
+fixing the constant loop throughout. -/
+noncomputable def loopInclusionCompLoopMapHomotopy
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    ((loopInclusion f b e₀ h).comp (f.loopMap e₀ b h)).HomotopyRel
+      (ContinuousMap.const (Path e₀ e₀) (const (f := f) e₀ h))
+      {Path.refl e₀} := by
+  let F : C(HomotopyFiber (ContinuousMap.id E) e₀, HomotopyFiber f b) :=
+    map (ContinuousMap.id E) f (fun _ => rfl) h
+  let L := loopInclusion (ContinuousMap.id E) e₀ e₀ rfl
+  have hL : Set.MapsTo L {Path.refl e₀}
+      {const (f := ContinuousMap.id E) e₀ rfl} := by
+    intro γ hγ
+    have hγ' : γ = Path.refl e₀ := Set.mem_singleton_iff.mp hγ
+    subst γ
+    exact Set.mem_singleton_iff.mpr
+      (loopInclusion_refl (ContinuousMap.id E) e₀ e₀ rfl)
+  let H := ((idContraction e₀).precomp L hL).compContinuousMap F
+  refine H.cast ?_ ?_
+  · apply ContinuousMap.ext
+    intro γ
+    apply ext
+    · rfl
+    · apply ContinuousMap.ext
+      intro s
+      rfl
+  · apply ContinuousMap.ext
+    intro γ
+    change F (const (f := ContinuousMap.id E) e₀ rfl) = const e₀ h
+    exact map_const_of_point_eq (ContinuousMap.id E) f (fun _ => rfl) h
+      e₀ e₀ rfl h rfl
+
+/-- The point coordinate of the contraction follows the source loop backwards. -/
+theorem point_loopInclusionCompLoopMapHomotopy
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (t : unitInterval) (γ : Path e₀ e₀) :
+    point (loopInclusionCompLoopMapHomotopy f b e₀ h (t, γ)) =
+      γ (unitInterval.symm t) := by
+  change point
+    (map (f := ContinuousMap.id E) (f' := f) (b := e₀) (b' := b)
+      (ContinuousMap.id E) f (fun _ => rfl) h
+      (idContraction e₀ (t, loopInclusion (ContinuousMap.id E) e₀ e₀ rfl γ))) = _
+  simp only [point_map, ContinuousMap.id_apply]
+  exact (point_idContraction e₀ t
+    (loopInclusion (ContinuousMap.id E) e₀ e₀ rfl γ)).trans
+      ((eval_apply (unitInterval.symm t)
+        (loopInclusion (ContinuousMap.id E) e₀ e₀ rfl γ)).trans
+          (loopInclusion_path_apply (ContinuousMap.id E) e₀ e₀ rfl γ
+            (unitInterval.symm t)))
+
+/-- Every time value of the contracted path is the mapped source-loop prefix. -/
+theorem path_loopInclusionCompLoopMapHomotopy_apply
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (t : unitInterval) (γ : Path e₀ e₀) (s : unitInterval) :
+    path (loopInclusionCompLoopMapHomotopy f b e₀ h (t, γ)) s =
+      f (γ (unitInterval.symm t * s)) := by
+  change f (path
+    (idContraction e₀ (t, loopInclusion (ContinuousMap.id E) e₀ e₀ rfl γ)) s) = _
+  rw [path_idContraction_apply]
+  rfl
+
+/-- The loop inclusion after the loop map is nullhomotopic relative to the
+constant source loop. -/
+theorem homotopicRel_loopInclusion_comp_loopMap_const
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    ((loopInclusion f b e₀ h).comp (f.loopMap e₀ b h)).HomotopicRel
+      (ContinuousMap.const (Path e₀ e₀) (const (f := f) e₀ h))
+      {Path.refl e₀} :=
+  ⟨loopInclusionCompLoopMapHomotopy f b e₀ h⟩
 
 /-- Both routes around the loop-inclusion square retain the separately specified
 source point of the target homotopy fiber. -/

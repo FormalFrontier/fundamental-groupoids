@@ -129,4 +129,31 @@ theorem homotopyQuotient_map_eq_iff {X Y : BasedTopCat.{u}} (f g : X ⟶ Y) :
       ContinuousMap.HomotopicRel f.right.hom g.right.hom {point X} :=
   CategoryTheory.Quotient.functor_map_eq_iff homotopyRel f g
 
+/-- Postcomposition by a based map on morphisms in the based-homotopy category. -/
+def homotopyPostcomp (Z : BasedTopCat.{u}) {X Y : BasedTopCat.{u}} (f : X ⟶ Y) :
+    (homotopyQuotient.obj Z ⟶ homotopyQuotient.obj X) →
+      (homotopyQuotient.obj Z ⟶ homotopyQuotient.obj Y) :=
+  fun a ↦ a ≫ homotopyQuotient.map f
+
+/-- Postcomposition is categorical composition with the quotient image of the map. -/
+@[simp]
+theorem homotopyPostcomp_apply (Z : BasedTopCat.{u}) {X Y : BasedTopCat.{u}}
+    (f : X ⟶ Y) (a : homotopyQuotient.obj Z ⟶ homotopyQuotient.obj X) :
+    homotopyPostcomp Z f a = a ≫ homotopyQuotient.map f := rfl
+
+/-- Postcomposition by the identity fixes every based-homotopy class. -/
+@[simp]
+theorem homotopyPostcomp_id (Z X : BasedTopCat.{u}) :
+    homotopyPostcomp Z (𝟙 X) = id := by
+  funext a
+  simp [homotopyPostcomp]
+
+/-- Successive postcomposition agrees with postcomposition by the composite. -/
+theorem homotopyPostcomp_comp (Z : BasedTopCat.{u}) {X Y T : BasedTopCat.{u}}
+    (f : X ⟶ Y) (g : Y ⟶ T) :
+    homotopyPostcomp Z (f ≫ g) = homotopyPostcomp Z g ∘ homotopyPostcomp Z f := by
+  funext a
+  simp [homotopyPostcomp, Category.assoc]
+
+
 end BasedTopCat
