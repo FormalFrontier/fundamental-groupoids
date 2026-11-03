@@ -49,6 +49,7 @@ public import FundamentalGroupoids.Topology.Category.TopCat.Based.Coproducts
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.FiniteWedge
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.HomotopyFiber
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.HomotopyFiber.Exact
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.Loop
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Products
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.ULift
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Universe

@@ -12,6 +12,15 @@ directions, examples, conventions and credits.
 
 ## Headline results
 
+- **The ordinary based loop functor and based homotopy.** The compact-open loop
+  space `Path x x`, based at its constant loop, is functorial for strict based maps.
+  A homotopy relative to the selected point induces a jointly continuous homotopy
+  of loop maps fixing the whole constant loop, with no local compactness or
+  separation assumptions on the original spaces. The loop functor descends uniquely
+  to the category of based-homotopy classes, with a strict commuting triangle.
+  Based homotopy inverses give an isomorphism there whose two arrows are the classes
+  of the corresponding loop maps. See
+  [`Based.Loop`](FundamentalGroupoids/Topology/Category/TopCat/Based/Loop.lean).
 - **Generated-by subspaces.** For any family of generating spaces and any subset
   of an arbitrary space, the generated-by refinement of the original subspace is
   canonically homeomorphic to the generated-by refinement of the counit-preimage

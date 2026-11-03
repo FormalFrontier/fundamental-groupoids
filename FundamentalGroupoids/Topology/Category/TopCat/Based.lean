@@ -129,6 +129,38 @@ theorem homotopyQuotient_map_eq_iff {X Y : BasedTopCat.{u}} (f g : X ⟶ Y) :
       ContinuousMap.HomotopicRel f.right.hom g.right.hom {point X} :=
   CategoryTheory.Quotient.functor_map_eq_iff homotopyRel f g
 
+/-- Based maps inverse up to based homotopy give an isomorphism in the
+based-homotopy category. Its two arrows are the classes of the specified maps. -/
+def homotopyQuotientIso {X Y : BasedTopCat.{u}} (f : X ⟶ Y) (g : Y ⟶ X)
+    (hfg : homotopyRel (f ≫ g) (𝟙 X)) (hgf : homotopyRel (g ≫ f) (𝟙 Y)) :
+    homotopyQuotient.obj X ≅ homotopyQuotient.obj Y where
+  hom := homotopyQuotient.map f
+  inv := homotopyQuotient.map g
+  hom_inv_id := by
+    calc
+      homotopyQuotient.map f ≫ homotopyQuotient.map g =
+          homotopyQuotient.map (f ≫ g) := (homotopyQuotient.map_comp f g).symm
+      _ = homotopyQuotient.map (𝟙 X) := (homotopyQuotient_map_eq_iff _ _).2 hfg
+      _ = 𝟙 _ := homotopyQuotient.map_id X
+  inv_hom_id := by
+    calc
+      homotopyQuotient.map g ≫ homotopyQuotient.map f =
+          homotopyQuotient.map (g ≫ f) := (homotopyQuotient.map_comp g f).symm
+      _ = homotopyQuotient.map (𝟙 Y) := (homotopyQuotient_map_eq_iff _ _).2 hgf
+      _ = 𝟙 _ := homotopyQuotient.map_id Y
+
+/-- The forward arrow of the isomorphism is the class of the forward map. -/
+@[simp]
+theorem homotopyQuotientIso_hom {X Y : BasedTopCat.{u}} (f : X ⟶ Y) (g : Y ⟶ X)
+    (hfg : homotopyRel (f ≫ g) (𝟙 X)) (hgf : homotopyRel (g ≫ f) (𝟙 Y)) :
+    (homotopyQuotientIso f g hfg hgf).hom = homotopyQuotient.map f := rfl
+
+/-- The inverse arrow of the isomorphism is the class of the inverse map. -/
+@[simp]
+theorem homotopyQuotientIso_inv {X Y : BasedTopCat.{u}} (f : X ⟶ Y) (g : Y ⟶ X)
+    (hfg : homotopyRel (f ≫ g) (𝟙 X)) (hgf : homotopyRel (g ≫ f) (𝟙 Y)) :
+    (homotopyQuotientIso f g hfg hgf).inv = homotopyQuotient.map g := rfl
+
 /-- Postcomposition by a based map on morphisms in the based-homotopy category. -/
 def homotopyPostcomp (Z : BasedTopCat.{u}) {X Y : BasedTopCat.{u}} (f : X ⟶ Y) :
     (homotopyQuotient.obj Z ⟶ homotopyQuotient.obj X) →

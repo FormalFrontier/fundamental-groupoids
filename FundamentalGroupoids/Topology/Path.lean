@@ -12,8 +12,9 @@ public import Mathlib.AlgebraicTopology.FundamentalGroupoid.Basic
 
 A continuous map of spaces induces a continuous map on each fixed-endpoint path
 space. Endpoint transport specializes this to based loops for a map with a specified
-basepoint equation. A path whose range is contained in a set can be regarded as a path in that
-subspace.
+basepoint equation. A homotopy relative to that point induces a jointly continuous
+homotopy of loop maps, fixing the constant loop throughout. A path whose range is
+contained in a set can be regarded as a path in that subspace.
 The inclusion recovers the original path. A homotopy between paths in a subspace
 can likewise be recovered from an ambient based homotopy whose range stays in the
 subspace.
@@ -196,6 +197,69 @@ theorem loopMap_comp.{u, v, t} {E : Type u} {B : Type v} {T : Type t}
       (g.loopMap b c hg).comp (f.loopMap e₀ b hf) := by
   ext γ s
   rfl
+
+namespace HomotopyRel
+
+/-- A homotopy relative to a point induces a homotopy of loop maps, relative to the
+constant loop. The homotopy varies jointly continuously with time and the input loop. -/
+def loopMap.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B] {e : E} {f g : C(E, B)}
+    (H : HomotopyRel f g {e}) (b : B) (hf : f e = b) (hg : g e = b) :
+    HomotopyRel (f.loopMap e b hf) (g.loopMap e b hg) {Path.refl e} where
+  toFun p :=
+    { toFun t := H (p.1, p.2 t)
+      continuous_toFun := H.continuous.comp (continuous_const.prodMk p.2.continuous)
+      source' := by
+        rw [p.2.source]
+        exact (H.eq_fst p.1 (Set.mem_singleton e)).trans hf
+      target' := by
+        rw [p.2.target]
+        exact (H.eq_fst p.1 (Set.mem_singleton e)).trans hf }
+  continuous_toFun := by
+    apply Path.continuous_uncurry_iff.mp
+    have hev : Continuous (fun p : (unitInterval × Path e e) × unitInterval =>
+        p.1.2 p.2) :=
+      (Path.continuous_uncurry_iff.mpr
+        (continuous_id : Continuous (id : Path e e → Path e e))).comp
+          (continuous_fst.snd.prodMk continuous_snd)
+    exact H.continuous.comp (continuous_fst.fst.prodMk hev)
+  map_zero_left γ := by
+    ext t
+    exact H.apply_zero (γ t)
+  map_one_left γ := by
+    ext t
+    exact H.apply_one (γ t)
+  prop' s γ hγ := by
+    obtain rfl : γ = Path.refl e := Set.mem_singleton_iff.mp hγ
+    ext t
+    exact H.eq_fst s (Set.mem_singleton e)
+
+/-- Evaluation of the induced homotopy is pointwise evaluation of the original homotopy. -/
+@[simp]
+theorem loopMap_apply_apply.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B] {e : E} {f g : C(E, B)}
+    (H : HomotopyRel f g {e}) (b : B) (hf : f e = b) (hg : g e = b)
+    (s : unitInterval) (γ : Path e e) (t : unitInterval) :
+    H.loopMap b hf hg (s, γ) t = H (s, γ t) := rfl
+
+/-- Every time slice of the induced homotopy fixes the whole constant loop. -/
+@[simp]
+theorem loopMap_refl.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B] {e : E} {f g : C(E, B)}
+    (H : HomotopyRel f g {e}) (b : B) (hf : f e = b) (hg : g e = b)
+    (s : unitInterval) :
+    H.loopMap b hf hg (s, Path.refl e) = Path.refl b := by
+  ext t
+  exact (H.eq_fst s (Set.mem_singleton e)).trans hf
+
+end HomotopyRel
+
+/-- Homotopy relative to a point is preserved by passage to the induced loop maps. -/
+theorem HomotopicRel.loopMap.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B] {e : E} {f g : C(E, B)}
+    (H : HomotopicRel f g {e}) (b : B) (hf : f e = b) (hg : g e = b) :
+    HomotopicRel (f.loopMap e b hf) (g.loopMap e b hg) {Path.refl e} :=
+  H.map (fun F ↦ F.loopMap b hf hg)
 
 end ContinuousMap
 
