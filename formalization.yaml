@@ -29,13 +29,18 @@ highlights:
         file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
       - declaration: AddCircle.fundamentalGroupEquivInt_loop
         file: FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean
-  - title: Covering fibers, cosets and properness
+  - title: Covering fibers, cosets, properness and homotopy groups
     statement: >-
-      A covering p : E → B between arbitrary topological spaces in independent
-      universes is proper exactly when every point fiber is finite, and when E
-      is path connected with chosen e₀, monodromy identifies the fiber over
-      p(e₀) with the left cosets of im(π₁(E,e₀) → π₁(B,p(e₀))) and properness
-      is equivalent to finite index of that image subgroup.
+      For a covering p : E → B between arbitrary topological spaces in independent
+      universes, properness is equivalent to finite point fibers and, when E is
+      path connected with chosen e₀, monodromy identifies the fiber over p(e₀)
+      with the left cosets of im(π₁(E,e₀) → π₁(B,p(e₀))) and properness is
+      equivalent to finite index of that image subgroup, while for every e : E
+      postcomposition on based homotopy classes of N-cubes relative to their
+      coordinate-face boundary is injective for nonempty N and bijective for
+      N with at least two elements in an independent cube universe, with a
+      multiplicative equivalence HomotopyGroup N E e ≃* HomotopyGroup N B (p e)
+      in the latter case when N has decidable equality.
     declarations:
       - declaration: IsCoveringMap.isProperMap_iff_finite_fibers
         file: FundamentalGroupoids/Topology/Covering/Proper.lean
@@ -43,15 +48,6 @@ highlights:
         file: FundamentalGroupoids/Topology/Covering/Monodromy.lean
       - declaration: IsCoveringMap.isProperMap_iff_finiteIndex
         file: FundamentalGroupoids/Topology/Covering/FiniteIndex.lean
-  - title: Covering maps on positive cubical homotopy groups
-    statement: >-
-      Given a covering p : E → B and e : E, postcomposition on homotopy classes
-      of N-cubes relative to their coordinate-face boundary is injective for
-      nonempty N and bijective when N has at least two elements, with independent
-      cube and space universes and, in the latter case with decidable equality
-      on N, a multiplicative equivalence HomotopyGroup N E e ≃*
-      HomotopyGroup N B (p e) for the existing group structures.
-    declarations:
       - declaration: IsCoveringMap.injective_homotopyGroup_mapFun
         file: FundamentalGroupoids/Topology/Covering/HomotopyGroup.lean
       - declaration: IsCoveringMap.bijective_homotopyGroup_mapFun
@@ -72,6 +68,23 @@ highlights:
         file: FundamentalGroupoids/FundamentalGroup/DiskAttachment/Quotient.lean
       - declaration: FundamentalGroup.diskAttachmentFundamentalGroupHomEquiv
         file: FundamentalGroupoids/FundamentalGroup/DiskAttachment/Homomorphisms.lean
+  - title: Positive-degree exactness of the pointed homotopy-fiber sequence
+    statement: >-
+      For arbitrary topological spaces E and B in independent universes,
+      f : C(E, B), b : B, e0 : E and h : f e0 = b, the pointed chain complex
+      S = homotopyFiberSequence f b e0 h, functorial under strict based
+      commuting squares and having lifted cubical homotopy quotients of B, E
+      and the ordinary homotopy fiber in degrees 3n, 3n+1 and 3n+2, satisfies
+      range (S.d (n+2) (n+1)).toFun equal to the preimage of {(S.X n).point}
+      under (S.d (n+1) n).toFun for every natural n, without asserting
+      surjectivity onto the terminal path-component term of B.
+    declarations:
+      - declaration: HomotopyGroup.homotopyFiberSequence
+        file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+      - declaration: HomotopyGroup.homotopyFiberSequenceMap
+        file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+      - declaration: HomotopyGroup.homotopyFiberSequence_exact
+        file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact.lean
 project:
   name: Fundamental Groupoids
   description: >-
@@ -111,9 +124,15 @@ project:
     naturality. Index and space universes are independent, without separation or
     local compactness assumptions on the target. The based homotopy-fiber
     point projection has class image equal to the preimage of the constant class
-    for every cube index, with range–kernel form for the existing positive groups. Equivalences of cube-index
-    types induce quotient equivalences by reindexing representatives, with inverse,
-    identity, composition and based-postcomposition laws in independent universes.
+    for every cube index, with range–kernel form for the existing positive groups.
+    The pointed homotopy-fiber chain complex has lifted cubical homotopy quotients
+    of the base, total space and fiber in successive degrees, is exact in the
+    pointed-set sense at every positive chain degree, and admits chain maps for
+    strict based squares. Its incoming differential need not surject onto the
+    terminal path-component term of the base.
+    Equivalences of cube-index types induce quotient equivalences by reindexing
+    representatives, with inverse, identity, composition and based-postcomposition
+    laws in independent universes.
     For nonempty indices with decidable equality, the same maps are multiplicative
     for the existing group structures, without requiring corresponding selected axes.
     The continuous identity from Mathlib's CompHaus-test topology to the original
@@ -225,8 +244,8 @@ sources:
       Revised author PDF, Chapter 1 §§3, 5, 7 and Chapter 2 §§4–5, 7–8.
       Chapter 3 §§2–4, 7 for covering-space monodromy, lifting and maps of covers.
       Chapter 5 §§1–2, printed pp. 39–41, for compact-Hausdorff tests and kification.
-      Chapter 8 §6, “Fiber sequences”, printed pp. 61–62 (PDF pp. 69–70),
-      especially printed p. 62, for loop-image and projection exactness.
+      Chapter 8 §§5–6, printed pp. 61–62 (PDF pp. 69–70), for the
+      homotopy-fiber model and finite-degree exactness, especially printed p. 62.
       Chapter 9 §§1, 4, printed pp. 65–67, for based homotopy groups and the
       classical finite-degree covering isomorphism.
     relationship: adapts
@@ -267,7 +286,12 @@ sources:
       All-index cubical comparisons extend the finite-degree motivation, without
       a sphere-domain comparison or an arbitrary-product formula for kification.
       The locally compact factor comparison is supporting topology derived using
-      Mathlib's quotient-product continuity theorem.
+      Mathlib's quotient-product continuity theorem. The pointed chain complex
+      uses the ordinary compact-open homotopy fiber and cubical homotopy quotients.
+      Its finite-degree pointed-set exactness adapts Chapter 8 §§5–6, without
+      identifying it with the signed sequence or the category U. Strict-square
+      chain maps and all-index connecting-map naturality are structural
+      extensions, not statements quoted from May.
       No open redistribution license is inferred for
       the author-hosted PDF, and no book excerpts or PDF assets are included.
 related_formalizations:
@@ -686,9 +710,9 @@ alignment:
     with the basepoint. The representative law holds for every raw forward loop,
     and delta 1 is the component of the constant-path point. May's preceding
     arrow on p. 62 is minus Omega f, with the same group image; no group structure
-    on the fiber's path components, surjectivity of delta or full long exact
-    sequence is asserted. Source and base universes are independent and their
-    topologies arbitrary. The component-image formula for arbitrary commuting
+    on the fiber's path components, surjectivity of delta or signed long exact
+    sequence of groups is asserted. Source and base universes are independent,
+    with arbitrary topologies. The component-image formula for arbitrary commuting
     squares over the identity base is a structural extension, not a statement
     quoted from May or an identification with his category. Projection exactness
     at HomotopyGroup N E e0 adapts the finite-dimensional projection position in
@@ -707,8 +731,24 @@ alignment:
     subgroup range–kernel formula for the existing map homomorphisms. The
     empty-index consequence uses all components of Path b b, not only the
     component of Path.refl b. Index and space universes are independent, with
-    arbitrary topologies and no degree-shift comparison. The unpointed zeroth
-    projection formula still permits empty E without e0 or h.
+    arbitrary topologies; these loop-inclusion formulas do not themselves compare
+    degrees. The unpointed zeroth projection formula still permits empty E
+    without e0 or h.
+    The chain complex S = homotopyFiberSequence f b e0 h uses the original spaces,
+    map and specified constant-path point, lifting only quotient carriers to
+    Pointed in a common ambient universe. Its terms in degrees 3n, 3n+1 and
+    3n+2 are the cubical homotopy quotients of B, E and HomotopyFiber f b at
+    Fin n. The connecting representative retains e0 and the entire forward
+    path t ↦ p (Fin.snoc a t). Term isomorphisms and differential/class laws
+    characterize the construction. Strict based squares give chain maps with
+    four independent space universes, component laws and identity/composition
+    laws. The exactness theorem is range (S.d (n+2) (n+1)).toFun equal to
+    (S.d (n+1) n).toFun preimage {(S.X n).point} for every natural n. It covers
+    every positive chain degree, not surjectivity onto the terminal π₀B.
+    This is pointed-set exactness, not preadditive categorical exactness; no
+    group structure on π₀ or commutativity of π₁ is asserted. The finite-degree
+    model and exactness adapt May, Chapter 8 §§5–6, printed pp. 61–62;
+    strict-square and all-index naturality are structural extensions.
     Products, subspaces and compact-open spaces use ordinary,
     non-kified topologies; no sphere-domain comparison or identification with
     May's weak-Hausdorff, compactly generated category U is asserted.
@@ -745,6 +785,40 @@ alignment:
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
     - lean: ZerothHomotopy.range_map_homotopyFiber_loop
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean
+    - lean: GenLoop.homotopyFiberConnecting
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequence
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequenceMap
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequenceBaseIso
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequenceTotalIso
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequenceFiberIso
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequence_d_base_apply
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequence_d_total_apply
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequence_d_fiber_class
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequenceMap_id
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.homotopyFiberSequenceMap_comp
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
+    - lean: HomotopyGroup.mapFun_homotopyFiber_loop_naturality
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Naturality.lean
+    - lean: HomotopyGroup.homotopyFiberSequence_exact
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact.lean
+    - lean: HomotopyGroup.homotopyFiberSequence_exact_total
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact/Total.lean
+    - lean: HomotopyGroup.homotopyFiberSequence_exact_fiber
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact/Fiber.lean
+    - lean: HomotopyGroup.homotopyFiberSequence_exact_base
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact/Base.lean
+    - lean: Function.range_eq_preimage_singleton_of_coordinates
+      module: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact/Transport.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph
       module: FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean
     - lean: ContinuousMap.HomotopyFiber.homeomorph_symm

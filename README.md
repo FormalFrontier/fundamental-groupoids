@@ -1,11 +1,12 @@
 # Fundamental Groupoids
 
 Fundamental groupoids, based homotopy, compact-open generalized-loop spaces,
-ordinary compact-open endpoint paths and homotopy fibers, relative affine
-homotopies, categorical endomorphism transport, strict open-cover
-descent, based van Kampen, covering spaces and semilocal simple connectivity in
-Lean. The library extends Mathlib's categories, path-homotopy classes and covering
-maps rather than introducing replacement structures. The
+ordinary compact-open endpoint paths and homotopy fibers, pointed homotopy-fiber
+sequences, relative affine homotopies, categorical endomorphism transport,
+strict open-cover descent, based van Kampen, covering spaces and semilocal
+simple connectivity in Lean. The library extends Mathlib's categories,
+path-homotopy classes and covering maps rather than introducing replacement
+structures. The
 [mathematical guide](docs/mathematical-guide.md) gives detailed statements, API
 directions, examples, conventions and credits.
 
@@ -304,12 +305,56 @@ directions, examples, conventions and credits.
   with image `(π₀ p) ⁻¹' {ZerothHomotopy.mk e₀}` and
   `δ ⁻¹' {δ 1} = Set.range (FundamentalGroup.mapOfEq f h)`.
   These are the positions at `π₀HF` and `π₁B`, distinct from projection
-  exactness at `HomotopyGroup N E e₀`. No group structure on `π₀HF` or full
-  long exact sequence is supplied. The finite-degree exactness formulas adapt
+  exactness at `HomotopyGroup N E e₀`. No group structure on `π₀HF` is supplied.
+  The finite-degree exactness formulas adapt
   May, Chapter 8 §6, printed pp. 61–62; the all-index statements are ordinary-topology
   cubical extensions, without a sphere-domain comparison or identification with
   his signed degree-indexed sequence or category `U`. See the
   [exactness guide](docs/mathematical-guide.md#path-component-exactness-for-homotopy-fibers).
+- **Pointed homotopy-fiber sequences and positive-degree exactness** ([`HomotopyGroup.Fiber.Sequence`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean),
+  [`Sequence.Exact`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact.lean)).
+  For arbitrary topological spaces `E`, `B`, `f : C(E, B)`, `b : B`, `e₀ : E`
+  and `h : f e₀ = b`, let `HF = HomotopyFiber f b`, based at
+  `HomotopyFiber.const e₀ h`. The construction
+  `S = HomotopyGroup.homotopyFiberSequence f b e₀ h : ChainComplex Pointed ℕ`
+  has terms identified with `ULift`s of `πₙB`, `πₙE`, `πₙHF` in degrees
+  `3n`, `3n + 1`, `3n + 2`, where `πₙ` uses `HomotopyGroup (Fin n)`.
+  Only quotient carriers are lifted into a common ambient universe; the spaces
+  retain their independent universes. Zero morphisms are constant pointed maps.
+  The differentials are based postcomposition by `f`, fiber projection, and
+  the connecting function from `πₙ₊₁B` to `πₙHF`.
+  `GenLoop.homotopyFiberConnecting n f b e₀ h p` retains `e₀` and the whole
+  forward path `t ↦ p (Fin.snoc a t)` at each outer coordinate `a`.
+  The term isomorphisms `homotopyFiberSequenceBaseIso`,
+  `homotopyFiberSequenceTotalIso`, `homotopyFiberSequenceFiberIso` and the
+  differential laws `homotopyFiberSequence_d_base_apply`,
+  `homotopyFiberSequence_d_total_apply`, `homotopyFiberSequence_d_fiber_class`
+  expose these descriptions without unfolding the complex; the first two
+  differentials also have `_class` laws on representatives.
+  `HomotopyGroup.homotopyFiberSequence_exact` states, for every `n : ℕ`,
+  ```lean
+  Set.range (S.d (n + 2) (n + 1)).toFun =
+    (S.d (n + 1) n).toFun ⁻¹' {(S.X n).point}
+  ```
+  This is pointed-set exactness at all positive chain degrees. The lemmas
+  `homotopyFiberSequence_exact_total`, `homotopyFiberSequence_exact_fiber`,
+  `homotopyFiberSequence_exact_base` give the positions `3n + 1`, `3n + 2`,
+  `3n + 3`, respectively. The incoming differential need not surject onto the
+  terminal term `π₀B`.
+  A strict continuous square preserving the specified points induces
+  `HomotopyGroup.homotopyFiberSequenceMap`, with four independent space
+  universes and a common ambient lift universe. Its `_base_apply`,
+  `_total_apply`, `_fiber_apply` laws describe the components, and `_id`,
+  `_comp` give identity and composition laws. The all-index connecting-map
+  naturality theorem is `HomotopyGroup.mapFun_homotopyFiber_loop_naturality`.
+  `Function.range_eq_preimage_singleton_of_coordinates` transports such
+  range–point-fiber equalities along commuting coordinates, requiring only
+  surjectivity in the first column and injectivity in the other two.
+  The ordinary compact-open model and finite-degree exactness adapt May,
+  Chapter 8 §§5–6, printed pp. 61–62; strict-square and all-index naturality
+  are structural extensions, not statements quoted from May. This is not a
+  signed long exact sequence of groups or a comparison with his category `U`:
+  `π₀` remains a pointed set, and `π₁` need not be abelian.
 - **Finite generalized loops as based compact-open maps** ([`GenLoop.OnePoint`](FundamentalGroupoids/Topology/Homotopy/GenLoop/OnePoint.lean)).
   For every finite index type `N` (`[Finite N]`) and every topological space `X`
   with chosen `x`, `GenLoop.onePointHomeomorph N x` identifies `GenLoop N X x`
@@ -949,6 +994,13 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/CompactlyGenerated.lean) | Joint relative-homotopy lifts with arbitrary fixed subsets, counit inverse laws, target naturality and homotopy-existence comparison; fixed-evaluation-fiber refinement homeomorphisms and based naturality; counit bijectivity on path components for arbitrary spaces, subtypes and fixed-evaluation fibers |
 | [`Topology.Homotopy.HomotopyGroup.CompactlyGenerated`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/CompactlyGenerated.lean) | Natural equivalences for CompHaus-test topology comparisons on all cubical homotopy quotients, with existing-map and positive multiplicative characteristics |
 | [`Topology.Homotopy.HomotopyGroup.Fiber`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber.lean) | All-index image–preimage exactness at the base of a homotopy fiber via inverse iteration and the forward loop inclusion; range–kernel form for nonempty indices with decidable equality |
+| [`Topology.Homotopy.HomotopyGroup.Fiber.Naturality`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Naturality.lean) | All-index connecting-map naturality for strict based squares, with independent index and four space universes |
+| [`Topology.Homotopy.HomotopyGroup.Fiber.Sequence`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean) | Pointed chain complex, forward connecting representatives, term isomorphisms, differential/class laws and strict-square chain maps with component, identity and composition laws |
+| [`Topology.Homotopy.HomotopyGroup.Fiber.Sequence.Exact`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact.lean) | Pointed-set exactness at every positive chain degree; no terminal surjectivity |
+| [`Topology.Homotopy.HomotopyGroup.Fiber.Sequence.Exact.Total`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact/Total.lean) | Exactness at every total-space term, including path components |
+| [`Topology.Homotopy.HomotopyGroup.Fiber.Sequence.Exact.Fiber`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact/Fiber.lean) | Exactness at every homotopy-fiber term, including path components |
+| [`Topology.Homotopy.HomotopyGroup.Fiber.Sequence.Exact.Base`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact/Base.lean) | Exactness at positive base-space terms |
+| [`Topology.Homotopy.HomotopyGroup.Fiber.Sequence.Exact.Transport`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact/Transport.lean) | Range–point-fiber transport along commuting functions, with a surjective first coordinate and injective last two coordinates |
 | [`Topology.Homotopy.HomotopyGroup.LoopSpace`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/LoopSpace.lean) | Singleton-indexed generalized-loop/based-path homeomorphism retaining the underlying equivalence, full evaluation and based-map laws; boundary-relative homotopy iff joinedness; raw quotient/component equivalence with constant, naturality and empty-index laws |
 | [`Topology.Homotopy.HomotopyGroup.Product`](FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Product.lean) | Canonical evaluation/assembly equivalences for arbitrary dependent products and cube indices; stock multiplicative equivalences for nonempty cube indices with decidable equality |
 | [`Topology.Homotopy.Cube`](FundamentalGroupoids/Topology/Homotopy/Cube.lean) | Closed coordinate-face boundaries for finite indices, zero boundary vertex for nonempty indices and path-connected boundaries for nontrivial indices |
@@ -973,6 +1025,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.WidePushout`](FundamentalGroupoids/Topology/Homotopy/WidePushout.lean) | Jointly continuous family and homotopy descent, all-time restrictions, uniqueness and reparameterization; point-relative factor homotopies as a unique head-relative homotopy |
 | [`AlgebraicTopology.FundamentalGroup.Circle`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Circle.lean) | Signed-period additive-circle and complex-circle integer coordinates, loop/inverse/endpoint laws, nonidentity generators and homeomorphism compatibility |
 | [`AlgebraicTopology.FundamentalGroup.Functor`](FundamentalGroupoids/AlgebraicTopology/FundamentalGroup/Functor.lean) | Fundamental-group functor on based spaces and its unique factorization through based homotopy |
+| [`CategoryTheory.Category.Pointed`](FundamentalGroupoids/CategoryTheory/Category/Pointed.lean) | Constant zero morphisms of pointed types, with zero-map and zero-composite characterizations |
 | [`CategoryTheory.Elements.ConnectedComponents`](FundamentalGroupoids/CategoryTheory/Elements/ConnectedComponents.lean) | Components/type-colimit equivalences, representative equations and naturality; induced colimit maps with identity/composition laws |
 | [`CategoryTheory.Endomorphism.Conjugation`](FundamentalGroupoids/CategoryTheory/Endomorphism/Conjugation.lean) | Pointwise commutation criterion, centrality, commutative transport and group conjugation |
 | [`CategoryTheory.SingleObj`](FundamentalGroupoids/CategoryTheory/SingleObj.lean) | Fullness, faithfulness and the chosen-vertex equivalence |
@@ -1037,8 +1090,8 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 - J. Peter May, *A Concise Course in Algebraic Topology*, revised author PDF,
   Chapter 1 §§3–5, 7, Chapter 2 §§5, 7–8, Chapter 3 §§2–4, 7,
   Chapter 7 §3 (printed p. 50, time-shortening deformation),
-  Chapter 8 §6 (printed pp. 61–62, path direction, pullback fibers and
-  loop-image exactness), and
+  Chapter 8 §§5–6 (printed pp. 61–62, path direction, pullback fibers and
+  finite-degree homotopy-fiber exactness), and
   Chapter 9 §§1, 4 (printed pp. 65–67, including subspace endpoint paths).
   [Author's revised text](https://www.math.uchicago.edu/~may/CONCISE/ConciseRevised.pdf).
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
