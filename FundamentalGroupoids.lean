@@ -139,3 +139,5 @@ public import FundamentalGroupoids.Topology.Path
 public import FundamentalGroupoids.Topology.Piecewise
 public import FundamentalGroupoids.Topology.Homotopy.ComplexPuncturedBall
 public import FundamentalGroupoids.FundamentalGroup.ComplexPuncturedBall
+public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Subtype
+public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated
