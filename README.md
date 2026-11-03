@@ -30,6 +30,17 @@ directions, examples, conventions and credits.
   fixes every included strict-fiber point throughout. The source and target
   universes are independent; no separation, local compactness or surjectivity
   assumption is required.
+  The [naturality module](FundamentalGroupoids/Topology/Homotopy/Fiber/Covering/Naturality.lean)
+  intertwines the original inclusion, whole reverse-path lift, retraction and
+  whole fixing deformation under continuous commuting squares, preserving the
+  strict subtype fibers and the complete retained paths. Inclusion and reversed-path
+  family naturality need no covering hypotheses; lift, retraction and deformation
+  naturality require only that the two vertical maps are coverings, not the horizontal
+  maps. The four space universes are independent, with no connectedness, local
+  compactness, separation or nonempty-fiber assumptions. The independent
+  [homotopy-lift naturality module](FundamentalGroupoids/Topology/Covering/Lifting/Naturality.lean)
+  gives postcomposition naturality of Mathlib's canonical lift for any topological
+  parameter space, in a fifth independent universe, under the same covering floor.
 
 - **Point-wide-pushout coproducts up to based homotopy** ([`Based.Coproducts`](FundamentalGroupoids/Topology/Category/TopCat/Based/Coproducts.lean)).
   A family `D : J → BasedTopCat.{max u w}`, indexed by `J : Type w`, has a
@@ -1014,6 +1025,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homotopy.Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean) | Retained-point ordinary homotopy fibers, maps of continuous squares, pullback and embedding/subspace homeomorphisms, with projection, evaluation, constant and naturality laws |
 | [`Topology.Homotopy.Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean) | Constant-map fibers as source times fixed-endpoint Path, with coordinate laws, source naturality and a nonemptiness criterion |
 | [`Topology.Homotopy.Fiber.Contractible`](FundamentalGroupoids/Topology/Homotopy/Fiber/Contractible.lean) | Identity-map fiber contraction relative to its constant-path point, with moving-point, whole-path, evaluation, endpoint and fixed-point laws, and a contractibility instance for arbitrary targets |
+| [`Topology.Homotopy.Fiber.Covering.Naturality`](FundamentalGroupoids/Topology/Homotopy/Fiber/Covering/Naturality.lean) | Original-map naturality of inclusion and reversed-path families without covering hypotheses; whole reverse-path lift, strict-fiber retraction and whole-path fixing deformation naturality for vertical coverings only, with four independent space universes |
 | [`Topology.Homotopy.Fiber.Exact`](FundamentalGroupoids/Topology/Homotopy/Fiber/Exact.lean) | Component images for fiber maps over the identity base; all-index loop-inclusion and point-projection exactness, positive range–kernel forms, all-loop-component image and fundamental-group exactness, with arbitrary topologies and independent universes |
 | [`Topology.Homotopy.Fiber.Homeomorph`](FundamentalGroupoids/Topology/Homotopy/Fiber/Homeomorph.lean) | Homeomorphisms induced by invertible coordinate squares, with forward/inverse point and full-path laws, identity, composition and projection compatibility |
 | [`Topology.Homotopy.Fiber.PathComponent`](FundamentalGroupoids/Topology/Homotopy/Fiber/PathComponent.lean) | Homotopy-fiber nonemptiness, surjectivity on path components iff all fibers are nonempty, and the point projection's component image as the preimage of the basepoint component, for independent universes and arbitrary topologies |
@@ -1084,6 +1096,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`SemilocallySimplyConnected.LocallyPathConnected`](FundamentalGroupoids/SemilocallySimplyConnected/LocallyPathConnected.lean) | Open path-connected refinement with ambient nullhomotopies at all basepoints |
 | [`Topology.Path`](FundamentalGroupoids/Topology/Path.lean) | Path corestriction, its inclusion and concatenation equations, and based homotopies in subspaces |
 | [`Topology.Covering.Lifting`](FundamentalGroupoids/Topology/Covering/Lifting.lean) | Based unique lifting iff fundamental-group image containment |
+| [`Topology.Covering.Lifting.Naturality`](FundamentalGroupoids/Topology/Covering/Lifting/Naturality.lean) | Whole canonical homotopy-lift postcomposition under continuous commuting squares with vertical coverings only, arbitrary topological parameters and five independent universes |
 | [`Topology.Covering.Equivalence`](FundamentalGroupoids/Topology/Covering/Equivalence.lean) | Surjectivity for nonempty source and path-connected target total space; based homeomorphisms from equal images with path-connected totals and locally path-connected source |
 | [`Topology.Covering.Monodromy`](FundamentalGroupoids/Topology/Covering/Monodromy.lean) | Fiber-point stabilizers, joinedness, pretransitivity, equivariant fiber–coset equivalence and fiber restriction with identity/composition laws |
 | [`Topology.Covering.Components`](FundamentalGroupoids/Topology/Covering/Components.lean) | Orbit equivalence with the path-component-map fiber; path-component image equality; equivalence to all total-space components over a path-connected base |

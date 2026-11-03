@@ -70,6 +70,7 @@ public import FundamentalGroupoids.Topology.Covering.FiniteIndex
 public import FundamentalGroupoids.Topology.Covering.GenLoop
 public import FundamentalGroupoids.Topology.Covering.HomotopyGroup
 public import FundamentalGroupoids.Topology.Covering.Lifting
+public import FundamentalGroupoids.Topology.Covering.Lifting.Naturality
 public import FundamentalGroupoids.Topology.Covering.Monodromy
 public import FundamentalGroupoids.Topology.Covering.NormalizerQuotient
 public import FundamentalGroupoids.Topology.Covering.Proper
@@ -88,6 +89,7 @@ public import FundamentalGroupoids.Topology.Homotopy.Fiber
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Const
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Contractible
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Covering
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Covering.Naturality
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Exact
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.GenLoop
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homeomorph
