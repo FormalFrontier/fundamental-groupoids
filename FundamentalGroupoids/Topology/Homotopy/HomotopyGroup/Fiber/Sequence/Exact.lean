@@ -4,17 +4,21 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import FundamentalGroupoids.CategoryTheory.Category.Pointed.Exact
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Fiber.Sequence.Exact.Total
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Fiber.Sequence.Exact.Fiber
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Fiber.Sequence.Exact.Base
+public import Mathlib.Algebra.Homology.ShortComplex.HomologicalComplex
 
 /-!
 # Exactness of pointed homotopy-fiber sequences
 
 The chain complex associated to a continuous based map is exact in every
 positive degree in the pointed-set sense: the incoming range is the inverse
-image of the chosen point under the outgoing differential. Its terminal
-degree-zero term need not be the range of the incoming differential.
+image of the chosen point under the outgoing differential. The same equality
+is expressed categorically by `HomologicalComplex.ExactAt`, using
+`Pointed.exact_iff_range_eq_preimage`. Its terminal degree-zero term need not be
+the range of the incoming differential.
 
 The statements use ordinary topological spaces, the compact-open homotopy fiber
 and cubical homotopy groups. They do not identify this model with a kified
@@ -57,5 +61,22 @@ theorem homotopyFiberSequence_exact.{v, uE, uB}
     have hmid : n + 1 = 3 * k + 3 := by omega
     rw [hsrc, hmid, hn]
     exact homotopyFiberSequence_exact_base.{v} f b e₀ h k
+
+/-- The pointed homotopy-fiber sequence is categorically exact at every positive
+chain degree (May, Chapter 8, Sections 5–6).
+
+This is `homotopyFiberSequence_exact` expressed using Mathlib's `ExactAt`, via
+`Pointed.exact_iff_range_eq_preimage`. No exactness at degree zero is asserted. -/
+theorem homotopyFiberSequence_exactAt.{v, uE, uB}
+    {E : Type uE} {B : Type uB} [TopologicalSpace E] [TopologicalSpace B]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    ∀ n : ℕ,
+      (homotopyFiberSequence.{v, uE, uB} f b e₀ h).ExactAt (n + 1) := by
+  intro n
+  apply (HomologicalComplex.exactAt_iff'
+    (homotopyFiberSequence.{v, uE, uB} f b e₀ h) (n + 2) (n + 1) n
+    (ChainComplex.prev ℕ (n + 1)) (ChainComplex.next_nat_succ n)).mpr
+  exact (Pointed.exact_iff_range_eq_preimage _).mpr
+    (homotopyFiberSequence_exact.{v, uE, uB} f b e₀ h n)
 
 end HomotopyGroup
