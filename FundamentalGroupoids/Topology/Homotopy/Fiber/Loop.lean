@@ -48,6 +48,20 @@ variable [TopologicalSpace E] [TopologicalSpace B]
 variable [TopologicalSpace E'] [TopologicalSpace B']
 variable {f : C(E, B)} {f' : C(E', B')} {b : B} {b' : B'}
 
+/-- The forward loop inclusion into the ordinary homotopy fiber at a specified
+source point, retaining the loop with its original direction. -/
+noncomputable def loopInclusion (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    C(Path b b, HomotopyFiber f b) :=
+  (map
+    (f := ContinuousMap.const Unit b) (f' := f)
+    (b := b) (b' := b)
+    (ContinuousMap.const Unit e₀) (ContinuousMap.id B)
+    (fun _ => h) rfl).comp
+      (((constHomeomorph Unit b b).symm :
+          C(Unit × Path b b, HomotopyFiber (ContinuousMap.const Unit b) b)).comp
+        ((ContinuousMap.const (Path b b) ()).prodMk
+          (ContinuousMap.id (Path b b))))
+
 /-- The loop inclusion retains the specified source point and the entire forward loop. -/
 theorem loopInclusion_apply (e₀ : E) (h : f e₀ = b) (γ : Path b b) :
     let J : C(Path b b, HomotopyFiber f b) :=
@@ -64,6 +78,32 @@ theorem loopInclusion_apply (e₀ : E) (h : f e₀ = b) (γ : Path b b) :
     J γ = mk (f := f) (b := b)
       e₀ γ.toContinuousMap γ.source (γ.target.trans h.symm) :=
   rfl
+
+/-- The loop inclusion retains its specified source point. -/
+@[simp]
+theorem loopInclusion_point (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (γ : Path b b) :
+    point (loopInclusion f b e₀ h γ) = e₀ :=
+  rfl
+
+/-- The path coordinate of the loop inclusion is the entire original loop. -/
+@[simp]
+theorem loopInclusion_path (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (γ : Path b b) :
+    path (loopInclusion f b e₀ h γ) = γ.toContinuousMap :=
+  rfl
+
+/-- Every time value of the loop inclusion is the original loop value. -/
+theorem loopInclusion_path_apply (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (γ : Path b b) (t : unitInterval) :
+    path (loopInclusion f b e₀ h γ) t = γ t :=
+  rfl
+
+/-- The constant loop gives the specified constant-path point of the homotopy fiber. -/
+@[simp]
+theorem loopInclusion_refl (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    loopInclusion f b e₀ h (Path.refl b) = const (f := f) (b := b) e₀ h :=
+  loopInclusion_apply e₀ h (Path.refl b)
 
 /-- Both routes around the loop-inclusion square retain the separately specified
 source point of the target homotopy fiber. -/

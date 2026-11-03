@@ -356,6 +356,19 @@ directions, examples, conventions and credits.
   `_total_apply`, `_fiber_apply` laws describe the components, and `_id`,
   `_comp` give identity and composition laws. The all-index connecting-map
   naturality theorem is `HomotopyGroup.mapFun_homotopyFiber_loop_naturality`.
+  For an arbitrary index `I` with decidable equality and `Nonempty I`,
+  `HomotopyGroup.homotopyFiberConnectingHom I f b e₀ h` is the connecting
+  homomorphism from `HomotopyGroup (I ⊕ Unit) B b` to
+  `HomotopyGroup I HF (HomotopyFiber.const e₀ h)`.
+  The underlying `ContinuousMap.HomotopyFiber.loopInclusion` retains the specified
+  point and whole forward loop; `homotopyFiberConnectingHom_class_point_path`
+  describes every point and time value of the connecting representative.
+  `homotopyFiberConnectingHom_naturality` gives equality of homomorphisms for
+  strict based squares, and `range_map_eq_ker_homotopyFiberConnectingHom`
+  identifies its kernel with the range of based postcomposition by `f`.
+  For `I = Fin n` with `n ≥ 1`, `homotopyFiberConnectingHom_fin_class` identifies
+  this homomorphism with the finite connecting representative after canonical
+  last-coordinate reindexing; no group structure on path components is used.
   `Function.range_eq_preimage_singleton_of_coordinates` transports such
   range–point-fiber equalities along commuting coordinates, requiring only
   surjectivity in the first column and injectivity in the other two.

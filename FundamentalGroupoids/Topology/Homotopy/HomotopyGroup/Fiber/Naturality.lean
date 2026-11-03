@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Loop
+public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Fiber
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Iteration.Basic
 
 /-!
@@ -162,5 +163,38 @@ theorem mapFun_homotopyFiber_loop_naturality
         (mapFun I βΩ hβΩ ((genLoopEquiv I Unit b).symm a)) :=
       congrFun hmaps ((genLoopEquiv I Unit b).symm a)
     _ = _ := congrArg (mapFun I J' hJ' ∘ mapFun I L' hL') (hiter a)
+
+/-- The multiplicative homotopy-fiber connecting maps commute with a continuous
+commutative square preserving the specified points. This refines
+`mapFun_homotopyFiber_loop_naturality` to equality of homomorphisms. -/
+theorem homotopyFiberConnectingHom_naturality
+    {E : Type uE} {B : Type uB} {E' : Type uE'} {B' : Type uB'}
+    [TopologicalSpace E] [TopologicalSpace B]
+    [TopologicalSpace E'] [TopologicalSpace B']
+    (I : Type uI) [DecidableEq I] [Nonempty I]
+    {f : C(E, B)} {f' : C(E', B')} {b : B} {b' : B'}
+    (α : C(E, E')) (β : C(B, B'))
+    (w : ∀ e, f' (α e) = β (f e))
+    (e₀ : E) (e₀' : E') (h : f e₀ = b) (h' : f' e₀' = b')
+    (he : α e₀ = e₀') (hb : β b = b') :
+    let φ : C(ContinuousMap.HomotopyFiber f b,
+        ContinuousMap.HomotopyFiber f' b') :=
+      ContinuousMap.HomotopyFiber.map α β w hb
+    let hφ : φ (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h) =
+        ContinuousMap.HomotopyFiber.const (f := f') (b := b') e₀' h' :=
+      ContinuousMap.HomotopyFiber.map_const_of_point_eq
+        α β w hb e₀ e₀' h h' he
+    (map I φ hφ).comp (homotopyFiberConnectingHom I f b e₀ h) =
+      (homotopyFiberConnectingHom I f' b' e₀' h').comp
+        (map (I ⊕ Unit) β hb) := by
+  intro φ hφ
+  rw [homotopyFiberConnectingHom_eq_comp I f b e₀ h,
+    homotopyFiberConnectingHom_eq_comp I f' b' e₀' h']
+  apply MonoidHom.ext
+  intro a
+  simp only [MonoidHom.comp_apply, coe_map_eq_mapFun, MulEquiv.coe_toMonoidHom]
+  rw [genLoopMulEquiv_symm_apply, genLoopMulEquiv_symm_apply]
+  exact congrFun (mapFun_homotopyFiber_loop_naturality
+    I α β w e₀ e₀' h h' he hb) a
 
 end HomotopyGroup

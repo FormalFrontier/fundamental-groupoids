@@ -125,4 +125,14 @@ theorem genLoopMulEquiv_apply (N : Type uN) (M : Type uM)
     genLoopMulEquiv N M x a = genLoopEquiv N M x a :=
   rfl
 
+/-- The inverse multiplicative loop-iteration equivalence acts by the inverse
+loop-iteration equivalence. -/
+@[simp]
+theorem genLoopMulEquiv_symm_apply (N : Type uN) (M : Type uM)
+    [DecidableEq N] [DecidableEq (N ⊕ M)] [Nonempty N] (x : X)
+    (a : HomotopyGroup (N ⊕ M) X x) :
+    (genLoopMulEquiv N M x).symm a = (genLoopEquiv N M x).symm a := by
+  apply (genLoopMulEquiv N M x).injective
+  rw [MulEquiv.apply_symm_apply, genLoopMulEquiv_apply, Equiv.apply_symm_apply]
+
 end HomotopyGroup

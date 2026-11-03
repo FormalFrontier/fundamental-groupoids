@@ -190,6 +190,40 @@ theorem _root_.GenLoop.homotopyFiberConnecting_const (n : ℕ)
       ContinuousMap.const_apply] using
       (GenLoop.homotopyFiberConnecting_path_apply n f b e₀ h GenLoop.const a t)
 
+/-- The positive-degree connecting homomorphism agrees with the finite connecting
+representative when the final cube coordinate is used as forward time. -/
+theorem homotopyFiberConnectingHom_fin_class (n : ℕ) [Nonempty (Fin n)]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (p : GenLoop (Fin (n + 1)) B b) :
+    let κ : Fin (n + 1) ≃ Fin n ⊕ Unit :=
+      (finSumFinEquiv : Fin n ⊕ Fin 1 ≃ Fin (n + 1)).symm.trans
+        (Equiv.sumCongr (Equiv.refl (Fin n)) finOneEquiv)
+    homotopyFiberConnectingHom (Fin n) f b e₀ h
+        (congr b κ (⟦p⟧ : HomotopyGroup (Fin (n + 1)) B b)) =
+      (⟦GenLoop.homotopyFiberConnecting n f b e₀ h p⟧ :
+        HomotopyGroup (Fin n) (ContinuousMap.HomotopyFiber f b)
+          (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h)) := by
+  change homotopyFiberConnectingHom (Fin n) f b e₀ h
+    (congr b (lastCoordinateEquiv n) (⟦p⟧ : HomotopyGroup (Fin (n + 1)) B b)) = _
+  erw [congr_class]
+  obtain ⟨hclass, hpoint, hpath⟩ :=
+    homotopyFiberConnectingHom_class_point_path (Fin n) f b e₀ h
+      (GenLoop.congr b (lastCoordinateEquiv n) p)
+  refine hclass.trans ?_
+  apply congrArg (fun q : GenLoop (Fin n) (ContinuousMap.HomotopyFiber f b)
+      (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h) =>
+    (⟦q⟧ : HomotopyGroup (Fin n) (ContinuousMap.HomotopyFiber f b)
+      (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h)))
+  apply GenLoop.ext
+  intro a
+  apply ContinuousMap.HomotopyFiber.ext
+  · exact (hpoint a).trans
+      (GenLoop.homotopyFiberConnecting_point n f b e₀ h p a).symm
+  · apply ContinuousMap.ext
+    intro t
+    rw [GenLoop.homotopyFiberConnecting_path_apply]
+    simpa only [GenLoop.congr_apply, lastCoordinateEquiv_snoc] using hpath a t
+
 private theorem finiteConnecting_const (n : ℕ)
     (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
     finiteConnecting n f b e₀ h

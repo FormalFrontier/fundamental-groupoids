@@ -77,7 +77,9 @@ highlights:
       and the ordinary homotopy fiber in degrees 3n, 3n+1 and 3n+2, satisfies
       range (S.d (n+2) (n+1)).toFun equal to the preimage of {(S.X n).point}
       under (S.d (n+1) n).toFun for every natural n, without asserting
-      surjectivity onto the terminal path-component term of B.
+      surjectivity onto the terminal path-component term of B, and for every
+      nonempty cube index with decidable equality the connecting map is a natural
+      group homomorphism whose kernel is the range of based postcomposition by f.
     declarations:
       - declaration: HomotopyGroup.homotopyFiberSequence
         file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
@@ -85,6 +87,16 @@ highlights:
         file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
       - declaration: HomotopyGroup.homotopyFiberSequence_exact
         file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence/Exact.lean
+      - declaration: ContinuousMap.HomotopyFiber.loopInclusion
+        file: FundamentalGroupoids/Topology/Homotopy/Fiber/Loop.lean
+      - declaration: HomotopyGroup.homotopyFiberConnectingHom
+        file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber.lean
+      - declaration: HomotopyGroup.range_map_eq_ker_homotopyFiberConnectingHom
+        file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber.lean
+      - declaration: HomotopyGroup.homotopyFiberConnectingHom_naturality
+        file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Naturality.lean
+      - declaration: HomotopyGroup.homotopyFiberConnectingHom_fin_class
+        file: FundamentalGroupoids/Topology/Homotopy/HomotopyGroup/Fiber/Sequence.lean
 project:
   name: Fundamental Groupoids
   description: >-

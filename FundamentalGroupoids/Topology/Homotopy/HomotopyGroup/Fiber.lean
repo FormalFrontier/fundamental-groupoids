@@ -387,4 +387,109 @@ theorem range_map_eq_ker_homotopyFiber_loop (I : Type uI)
   have hset := range_mapFun_eq_preimage_homotopyFiber_loop I f b e₀ h
   exact Set.ext_iff.mp hset a
 
+/-- The multiplicative connecting map into the ordinary homotopy fiber, using
+outer cube coordinates followed by a singleton forward-time coordinate. -/
+def homotopyFiberConnectingHom (I : Type uI) [DecidableEq I] [Nonempty I]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    HomotopyGroup (I ⊕ Unit) B b →*
+      HomotopyGroup I (ContinuousMap.HomotopyFiber f b)
+        (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h) :=
+  (map I (ContinuousMap.HomotopyFiber.loopInclusion f b e₀ h)
+    (ContinuousMap.HomotopyFiber.loopInclusion_refl f b e₀ h)).comp
+      ((map I (genLoopHomeoOfUnique Unit b : C(GenLoop Unit B b, Path b b))
+        (genLoopHomeoOfUnique_const Unit b)).comp
+        (genLoopMulEquiv I Unit b).symm.toMonoidHom)
+
+/-- The connecting homomorphism is inverse loop iteration followed by the
+singleton-loop homeomorphism and the forward loop inclusion. -/
+theorem homotopyFiberConnectingHom_eq_comp (I : Type uI) [DecidableEq I] [Nonempty I]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    homotopyFiberConnectingHom I f b e₀ h =
+      (map I (ContinuousMap.HomotopyFiber.loopInclusion f b e₀ h)
+        (ContinuousMap.HomotopyFiber.loopInclusion_refl f b e₀ h)).comp
+        ((map I (genLoopHomeoOfUnique Unit b : C(GenLoop Unit B b, Path b b))
+          (genLoopHomeoOfUnique_const Unit b)).comp
+          (genLoopMulEquiv I Unit b).symm.toMonoidHom) :=
+  rfl
+
+/-- Evaluate the connecting homomorphism on an arbitrary homotopy class
+through its three factors. -/
+theorem homotopyFiberConnectingHom_apply (I : Type uI) [DecidableEq I] [Nonempty I]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (a : HomotopyGroup (I ⊕ Unit) B b) :
+    homotopyFiberConnectingHom I f b e₀ h a =
+      map I (ContinuousMap.HomotopyFiber.loopInclusion f b e₀ h)
+        (ContinuousMap.HomotopyFiber.loopInclusion_refl f b e₀ h)
+        (map I (genLoopHomeoOfUnique Unit b : C(GenLoop Unit B b, Path b b))
+          (genLoopHomeoOfUnique_const Unit b) ((genLoopMulEquiv I Unit b).symm a)) :=
+  DFunLike.congr_fun (homotopyFiberConnectingHom_eq_comp I f b e₀ h) a
+
+/-- The connecting homomorphism sends a representative to the class obtained
+by inverse loop iteration, singleton-loop evaluation, and forward loop inclusion. -/
+@[simp]
+theorem homotopyFiberConnectingHom_class (I : Type uI) [DecidableEq I] [Nonempty I]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (p : GenLoop (I ⊕ Unit) B b) :
+    let q : GenLoop I (ContinuousMap.HomotopyFiber f b)
+        (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h) :=
+      GenLoop.map (ContinuousMap.HomotopyFiber.loopInclusion f b e₀ h)
+        (ContinuousMap.HomotopyFiber.loopInclusion_refl f b e₀ h)
+        (GenLoop.map
+          (genLoopHomeoOfUnique Unit b : C(GenLoop Unit B b, Path b b))
+          (genLoopHomeoOfUnique_const Unit b)
+          ((GenLoop.genLoopGenLoopEquiv b (M := I) (N := Unit)).symm p))
+    homotopyFiberConnectingHom I f b e₀ h
+        (⟦p⟧ : HomotopyGroup (I ⊕ Unit) B b) =
+      (⟦q⟧ : HomotopyGroup I (ContinuousMap.HomotopyFiber f b)
+        (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h)) := by
+  intro q
+  erw [homotopyFiberConnectingHom_apply, genLoopMulEquiv_symm_apply,
+    genLoopEquiv_symm_class, map_class]
+
+/-- The connecting representative retains the specified source point and every
+value of the forward path, in outer-then-singleton coordinate order. -/
+theorem homotopyFiberConnectingHom_class_point_path
+    (I : Type uI) [DecidableEq I] [Nonempty I]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b)
+    (p : GenLoop (I ⊕ Unit) B b) :
+    let q : GenLoop I (ContinuousMap.HomotopyFiber f b)
+        (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h) :=
+      GenLoop.map (ContinuousMap.HomotopyFiber.loopInclusion f b e₀ h)
+        (ContinuousMap.HomotopyFiber.loopInclusion_refl f b e₀ h)
+        (GenLoop.map
+          (genLoopHomeoOfUnique Unit b : C(GenLoop Unit B b, Path b b))
+          (genLoopHomeoOfUnique_const Unit b)
+          ((GenLoop.genLoopGenLoopEquiv b (M := I) (N := Unit)).symm p))
+    homotopyFiberConnectingHom I f b e₀ h
+        (⟦p⟧ : HomotopyGroup (I ⊕ Unit) B b) =
+      (⟦q⟧ : HomotopyGroup I (ContinuousMap.HomotopyFiber f b)
+        (ContinuousMap.HomotopyFiber.const (f := f) (b := b) e₀ h)) ∧
+    (∀ a : I → unitInterval, ContinuousMap.HomotopyFiber.point (q a) = e₀) ∧
+    (∀ (a : I → unitInterval) (t : unitInterval),
+      ContinuousMap.HomotopyFiber.path (q a) t =
+        p (Sum.elim a (fun _ : Unit ↦ t))) := by
+  intro q
+  let r := (GenLoop.genLoopGenLoopEquiv b (M := I) (N := Unit)).symm p
+  refine ⟨homotopyFiberConnectingHom_class I f b e₀ h p, ?_, ?_⟩
+  · intro a
+    exact ContinuousMap.HomotopyFiber.loopInclusion_point f b e₀ h
+      (genLoopHomeoOfUnique Unit b (r a))
+  · intro a t
+    exact ContinuousMap.HomotopyFiber.loopInclusion_path_apply f b e₀ h
+      (genLoopHomeoOfUnique Unit b (r a)) t
+
+/-- The image of based postcomposition by `f` is the kernel of the connecting
+homomorphism into its ordinary homotopy fiber, with the existing group structures.
+This is the positive-index subgroup form of
+`range_mapFun_eq_preimage_homotopyFiber_loop`. For finite indices it is an
+ordinary cubical counterpart of fiber-sequence exactness in J. P. May,
+*A Concise Course in Algebraic Topology*, Chapter 8, §6, printed pp. 61–62;
+identification with May's kified models and coordinate conventions is not asserted. -/
+theorem range_map_eq_ker_homotopyFiberConnectingHom
+    (I : Type uI) [DecidableEq I] [Nonempty I]
+    (f : C(E, B)) (b : B) (e₀ : E) (h : f e₀ = b) :
+    (map (I ⊕ Unit) f h).range = (homotopyFiberConnectingHom I f b e₀ h).ker := by
+  rw [homotopyFiberConnectingHom_eq_comp]
+  exact range_map_eq_ker_homotopyFiber_loop I f b e₀ h
+
 end HomotopyGroup
