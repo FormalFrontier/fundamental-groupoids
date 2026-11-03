@@ -12,13 +12,15 @@ directions, examples, conventions and credits.
 
 ## Headline results
 
-- **Target refinement of compact-open mapping spaces.** For
+- **Evaluation and target refinement of compact-open mapping spaces.** For
   `UCompactlyGeneratedSpace.{u} A` and arbitrary `Y`, the spaces
   `κ_u C(A, κ_u Y)` and `κ_u C(A, Y)` are canonically homeomorphic, with independent
   probe and carrier universes. The forward map is refined counit postcomposition,
   the inverse retains each function, and both maps are natural in the target;
   no local compactness of `A` or separation or generatedness of `Y` is assumed.
-  See [the mapping-space comparison](FundamentalGroupoids/Topology/CompactOpen/CompactlyGenerated.lean).
+  For arbitrary `A` and `Y`, point evaluation `κ_u (C(A, Y) × A) → Y` is continuous,
+  with ordinary compact-open and product topologies inside the refinement.
+  See [evaluation and the mapping-space comparison](FundamentalGroupoids/Topology/CompactOpen/CompactlyGenerated.lean).
 - **The ordinary based loop functor and based homotopy.** The compact-open loop
   space `Path x x`, based at its constant loop, is functorial for strict based maps.
   A homotopy relative to the selected point induces a jointly continuous homotopy

@@ -8,7 +8,12 @@ public import FundamentalGroupoids.Topology.Compactness.CompactlyGeneratedSpace
 public import Mathlib.Topology.CompactOpen
 
 /-!
-# Compact-open maps and compactly generated target refinement
+# Evaluation and target refinement for compact-open maps
+
+For arbitrary topological spaces `A` and `Y`, `ContinuousMap.evalOfCompactlyGenerated`
+is point evaluation from `κ_u (C(A, Y) × A)` to `Y`. The topology inside the refinement
+is the ordinary product of the ordinary compact-open space and `A`. This does not
+assert continuity of ordinary joint evaluation.
 
 For a `UCompactlyGeneratedSpace.{u}` source `A` and an arbitrary target `Y`,
 `Homeomorph.compactlyGeneratedCompactOpen` identifies `κ C(A, κY)` with `κ C(A, Y)`.
@@ -23,11 +28,14 @@ compact.
 
 ## Implementation notes
 
-Continuity of the target lift is tested on compact Hausdorff probes. A probe family
-can be uncurried by testing on compact Hausdorff probes and evaluating over those
-probes. This uses local compactness of the probes, not of `A`. The original
-mapping-space topologies are retained explicitly, and the compact-probe universe
-is independent of the carrier universes.
+Continuity of evaluation is tested on compact Hausdorff probes. Precomposing each
+map in a probe family by the probe's argument component gives a family of maps
+on the probe itself. Ordinary uncurrying and the diagonal then give evaluation
+along the probe. This uses local compactness of the probe, not of `A` or `C(A, Y)`.
+Generated-space uncurrying factors through this evaluation, and supplies the
+joint continuity used by the target lift. The original mapping-space topologies
+are retained explicitly, and the compact-probe universe is independent of the
+carrier universes.
 
 ## References
 
@@ -106,6 +114,41 @@ theorem compactlyGeneratedCompactOpenComparison_counit_apply
   simp only [compactlyGeneratedCounit_apply,
     compactlyGeneratedCompactOpenComparison_apply_apply]
 
+/-- Point evaluation from the compactly generated refinement of the ordinary
+compact-open product. Neither the argument space nor the target needs to be
+locally compact or compactly generated, and the probe universe is independent
+of both carrier universes. -/
+def evalOfCompactlyGenerated :
+    @ContinuousMap (C(A, Y) × A) Y (compactlyGenerated.{u} (C(A, Y) × A)) tY :=
+  @ContinuousMap.mk (C(A, Y) × A) Y (compactlyGenerated.{u} (C(A, Y) × A)) tY
+    (fun p => p.1 p.2) (by
+      refine @continuous_from_compactlyGenerated.{u} (C(A, Y) × A) Y
+        instTopologicalSpaceProd tY (fun p => p.1 p.2) ?_
+      intro K β
+      let q : C(K, A) :=
+        ⟨fun k => (β k).2, continuous_snd.comp β.continuous⟩
+      let family : C(K, C(K, Y)) :=
+        ⟨fun k => ((β k).1).comp q,
+          (continuous_precomp q).comp (continuous_fst.comp β.continuous)⟩
+      exact (continuous_uncurry_of_continuous family).comp
+        (continuous_id.prodMk continuous_id))
+
+/-- Evaluation retains the value at every function-argument pair. -/
+@[simp]
+theorem evalOfCompactlyGenerated_apply (p : C(A, Y) × A) :
+    evalOfCompactlyGenerated.{u} A Y p = p.1 p.2 :=
+  rfl
+
+/-- On a locally compact argument space, refined evaluation is ordinary
+uncurrying of the identity family after the counit of the ordinary product. -/
+theorem evalOfCompactlyGenerated_eq_uncurry_comp_counit [LocallyCompactSpace A] :
+    evalOfCompactlyGenerated.{u} A Y =
+      @ContinuousMap.comp (C(A, Y) × A) (C(A, Y) × A) Y
+        (compactlyGenerated.{u} (C(A, Y) × A)) instTopologicalSpaceProd tY
+        ((ContinuousMap.id C(A, Y)).uncurry)
+        (compactlyGeneratedCounit.{u} (C(A, Y) × A)) :=
+  rfl
+
 variable [UCompactlyGeneratedSpace.{u} A]
 
 /-- Lift each continuous map into the compactly generated target. Continuity for
@@ -138,17 +181,11 @@ theorem compactOpenTargetLift_counit_apply (f : @ContinuousMap A Y tA tY) (a : A
 be locally compact. -/
 def uncurryOfCompactlyGenerated {P : Type z} [TopologicalSpace P]
     [UCompactlyGeneratedSpace.{u} P] [LocallyCompactSpace P] (f : C(P, C(A, Y))) :
-    C(P × A, Y) where
-  toFun p := f p.1 p.2
-  continuous_toFun := by
-    refine continuous_from_uCompactlyGeneratedSpace.{u} _ ?_
-    intro L β
-    let q : C(L, A) :=
-      ⟨fun l => (β l).2, continuous_snd.comp β.continuous⟩
-    let family : C(P, C(L, Y)) :=
-      ⟨fun p => (f p).comp q, (continuous_precomp q).comp f.continuous⟩
-    exact (continuous_uncurry_of_continuous family).comp
-      ((continuous_fst.comp β.continuous).prodMk continuous_id)
+    C(P × A, Y) :=
+  @ContinuousMap.comp (P × A) (C(A, Y) × A) Y instTopologicalSpaceProd
+    (compactlyGenerated.{u} (C(A, Y) × A)) tY
+    (evalOfCompactlyGenerated.{u} A Y)
+    (toCompactlyGenerated.{u} (f.prodMap (ContinuousMap.id A)))
 
 /-- Uncurrying retains every value of the given family. -/
 @[simp]
@@ -164,7 +201,8 @@ theorem uncurryOfCompactlyGenerated_eq_uncurry {P : Type z} [TopologicalSpace P]
     [UCompactlyGeneratedSpace.{u} P] [LocallyCompactSpace P] [LocallyCompactSpace A]
     (f : C(P, C(A, Y))) :
     uncurryOfCompactlyGenerated.{u} A Y f = f.uncurry := by
-  ext p
+  apply ContinuousMap.ext
+  rintro ⟨p, a⟩
   rfl
 
 /-- The carrier target lift is continuous between the compactly generated
