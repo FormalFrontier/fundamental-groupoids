@@ -4,6 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import FundamentalGroupoids.Topology.Homotopy.PathSpace
 public import FundamentalGroupoids.Topology.Homotopy.RelativePathSpace
 public import FundamentalGroupoids.Topology.Homeomorph.Subtype
 public import Mathlib.Topology.Category.TopCat.Limits.Pullbacks
@@ -610,3 +611,39 @@ end Subspace
 
 end HomotopyFiber
 end ContinuousMap
+
+namespace ContinuousMap.HomotopyFiber
+
+universe uE uB
+
+variable {E : Type uE} {B : Type uB}
+variable [TopologicalSpace E] [TopologicalSpace B]
+
+variable {f : C(E, B)} {b : B}
+
+/-- The entire original retained path, restricted by multiplication of its time. -/
+def initialSegment (u : I) (z : HomotopyFiber f b) : C(I, B) :=
+  ContinuousMap.initialSegment (u, path z)
+
+@[simp]
+theorem initialSegment_apply (u s : I) (z : HomotopyFiber f b) :
+    initialSegment u z s = path z (u * s) :=
+  rfl
+
+theorem initialSegment_zero (u : I) (z : HomotopyFiber f b) :
+    initialSegment u z 0 = b := by
+  simp only [initialSegment_apply, mul_zero, path_zero]
+
+theorem initialSegment_one (u : I) (z : HomotopyFiber f b) :
+    initialSegment u z 1 = path z u := by
+  simp only [initialSegment_apply, mul_one]
+
+/-- Joint continuity of the compact-open initial segments, without a
+local-compactness assumption on the parameter space. -/
+theorem continuous_initialSegment :
+    Continuous (fun uz : I × HomotopyFiber f b => initialSegment uz.1 uz.2) := by
+  exact (ContinuousMap.continuous_initialSegment (B := B)).comp
+    (continuous_fst.prodMk ((path (f := f) (b := b)).continuous.comp continuous_snd))
+
+
+end ContinuousMap.HomotopyFiber

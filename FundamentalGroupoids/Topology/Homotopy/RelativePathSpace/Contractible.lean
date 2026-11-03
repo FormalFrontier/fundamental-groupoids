@@ -4,6 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import FundamentalGroupoids.Topology.Homotopy.PathSpace
 public import FundamentalGroupoids.Topology.Homotopy.RelativePathSpace
 public import Mathlib.Topology.Homotopy.Contractible
 
@@ -52,43 +53,28 @@ noncomputable def contraction (b : X) :
     (ContinuousMap.id (RelativePathSpace b Set.univ)).HomotopyRel
       (ContinuousMap.const _ (const (Set.mem_univ b))) {const (Set.mem_univ b)} where
   toFun p := mk
-    { toFun := fun t => path p.2 (unitInterval.symm p.1 * t)
-      continuous_toFun := by
-        have hmul : Continuous (fun t : I => (unitInterval.symm p.1 : ℝ) * (t : ℝ)) :=
-          continuous_const.mul continuous_subtype_val
-        exact (path p.2).continuous.comp
-          (hmul.subtype_mk fun t =>
-            unitInterval.mul_mem (unitInterval.symm p.1).property t.property) }
-    (by simpa only [ContinuousMap.coe_mk, mul_zero] using path_zero p.2) (Set.mem_univ _)
+    (ContinuousMap.initialSegment (unitInterval.symm p.1, path p.2))
+    (by simpa only [ContinuousMap.initialSegment_apply_zero] using path_zero p.2)
+    (Set.mem_univ _)
   continuous_toFun := by
     apply continuous_iff.mpr
     simp only [path_mk]
-    apply ContinuousMap.continuous_of_continuous_uncurry
-    have htime : Continuous
-        (fun q : (I × RelativePathSpace b Set.univ) × I =>
-          unitInterval.symm q.1.1 * q.2) := by
-      have hmul : Continuous
-          (fun q : (I × RelativePathSpace b Set.univ) × I =>
-            (unitInterval.symm q.1.1 : ℝ) * (q.2 : ℝ)) :=
-        (unitInterval.continuous_symm.comp continuous_fst.fst).subtype_val.mul
-          continuous_snd.subtype_val
-      exact hmul.subtype_mk fun q =>
-        unitInterval.mul_mem (unitInterval.symm q.1.1).property q.2.property
-    exact continuous_eval.comp
-      ((path.continuous.comp continuous_fst.snd).prodMk htime)
+    exact (ContinuousMap.continuous_initialSegment (B := X)).comp
+      ((unitInterval.continuous_symm.comp continuous_fst).prodMk
+        (path.continuous.comp continuous_snd))
   map_zero_left := by
     intro γ
     apply ext
     apply ContinuousMap.ext
     intro t
-    simp only [path_mk, ContinuousMap.coe_mk, unitInterval.symm_zero, one_mul,
+    simp only [path_mk, ContinuousMap.initialSegment_apply, unitInterval.symm_zero, one_mul,
       ContinuousMap.id_apply]
   map_one_left := by
     intro γ
     apply ext
     apply ContinuousMap.ext
     intro t
-    simp only [path_mk, ContinuousMap.coe_mk, unitInterval.symm_one, zero_mul,
+    simp only [path_mk, ContinuousMap.initialSegment_apply, unitInterval.symm_one, zero_mul,
       path_zero, ContinuousMap.const_apply, path_const]
   prop' := by
     intro s γ hγ
@@ -96,8 +82,7 @@ noncomputable def contraction (b : X) :
     apply ext
     apply ContinuousMap.ext
     intro t
-    simp only [path_mk, ContinuousMap.coe_mk, path_const, ContinuousMap.const_apply,
-      ContinuousMap.id_apply]
+    rfl
 
 /-- Evaluate the shortened path at any path time. -/
 theorem eval_contraction (b : X) (s : I) (γ : RelativePathSpace b Set.univ) (t : I) :

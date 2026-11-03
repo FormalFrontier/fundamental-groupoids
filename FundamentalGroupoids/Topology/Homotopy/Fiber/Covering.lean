@@ -96,37 +96,6 @@ theorem fiberRetraction_coe (cov : IsCoveringMap f) (z : HomotopyFiber f b) :
     (fiberRetraction cov z : E) = reversePathLift cov (1, z) :=
   rfl
 
-/-- The entire original retained path, restricted by multiplication of its time. -/
-def initialSegment (u : I) (z : HomotopyFiber f b) : C(I, B) where
-  toFun s := path z (u * s)
-  continuous_toFun :=
-    (path z).continuous.comp
-      (((continuous_const : Continuous (fun _ : I => (u : ℝ))).mul
-        continuous_subtype_val).subtype_mk fun s => unitInterval.mul_mem u.property s.property)
-
-@[simp]
-theorem initialSegment_apply (u s : I) (z : HomotopyFiber f b) :
-    initialSegment u z s = path z (u * s) :=
-  rfl
-
-theorem initialSegment_zero (u : I) (z : HomotopyFiber f b) :
-    initialSegment u z 0 = b := by
-  simp only [initialSegment_apply, mul_zero, path_zero]
-
-theorem initialSegment_one (u : I) (z : HomotopyFiber f b) :
-    initialSegment u z 1 = path z u := by
-  simp only [initialSegment_apply, mul_one]
-
-/-- Joint continuity of the compact-open initial segments, without a
-local-compactness assumption on the parameter space. -/
-theorem continuous_initialSegment :
-    Continuous (fun uz : I × HomotopyFiber f b => initialSegment uz.1 uz.2) := by
-  apply continuous_of_continuous_uncurry
-  exact ((path (f := f) (b := b)).continuous.comp continuous_fst.snd).eval
-    (((continuous_subtype_val.comp continuous_fst.fst).mul
-      (continuous_subtype_val.comp continuous_snd)).subtype_mk
-        fun x => unitInterval.mul_mem x.1.1.property x.2.property)
-
 /-- The retained path ends at the image of the corresponding lifted point. -/
 theorem initialSegment_one_eq_reversePathLift (cov : IsCoveringMap f) (u : I)
     (z : HomotopyFiber f b) :
