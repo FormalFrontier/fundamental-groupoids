@@ -36,6 +36,8 @@ assumptions.
   `hcomp` give the path homotopies.
 * Mathlib's `ContinuousMap.Homotopy.trans` and `Path.trans_continuous_family`
   supply composition and continuity of concatenation.
+* Mathlib's `Path.map_trans` and `Path.cast_trans` supply compatibility of loop
+  maps with ordinary path concatenation.
 -/
 
 @[expose] public section
@@ -180,6 +182,17 @@ theorem loopMap_symm.{u, v} {E : Type u} {B : Type v}
     (γ : Path e₀ e₀) :
     f.loopMap e₀ b h γ.symm = (f.loopMap e₀ b h γ).symm := by
   simp only [loopMap_apply, ← Path.map_symm, Path.cast_symm]
+
+/-- Loop maps preserve ordinary path concatenation, by Mathlib's mapping and
+endpoint-cast compatibility. -/
+theorem loopMap_trans.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B]
+    (f : C(E, B)) (e₀ : E) (b : B) (h : f e₀ = b)
+    (γ δ : Path e₀ e₀) :
+    f.loopMap e₀ b h (γ.trans δ) =
+      (f.loopMap e₀ b h γ).trans (f.loopMap e₀ b h δ) := by
+  simpa only [loopMap_apply, Path.map_trans] using
+    Path.cast_trans (γ.map f.continuous) (δ.map f.continuous) h.symm h.symm h.symm
 
 /-- The loop map preserves the constant loop. -/
 @[simp]

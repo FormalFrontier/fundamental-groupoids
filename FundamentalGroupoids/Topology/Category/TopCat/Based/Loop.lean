@@ -28,6 +28,15 @@ endpoint transport give its involution law and strict naturality. In particular,
 reversal followed by an induced loop map agrees with the induced loop map followed
 by reversal, with value `f (γ (1 − t))` at every time.
 
+Two based loop families on any based parameter space can be concatenated using
+Mathlib's `Path.trans` and `Continuous.path_trans`. The first family is traversed
+on the closed first half `(t : ℝ) ≤ 1 / 2`, and the second on the open second half
+`1 / 2 < (t : ℝ)`. Mathlib's `Path.refl_trans_refl` gives preservation of the
+constant loop. Concatenation commutes strictly with precomposition on the parameter
+space and postcomposition by induced loop maps; the latter uses Mathlib's
+`Path.map_trans` and `Path.cast_trans`. These naturality equalities do not give a
+strict monoid structure on loops.
+
 No local compactness or separation condition on the original spaces is required.
 
 ## References
@@ -42,6 +51,7 @@ No local compactness or separation condition on the original spaces is required.
 universe u
 
 open CategoryTheory
+open unitInterval Set Function
 
 namespace BasedTopCat
 
@@ -184,6 +194,111 @@ theorem loopReversal_hom_comp_self :
     loopReversal.{u}.hom ≫ loopReversal.{u}.hom =
       𝟙 (loopFunctor.{u}) := by
   simpa only [loopReversal_inv_eq_hom] using loopReversal.{u}.hom_inv_id
+
+/-- Concatenate two based maps into an ordinary based loop space,
+using the first loop on the first half of the interval.
+
+Mathlib's `Path.trans` uses the closed first half `(t : ℝ) ≤ 1 / 2` and the open
+second half `1 / 2 < (t : ℝ)`. Continuity is `Continuous.path_trans`, and basedness
+uses `Path.refl_trans_refl`. Strict pre- and postcomposition compatibility uses
+the same clock and Mathlib's `Path.map_trans` and `Path.cast_trans`; these are
+naturality laws, not strict monoid laws. -/
+noncomputable def loopConcat {P X : BasedTopCat.{u}}
+    (a b : P ⟶ loopFunctor.obj X) : P ⟶ loopFunctor.obj X :=
+  Under.homMk (TopCat.ofHom
+    (⟨fun p : P.right => (a.right.hom p).trans (b.right.hom p),
+      a.right.hom.continuous.path_trans b.right.hom.continuous⟩ :
+        C(P.right, Path (point X) (point X)))) (by
+    rw [hom_eq_const_point P, hom_eq_const_point (loopFunctor.obj X)]
+    apply TopCat.ext
+    intro t
+    change (a.right.hom (point P)).trans (b.right.hom (point P)) =
+      point (loopFunctor.obj X)
+    rw [map_point a, map_point b, point_loopFunctor_obj, Path.refl_trans_refl])
+
+/-- The whole continuous map concatenates the two input loop families. -/
+theorem loopConcat_right_hom {P X : BasedTopCat.{u}}
+    (a b : P ⟶ loopFunctor.obj X) :
+    (loopConcat a b).right.hom =
+      (⟨fun p : P.right => (a.right.hom p).trans (b.right.hom p),
+        a.right.hom.continuous.path_trans b.right.hom.continuous⟩ :
+          C(P.right, Path (point X) (point X))) := rfl
+
+/-- Evaluation of the based concatenation is ordinary path concatenation. -/
+@[simp]
+theorem loopConcat_apply {P X : BasedTopCat.{u}}
+    (a b : P ⟶ loopFunctor.obj X) (p : P.right) :
+    (loopConcat a b).right.hom p =
+      (a.right.hom p).trans (b.right.hom p) :=
+  congrArg (fun k : C(P.right, Path (point X) (point X)) ↦ k p)
+    (loopConcat_right_hom a b)
+
+/-- Inner-time evaluation uses the standard half-interval path clock. -/
+theorem loopConcat_apply_apply {P X : BasedTopCat.{u}}
+    (a b : P ⟶ loopFunctor.obj X) (p : P.right) (t : unitInterval) :
+    Path.toContinuousMap (x := point X) (y := point X)
+        ((loopConcat a b).right.hom p) t =
+      if h : (t : ℝ) ≤ 1 / 2 then
+        Path.toContinuousMap (x := point X) (y := point X)
+          (a.right.hom p)
+          ⟨2 * t, (mul_pos_mem_iff zero_lt_two).2 ⟨t.2.1, h⟩⟩
+      else
+        Path.toContinuousMap (x := point X) (y := point X)
+          (b.right.hom p)
+          ⟨2 * t - 1,
+            two_mul_sub_one_mem_iff.2 ⟨(not_le.1 h).le, t.2.2⟩⟩ := by
+  rw [loopConcat_apply]
+  exact Path.trans_apply (a.right.hom p) (b.right.hom p) t
+
+/-- The first loop is traversed on the closed first half. -/
+theorem loopConcat_apply_of_le_half {P X : BasedTopCat.{u}}
+    (a b : P ⟶ loopFunctor.obj X) (p : P.right) (t : unitInterval)
+    (ht : (t : ℝ) ≤ 1 / 2) :
+    Path.toContinuousMap (x := point X) (y := point X)
+        ((loopConcat a b).right.hom p) t =
+      Path.toContinuousMap (x := point X) (y := point X)
+          (a.right.hom p)
+        ⟨2 * t, (mul_pos_mem_iff zero_lt_two).2 ⟨t.2.1, ht⟩⟩ := by
+  rw [loopConcat_apply_apply, dite_eq_left ht]
+
+/-- The second loop is traversed on the open second half. -/
+theorem loopConcat_apply_of_half_lt {P X : BasedTopCat.{u}}
+    (a b : P ⟶ loopFunctor.obj X) (p : P.right) (t : unitInterval)
+    (ht : 1 / 2 < (t : ℝ)) :
+    Path.toContinuousMap (x := point X) (y := point X)
+        ((loopConcat a b).right.hom p) t =
+      Path.toContinuousMap (x := point X) (y := point X)
+          (b.right.hom p)
+        ⟨2 * t - 1, two_mul_sub_one_mem_iff.2 ⟨ht.le, t.2.2⟩⟩ := by
+  rw [loopConcat_apply_apply, dite_eq_right (not_le_of_gt ht)]
+
+/-- The selected parameter is sent to the whole constant loop. -/
+theorem loopConcat_point {P X : BasedTopCat.{u}}
+    (a b : P ⟶ loopFunctor.obj X) :
+    (loopConcat a b).right.hom (point P) = Path.refl (point X) :=
+  (map_point (loopConcat a b)).trans (point_loopFunctor_obj X)
+
+/-- Concatenating based loop families commutes with precomposition. -/
+theorem comp_loopConcat {Q P X : BasedTopCat.{u}}
+    (c : Q ⟶ P) (a b : P ⟶ loopFunctor.obj X) :
+    c ≫ loopConcat a b = loopConcat (c ≫ a) (c ≫ b) := by
+  apply Under.UnderMorphism.ext
+  apply TopCat.hom_ext
+  apply ContinuousMap.ext
+  intro q
+  rfl
+
+/-- Original based maps preserve concatenation of loop families strictly. -/
+theorem loopConcat_comp_loopFunctor_map {P X Y : BasedTopCat.{u}}
+    (a b : P ⟶ loopFunctor.obj X) (f : X ⟶ Y) :
+    loopConcat a b ≫ loopFunctor.map f =
+      loopConcat (a ≫ loopFunctor.map f) (b ≫ loopFunctor.map f) := by
+  apply Under.UnderMorphism.ext
+  apply TopCat.hom_ext
+  apply ContinuousMap.ext
+  intro p
+  exact ContinuousMap.loopMap_trans f.right.hom (point X) (point Y) (map_point f)
+    (a.right.hom p) (b.right.hom p)
 
 namespace HomotopyCategory
 
