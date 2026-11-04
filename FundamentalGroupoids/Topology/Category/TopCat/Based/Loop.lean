@@ -42,6 +42,15 @@ while fixing the selected parameter of a based loop family. They are obtained by
 precomposing the ordinary path-space homotopies, and retain the time slices of
 Mathlib's `Path.Homotopy.transRefl` and `Path.Homotopy.transAssoc`.
 
+The universal relative homotopies `loopConcatReversalHomotopy` and
+`loopReversalConcatHomotopy` package the jointly continuous path cancellations
+`Path.transSymmHomotopy` and `Path.symmTransHomotopy`. These use Mathlib's stock
+path homotopies with outer time reversed and the existing continuous-family API.
+They fix the selected constant loop at every outer time. Relative precomposition
+gives cancellation for arbitrary based loop families, and the original induced
+loop maps preserve both homotopies. These are homotopies, not strict cancellation
+identities.
+
 No local compactness or separation condition on the original spaces is required.
 
 ## References
@@ -455,6 +464,161 @@ theorem homotopyRel_loopConcat_assoc
       (BasedTopCat.loopConcat (BasedTopCat.loopConcat a b) c)
       (BasedTopCat.loopConcat a (BasedTopCat.loopConcat b c)) :=
   ⟨loopConcatAssocHomotopy a b c⟩
+
+/-- Cancel a loop followed by its reverse, relative to the selected constant loop.
+The underlying homotopy is `Path.transSymmHomotopy`, using Mathlib's stock path
+homotopy and the existing jointly continuous family construction. Only its
+endpoint maps are identified with the original based concatenation and constant. -/
+noncomputable def loopConcatReversalHomotopy (X : BasedTopCat.{u}) :
+    ContinuousMap.HomotopyRel
+      (BasedTopCat.loopConcat (𝟙 (BasedTopCat.loopFunctor.obj X))
+        (BasedTopCat.loopReversal.hom.app X)).right.hom
+      (BasedTopCat.const (BasedTopCat.loopFunctor.obj X)
+        (BasedTopCat.loopFunctor.obj X)).right.hom
+      {BasedTopCat.point (BasedTopCat.loopFunctor.obj X)} where
+  toHomotopy := (Path.transSymmHomotopy (point X) (point X)).cast rfl rfl
+  prop' s p hp := by
+    rcases Set.mem_singleton_iff.mp hp with rfl
+    exact (Path.transSymmHomotopy_refl (point X) s).trans
+      (loopConcat_point (𝟙 (loopFunctor.obj X)) (loopReversal.hom.app X)).symm
+
+/-- Cancel the reverse of a loop followed by the loop, relative to the selected
+constant loop. This specializes `Path.symmTransHomotopy`, retaining the endpoint
+correction in Mathlib's stock second path homotopy and changing only endpoint proofs. -/
+noncomputable def loopReversalConcatHomotopy (X : BasedTopCat.{u}) :
+    ContinuousMap.HomotopyRel
+      (BasedTopCat.loopConcat (BasedTopCat.loopReversal.hom.app X)
+        (𝟙 (BasedTopCat.loopFunctor.obj X))).right.hom
+      (BasedTopCat.const (BasedTopCat.loopFunctor.obj X)
+        (BasedTopCat.loopFunctor.obj X)).right.hom
+      {BasedTopCat.point (BasedTopCat.loopFunctor.obj X)} where
+  toHomotopy := (Path.symmTransHomotopy (point X) (point X)).cast rfl rfl
+  prop' s p hp := by
+    rcases Set.mem_singleton_iff.mp hp with rfl
+    exact (Path.symmTransHomotopy_refl (point X) s).trans
+      (loopConcat_point (loopReversal.hom.app X) (𝟙 (loopFunctor.obj X))).symm
+
+/-- Each whole-path slice is exactly the corresponding raw cancellation. -/
+@[simp]
+theorem loopConcatReversalHomotopy_apply (X : BasedTopCat.{u})
+    (s : unitInterval) (p : Path (BasedTopCat.point X) (BasedTopCat.point X)) :
+    BasedTopCat.loopConcatReversalHomotopy X (s, p) =
+      Path.transSymmHomotopy (BasedTopCat.point X) (BasedTopCat.point X) (s, p) := rfl
+
+/-- Each whole-path slice is exactly the second raw cancellation. -/
+@[simp]
+theorem loopReversalConcatHomotopy_apply (X : BasedTopCat.{u})
+    (s : unitInterval) (p : Path (BasedTopCat.point X) (BasedTopCat.point X)) :
+    BasedTopCat.loopReversalConcatHomotopy X (s, p) =
+      Path.symmTransHomotopy (BasedTopCat.point X) (BasedTopCat.point X) (s, p) := rfl
+
+/-- Evaluation at every inner time is the outer-reversed stock path homotopy. -/
+theorem loopConcatReversalHomotopy_apply_apply (X : BasedTopCat.{u})
+    (s t : unitInterval) (p : Path (BasedTopCat.point X) (BasedTopCat.point X)) :
+    Path.toContinuousMap (x := BasedTopCat.point X) (y := BasedTopCat.point X)
+        (BasedTopCat.loopConcatReversalHomotopy X (s, p)) t =
+      (Path.Homotopy.reflTransSymm p).symm (s, t) := by
+  exact (congrArg (fun q : Path (point X) (point X) => q t)
+    (loopConcatReversalHomotopy_apply X s p)).trans
+      (Path.transSymmHomotopy_apply_apply (point X) (point X) s t p)
+
+/-- Evaluation at every inner time retains the stock second homotopy's cast. -/
+theorem loopReversalConcatHomotopy_apply_apply (X : BasedTopCat.{u})
+    (s t : unitInterval) (p : Path (BasedTopCat.point X) (BasedTopCat.point X)) :
+    Path.toContinuousMap (x := BasedTopCat.point X) (y := BasedTopCat.point X)
+        (BasedTopCat.loopReversalConcatHomotopy X (s, p)) t =
+      (Path.Homotopy.reflSymmTrans p).symm (s, t) := by
+  exact (congrArg (fun q : Path (point X) (point X) => q t)
+    (loopReversalConcatHomotopy_apply X s p)).trans
+      (Path.symmTransHomotopy_apply_apply (point X) (point X) s t p)
+
+/-- The selected constant-loop parameter stays constant at every outer time. -/
+theorem loopConcatReversalHomotopy_point (X : BasedTopCat.{u}) (s : unitInterval) :
+    BasedTopCat.loopConcatReversalHomotopy X
+        (s, BasedTopCat.point (BasedTopCat.loopFunctor.obj X)) =
+      Path.refl (BasedTopCat.point X) := by
+  exact (loopConcatReversalHomotopy_apply X s (Path.refl (point X))).trans
+    (Path.transSymmHomotopy_refl (point X) s)
+
+/-- The second cancellation also fixes the whole selected loop at every outer time. -/
+theorem loopReversalConcatHomotopy_point (X : BasedTopCat.{u}) (s : unitInterval) :
+    BasedTopCat.loopReversalConcatHomotopy X
+        (s, BasedTopCat.point (BasedTopCat.loopFunctor.obj X)) =
+      Path.refl (BasedTopCat.point X) := by
+  exact (loopReversalConcatHomotopy_apply X s (Path.refl (point X))).trans
+    (Path.symmTransHomotopy_refl (point X) s)
+
+/-- Reindexing the universal cancellation gives the original based-homotopy
+relation for any based loop family. -/
+theorem homotopyRel_loopConcat_reversal {P X : BasedTopCat.{u}}
+    (a : P ⟶ BasedTopCat.loopFunctor.obj X) :
+    BasedTopCat.homotopyRel
+      (BasedTopCat.loopConcat a (a ≫ BasedTopCat.loopReversal.hom.app X))
+      (BasedTopCat.const P (BasedTopCat.loopFunctor.obj X)) := by
+  apply (homotopyRel_iff _ _).2
+  refine ⟨((loopConcatReversalHomotopy X).precomp (T := {point P}) a.right.hom (by
+    intro p hp
+    rcases Set.mem_singleton_iff.mp hp with rfl
+    exact Set.mem_singleton_iff.mpr (map_point a))).cast ?_ ?_⟩
+  · change (a ≫ loopConcat (𝟙 (loopFunctor.obj X))
+        (loopReversal.hom.app X)).right.hom =
+      (loopConcat a (a ≫ loopReversal.hom.app X)).right.hom
+    rw [comp_loopConcat, Category.comp_id]
+  · change (a ≫ const (loopFunctor.obj X) (loopFunctor.obj X)).right.hom =
+      (const P (loopFunctor.obj X)).right.hom
+    rw [comp_const]
+
+/-- Reindexing the second universal cancellation gives the opposite-order law
+in the same original singleton-relative relation. -/
+theorem homotopyRel_loopReversal_concat {P X : BasedTopCat.{u}}
+    (a : P ⟶ BasedTopCat.loopFunctor.obj X) :
+    BasedTopCat.homotopyRel
+      (BasedTopCat.loopConcat (a ≫ BasedTopCat.loopReversal.hom.app X) a)
+      (BasedTopCat.const P (BasedTopCat.loopFunctor.obj X)) := by
+  apply (homotopyRel_iff _ _).2
+  refine ⟨((loopReversalConcatHomotopy X).precomp (T := {point P}) a.right.hom (by
+    intro p hp
+    rcases Set.mem_singleton_iff.mp hp with rfl
+    exact Set.mem_singleton_iff.mpr (map_point a))).cast ?_ ?_⟩
+  · change (a ≫ loopConcat (loopReversal.hom.app X)
+        (𝟙 (loopFunctor.obj X))).right.hom =
+      (loopConcat (a ≫ loopReversal.hom.app X) a).right.hom
+    rw [comp_loopConcat, Category.comp_id]
+  · change (a ≫ const (loopFunctor.obj X) (loopFunctor.obj X)).right.hom =
+      (const P (loopFunctor.obj X)).right.hom
+    rw [comp_const]
+
+/-- Original induced loop maps preserve the entire first cancellation homotopy.
+This is the genuine transported `ContinuousMap.loopMap` naturality law. -/
+theorem loopConcatReversalHomotopy_naturality {X Y : BasedTopCat.{u}} (f : X ⟶ Y) :
+    (BasedTopCat.loopFunctor.map f).right.hom.comp
+        (BasedTopCat.loopConcatReversalHomotopy X).toHomotopy.toContinuousMap =
+      (BasedTopCat.loopConcatReversalHomotopy Y).toHomotopy.toContinuousMap.comp
+        ((ContinuousMap.id unitInterval).prodMap
+          (BasedTopCat.loopFunctor.map f).right.hom) := by
+  change (f.right.hom.loopMap (point X) (point Y) (map_point f)).comp
+      (Path.transSymmHomotopy (point X) (point X)).toContinuousMap =
+    (Path.transSymmHomotopy (point Y) (point Y)).toContinuousMap.comp
+      ((ContinuousMap.id unitInterval).prodMap
+        (f.right.hom.loopMap (point X) (point Y) (map_point f)))
+  exact ContinuousMap.loopMap_comp_transSymmHomotopy f.right.hom
+    (point X) (point Y) (map_point f)
+
+/-- Original induced loop maps preserve the entire second cancellation homotopy,
+including their original endpoint transports. -/
+theorem loopReversalConcatHomotopy_naturality {X Y : BasedTopCat.{u}} (f : X ⟶ Y) :
+    (BasedTopCat.loopFunctor.map f).right.hom.comp
+        (BasedTopCat.loopReversalConcatHomotopy X).toHomotopy.toContinuousMap =
+      (BasedTopCat.loopReversalConcatHomotopy Y).toHomotopy.toContinuousMap.comp
+        ((ContinuousMap.id unitInterval).prodMap
+          (BasedTopCat.loopFunctor.map f).right.hom) := by
+  change (f.right.hom.loopMap (point X) (point Y) (map_point f)).comp
+      (Path.symmTransHomotopy (point X) (point X)).toContinuousMap =
+    (Path.symmTransHomotopy (point Y) (point Y)).toContinuousMap.comp
+      ((ContinuousMap.id unitInterval).prodMap
+        (f.right.hom.loopMap (point X) (point Y) (map_point f)))
+  exact ContinuousMap.loopMap_comp_symmTransHomotopy f.right.hom
+    (point X) (point Y) (map_point f)
 
 namespace HomotopyCategory
 

@@ -727,3 +727,220 @@ theorem mapContinuousMap_comp_transAssocHomotopy.{uX, uY}
   rw [Path.map_trans, Path.map_trans]
 
 end Path
+
+section PathInverseCancellation
+
+universe uX uY uZ
+
+namespace Path
+
+variable {X : Type uX} {Y : Type uY} {Z : Type uZ}
+variable [tX : TopologicalSpace X] [tY : TopologicalSpace Y] [tZ : TopologicalSpace Z]
+
+/-- Jointly continuous cancellation of a path followed by its reverse, on the ordinary
+path space. This reverses outer time in Mathlib's `Path.Homotopy.reflTransSymm`;
+joint continuity is supplied by `Path.Homotopy.reflTransSymm_continuous_family`. -/
+noncomputable def transSymmHomotopy (x y : X) :
+    ContinuousMap.Homotopy
+      ((Path.transContinuousMap x y x).comp
+        ((ContinuousMap.id (Path x y)).prodMk
+          (⟨Path.symm, Path.continuous_symm⟩ : C(Path x y, Path y x))))
+      (ContinuousMap.const (Path x y) (Path.refl x)) where
+  toFun v := (Path.Homotopy.reflTransSymm v.2).symm.eval v.1
+  continuous_toFun := by
+    apply Path.continuous_uncurry_iff.mp
+    have hp : Continuous (fun v : Path x y × unitInterval => v.1 v.2) :=
+      Path.continuous_uncurry_iff.mpr
+        (continuous_id : Continuous (id : Path x y → Path x y))
+    have h := Path.Homotopy.reflTransSymm_continuous_family
+      (fun p : Path x y => p) hp
+    change Continuous (fun v : (unitInterval × Path x y) × unitInterval =>
+      Path.Homotopy.reflTransSymm v.1.2 (σ v.1.1, v.2))
+    exact h.comp
+      (continuous_fst.snd.prodMk
+        ((unitInterval.continuous_symm.comp continuous_fst.fst).prodMk continuous_snd))
+  map_zero_left p := by
+    change (Path.Homotopy.reflTransSymm p).symm.eval 0 = p.trans p.symm
+    exact Path.Homotopy.eval_zero _
+  map_one_left p := by
+    change (Path.Homotopy.reflTransSymm p).symm.eval 1 = Path.refl x
+    exact Path.Homotopy.eval_one _
+
+/-- Jointly continuous cancellation of the reverse path followed by the path.
+This reverses outer time in Mathlib's `Path.Homotopy.reflSymmTrans`, retaining
+its endpoint-path correction cast. Continuity uses the same joint-family engine
+as `transSymmHomotopy`, applied to the reversed paths. -/
+noncomputable def symmTransHomotopy (x y : X) :
+    ContinuousMap.Homotopy
+      ((Path.transContinuousMap y x y).comp
+        ((⟨Path.symm, Path.continuous_symm⟩ : C(Path x y, Path y x)).prodMk
+          (ContinuousMap.id (Path x y))))
+      (ContinuousMap.const (Path x y) (Path.refl y)) where
+  toFun v := (Path.Homotopy.reflSymmTrans v.2).symm.eval v.1
+  continuous_toFun := by
+    apply Path.continuous_uncurry_iff.mp
+    have hp : Continuous (fun v : Path x y × unitInterval => v.1 v.2) :=
+      Path.continuous_uncurry_iff.mpr
+        (continuous_id : Continuous (id : Path x y → Path x y))
+    have hsymm := Path.symm_continuous_family (fun p : Path x y => p) hp
+    have h := Path.Homotopy.reflTransSymm_continuous_family
+      (fun p : Path x y => p.symm) hsymm
+    change Continuous (fun v : (unitInterval × Path x y) × unitInterval =>
+      Path.Homotopy.reflTransSymm v.1.2.symm (σ v.1.1, v.2))
+    exact h.comp
+      (continuous_fst.snd.prodMk
+        ((unitInterval.continuous_symm.comp continuous_fst.fst).prodMk continuous_snd))
+  map_zero_left p := by
+    change (Path.Homotopy.reflSymmTrans p).symm.eval 0 = p.symm.trans p
+    exact Path.Homotopy.eval_zero _
+  map_one_left p := by
+    change (Path.Homotopy.reflSymmTrans p).symm.eval 1 = Path.refl y
+    exact Path.Homotopy.eval_one _
+
+/-- The whole-path slice is the outer-reversed stock path homotopy. -/
+@[simp]
+theorem transSymmHomotopy_apply (x y : X) (s : unitInterval) (p : Path x y) :
+    Path.transSymmHomotopy x y (s, p) =
+      (Path.Homotopy.reflTransSymm p).symm.eval s := rfl
+
+/-- The whole-path slice is the outer-reversed stock homotopy with its existing cast. -/
+@[simp]
+theorem symmTransHomotopy_apply (x y : X) (s : unitInterval) (p : Path x y) :
+    Path.symmTransHomotopy x y (s, p) =
+      (Path.Homotopy.reflSymmTrans p).symm.eval s := rfl
+
+/-- Inner-time evaluation agrees with the stock homotopy at every pair of times. -/
+theorem transSymmHomotopy_apply_apply (x y : X)
+    (s t : unitInterval) (p : Path x y) :
+    Path.transSymmHomotopy x y (s, p) t =
+      (Path.Homotopy.reflTransSymm p).symm (s, t) := by
+  simp only [transSymmHomotopy_apply, Path.Homotopy.eval_apply,
+    ContinuousMap.Homotopy.curry_apply, ContinuousMap.HomotopyWith.coe_toHomotopy]
+
+/-- Inner-time evaluation agrees with the second stock homotopy at every pair of times. -/
+theorem symmTransHomotopy_apply_apply (x y : X)
+    (s t : unitInterval) (p : Path x y) :
+    Path.symmTransHomotopy x y (s, p) t =
+      (Path.Homotopy.reflSymmTrans p).symm (s, t) := by
+  simp only [symmTransHomotopy_apply, Path.Homotopy.eval_apply,
+    ContinuousMap.Homotopy.curry_apply, ContinuousMap.HomotopyWith.coe_toHomotopy]
+
+/-- Every outer-time slice fixes the constant path. -/
+theorem transSymmHomotopy_refl (x : X) (s : unitInterval) :
+    Path.transSymmHomotopy x x (s, Path.refl x) = Path.refl x := by
+  apply Path.ext
+  funext t
+  exact transSymmHomotopy_apply_apply x x s t (Path.refl x)
+
+/-- Reverse-then-forward cancellation also fixes the constant path at every time. -/
+theorem symmTransHomotopy_refl (x : X) (s : unitInterval) :
+    Path.symmTransHomotopy x x (s, Path.refl x) = Path.refl x := by
+  apply Path.ext
+  funext t
+  exact symmTransHomotopy_apply_apply x x s t (Path.refl x)
+
+/-- Precomposition gives cancellation for an arbitrary continuous family of paths. -/
+theorem transSymmHomotopy_family_apply {x y : X}
+    (a : C(Z, Path x y)) (s : unitInterval) (z : Z) :
+    ((Path.transSymmHomotopy x y).compContinuousMap a) (s, z) =
+      (Path.Homotopy.reflTransSymm (a z)).symm.eval s :=
+  transSymmHomotopy_apply x y s (a z)
+
+/-- Precomposition gives reverse-then-forward cancellation for a continuous family. -/
+theorem symmTransHomotopy_family_apply {x y : X}
+    (a : C(Z, Path x y)) (s : unitInterval) (z : Z) :
+    ((Path.symmTransHomotopy x y).compContinuousMap a) (s, z) =
+      (Path.Homotopy.reflSymmTrans (a z)).symm.eval s :=
+  symmTransHomotopy_apply x y s (a z)
+
+/-- Postcomposition commutes with cancellation as an equality of whole continuous maps. -/
+theorem mapContinuousMap_comp_transSymmHomotopy (f : C(X, Y)) (x y : X) :
+    (Path.mapContinuousMap f x x).comp
+        (Path.transSymmHomotopy x y).toContinuousMap =
+      (Path.transSymmHomotopy (f x) (f y)).toContinuousMap.comp
+        ((ContinuousMap.id unitInterval).prodMap (Path.mapContinuousMap f x y)) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  apply Path.ext
+  funext t
+  change f (Path.transSymmHomotopy x y (s, p) t) =
+    Path.transSymmHomotopy (f x) (f y) (s, Path.mapContinuousMap f x y p) t
+  calc
+    f (Path.transSymmHomotopy x y (s, p) t) =
+        f ((Path.Homotopy.reflTransSymm p).symm (s, t)) :=
+      congrArg f (transSymmHomotopy_apply_apply x y s t p)
+    _ = (Path.Homotopy.reflTransSymm (Path.mapContinuousMap f x y p)).symm (s, t) := rfl
+    _ = Path.transSymmHomotopy (f x) (f y) (s, Path.mapContinuousMap f x y p) t :=
+      (transSymmHomotopy_apply_apply (f x) (f y) s t (Path.mapContinuousMap f x y p)).symm
+
+/-- Postcomposition commutes with reverse-then-forward cancellation on whole maps. -/
+theorem mapContinuousMap_comp_symmTransHomotopy (f : C(X, Y)) (x y : X) :
+    (Path.mapContinuousMap f y y).comp
+        (Path.symmTransHomotopy x y).toContinuousMap =
+      (Path.symmTransHomotopy (f x) (f y)).toContinuousMap.comp
+        ((ContinuousMap.id unitInterval).prodMap (Path.mapContinuousMap f x y)) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  apply Path.ext
+  funext t
+  change f (Path.symmTransHomotopy x y (s, p) t) =
+    Path.symmTransHomotopy (f x) (f y) (s, Path.mapContinuousMap f x y p) t
+  calc
+    f (Path.symmTransHomotopy x y (s, p) t) =
+        f ((Path.Homotopy.reflSymmTrans p).symm (s, t)) :=
+      congrArg f (symmTransHomotopy_apply_apply x y s t p)
+    _ = (Path.Homotopy.reflSymmTrans (Path.mapContinuousMap f x y p)).symm (s, t) := rfl
+    _ = Path.symmTransHomotopy (f x) (f y) (s, Path.mapContinuousMap f x y p) t :=
+      (symmTransHomotopy_apply_apply (f x) (f y) s t (Path.mapContinuousMap f x y p)).symm
+
+end Path
+
+namespace ContinuousMap
+
+variable {X : Type uX} {Y : Type uY}
+variable [tX : TopologicalSpace X] [tY : TopologicalSpace Y]
+
+/-- Cancellation commutes with the genuine loop map, including both endpoint transports. -/
+theorem loopMap_comp_transSymmHomotopy (f : C(X, Y))
+    (e : X) (b : Y) (h : f e = b) :
+    (f.loopMap e b h).comp (Path.transSymmHomotopy e e).toContinuousMap =
+      (Path.transSymmHomotopy b b).toContinuousMap.comp
+        ((ContinuousMap.id unitInterval).prodMap (f.loopMap e b h)) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  apply Path.ext
+  funext t
+  change f (Path.transSymmHomotopy e e (s, p) t) =
+    Path.transSymmHomotopy b b (s, f.loopMap e b h p) t
+  calc
+    f (Path.transSymmHomotopy e e (s, p) t) =
+        f ((Path.Homotopy.reflTransSymm p).symm (s, t)) :=
+      congrArg f (Path.transSymmHomotopy_apply_apply e e s t p)
+    _ = (Path.Homotopy.reflTransSymm (f.loopMap e b h p)).symm (s, t) := rfl
+    _ = Path.transSymmHomotopy b b (s, f.loopMap e b h p) t :=
+      (Path.transSymmHomotopy_apply_apply b b s t (f.loopMap e b h p)).symm
+
+/-- Reverse-then-forward cancellation commutes with loop maps with arbitrary basepoint
+identification; neither of the original endpoint transports is removed. -/
+theorem loopMap_comp_symmTransHomotopy (f : C(X, Y))
+    (e : X) (b : Y) (h : f e = b) :
+    (f.loopMap e b h).comp (Path.symmTransHomotopy e e).toContinuousMap =
+      (Path.symmTransHomotopy b b).toContinuousMap.comp
+        ((ContinuousMap.id unitInterval).prodMap (f.loopMap e b h)) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  apply Path.ext
+  funext t
+  change f (Path.symmTransHomotopy e e (s, p) t) =
+    Path.symmTransHomotopy b b (s, f.loopMap e b h p) t
+  calc
+    f (Path.symmTransHomotopy e e (s, p) t) =
+        f ((Path.Homotopy.reflSymmTrans p).symm (s, t)) :=
+      congrArg f (Path.symmTransHomotopy_apply_apply e e s t p)
+    _ = (Path.Homotopy.reflSymmTrans (f.loopMap e b h p)).symm (s, t) := rfl
+    _ = Path.symmTransHomotopy b b (s, f.loopMap e b h p) t :=
+      (Path.symmTransHomotopy_apply_apply b b s t (f.loopMap e b h p)).symm
+
+end ContinuousMap
+
+end PathInverseCancellation
