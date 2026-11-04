@@ -33,6 +33,12 @@ Mathlib's standard path homotopies, with joint continuity supplied by the same
 continuous-family results. Precomposition gives their action on arbitrary
 continuous path families.
 
+Coordinate evaluation and Mathlib's `Path.pi` identify paths in a dependent product
+with dependent products of path spaces. Their compact-open continuity follows
+from `Path.continuous_uncurry_iff` and ordinary product continuity. The comparison
+preserves constant paths, reversal and concatenation, and characterizes based
+continuous families coordinatewise.
+
 ## References
 
 * Mathlib's paths and path homotopies supply the underlying constructions.
@@ -1109,3 +1115,325 @@ theorem ContinuousMap.loopMap_comp_reflTransHomotopy_family.{uX, uP, uY}
   rintro ⟨s, p⟩
   exact congrArg (fun g : C(unitInterval × Path x x, Path y y) =>
     g (s, a p)) (ContinuousMap.loopMap_comp_reflTransHomotopy f x y h)
+
+namespace Path
+
+/-- Paths in a dependent product are homeomorphic to dependent products of path spaces.
+The inverse is `Path.pi`. The whole continuous-map inverse identities are
+`Homeomorph.symm_comp_toContinuousMap` and `Homeomorph.toContinuousMap_comp_symm`. -/
+def piHomeomorph.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (x y : ∀ i, X i) :
+    Path x y ≃ₜ (∀ i, Path (x i) (y i)) where
+  toFun γ i := Path.mapContinuousMap (ContinuousMap.eval i) x y γ
+  invFun := Path.pi
+  left_inv γ := by
+    apply Path.ext
+    funext t i
+    rfl
+  right_inv p := by
+    funext i
+    apply Path.ext
+    funext t
+    rfl
+  continuous_toFun :=
+    map_continuous (ContinuousMap.pi
+      (fun i => Path.mapContinuousMap (ContinuousMap.eval i) x y))
+  continuous_invFun := by
+    apply Path.continuous_uncurry_iff.mp
+    exact continuous_pi fun i =>
+      Path.continuous_uncurry_iff.mpr
+        (continuous_apply i :
+          Continuous (fun p : ∀ j, Path (x j) (y j) => p i))
+
+/-- The forward continuous map is the product of the coordinate path maps. -/
+theorem piHomeomorph_toContinuousMap.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (x y : ∀ i, X i) :
+    (Path.piHomeomorph x y :
+        C(Path x y, ∀ i, Path (x i) (y i))) =
+      ContinuousMap.pi
+        (fun i => Path.mapContinuousMap (ContinuousMap.eval i) x y) := rfl
+
+/-- The coordinate path of the comparison is induced by coordinate evaluation. -/
+@[simp]
+theorem piHomeomorph_apply.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (x y : ∀ i, X i) (γ : Path x y) (i : ι) :
+    Path.piHomeomorph x y γ i =
+      Path.mapContinuousMap (ContinuousMap.eval i) x y γ := rfl
+
+/-- Evaluating a coordinate path recovers that coordinate of the original path. -/
+theorem piHomeomorph_apply_apply.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (x y : ∀ i, X i) (γ : Path x y) (i : ι) (t : unitInterval) :
+    Path.piHomeomorph x y γ i t = γ t i := rfl
+
+/-- The inverse comparison is the pointwise product of the coordinate paths. -/
+@[simp]
+theorem piHomeomorph_symm_apply.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (x y : ∀ i, X i) (p : ∀ i, Path (x i) (y i)) :
+    (Path.piHomeomorph x y).symm p = Path.pi p := rfl
+
+/-- Evaluating the inverse comparison recovers the given coordinate path value. -/
+theorem piHomeomorph_symm_apply_apply.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (x y : ∀ i, X i) (p : ∀ i, Path (x i) (y i))
+    (t : unitInterval) (i : ι) :
+    (Path.piHomeomorph x y).symm p t i = p i t := rfl
+
+/-- Paths in a dependent product are equal exactly when all coordinate values agree. -/
+theorem pi_ext_iff.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    {x y : ∀ i, X i} {γ δ : Path x y} :
+    γ = δ ↔ ∀ i (t : unitInterval), γ t i = δ t i := by
+  constructor
+  · rintro rfl i t
+    rfl
+  · intro h
+    apply Path.ext
+    funext t i
+    exact h i t
+
+/-- The constant path corresponds to the family of constant coordinate paths. -/
+@[simp]
+theorem piHomeomorph_refl.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)] (x : ∀ i, X i) :
+    Path.piHomeomorph x x (Path.refl x) = fun i => Path.refl (x i) := by
+  funext i
+  apply Path.ext
+  funext t
+  exact piHomeomorph_apply_apply x x (Path.refl x) i t
+
+/-- Reversing a path reverses every coordinate path. -/
+@[simp]
+theorem piHomeomorph_apply_symm.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (x y : ∀ i, X i) (γ : Path x y) :
+    Path.piHomeomorph y x γ.symm =
+      fun i => (Path.piHomeomorph x y γ i).symm := by
+  funext i
+  exact (piHomeomorph_apply y x γ.symm i).trans
+    ((Path.map_symm γ (ContinuousMap.eval i).continuous).symm.trans
+      (congrArg (fun p : Path (x i) (y i) => p.symm)
+        (piHomeomorph_apply x y γ i).symm))
+
+/-- Concatenation corresponds to coordinatewise concatenation with the same clock. -/
+@[simp]
+theorem piHomeomorph_apply_trans.{uι, uX}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (x y z : ∀ i, X i) (γ : Path x y) (δ : Path y z) :
+    Path.piHomeomorph x z (γ.trans δ) =
+      fun i => (Path.piHomeomorph x y γ i).trans
+        (Path.piHomeomorph y z δ i) := by
+  funext i
+  exact (piHomeomorph_apply x z (γ.trans δ) i).trans
+    ((Path.map_trans γ δ (ContinuousMap.eval i).continuous).trans
+      (congrArg₂ (fun (p : Path (x i) (y i)) (q : Path (y i) (z i)) => p.trans q)
+        (piHomeomorph_apply x y γ i).symm
+        (piHomeomorph_apply y z δ i).symm))
+
+/-- A loop family has a constant selected value exactly when all its coordinates do. -/
+theorem piHomeomorph_family_refl_iff.{uι, uX, uP}
+    {ι : Type uι} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    {P : Type uP} [TopologicalSpace P]
+    (x : ∀ i, X i) (A : C(P, Path x x)) (p₀ : P) :
+    A p₀ = Path.refl x ↔
+      ∀ i, ((Path.mapContinuousMap (ContinuousMap.eval i) x x).comp A) p₀ =
+        Path.refl (x i) := by
+  constructor
+  · intro h i
+    exact ((piHomeomorph_apply x x (A p₀) i).symm.trans
+      (congrArg (fun γ : Path x x => Path.piHomeomorph x x γ i) h)).trans
+        (congrFun (piHomeomorph_refl x) i)
+  · intro h
+    apply Path.pi_ext_iff.mpr
+    intro i t
+    exact congrArg (fun γ : Path (x i) (x i) => γ t) (h i)
+
+end Path
+
+@[expose] public section
+
+namespace Path
+
+/-- Taking coordinate paths commutes with componentwise continuous maps. -/
+theorem piHomeomorph_comp_mapContinuousMap.{uι, uX, uY}
+    {ι : Type uι} {X : ι → Type uX} {Y : ι → Type uY}
+    [∀ i, TopologicalSpace (X i)] [∀ i, TopologicalSpace (Y i)]
+    (f : ∀ i, C(X i, Y i)) (x y : ∀ i, X i) :
+    (Path.piHomeomorph (fun i => f i (x i)) (fun i => f i (y i)) :
+        C(Path (fun i => f i (x i)) (fun i => f i (y i)),
+          ∀ i, Path (f i (x i)) (f i (y i)))).comp
+      (Path.mapContinuousMap (ContinuousMap.piMap f) x y) =
+    (ContinuousMap.piMap
+      (fun i => Path.mapContinuousMap (f i) (x i) (y i))).comp
+      (Path.piHomeomorph x y : C(Path x y, ∀ i, Path (x i) (y i))) := by
+  apply ContinuousMap.ext
+  intro γ
+  funext i
+  apply Path.ext
+  funext t
+  calc
+    _ = Path.mapContinuousMap (ContinuousMap.piMap f) x y γ t i :=
+      piHomeomorph_apply_apply _ _ _ i t
+    _ = f i (γ t i) :=
+      congrArg (fun z => z i)
+        (mapContinuousMap_apply_apply (ContinuousMap.piMap f) x y γ t)
+    _ = f i (Path.piHomeomorph x y γ i t) :=
+      congrArg (f i) (piHomeomorph_apply_apply x y γ i t).symm
+    _ = _ :=
+      (mapContinuousMap_apply_apply (f i) (x i) (y i)
+        (Path.piHomeomorph x y γ i) t).symm
+
+/-- Assembling coordinate paths commutes with componentwise continuous maps. -/
+theorem mapContinuousMap_comp_piHomeomorph_symm.{uι, uX, uY}
+    {ι : Type uι} {X : ι → Type uX} {Y : ι → Type uY}
+    [∀ i, TopologicalSpace (X i)] [∀ i, TopologicalSpace (Y i)]
+    (f : ∀ i, C(X i, Y i)) (x y : ∀ i, X i) :
+    (Path.mapContinuousMap (ContinuousMap.piMap f) x y).comp
+      ((Path.piHomeomorph x y).symm :
+        C((∀ i, Path (x i) (y i)), Path x y)) =
+    ((Path.piHomeomorph (fun i => f i (x i)) (fun i => f i (y i))).symm :
+        C((∀ i, Path (f i (x i)) (f i (y i))),
+          Path (fun i => f i (x i)) (fun i => f i (y i)))).comp
+      (ContinuousMap.piMap
+        (fun i => Path.mapContinuousMap (f i) (x i) (y i))) := by
+  apply ContinuousMap.ext
+  intro p
+  apply pi_ext_iff.mpr
+  intro i t
+  calc
+    _ = f i ((Path.piHomeomorph x y).symm p t i) :=
+      congrArg (fun z => z i)
+        (mapContinuousMap_apply_apply (ContinuousMap.piMap f) x y
+          ((Path.piHomeomorph x y).symm p) t)
+    _ = f i (p i t) :=
+      congrArg (f i) (piHomeomorph_symm_apply_apply x y p t i)
+    _ = Path.mapContinuousMap (f i) (x i) (y i) (p i) t :=
+      (mapContinuousMap_apply_apply (f i) (x i) (y i) (p i) t).symm
+    _ = _ :=
+      (piHomeomorph_symm_apply_apply _ _
+        (ContinuousMap.piMap
+          (fun i => Path.mapContinuousMap (f i) (x i) (y i)) p) t i).symm
+
+/-- Taking coordinate paths commutes with reindexing along any function. -/
+theorem piHomeomorph_reindex.{uι, uJ, uX}
+    {ι : Type uι} {J : Type uJ} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (r : J → ι) (x y : ∀ i, X i) :
+    (Path.piHomeomorph (fun j => x (r j)) (fun j => y (r j)) :
+        C(Path (fun j => x (r j)) (fun j => y (r j)),
+          ∀ j, Path (x (r j)) (y (r j)))).comp
+      (Path.mapContinuousMap (ContinuousMap.precomp (X := X) r) x y) =
+    (ContinuousMap.precomp (X := fun i => Path (x i) (y i)) r).comp
+      (Path.piHomeomorph x y : C(Path x y, ∀ i, Path (x i) (y i))) := by
+  apply ContinuousMap.ext
+  intro γ
+  funext j
+  apply Path.ext
+  funext t
+  calc
+    _ = Path.mapContinuousMap (ContinuousMap.precomp (X := X) r) x y γ t j :=
+      piHomeomorph_apply_apply _ _ _ j t
+    _ = γ t (r j) :=
+      congrArg (fun z => z j)
+        (mapContinuousMap_apply_apply (ContinuousMap.precomp (X := X) r) x y γ t)
+    _ = _ := (piHomeomorph_apply_apply x y γ (r j) t).symm
+
+/-- Assembling coordinate paths commutes with reindexing along any function. -/
+theorem piHomeomorph_symm_reindex.{uι, uJ, uX}
+    {ι : Type uι} {J : Type uJ} {X : ι → Type uX}
+    [∀ i, TopologicalSpace (X i)]
+    (r : J → ι) (x y : ∀ i, X i) :
+    (Path.mapContinuousMap (ContinuousMap.precomp (X := X) r) x y).comp
+      ((Path.piHomeomorph x y).symm :
+        C((∀ i, Path (x i) (y i)), Path x y)) =
+    ((Path.piHomeomorph (fun j => x (r j)) (fun j => y (r j))).symm :
+        C((∀ j, Path (x (r j)) (y (r j))),
+          Path (fun j => x (r j)) (fun j => y (r j)))).comp
+      (ContinuousMap.precomp (X := fun i => Path (x i) (y i)) r) := by
+  apply ContinuousMap.ext
+  intro p
+  apply pi_ext_iff.mpr
+  intro j t
+  calc
+    _ = (Path.piHomeomorph x y).symm p t (r j) :=
+      congrArg (fun z => z j)
+        (mapContinuousMap_apply_apply (ContinuousMap.precomp (X := X) r) x y
+          ((Path.piHomeomorph x y).symm p) t)
+    _ = p (r j) t := piHomeomorph_symm_apply_apply x y p t (r j)
+    _ = _ :=
+      (piHomeomorph_symm_apply_apply _ _
+        (ContinuousMap.precomp (X := fun i => Path (x i) (y i)) r p) t j).symm
+
+/-- Taking coordinate loops commutes with loop maps with specified endpoint equations. -/
+theorem piHomeomorph_comp_loopMap.{uι, uX, uY}
+    {ι : Type uι} {X : ι → Type uX} {Y : ι → Type uY}
+    [∀ i, TopologicalSpace (X i)] [∀ i, TopologicalSpace (Y i)]
+    (f : ∀ i, C(X i, Y i)) (a : ∀ i, X i) (b : ∀ i, Y i)
+    (h : ∀ i, f i (a i) = b i) :
+    (Path.piHomeomorph b b : C(Path b b, ∀ i, Path (b i) (b i))).comp
+      ((ContinuousMap.piMap f).loopMap a b (funext h)) =
+    (ContinuousMap.piMap
+      (fun i => (f i).loopMap (a i) (b i) (h i))).comp
+      (Path.piHomeomorph a a : C(Path a a, ∀ i, Path (a i) (a i))) := by
+  apply ContinuousMap.ext
+  intro γ
+  funext i
+  apply Path.ext
+  funext t
+  calc
+    _ = (ContinuousMap.piMap f).loopMap a b (funext h) γ t i :=
+      piHomeomorph_apply_apply b b _ i t
+    _ = f i (γ t i) :=
+      congrArg (fun z => z i)
+        (ContinuousMap.loopMap_apply_apply (ContinuousMap.piMap f) a b (funext h) γ t)
+    _ = f i (Path.piHomeomorph a a γ i t) :=
+      congrArg (f i) (piHomeomorph_apply_apply a a γ i t).symm
+    _ = _ :=
+      (ContinuousMap.loopMap_apply_apply (f i) (a i) (b i) (h i)
+        (Path.piHomeomorph a a γ i) t).symm
+
+/-- Assembling coordinate loops commutes with loop maps with specified endpoint equations. -/
+theorem loopMap_comp_piHomeomorph_symm.{uι, uX, uY}
+    {ι : Type uι} {X : ι → Type uX} {Y : ι → Type uY}
+    [∀ i, TopologicalSpace (X i)] [∀ i, TopologicalSpace (Y i)]
+    (f : ∀ i, C(X i, Y i)) (a : ∀ i, X i) (b : ∀ i, Y i)
+    (h : ∀ i, f i (a i) = b i) :
+    ((ContinuousMap.piMap f).loopMap a b (funext h)).comp
+      ((Path.piHomeomorph a a).symm :
+        C((∀ i, Path (a i) (a i)), Path a a)) =
+    ((Path.piHomeomorph b b).symm :
+        C((∀ i, Path (b i) (b i)), Path b b)).comp
+      (ContinuousMap.piMap (fun i => (f i).loopMap (a i) (b i) (h i))) := by
+  apply ContinuousMap.ext
+  intro p
+  apply pi_ext_iff.mpr
+  intro i t
+  calc
+    _ = f i ((Path.piHomeomorph a a).symm p t i) :=
+      congrArg (fun z => z i)
+        (ContinuousMap.loopMap_apply_apply (ContinuousMap.piMap f) a b (funext h)
+          ((Path.piHomeomorph a a).symm p) t)
+    _ = f i (p i t) :=
+      congrArg (f i) (piHomeomorph_symm_apply_apply a a p t i)
+    _ = (f i).loopMap (a i) (b i) (h i) (p i) t :=
+      (ContinuousMap.loopMap_apply_apply (f i) (a i) (b i) (h i) (p i) t).symm
+    _ = _ :=
+      (piHomeomorph_symm_apply_apply b b
+        (ContinuousMap.piMap (fun i => (f i).loopMap (a i) (b i) (h i)) p) t i).symm
+
+end Path
