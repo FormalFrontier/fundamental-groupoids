@@ -39,6 +39,14 @@ to the constant source loop. At time `s` it retains `γ s` and the whole path
 represents the canonical constant in the based-homotopy category. Both null
 triangles are unsigned and use ordinary topologies.
 
+Precomposing source-loop shortening by the existing loop-reversal component gives
+`BasedTopCat.loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy`.
+It goes from the canonical constant map to the loop map, reversal and forward
+loop inclusion. At homotopy time `s`, its point is `γ (1 - s)` and its whole
+retained forward path is `t ↦ f (γ (1 - s * t))`. The outer parameter is unchanged.
+Every time slice fixes the constant loop, and strict based squares commute with
+the whole homotopy at the same time.
+
 Its projection and whole-forward-loop inclusion also become based maps after
 ordinary universe lifting of spaces in independent universes. The map on based
 loops is pointwise application of the original continuous map, with endpoint
@@ -57,6 +65,11 @@ or loop space of lifted maps is used.
   `ContinuousMap.HomotopyFiber.map`. Source-loop shortening reuses
   `ContinuousMap.HomotopyFiber.loopInclusionCompLoopMapHomotopy` with Mathlib's
   outer-time symmetry.
+* Reversal-precomposed shortening reuses the Formal Frontier Agents formalizations
+  of source-loop shortening, based loop maps and reversal, and whole relative-homotopy
+  precomposition. The path reversal, homotopy precomposition and endpoint transport
+  use Mathlib's path and homotopy APIs, due to Patrick Massot and Shing Tak Lam.
+  The strict-arrow formalization is due to Markus Himmel.
 -/
 
 @[expose] public section
@@ -506,6 +519,215 @@ theorem homotopyQuotient_map_loopMap_comp_loopToHomotopyFiber
         (const (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f)) :=
       (homotopyQuotient_map_eq_iff _ _).2
         ((homotopyRel_iff _ _).1 (loopMap_comp_loopToHomotopyFiber_homotopyRel f))
+
+/-- Precomposing source-loop shortening by loop reversal gives a homotopy from
+ the canonical constant map to the loop map, reversal, and forward loop inclusion,
+ relative to the constant source loop. The homotopy parameter is unchanged. -/
+noncomputable def loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy
+    (f : Arrow BasedTopCat.{u}) :
+    ((const (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f)).right.hom).HomotopyRel
+      (((loopFunctor.map f.hom) ≫ loopReversal.hom.app f.right ≫
+        loopToHomotopyFiber.app f).right.hom)
+      {point (loopFunctor.obj f.left)} := by
+  let r_f := (loopReversal.hom.app f.left).right.hom
+  let H_f := loopMapCompLoopToHomotopyFiberNullhomotopy f
+  have hbase_f : Set.MapsTo r_f {point (loopFunctor.obj f.left)}
+      {point (loopFunctor.obj f.left)} := by
+    intro γ hγ
+    obtain rfl : γ = point (loopFunctor.obj f.left) := Set.mem_singleton_iff.mp hγ
+    exact Set.mem_singleton_iff.mpr (map_point (loopReversal.hom.app f.left))
+  have hconst_f :
+      ((const (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f)).right.hom).comp r_f =
+        (const (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f)).right.hom := by
+    simpa only [Under.comp_right, TopCat.hom_comp] using
+      congrArg
+        (fun k : loopFunctor.obj f.left ⟶ homotopyFiberFunctor.obj f ↦ k.right.hom)
+        (comp_const (Z := homotopyFiberFunctor.obj f) (loopReversal.hom.app f.left))
+  have htarget_f :
+      (((loopFunctor.map f.hom) ≫ loopToHomotopyFiber.app f).right.hom).comp r_f =
+        (((loopFunctor.map f.hom) ≫ loopReversal.hom.app f.right ≫
+          loopToHomotopyFiber.app f).right.hom) := by
+    have hcomp :
+        loopReversal.hom.app f.left ≫
+            (loopFunctor.map f.hom ≫ loopToHomotopyFiber.app f) =
+          loopFunctor.map f.hom ≫ loopReversal.hom.app f.right ≫
+            loopToHomotopyFiber.app f := by
+      calc
+        loopReversal.hom.app f.left ≫
+            (loopFunctor.map f.hom ≫ loopToHomotopyFiber.app f) =
+            (loopReversal.hom.app f.left ≫ loopFunctor.map f.hom) ≫
+              loopToHomotopyFiber.app f :=
+          (Category.assoc (loopReversal.hom.app f.left)
+            (loopFunctor.map f.hom) (loopToHomotopyFiber.app f)).symm
+        _ = (loopFunctor.map f.hom ≫ loopReversal.hom.app f.right) ≫
+            loopToHomotopyFiber.app f :=
+          congrArg
+            (fun k : loopFunctor.obj f.left ⟶ loopFunctor.obj f.right ↦
+              k ≫ loopToHomotopyFiber.app f)
+            (loopReversal.hom.naturality f.hom).symm
+        _ = loopFunctor.map f.hom ≫ loopReversal.hom.app f.right ≫
+            loopToHomotopyFiber.app f :=
+          Category.assoc (loopFunctor.map f.hom)
+            (loopReversal.hom.app f.right) (loopToHomotopyFiber.app f)
+    exact congrArg
+      (fun k : loopFunctor.obj f.left ⟶ homotopyFiberFunctor.obj f ↦ k.right.hom)
+      hcomp
+  exact (H_f.precomp r_f hbase_f).cast hconst_f htarget_f
+
+/-- The whole fiber value is source-loop shortening evaluated on the reversed loop. -/
+theorem loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_apply
+    (f : Arrow BasedTopCat.{u})
+    (p : unitInterval × Path (point f.left) (point f.left)) :
+    loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f p =
+      loopMapCompLoopToHomotopyFiberNullhomotopy f (p.1, p.2.symm) := by
+  rfl
+
+/-- The retained point follows the reversed source loop at the homotopy time. -/
+theorem loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_point
+    (f : Arrow BasedTopCat.{u})
+    (p : unitInterval × Path (point f.left) (point f.left)) :
+    ContinuousMap.HomotopyFiber.point
+        (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f p) =
+      p.2 (unitInterval.symm p.1) := by
+  exact (congrArg
+    (ContinuousMap.HomotopyFiber.point (f := f.hom.right.hom) (b := point f.right))
+    (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_apply f p)).trans
+      ((loopMapCompLoopToHomotopyFiberNullhomotopy_point f (p.1, p.2.symm)).trans
+        (Path.symm_apply p.2 p.1))
+
+/-- The whole retained forward path is the mapped initial segment of the reversed loop. -/
+theorem loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_path
+    (f : Arrow BasedTopCat.{u})
+    (p : unitInterval × Path (point f.left) (point f.left)) :
+    ContinuousMap.HomotopyFiber.path
+        (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f p) =
+      f.hom.right.hom.comp
+        (ContinuousMap.initialSegment (p.1, (p.2.symm).toContinuousMap)) := by
+  exact (congrArg
+    (ContinuousMap.HomotopyFiber.path (f := f.hom.right.hom) (b := point f.right))
+    (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_apply f p)).trans
+      (loopMapCompLoopToHomotopyFiberNullhomotopy_path f (p.1, p.2.symm))
+
+/-- Every path value uses reversal after multiplication of the two interval parameters. -/
+theorem loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_path_apply
+    (f : Arrow BasedTopCat.{u}) (s : unitInterval)
+    (γ : Path (point f.left) (point f.left)) (t : unitInterval) :
+    ContinuousMap.HomotopyFiber.path
+        (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f (s, γ)) t =
+      f.hom.right.hom (γ (unitInterval.symm (s * t))) := by
+  exact (congrArg
+    (fun z : ContinuousMap.HomotopyFiber f.hom.right.hom (point f.right) ↦
+      ContinuousMap.HomotopyFiber.path z t)
+    (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_apply f (s, γ))).trans
+      ((loopMapCompLoopToHomotopyFiberNullhomotopy_path_apply f s γ.symm t).trans
+        (congrArg f.hom.right.hom (Path.symm_apply γ (s * t))))
+
+/-- At time zero the whole fiber value is the selected constant-path point. -/
+@[simp]
+theorem loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_zero
+    (f : Arrow BasedTopCat.{u})
+    (γ : Path (point f.left) (point f.left)) :
+    loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f (0, γ) =
+      point (homotopyFiberFunctor.obj f) := by
+  exact ((loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f).apply_zero γ).trans
+    (const_apply (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f) γ)
+
+/-- At time one the whole fiber value is the reversed mapped loop at the source basepoint. -/
+@[simp]
+theorem loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_one
+    (f : Arrow BasedTopCat.{u})
+    (γ : Path (point f.left) (point f.left)) :
+    loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f (1, γ) =
+      (((loopFunctor.map f.hom) ≫ loopReversal.hom.app f.right ≫
+        loopToHomotopyFiber.app f).right.hom) γ := by
+  exact (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f).apply_one γ
+
+/-- Every time slice fixes the constant source loop at the selected fiber point. -/
+@[simp]
+theorem loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_refl
+    (f : Arrow BasedTopCat.{u}) (s : unitInterval) :
+    loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f
+        (s, Path.refl (point f.left)) =
+      point (homotopyFiberFunctor.obj f) := by
+  exact ((loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f).eq_fst s
+    (x := Path.refl (point f.left))
+    (Set.mem_singleton_iff.mpr (point_loopFunctor_obj f.left).symm)).trans
+      (const_apply (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f)
+        (Path.refl (point f.left)))
+
+/-- Strict based squares commute with the whole reversed-loop nullhomotopy
+ at the same homotopy time. -/
+theorem loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_naturality
+    {f g : Arrow BasedTopCat.{u}} (sq : f ⟶ g) (s : unitInterval)
+    (γ : Path (point f.left) (point f.left)) :
+    (homotopyFiberFunctor.map sq).right.hom
+        (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f (s, γ)) =
+      loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy g
+        (s, (loopFunctor.map sq.left).right.hom γ) := by
+  calc
+    (homotopyFiberFunctor.map sq).right.hom
+        (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f (s, γ)) =
+        (homotopyFiberFunctor.map sq).right.hom
+          (loopMapCompLoopToHomotopyFiberNullhomotopy f (s, γ.symm)) :=
+      congrArg (homotopyFiberFunctor.map sq).right.hom
+        (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_apply f (s, γ))
+    _ = loopMapCompLoopToHomotopyFiberNullhomotopy g
+        (s, (loopFunctor.map sq.left).right.hom γ.symm) :=
+      loopMapCompLoopToHomotopyFiberNullhomotopy_naturality sq s γ.symm
+    _ = loopMapCompLoopToHomotopyFiberNullhomotopy g
+        (s, ((loopFunctor.map sq.left).right.hom γ).symm) :=
+      congrArg
+        (fun δ : Path (point g.left) (point g.left) ↦
+          loopMapCompLoopToHomotopyFiberNullhomotopy g (s, δ))
+        (ContinuousMap.loopMap_symm sq.left.right.hom
+          (point f.left) (point g.left) (map_point sq.left) γ)
+    _ = loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy g
+        (s, (loopFunctor.map sq.left).right.hom γ) :=
+      (loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy_apply g
+        (s, (loopFunctor.map sq.left).right.hom γ)).symm
+
+/-- The loop map, reversal, and forward loop inclusion are based homotopic
+ to the canonical constant map. -/
+theorem loopMap_comp_loopReversal_comp_loopToHomotopyFiber_homotopyRel
+    (f : Arrow BasedTopCat.{u}) :
+    homotopyRel ((loopFunctor.map f.hom) ≫ loopReversal.hom.app f.right ≫
+      loopToHomotopyFiber.app f)
+      (const (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f)) := by
+  exact (homotopyRel_iff _ _).2
+    ⟨(loopMapCompLoopReversalCompLoopToHomotopyFiberNullhomotopy f).symm⟩
+
+/-- In the based-homotopy category, the loop map, reversal, and forward loop
+ inclusion have the class of the canonical constant map. -/
+theorem homotopyQuotient_map_loopMap_comp_loopReversal_comp_loopToHomotopyFiber
+    (f : Arrow BasedTopCat.{u}) :
+    homotopyQuotient.map (loopFunctor.map f.hom) ≫
+        homotopyQuotient.map (loopReversal.hom.app f.right) ≫
+        homotopyQuotient.map (loopToHomotopyFiber.app f) =
+      homotopyQuotient.map
+        (const (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f)) := by
+  calc
+    homotopyQuotient.map (loopFunctor.map f.hom) ≫
+        homotopyQuotient.map (loopReversal.hom.app f.right) ≫
+        homotopyQuotient.map (loopToHomotopyFiber.app f) =
+        homotopyQuotient.map (loopFunctor.map f.hom) ≫
+          homotopyQuotient.map (loopReversal.hom.app f.right ≫
+            loopToHomotopyFiber.app f) :=
+      congrArg
+        (fun k : homotopyQuotient.obj (loopFunctor.obj f.right) ⟶
+            homotopyQuotient.obj (homotopyFiberFunctor.obj f) ↦
+          homotopyQuotient.map (loopFunctor.map f.hom) ≫ k)
+        (homotopyQuotient.map_comp (loopReversal.hom.app f.right)
+          (loopToHomotopyFiber.app f)).symm
+    _ = homotopyQuotient.map
+        ((loopFunctor.map f.hom) ≫ loopReversal.hom.app f.right ≫
+          loopToHomotopyFiber.app f) :=
+      (homotopyQuotient.map_comp (loopFunctor.map f.hom)
+        (loopReversal.hom.app f.right ≫ loopToHomotopyFiber.app f)).symm
+    _ = homotopyQuotient.map
+        (const (loopFunctor.obj f.left) (homotopyFiberFunctor.obj f)) :=
+      (homotopyQuotient_map_eq_iff _ _).2
+        ((homotopyRel_iff _ _).1
+          (loopMap_comp_loopReversal_comp_loopToHomotopyFiber_homotopyRel f))
 
 end Functor
 
