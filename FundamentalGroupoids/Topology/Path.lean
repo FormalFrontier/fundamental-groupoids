@@ -88,6 +88,56 @@ theorem mapContinuousMap_comp {Y T : Type*} [TopologicalSpace Y] [TopologicalSpa
   ext γ t
   rfl
 
+/-- Concatenation of fixed-endpoint paths as a continuous map on their ordinary product. -/
+noncomputable def transContinuousMap.{u} {X : Type u} [TopologicalSpace X]
+    (x y z : X) : C(Path x y × Path y z, Path x z) :=
+  ⟨fun ρ : Path x y × Path y z => ρ.1.trans ρ.2,
+    Path.continuous_trans (x := x) (y := y) (z := z)⟩
+
+/-- The binary continuous map sends a pair to its path concatenation. -/
+@[simp]
+theorem transContinuousMap_apply.{u} {X : Type u} [TopologicalSpace X]
+    (x y z : X) (γ : Path x y) (δ : Path y z) :
+    Path.transContinuousMap x y z (γ, δ) = γ.trans δ := rfl
+
+/-- Inner-time evaluation follows the first path on the closed first half
+and the second path on the open second half. -/
+theorem transContinuousMap_apply_apply.{u}
+    {X : Type u} [TopologicalSpace X] (x y z : X)
+    (γ : Path x y) (δ : Path y z) (t : unitInterval) :
+    Path.transContinuousMap x y z (γ, δ) t =
+      if h : (t : ℝ) ≤ 1 / 2 then
+        γ ⟨2 * t, (unitInterval.mul_pos_mem_iff zero_lt_two).2 ⟨t.2.1, h⟩⟩
+      else δ ⟨2 * t - 1,
+        unitInterval.two_mul_sub_one_mem_iff.2 ⟨(not_le.1 h).le, t.2.2⟩⟩ := by
+  rw [transContinuousMap_apply]
+  exact Path.trans_apply γ δ t
+
+/-- Concatenating the pair of constant loops gives the same constant loop. -/
+theorem transContinuousMap_refl_refl.{u}
+    {X : Type u} [TopologicalSpace X] (x : X) :
+    Path.transContinuousMap x x x (Path.refl x, Path.refl x) = Path.refl x := by
+  rw [transContinuousMap_apply, Path.refl_trans_refl]
+
+/-- Postcomposition commutes with binary path concatenation as an equality
+of whole continuous maps. -/
+theorem mapContinuousMap_comp_transContinuousMap.{u, v}
+    {X : Type u} {Y : Type v} [TopologicalSpace X] [TopologicalSpace Y]
+    (f : C(X, Y)) (x y z : X) :
+    (Path.mapContinuousMap f x z).comp (Path.transContinuousMap x y z) =
+      (Path.transContinuousMap (f x) (f y) (f z)).comp
+        ((Path.mapContinuousMap f x y).prodMap (Path.mapContinuousMap f y z)) := by
+  apply ContinuousMap.ext
+  rintro ⟨γ, δ⟩
+  calc
+    Path.mapContinuousMap f x z (Path.transContinuousMap x y z (γ, δ)) =
+        (γ.trans δ).map f.continuous := by
+      rw [transContinuousMap_apply, mapContinuousMap_apply]
+    _ = (γ.map f.continuous).trans (δ.map f.continuous) := Path.map_trans γ δ f.continuous
+    _ = Path.transContinuousMap (f x) (f y) (f z)
+        (Path.mapContinuousMap f x y γ, Path.mapContinuousMap f y z δ) := by
+      rw [transContinuousMap_apply, mapContinuousMap_apply, mapContinuousMap_apply]
+
 /-- Regard a path whose range lies in a set as a path in the corresponding subspace. -/
 def codRestrict (γ : Path a b) (hγ : Set.range γ ⊆ s) :
     Path (⟨a, hγ γ.source_mem_range⟩ : s) ⟨b, hγ γ.target_mem_range⟩ where
@@ -193,6 +243,23 @@ theorem loopMap_trans.{u, v} {E : Type u} {B : Type v}
       (f.loopMap e₀ b h γ).trans (f.loopMap e₀ b h δ) := by
   simpa only [loopMap_apply, Path.map_trans] using
     Path.cast_trans (γ.map f.continuous) (δ.map f.continuous) h.symm h.symm h.symm
+
+/-- A loop map with its specified endpoint transports commutes with the
+whole binary concatenation map, also for independent source and target universes. -/
+theorem loopMap_comp_transContinuousMap.{u, v}
+    {E : Type u} {B : Type v} [TopologicalSpace E] [TopologicalSpace B]
+    (f : C(E, B)) (e : E) (b : B) (h : f e = b) :
+    (f.loopMap e b h).comp (Path.transContinuousMap e e e) =
+      (Path.transContinuousMap b b b).comp
+        ((f.loopMap e b h).prodMap (f.loopMap e b h)) := by
+  apply ContinuousMap.ext
+  rintro ⟨γ, δ⟩
+  calc
+    f.loopMap e b h (Path.transContinuousMap e e e (γ, δ)) =
+        f.loopMap e b h (γ.trans δ) := by rw [Path.transContinuousMap_apply]
+    _ = (f.loopMap e b h γ).trans (f.loopMap e b h δ) := loopMap_trans f e b h γ δ
+    _ = Path.transContinuousMap b b b (f.loopMap e b h γ, f.loopMap e b h δ) :=
+      (Path.transContinuousMap_apply b b b (f.loopMap e b h γ) (f.loopMap e b h δ)).symm
 
 /-- The loop map preserves the constant loop. -/
 @[simp]

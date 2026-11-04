@@ -224,6 +224,19 @@ theorem loopConcat_right_hom {P X : BasedTopCat.{u}}
         a.right.hom.continuous.path_trans b.right.hom.continuous⟩ :
           C(P.right, Path (point X) (point X))) := rfl
 
+/-- The continuous map underlying concatenation of based loop families factors
+through binary path concatenation on the ordinary product of loop carriers. -/
+theorem loopConcat_right_hom_eq_transContinuousMap_comp
+    {P X : BasedTopCat.{u}} (a b : P ⟶ loopFunctor.obj X) :
+    (loopConcat a b).right.hom =
+      (Path.transContinuousMap (point X) (point X) (point X)).comp
+        (a.right.hom.prodMk b.right.hom) := by
+  rw [loopConcat_right_hom]
+  apply ContinuousMap.ext
+  intro p
+  exact (Path.transContinuousMap_apply (point X) (point X) (point X)
+    (a.right.hom p) (b.right.hom p)).symm
+
 /-- Evaluation of the based concatenation is ordinary path concatenation. -/
 @[simp]
 theorem loopConcat_apply {P X : BasedTopCat.{u}}
