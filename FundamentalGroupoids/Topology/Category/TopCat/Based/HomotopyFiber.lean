@@ -11,7 +11,7 @@ public import FundamentalGroupoids.Topology.Path
 public import Mathlib.CategoryTheory.Comma.Arrow
 
 /-!
-# Based homotopy fibers, loop inclusion and lifted sequence maps
+# Based homotopy fibers, nullhomotopies, loop inclusion and lifted sequence maps
 
 The homotopy fiber retains paths from the chosen target point to the image of
 its point coordinate. For an arrow of based spaces in a common universe,
@@ -23,6 +23,13 @@ original source based space. The natural transformation
 `BasedTopCat.loopToHomotopyFiber` includes target loops by retaining the source
 basepoint and the whole original forward loop. Its composite with the natural
 projection is constant at the original source basepoint.
+
+The full retained path gives `BasedTopCat.homotopyFiberNullhomotopy`, a homotopy
+relative to the selected fiber point from the canonical constant map to the
+projection followed by the original arrow. It is strictly natural in based
+squares at every time and fiber point. Consequently, projection followed by
+the arrow is based homotopic to the constant map, and its image in the
+based-homotopy category is the class of that constant map.
 
 Its projection and whole-forward-loop inclusion also become based maps after
 ordinary universe lifting of spaces in independent universes. The map on based
@@ -180,6 +187,66 @@ theorem homotopyFiberProjection_app_apply (f : Arrow BasedTopCat.{u})
     (z : ContinuousMap.HomotopyFiber f.hom.right.hom (BasedTopCat.point f.right)) :
     (homotopyFiberProjection.app f).right.hom z = ContinuousMap.HomotopyFiber.point z :=
   rfl
+
+/-- The retained forward path gives a homotopy from the canonical constant map to the
+original projection followed by the arrow, fixing the selected fiber point at every time. -/
+noncomputable def homotopyFiberNullhomotopy (f : Arrow BasedTopCat.{u}) :
+    ((const (homotopyFiberFunctor.obj f) f.right).right.hom).HomotopyRel
+      (((homotopyFiberProjection.app f) ≫ f.hom).right.hom)
+      {point (homotopyFiberFunctor.obj f)} :=
+  ContinuousMap.HomotopyFiber.pathHomotopyRel
+    f.hom.right.hom (point f.right) (point f.left) (map_point f.hom)
+
+/-- At every time and fiber point, the nullhomotopy evaluates the entire retained path. -/
+theorem homotopyFiberNullhomotopy_apply (f : Arrow BasedTopCat.{u})
+    (p : unitInterval ×
+      ContinuousMap.HomotopyFiber f.hom.right.hom (point f.right)) :
+    homotopyFiberNullhomotopy f p = ContinuousMap.HomotopyFiber.path p.2 p.1 :=
+  ContinuousMap.HomotopyFiber.pathHomotopyRel_apply f.hom.right.hom
+    (point f.right) (point f.left) (map_point f.hom) p.1 p.2
+
+/-- Strict based squares commute with the retained-path nullhomotopy at every time
+and every point of the original homotopy fiber. -/
+theorem homotopyFiberNullhomotopy_naturality
+    {f g : Arrow BasedTopCat.{u}} (sq : f ⟶ g) (t : unitInterval)
+    (z : ContinuousMap.HomotopyFiber f.hom.right.hom (point f.right)) :
+    sq.right.right.hom (homotopyFiberNullhomotopy f (t, z)) =
+      homotopyFiberNullhomotopy g
+        (t, (homotopyFiberFunctor.map sq).right.hom z) := by
+  calc
+    sq.right.right.hom (homotopyFiberNullhomotopy f (t, z)) =
+        sq.right.right.hom (ContinuousMap.HomotopyFiber.path z t) :=
+      congrArg sq.right.right.hom (homotopyFiberNullhomotopy_apply f (t, z))
+    _ = ContinuousMap.HomotopyFiber.path
+        ((homotopyFiberFunctor.map sq).right.hom z) t :=
+      (congrArg (fun γ : C(unitInterval, g.right.right) ↦ γ t)
+        (homotopyFiberFunctor_map_path sq z)).symm
+    _ = homotopyFiberNullhomotopy g
+        (t, (homotopyFiberFunctor.map sq).right.hom z) :=
+      (homotopyFiberNullhomotopy_apply g
+        (t, (homotopyFiberFunctor.map sq).right.hom z)).symm
+
+/-- Projection followed by the original arrow is based homotopic to the canonical
+constant map. -/
+theorem homotopyFiberProjection_comp_homotopyRel (f : Arrow BasedTopCat.{u}) :
+    homotopyRel ((homotopyFiberProjection.app f) ≫ f.hom)
+      (const (homotopyFiberFunctor.obj f) f.right) := by
+  exact (homotopyRel_iff _ _).2 ⟨(homotopyFiberNullhomotopy f).symm⟩
+
+/-- In the based-homotopy category, projection followed by the original arrow is
+the class of the canonical constant map. -/
+theorem homotopyQuotient_map_homotopyFiberProjection_comp (f : Arrow BasedTopCat.{u}) :
+    homotopyQuotient.map (homotopyFiberProjection.app f) ≫
+        homotopyQuotient.map f.hom =
+      homotopyQuotient.map (const (homotopyFiberFunctor.obj f) f.right) := by
+  calc
+    homotopyQuotient.map (homotopyFiberProjection.app f) ≫
+        homotopyQuotient.map f.hom =
+        homotopyQuotient.map ((homotopyFiberProjection.app f) ≫ f.hom) :=
+      (homotopyQuotient.map_comp _ _).symm
+    _ = homotopyQuotient.map (const (homotopyFiberFunctor.obj f) f.right) :=
+      (homotopyQuotient_map_eq_iff _ _).2
+        ((homotopyRel_iff _ _).1 (homotopyFiberProjection_comp_homotopyRel f))
 
 /-- The natural inclusion of target loops into the ordinary homotopy fiber,
 retaining the source basepoint and the entire original forward loop. -/

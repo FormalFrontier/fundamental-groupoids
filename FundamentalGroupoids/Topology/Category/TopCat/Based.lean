@@ -90,6 +90,43 @@ theorem map_point {X Y : BasedTopCat.{u}} (f : X ⟶ Y) :
     f.right.hom (point X) = point Y := by
   exact congrArg (fun k : TopCat.of PUnit.{u + 1} ⟶ Y.right ↦ k PUnit.unit) (Under.w f)
 
+/-- The constant based map with value the selected point of the target. -/
+def const (X Y : BasedTopCat.{u}) : X ⟶ Y :=
+  Under.homMk (TopCat.const (point Y)) (by
+    rw [hom_eq_const_point Y]
+    apply TopCat.ext
+    intro t
+    rfl)
+
+/-- The continuous map underlying the constant based map is constant at the target basepoint. -/
+@[simp]
+theorem const_right_hom (X Y : BasedTopCat.{u}) :
+    (const X Y).right.hom = ContinuousMap.const X.right (point Y) := rfl
+
+/-- The constant based map takes every point to the target basepoint. -/
+theorem const_apply (X Y : BasedTopCat.{u}) (x : X.right) :
+    (const X Y).right.hom x = point Y := by
+  rw [const_right_hom]
+  rfl
+
+/-- Precomposition of a constant based map is constant. -/
+@[simp]
+theorem comp_const {X Y Z : BasedTopCat.{u}} (a : X ⟶ Y) :
+    a ≫ const Y Z = const X Z := by
+  apply Under.UnderMorphism.ext
+  apply TopCat.ext
+  intro x
+  simp only [Under.comp_right, TopCat.comp_app, const_apply]
+
+/-- Postcomposition of a constant based map by a based map is constant. -/
+@[simp]
+theorem const_comp {X Y Z : BasedTopCat.{u}} (a : Y ⟶ Z) :
+    const X Y ≫ a = const X Z := by
+  apply Under.UnderMorphism.ext
+  apply TopCat.ext
+  intro x
+  simpa only [Under.comp_right, TopCat.comp_app, const_apply] using map_point a
+
 /-- Based homotopy is homotopy of the underlying maps relative to the source basepoint. -/
 def homotopyRel : HomRel BasedTopCat.{u} :=
   fun X _ f g ↦ ContinuousMap.HomotopicRel f.right.hom g.right.hom {point X}
