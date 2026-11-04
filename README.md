@@ -966,6 +966,41 @@ directions, examples, conventions and credits.
   preconnected total, evaluation at a supplied point is injective: fixing a point
   forces identity. No codomain topology is needed; surjectivity is not asserted.
 
+### Generalized loops and homotopy fibers
+
+For any cube index and based continuous map, generalized loops commute with its ordinary
+homotopy fiber. The comparison preserves the retained point functions, complete paths and
+both specified constant points, and is natural for based commuting squares.
+
+See `ContinuousMap.HomotopyFiber.genLoopHomeomorph` and
+`ContinuousMap.HomotopyFiber.genLoopHomeomorph_naturality` in
+[`Topology/Homotopy/Fiber/GenLoop.lean`](FundamentalGroupoids/Topology/Homotopy/Fiber/GenLoop.lean).
+
+
+### Dependent products of homotopy fibers
+
+For an arbitrary index type and topological families `E k` and `B k`, the
+[product-fiber module](FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean)
+constructs `ContinuousMap.HomotopyFiber.piHomeomorph f b`:
+
+```text
+HomotopyFiber (ContinuousMap.piMap f) b ≃ₜ (∀ k, HomotopyFiber (f k) (b k)).
+```
+
+The comparison retains every original source point and the entire compact-open
+path at the same time. Its inverse transposes the whole family of paths; only
+the interval needs local compactness. The index, source and target universes are
+independent, with no finiteness, nonemptiness or separation assumptions.
+The original constant `const e₀ (funext h)` corresponds in both directions to
+`fun k => const (e₀ k) (h k)`.
+
+`piHomeomorph_naturality` expresses naturality as equality of whole bundled
+continuous maps for arbitrary families of commuting squares. For `Fin 2`,
+`piHomeomorph_finTwo` identifies the composite homeomorphisms through
+`Homeomorph.piFinTwo`, the homotopy-fiber `homeomorph`, and `prodHomeomorph`.
+This common-universe family diagram leaves the binary comparison's four
+independent ambient universes and its eight-universe naturality law unchanged.
+
 ## Using the library
 
 Add to `lakefile.toml`, pinning `rev` to a release commit if desired:
@@ -1244,6 +1279,13 @@ See [all conventions and boundaries](docs/mathematical-guide.md#conventions-and-
 - [Mathlib](https://github.com/leanprover-community/mathlib4) and
   [GroupTheory](https://github.com/FormalFrontier/group-theory).
   See the [guide's references](docs/mathematical-guide.md#references) for scope and dependencies.
+- Mathlib's [generated-by topology](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/GeneratedBy.lean),
+  [generated-continuous maps](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/ContinuousMapGeneratedBy.lean), and
+  [generated mapping spaces and currying](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/HomSpace.lean)
+  underlie the generated mapping-space comparisons and scalar currying here.
+  Their background references include Rainer M. Vogt, *Convenient categories of
+  topological spaces for homotopy theory*, and Martín Escardó, Jimmie Lawson and
+  Alex Simpson, *Comparing Cartesian closed categories of (core) compactly generated spaces*.
 - [Restricted Product Duality](https://github.com/FormalFrontier/restricted-product-duality):
   the based-postcomposition definitions and proofs for generalized loops and
   homotopy groups, and the path-component map API, by Formal Frontier Agents.
@@ -1256,6 +1298,10 @@ Authors: Formal Frontier Agents. AI agents contributed Lean formalization,
 examples and documentation. May supplies mathematical motivation and arguments;
 Mathlib supplies underlying constructions and APIs. Its compactly generated topology
 and source-test continuity API are due to Dagur Asgeirsson and Etienne Marion.
+The generated-by topology is formalized in Mathlib by Joël Riou, Dagur Asgeirsson
+and Ben Eltschig; its generated-continuous maps, mapping-space topology and
+currying are by Joël Riou. The generated mapping-space comparisons and scalar
+currying in this library build on these formalizations.
 Covering formalizations originate in sphere-topology by Formal Frontier Agents,
 with retained Apache-2.0 and authorship notices. The signed-period and complex-circle
 coordinate core also
@@ -1320,37 +1366,3 @@ are in [CONTRIBUTORS.md](CONTRIBUTORS.md), module documentation and the
 No open redistribution license is inferred for May's author-hosted book; no
 book excerpts or PDF assets are included. Licensed under Apache-2.0; see [LICENSE](LICENSE).
 
-## Generalized loops and homotopy fibers
-
-For any cube index and based continuous map, generalized loops commute with its ordinary
-homotopy fiber. The comparison preserves the retained point functions, complete paths and
-both specified constant points, and is natural for based commuting squares.
-
-See `ContinuousMap.HomotopyFiber.genLoopHomeomorph` and
-`ContinuousMap.HomotopyFiber.genLoopHomeomorph_naturality` in
-[`Topology/Homotopy/Fiber/GenLoop.lean`](FundamentalGroupoids/Topology/Homotopy/Fiber/GenLoop.lean).
-
-
-## Dependent products of homotopy fibers
-
-For an arbitrary index type and topological families `E k` and `B k`, the
-[product-fiber module](FundamentalGroupoids/Topology/Homotopy/Fiber/Prod.lean)
-constructs `ContinuousMap.HomotopyFiber.piHomeomorph f b`:
-
-```text
-HomotopyFiber (ContinuousMap.piMap f) b ≃ₜ (∀ k, HomotopyFiber (f k) (b k)).
-```
-
-The comparison retains every original source point and the entire compact-open
-path at the same time. Its inverse transposes the whole family of paths; only
-the interval needs local compactness. The index, source and target universes are
-independent, with no finiteness, nonemptiness or separation assumptions.
-The original constant `const e₀ (funext h)` corresponds in both directions to
-`fun k => const (e₀ k) (h k)`.
-
-`piHomeomorph_naturality` expresses naturality as equality of whole bundled
-continuous maps for arbitrary families of commuting squares. For `Fin 2`,
-`piHomeomorph_finTwo` identifies the composite homeomorphisms through
-`Homeomorph.piFinTwo`, the homotopy-fiber `homeomorph`, and `prodHomeomorph`.
-This common-universe family diagram leaves the binary comparison's four
-independent ambient universes and its eight-universe naturality law unchanged.
