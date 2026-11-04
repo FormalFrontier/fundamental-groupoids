@@ -144,4 +144,6 @@ public import FundamentalGroupoids.FundamentalGroup.ComplexPuncturedBall
 public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Subtype
 public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated
 public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Prod
+public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Pi
 public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated.Prod
+public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated.Pi
