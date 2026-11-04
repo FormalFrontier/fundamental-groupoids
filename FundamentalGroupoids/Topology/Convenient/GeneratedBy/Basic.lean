@@ -16,6 +16,13 @@ functions, and preserves identities and composition.
 The refinement type synonym also admits the canonical lift of a continuous map
 from a generated source. Its counit is natural, and determines such lifts uniquely.
 The probe family, its index, and all original carrier universes remain independent.
+
+## References
+
+The generated-topology construction and its type-synonym API build on Mathlib's
+[generated-by topology](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/GeneratedBy.lean), by Joël Riou, Dagur Asgeirsson and Ben Eltschig. The
+generated-map continuity API used here is part of [generated maps](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/ContinuousMapGeneratedBy.lean), by Joël Riou.
+The same-carrier interfaces and their characteristic laws compose these APIs.
 -/
 
 @[expose] public section
@@ -132,39 +139,7 @@ original source and target topologies, on the same carriers. -/
 theorem generatedByTopology {f : A → B} (hf : @Continuous A B tA tB f) :
     @Continuous A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
       (@TopologicalSpace.generatedBy ι Φ tΦ B tB) f := by
-  let τA : TopologicalSpace A := @TopologicalSpace.generatedBy ι Φ tΦ A tA
-  have hidem : @TopologicalSpace.generatedBy ι Φ tΦ A τA = τA := by
-    exact @TopologicalSpace.generatedBy_generatedBy ι Φ tΦ A tA
-  let hgenA : @IsGeneratedBy ι Φ tΦ A τA :=
-    (@IsGeneratedBy.iff_le_generatedBy ι Φ tΦ A τA).2 (le_of_eq hidem.symm)
-  have hsource : @Continuous A A τA tA id :=
-    (@continuous_id_iff_le A τA tA).2
-      (@TopologicalSpace.generatedBy_le ι Φ tΦ A tA)
-  have hf' : @Continuous A B τA tB f :=
-    @Continuous.comp A A B τA tA tB id f hf hsource
-  have hcoinduced : TopologicalSpace.coinduced f τA ≤ tB := by
-    exact (show @Continuous A B τA tB f ↔
-      TopologicalSpace.coinduced f τA ≤ tB from continuous_iff_coinduced_le).1 hf'
-  have hgen : @IsGeneratedBy ι Φ tΦ B (TopologicalSpace.coinduced f τA) := by
-    let : TopologicalSpace A := τA
-    exact IsGeneratedBy.coinduced f
-  have heq :
-      @TopologicalSpace.generatedBy ι Φ tΦ B (TopologicalSpace.coinduced f τA) =
-        TopologicalSpace.coinduced f τA := by
-    exact @IsGeneratedBy.generatedBy_eq ι Φ tΦ B
-      (TopologicalSpace.coinduced f τA) hgen
-  have hle : TopologicalSpace.coinduced f τA ≤
-      @TopologicalSpace.generatedBy ι Φ tΦ B tB := by
-    calc
-      TopologicalSpace.coinduced f τA =
-          @TopologicalSpace.generatedBy ι Φ tΦ B
-            (TopologicalSpace.coinduced f τA) := heq.symm
-      _ ≤ @TopologicalSpace.generatedBy ι Φ tΦ B tB :=
-        @TopologicalSpace.generatedBy_mono ι Φ tΦ B
-          (TopologicalSpace.coinduced f τA) tB hcoinduced
-  exact (show @Continuous A B τA (@TopologicalSpace.generatedBy ι Φ tΦ B tB) f ↔
-    TopologicalSpace.coinduced f τA ≤ @TopologicalSpace.generatedBy ι Φ tΦ B tB
-      from continuous_iff_coinduced_le).2 hle
+  exact (hf.continuousGeneratedBy (X := Φ)).continuousMap.continuous
 
 end Continuous
 

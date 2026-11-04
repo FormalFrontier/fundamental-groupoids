@@ -24,6 +24,17 @@ target-refinement homeomorphism removes the intermediate refinement of `Y`.
 Neither an ordinary-product generatedness assertion nor local compactness of
 `P` or `A` is needed. This is an equivalence of continuous-map carriers, not a
 homeomorphism between spaces of currying operators.
+
+## References
+
+The exponential-law construction uses `Topology.ContinuousMapGeneratedBy.curryEquiv`
+from Joël Riou's Mathlib [generated mapping spaces](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/HomSpace.lean) and [generated maps](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/ContinuousMapGeneratedBy.lean)
+formalizations, together with Mathlib's ordinary compact-open and evaluation APIs.
+The probe refinement uses [generated-by topology](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/GeneratedBy.lean), by Joël Riou, Dagur Asgeirsson and
+Ben Eltschig. The mathematical setting is the compactly generated-space
+exponential law discussed in J. Peter May, *A Concise Course in Algebraic Topology*
+(revised author PDF); the present statement retains arbitrary original target
+topology and an independent compact-probe universe.
 -/
 
 public section

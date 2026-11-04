@@ -94,6 +94,29 @@ pointwise identity/composition statements and Apache-2.0 and authorship notices.
 They reuse Mathlib's path components and `Joined.map` by Patrick Massot and
 contributors, homotopies by Shing Tak Lam and contributors, and quotient maps.
 
+The generated-topology and mapping-space comparison modules are by Formal
+Frontier Agents. Their probe compact-open comparison, generated-map conversions,
+bundled naturality and scalar currying assembly build on the following specific
+Mathlib formalizations:
+
+- Joël Riou, Dagur Asgeirsson and Ben Eltschig: generated-by topologies and the
+  `WithGeneratedByTopology` type-synonym API in
+  [GeneratedBy](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/GeneratedBy.lean).
+- Joël Riou: the generated-map carrier, topology and canonical conversion APIs in
+  [ContinuousMapGeneratedBy](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/ContinuousMapGeneratedBy.lean), and the generated-map exponential law in
+  [HomSpace](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/HomSpace.lean).
+
+The original-carrier interfaces, comparison proofs and characteristic laws compose
+these APIs. Ordinary precomposition delegates to Mathlib's
+`ContinuousMap.compRightContinuousMap`; the generated continuity bridge delegates
+to `Continuous.continuousGeneratedBy`. These credits supplement the ordinary
+compact-open, compact-generation and Formal Frontier proof/documentation credits
+above; they do not replace them.
+
+For mathematical background, the cited Mathlib generated-topology and mapping-space
+modules refer to Escardó–Lawson–Simpson, and the generated-by provider also refers
+to Vogt.
+
 J. Peter May's *A Concise Course in Algebraic Topology*, revised author PDF,
 Chapter 1, §3 and Chapter 2, §§5, 7, supplies mathematical motivation and
 arguments. The book is published by the University of Chicago Press.

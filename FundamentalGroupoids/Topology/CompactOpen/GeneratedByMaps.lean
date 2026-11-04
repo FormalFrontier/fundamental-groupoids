@@ -30,6 +30,13 @@ If the probes are locally compact and their ordinary pairwise products are
 generated, an ordinary product of a probe with an original generated source is
 generated. This relative product result uses the stock generated-map currying
 equivalence and the conversion API above, not a new currying construction.
+
+## References
+
+The generated-map carrier and topology come from Mathlib's [generated maps](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/ContinuousMapGeneratedBy.lean),
+by Joël Riou. The relative-product argument uses the currying equivalence in his
+[generated mapping spaces](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/HomSpace.lean) formalization. Both depend on the
+[generated-by topology](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/GeneratedBy.lean) formalization of Joël Riou, Dagur Asgeirsson and Ben Eltschig.
 -/
 
 @[expose] public section

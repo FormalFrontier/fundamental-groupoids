@@ -24,6 +24,14 @@ Only local compactness of the probes, generatedness of their ordinary products
 with the original source, and generatedness of that source are assumed. The original
 source and target topologies, the continuous-map carrier, and both outer refinements
 are retained.
+
+## References
+
+The generated-map carrier/topology and its canonical carrier equivalence use
+Mathlib's [generated maps](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/ContinuousMapGeneratedBy.lean), by Joël Riou. Refinement uses
+[generated-by topology](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/GeneratedBy.lean), by Joël Riou, Dagur Asgeirsson and Ben Eltschig. The
+comparison homeomorphisms here compose those APIs with the probe compact-open
+comparison.
 -/
 
 @[expose] public section

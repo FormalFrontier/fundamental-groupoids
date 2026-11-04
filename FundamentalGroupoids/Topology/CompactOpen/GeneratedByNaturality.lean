@@ -20,6 +20,15 @@ bundled actions, in both directions. The squares allow simultaneous change of
 source and target and retain the original topologies of all four spaces. Only the
 comparison squares require locally compact probes and generated ordinary products
 of probes with each original generated source.
+
+## References
+
+The ordinary precomposition object delegates to Mathlib's
+`ContinuousMap.compRightContinuousMap`; ordinary postcomposition uses its
+compact-open continuity API. Generated actions build on [generated maps](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/ContinuousMapGeneratedBy.lean),
+by Joël Riou, and [generated-by topology](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/GeneratedBy.lean), by Joël Riou, Dagur Asgeirsson
+and Ben Eltschig. The bundled comparison squares and coherence laws compose
+these formalizations.
 -/
 
 @[expose] public section
@@ -43,10 +52,9 @@ variable {A : Type v} [tA : TopologicalSpace A]
 def precompContinuousMap (p : @ContinuousMap B A tB tA) :
     @ContinuousMap (@ContinuousMap A Y tA tY) (@ContinuousMap B Y tB tY)
       (@ContinuousMap.compactOpen A Y tA tY)
-      (@ContinuousMap.compactOpen B Y tB tY) :=
-  @ContinuousMap.mk (@ContinuousMap A Y tA tY) (@ContinuousMap B Y tB tY)
-    (@ContinuousMap.compactOpen A Y tA tY) (@ContinuousMap.compactOpen B Y tB tY)
-    (fun f => f.comp p) (ContinuousMap.continuous_precomp p)
+      (@ContinuousMap.compactOpen B Y tB tY) := by
+  apply ContinuousMap.compRightContinuousMap
+  exact p
 
 /-- Ordinary target postcomposition, bundled between ordinary compact-open spaces. -/
 def postcompContinuousMap (g : @ContinuousMap Y Z tY tZ) :

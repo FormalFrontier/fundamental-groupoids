@@ -23,6 +23,13 @@ compactness nor generatedness of the original source is required.
 
 The probe index, probe spaces, source and target have independent universes. Both
 generated refinements are retained in the comparison.
+
+## References
+
+The probe refinement uses Mathlib's [generated-by topology](https://github.com/leanprover-community/mathlib4/blob/83abb3e776bdefcbc447a1e44d0debe4010039e5/Mathlib/Topology/Convenient/GeneratedBy.lean),
+by Joël Riou, Dagur Asgeirsson and Ben Eltschig, together with Mathlib's ordinary
+compact-open topology and precomposition API. The comparison is stated on the
+original continuous-map carrier rather than a new generated-map model.
 -/
 
 @[expose] public section
