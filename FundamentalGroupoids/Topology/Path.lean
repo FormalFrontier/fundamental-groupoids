@@ -27,6 +27,12 @@ may have independent universes. These statements use joint evaluation rather tha
 a topology on a homotopy space and require no local compactness or separation
 assumptions.
 
+At fixed endpoints, the right-unit and associativity homotopies form homotopies
+on the ordinary compact-open path spaces. Their values are the time slices of
+Mathlib's standard path homotopies, with joint continuity supplied by the same
+continuous-family results. Precomposition gives their action on arbitrary
+continuous path families.
+
 ## References
 
 * Mathlib's paths and path homotopies supply the underlying constructions.
@@ -549,3 +555,175 @@ theorem hcomp_continuous_family {a b c : T → X}
 end Path.Homotopy
 
 end HomotopyComposition
+
+namespace Path
+
+/-- The standard right-unit homotopy on a fixed-endpoint path space. -/
+noncomputable def transReflHomotopy.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y : X) :
+    ContinuousMap.Homotopy
+      ((Path.transContinuousMap x y y).comp
+        ((ContinuousMap.id (Path x y)).prodMk
+          (ContinuousMap.const (Path x y) (Path.refl y))))
+      (ContinuousMap.id (Path x y)) where
+  toFun v := (Path.Homotopy.transRefl v.2).eval v.1
+  continuous_toFun := by
+    apply Path.continuous_uncurry_iff.mp
+    have h := Path.Homotopy.transRefl_continuous_family
+      (fun p : Path x y => p)
+      (Path.continuous_uncurry_iff.mpr
+        (continuous_id : Continuous (id : Path x y → Path x y)))
+    exact h.comp
+      (show Continuous (fun v : (unitInterval × Path x y) × unitInterval =>
+          (v.1.2, (v.1.1, v.2))) from
+        continuous_fst.snd.prodMk (continuous_fst.fst.prodMk continuous_snd))
+  map_zero_left p := (Path.Homotopy.transRefl p).eval_zero
+  map_one_left p := (Path.Homotopy.transRefl p).eval_one
+
+/-- The standard associator homotopy on three composable path spaces. -/
+noncomputable def transAssocHomotopy.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y z w : X) :
+    ContinuousMap.Homotopy
+      ((Path.transContinuousMap x z w).comp
+        (((Path.transContinuousMap x y z).comp
+          ((ContinuousMap.fst :
+            C(Path x y × (Path y z × Path z w), Path x y)).prodMk
+            (ContinuousMap.fst.comp ContinuousMap.snd))).prodMk
+          (ContinuousMap.snd.comp ContinuousMap.snd)))
+      ((Path.transContinuousMap x y w).comp
+        ((ContinuousMap.fst :
+          C(Path x y × (Path y z × Path z w), Path x y)).prodMk
+          ((Path.transContinuousMap y z w).comp ContinuousMap.snd))) where
+  toFun v := (Path.Homotopy.transAssoc v.2.1 v.2.2.1 v.2.2.2).eval v.1
+  continuous_toFun := by
+    apply Path.continuous_uncurry_iff.mp
+    have hp : Continuous (fun v :
+        (Path x y × (Path y z × Path z w)) × unitInterval => v.1.1 v.2) :=
+      Path.continuous_uncurry_iff.mpr continuous_fst
+    have hq : Continuous (fun v :
+        (Path x y × (Path y z × Path z w)) × unitInterval => v.1.2.1 v.2) :=
+      Path.continuous_uncurry_iff.mpr continuous_snd.fst
+    have hr : Continuous (fun v :
+        (Path x y × (Path y z × Path z w)) × unitInterval => v.1.2.2 v.2) :=
+      Path.continuous_uncurry_iff.mpr continuous_snd.snd
+    have h := Path.Homotopy.transAssoc_continuous_family
+      (fun ρ : Path x y × (Path y z × Path z w) => ρ.1)
+      (fun ρ : Path x y × (Path y z × Path z w) => ρ.2.1)
+      (fun ρ : Path x y × (Path y z × Path z w) => ρ.2.2) hp hq hr
+    exact h.comp
+      (show Continuous (fun v :
+          (unitInterval × (Path x y × (Path y z × Path z w))) × unitInterval =>
+          (v.1.2, (v.1.1, v.2))) from
+        continuous_fst.snd.prodMk (continuous_fst.fst.prodMk continuous_snd))
+  map_zero_left := by
+    rintro ⟨p, q, r⟩
+    exact (Path.Homotopy.transAssoc p q r).eval_zero
+  map_one_left := by
+    rintro ⟨p, q, r⟩
+    exact (Path.Homotopy.transAssoc p q r).eval_one
+
+/-- Evaluate the right-unit path-space homotopy as the standard path homotopy. -/
+@[simp]
+theorem transReflHomotopy_apply.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y : X)
+    (s : unitInterval) (p : Path x y) :
+    Path.transReflHomotopy x y (s, p) =
+      (Path.Homotopy.transRefl p).eval s := rfl
+
+/-- Evaluate the associator as the standard homotopy on its three input paths. -/
+@[simp]
+theorem transAssocHomotopy_apply.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y z w : X)
+    (s : unitInterval) (p : Path x y) (q : Path y z) (r : Path z w) :
+    Path.transAssocHomotopy x y z w (s, (p, (q, r))) =
+      (Path.Homotopy.transAssoc p q r).eval s := rfl
+
+/-- Precomposition gives the same right-unit homotopy for an arbitrary path family. -/
+theorem transReflHomotopy_family_apply.{uX, uP}
+    {X : Type uX} {P : Type uP} [TopologicalSpace X] [TopologicalSpace P]
+    {x y : X} (a : C(P, Path x y)) (s : unitInterval) (p : P) :
+    ((Path.transReflHomotopy x y).compContinuousMap a) (s, p) =
+      (Path.Homotopy.transRefl (a p)).eval s := rfl
+
+/-- Precomposition gives the same associator for three arbitrary composable path families. -/
+theorem transAssocHomotopy_family_apply.{uX, uP}
+    {X : Type uX} {P : Type uP} [TopologicalSpace X] [TopologicalSpace P]
+    {x y z w : X} (a : C(P, Path x y)) (b : C(P, Path y z))
+    (c : C(P, Path z w)) (s : unitInterval) (p : P) :
+    ((Path.transAssocHomotopy x y z w).compContinuousMap
+      (a.prodMk (b.prodMk c))) (s, p) =
+      (Path.Homotopy.transAssoc (a p) (b p) (c p)).eval s := rfl
+
+end Path
+
+namespace Path
+
+/-- The right-unit homotopy fixes the constant input path at every time. -/
+theorem transReflHomotopy_refl.{uX}
+    {X : Type uX} [TopologicalSpace X] (x : X) (s : unitInterval) :
+    Path.transReflHomotopy x x (s, Path.refl x) = Path.refl x := by
+  calc
+    Path.transReflHomotopy x x (s, Path.refl x) =
+        (Path.Homotopy.transRefl (Path.refl x)).eval s :=
+      Path.transReflHomotopy_apply x x s (Path.refl x)
+    _ = Path.refl x := rfl
+
+/-- The associator fixes the triple of constant input paths at every time. -/
+theorem transAssocHomotopy_refl_refl_refl.{uX}
+    {X : Type uX} [TopologicalSpace X] (x : X) (s : unitInterval) :
+    Path.transAssocHomotopy x x x x
+      (s, (Path.refl x, (Path.refl x, Path.refl x))) = Path.refl x := by
+  rw [Path.transAssocHomotopy_apply]
+  apply Path.ext
+  funext t
+  change ((Path.refl x).trans ((Path.refl x).trans (Path.refl x))) _ = x
+  simp only [Path.refl_trans_refl]
+  rfl
+
+/-- Postcomposition commutes with the entire right-unit homotopy at the same time. -/
+theorem mapContinuousMap_comp_transReflHomotopy.{uX, uY}
+    {X : Type uX} {Y : Type uY} [TopologicalSpace X] [TopologicalSpace Y]
+    (f : C(X, Y)) (x y : X) :
+    (Path.mapContinuousMap f x y).comp
+      (Path.transReflHomotopy x y).toContinuousMap =
+    (Path.transReflHomotopy (f x) (f y)).toContinuousMap.comp
+      ((ContinuousMap.id unitInterval).prodMap (Path.mapContinuousMap f x y)) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  change Path.mapContinuousMap f x y (Path.transReflHomotopy x y (s, p)) =
+    Path.transReflHomotopy (f x) (f y) (s, Path.mapContinuousMap f x y p)
+  calc
+    Path.mapContinuousMap f x y (Path.transReflHomotopy x y (s, p)) =
+        Path.mapContinuousMap f x y ((Path.Homotopy.transRefl p).eval s) :=
+      congrArg (Path.mapContinuousMap f x y) (Path.transReflHomotopy_apply x y s p)
+    _ = (Path.Homotopy.transRefl (Path.mapContinuousMap f x y p)).eval s := rfl
+    _ = Path.transReflHomotopy (f x) (f y) (s, Path.mapContinuousMap f x y p) :=
+      (Path.transReflHomotopy_apply (f x) (f y) s (Path.mapContinuousMap f x y p)).symm
+
+/-- Postcomposition commutes with the entire associator at the same time. -/
+theorem mapContinuousMap_comp_transAssocHomotopy.{uX, uY}
+    {X : Type uX} {Y : Type uY} [TopologicalSpace X] [TopologicalSpace Y]
+    (f : C(X, Y)) (x y z w : X) :
+    (Path.mapContinuousMap f x w).comp
+      (Path.transAssocHomotopy x y z w).toContinuousMap =
+    (Path.transAssocHomotopy (f x) (f y) (f z) (f w)).toContinuousMap.comp
+      ((ContinuousMap.id unitInterval).prodMap
+        ((Path.mapContinuousMap f x y).prodMap
+          ((Path.mapContinuousMap f y z).prodMap (Path.mapContinuousMap f z w)))) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p, q, r⟩
+  change Path.mapContinuousMap f x w
+      (Path.transAssocHomotopy x y z w (s, (p, (q, r)))) =
+    Path.transAssocHomotopy (f x) (f y) (f z) (f w)
+      (s, (Path.mapContinuousMap f x y p,
+        (Path.mapContinuousMap f y z q, Path.mapContinuousMap f z w r)))
+  rw [Path.transAssocHomotopy_apply, Path.transAssocHomotopy_apply]
+  apply Path.ext
+  funext t
+  -- The stock associator reparametrizes the right-associated concatenation.
+  change ((p.trans (q.trans r)).map f.continuous) _ =
+    ((p.map f.continuous).trans
+      ((q.map f.continuous).trans (r.map f.continuous))) _
+  rw [Path.map_trans, Path.map_trans]
+
+end Path
