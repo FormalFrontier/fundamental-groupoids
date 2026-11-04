@@ -4,13 +4,14 @@ Authors: Formal Frontier Agents
 -/
 module
 
+public import FundamentalGroupoids.Topology.Category.TopCat.Based.Loop
 public import FundamentalGroupoids.Topology.Category.TopCat.Based.Universe
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Loop
 public import FundamentalGroupoids.Topology.Path
 public import Mathlib.CategoryTheory.Comma.Arrow
 
 /-!
-# Based homotopy fibers and lifted sequence maps
+# Based homotopy fibers, loop inclusion and lifted sequence maps
 
 The homotopy fiber retains paths from the chosen target point to the image of
 its point coordinate. For an arrow of based spaces in a common universe,
@@ -18,7 +19,10 @@ its point coordinate. For an arrow of based spaces in a common universe,
 target basepoint, based at the source basepoint and the constant path. Strict
 based squares act on its point coordinate and postcompose its whole forward
 path. `BasedTopCat.homotopyFiberProjection` projects naturally to the arrow's
-original source based space.
+original source based space. The natural transformation
+`BasedTopCat.loopToHomotopyFiber` includes target loops by retaining the source
+basepoint and the whole original forward loop. Its composite with the natural
+projection is constant at the original source basepoint.
 
 Its projection and whole-forward-loop inclusion also become based maps after
 ordinary universe lifting of spaces in independent universes. The map on based
@@ -112,6 +116,17 @@ theorem homotopyFiberFunctor_obj_point (f : Arrow BasedTopCat.{u}) :
         (BasedTopCat.point f.left) (BasedTopCat.map_point f.hom) :=
   rfl
 
+/-- The continuous map underlying a strict based square is the induced map of homotopy fibers. -/
+theorem homotopyFiberFunctor_map_right_hom {f g : Arrow BasedTopCat.{u}} (sq : f ⟶ g) :
+    (homotopyFiberFunctor.map sq).right.hom =
+      ContinuousMap.HomotopyFiber.map
+        (f := f.hom.right.hom) (f' := g.hom.right.hom)
+        (b := BasedTopCat.point f.right) (b' := BasedTopCat.point g.right)
+        sq.left.right.hom sq.right.right.hom
+        (fun e => congrArg (fun k : f.left ⟶ g.right => k.right.hom e) (Arrow.w sq))
+        (BasedTopCat.map_point sq.right) :=
+  rfl
+
 /-- A strict based square acts on the retained point by its source-coordinate map. -/
 @[simp]
 theorem homotopyFiberFunctor_map_point {f g : Arrow BasedTopCat.{u}} (sq : f ⟶ g)
@@ -164,6 +179,119 @@ theorem homotopyFiberProjection_app_right_hom (f : Arrow BasedTopCat.{u}) :
 theorem homotopyFiberProjection_app_apply (f : Arrow BasedTopCat.{u})
     (z : ContinuousMap.HomotopyFiber f.hom.right.hom (BasedTopCat.point f.right)) :
     (homotopyFiberProjection.app f).right.hom z = ContinuousMap.HomotopyFiber.point z :=
+  rfl
+
+/-- The natural inclusion of target loops into the ordinary homotopy fiber,
+retaining the source basepoint and the entire original forward loop. -/
+noncomputable def loopToHomotopyFiber :
+    ((Arrow.rightFunc : Arrow BasedTopCat.{u} ⥤ BasedTopCat.{u}) ⋙ loopFunctor) ⟶
+      homotopyFiberFunctor where
+  app f :=
+    BasedTopCat.ofHom
+      (ContinuousMap.HomotopyFiber.loopInclusion f.hom.right.hom
+        (BasedTopCat.point f.right) (BasedTopCat.point f.left)
+        (BasedTopCat.map_point f.hom))
+      (ContinuousMap.HomotopyFiber.loopInclusion_refl f.hom.right.hom
+        (BasedTopCat.point f.right) (BasedTopCat.point f.left)
+        (BasedTopCat.map_point f.hom))
+  naturality {f g} sq := by
+    apply Under.UnderMorphism.ext
+    apply TopCat.ext
+    intro γ
+    exact congrArg
+      (fun k : C(Path (BasedTopCat.point f.right) (BasedTopCat.point f.right),
+          ContinuousMap.HomotopyFiber g.hom.right.hom (BasedTopCat.point g.right)) ↦ k γ)
+      (ContinuousMap.HomotopyFiber.loopInclusion_naturality_loopMap
+        (f := f.hom.right.hom) (f' := g.hom.right.hom)
+        (b := BasedTopCat.point f.right) (b' := BasedTopCat.point g.right)
+        sq.left.right.hom sq.right.right.hom
+        (fun e => congrArg (fun k : f.left ⟶ g.right => k.right.hom e) (Arrow.w sq))
+        (BasedTopCat.point f.left) (BasedTopCat.point g.left)
+        (BasedTopCat.map_point f.hom) (BasedTopCat.map_point g.hom)
+        (BasedTopCat.map_point sq.left) (BasedTopCat.map_point sq.right)).symm
+
+/-- Each component is the whole-forward-loop inclusion of the original homotopy fiber. -/
+theorem loopToHomotopyFiber_app_right_hom (f : Arrow BasedTopCat.{u}) :
+    (loopToHomotopyFiber.app f).right.hom =
+      ContinuousMap.HomotopyFiber.loopInclusion f.hom.right.hom
+        (BasedTopCat.point f.right) (BasedTopCat.point f.left)
+        (BasedTopCat.map_point f.hom) :=
+  rfl
+
+/-- The loop inclusion pairs the source basepoint with the entire original forward loop. -/
+theorem loopToHomotopyFiber_app_apply (f : Arrow BasedTopCat.{u})
+    (γ : Path (BasedTopCat.point f.right) (BasedTopCat.point f.right)) :
+    (loopToHomotopyFiber.app f).right.hom γ =
+      ContinuousMap.HomotopyFiber.mk
+        (f := f.hom.right.hom) (b := BasedTopCat.point f.right)
+        (BasedTopCat.point f.left) γ.toContinuousMap γ.source
+        (γ.target.trans (BasedTopCat.map_point f.hom).symm) := by
+  rw [loopToHomotopyFiber_app_right_hom]
+  exact ContinuousMap.HomotopyFiber.loopInclusion_apply
+    (BasedTopCat.point f.left) (BasedTopCat.map_point f.hom) γ
+
+/-- The natural loop inclusion retains the original source basepoint. -/
+@[simp]
+theorem loopToHomotopyFiber_app_point (f : Arrow BasedTopCat.{u})
+    (γ : Path (BasedTopCat.point f.right) (BasedTopCat.point f.right)) :
+    ContinuousMap.HomotopyFiber.point
+        ((Under.Hom.right (f := loopFunctor.obj f.right) (loopToHomotopyFiber.app f)).hom γ) =
+      BasedTopCat.point f.left := by
+  exact congrArg ContinuousMap.HomotopyFiber.point (loopToHomotopyFiber_app_apply f γ)
+
+/-- The retained path is the whole original forward loop as a continuous map. -/
+@[simp]
+theorem loopToHomotopyFiber_app_path (f : Arrow BasedTopCat.{u})
+    (γ : Path (BasedTopCat.point f.right) (BasedTopCat.point f.right)) :
+    ContinuousMap.HomotopyFiber.path
+        ((Under.Hom.right (f := loopFunctor.obj f.right) (loopToHomotopyFiber.app f)).hom γ) =
+      γ.toContinuousMap := by
+  exact congrArg ContinuousMap.HomotopyFiber.path (loopToHomotopyFiber_app_apply f γ)
+
+/-- Evaluation of the retained path at every time agrees with the original loop. -/
+theorem loopToHomotopyFiber_app_path_apply (f : Arrow BasedTopCat.{u})
+    (γ : Path (BasedTopCat.point f.right) (BasedTopCat.point f.right)) (t : unitInterval) :
+    ContinuousMap.HomotopyFiber.path ((loopToHomotopyFiber.app f).right.hom γ) t = γ t := by
+  rw [loopToHomotopyFiber_app_right_hom]
+  exact ContinuousMap.HomotopyFiber.loopInclusion_path_apply f.hom.right.hom
+    (BasedTopCat.point f.right) (BasedTopCat.point f.left)
+    (BasedTopCat.map_point f.hom) γ t
+
+/-- The constant target loop is sent to the selected point of the homotopy fiber. -/
+@[simp]
+theorem loopToHomotopyFiber_app_refl (f : Arrow BasedTopCat.{u}) :
+    (Under.Hom.right (f := loopFunctor.obj f.right) (loopToHomotopyFiber.app f)).hom
+        (Path.refl (BasedTopCat.point f.right)) =
+      BasedTopCat.point (homotopyFiberFunctor.obj f) := by
+  exact loopToHomotopyFiber_app_apply f (Path.refl (BasedTopCat.point f.right))
+
+/-- Every strict based square commutes with the whole-forward-loop inclusion. -/
+theorem loopToHomotopyFiber_naturality {f g : Arrow BasedTopCat.{u}} (sq : f ⟶ g) :
+    loopToHomotopyFiber.app f ≫ homotopyFiberFunctor.map sq =
+      loopFunctor.map sq.right ≫ loopToHomotopyFiber.app g :=
+  (loopToHomotopyFiber.naturality sq).symm
+
+/-- The natural loop inclusion followed by the natural fiber projection is constant
+at the original source basepoint. -/
+theorem loopToHomotopyFiber_comp_homotopyFiberProjection_app_right_hom
+    (f : Arrow BasedTopCat.{u}) :
+    ((loopToHomotopyFiber ≫ homotopyFiberProjection).app f).right.hom =
+      ContinuousMap.const (Path (BasedTopCat.point f.right) (BasedTopCat.point f.right))
+        (BasedTopCat.point f.left) := by
+  change (homotopyFiberProjection.app f).right.hom.comp
+    (loopToHomotopyFiber.app f).right.hom = _
+  rw [homotopyFiberProjection_app_right_hom, loopToHomotopyFiber_app_right_hom]
+  exact ContinuousMap.HomotopyFiber.point_comp_loopInclusion f.hom.right.hom
+    (BasedTopCat.point f.right) (BasedTopCat.point f.left)
+    (BasedTopCat.map_point f.hom)
+
+/-- Every loop projects from its included fiber point to the original source basepoint. -/
+theorem loopToHomotopyFiber_comp_homotopyFiberProjection_app_apply
+    (f : Arrow BasedTopCat.{u})
+    (γ : Path (BasedTopCat.point f.right) (BasedTopCat.point f.right)) :
+    ((loopToHomotopyFiber ≫ homotopyFiberProjection).app f).right.hom γ =
+      BasedTopCat.point f.left := by
+  rw [loopToHomotopyFiber_comp_homotopyFiberProjection_app_right_hom]
   rfl
 
 end Functor

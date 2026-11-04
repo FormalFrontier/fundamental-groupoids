@@ -372,4 +372,37 @@ theorem loopInclusion_naturality
     have hγ := loopInclusion_naturality_eval α β w e₀ e₀' h h' hb γ t
     exact hγ.1.trans hγ.2.symm
 
+/-- The loop-inclusion square commutes with the based loop map. -/
+theorem loopInclusion_naturality_loopMap
+    (α : C(E, E')) (β : C(B, B'))
+    (w : ∀ e, f' (α e) = β (f e))
+    (e₀ : E) (e₀' : E') (h : f e₀ = b) (h' : f' e₀' = b')
+    (he : α e₀ = e₀') (hb : β b = b') :
+    (map α β w hb).comp (loopInclusion f b e₀ h) =
+      (loopInclusion f' b' e₀' h').comp (β.loopMap b b' hb) := by
+  let Pβ : C(Path b b, Path b' b') :=
+    (genLoopHomeoOfUnique Unit b' : C(GenLoop Unit B' b', Path b' b')).comp
+      ((⟨GenLoop.map β hb, GenLoop.continuous_map β hb⟩ :
+          C(GenLoop Unit B b, GenLoop Unit B' b')).comp
+        ((genLoopHomeoOfUnique Unit b).symm :
+          C(Path b b, GenLoop Unit B b)))
+  have hPβ : Pβ = β.loopMap b b' hb := by
+    apply ContinuousMap.ext
+    intro γ
+    calc
+      Pβ γ = (γ.map β.continuous).cast hb.symm hb.symm :=
+        (genLoopHomeoOfUnique_map Unit β hb
+          ((genLoopHomeoOfUnique Unit b).symm γ)).trans
+            (congrArg
+              (fun η : Path b b => (η.map β.continuous).cast hb.symm hb.symm)
+              ((genLoopHomeoOfUnique Unit b).apply_symm_apply γ))
+      _ = β.loopMap b b' hb γ := (ContinuousMap.loopMap_apply β b b' hb γ).symm
+  calc
+    (map α β w hb).comp (loopInclusion f b e₀ h) =
+        (loopInclusion f' b' e₀' h').comp Pβ :=
+      loopInclusion_naturality α β w e₀ e₀' h h' he hb
+    _ = (loopInclusion f' b' e₀' h').comp (β.loopMap b b' hb) :=
+      congrArg (fun P : C(Path b b, Path b' b') =>
+        (loopInclusion f' b' e₀' h').comp P) hPβ
+
 end ContinuousMap.HomotopyFiber
