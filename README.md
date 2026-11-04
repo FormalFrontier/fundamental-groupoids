@@ -21,6 +21,17 @@ directions, examples, conventions and credits.
   For arbitrary `A` and `Y`, point evaluation `κ_u (C(A, Y) × A) → Y` is continuous,
   with ordinary compact-open and product topologies inside the refinement.
   See [evaluation and the mapping-space comparison](FundamentalGroupoids/Topology/CompactOpen/CompactlyGenerated.lean).
+- **Compactly generated compact-open currying** ([`Homeomorph.compactlyGeneratedCurry`](FundamentalGroupoids/Topology/CompactOpen/CompactlyGeneratedCurryHomeomorph.lean)).
+  For original `UCompactlyGeneratedSpace.{u}` spaces `P` and `A` and any
+  topological space `Y`, currying is a homeomorphism
+  `κ_u C_co(κ_u (P × A), Y) ≃ₜ κ_u C_co(P, κ_u C_co(A, Y))`.
+  Here `C_co` has the ordinary compact-open topology and `κ_u` denotes refinement
+  by compact Hausdorff probes in universe `u`. The product uses the original
+  factor topologies, and the right-hand compact-open space uses the refined
+  inner mapping space as target. The probe and all three carrier universes are
+  independent, with no local compactness or separation hypotheses. Its whole
+  underlying equivalence is
+  [`ContinuousMap.compactlyGeneratedCurryEquiv`](FundamentalGroupoids/Topology/CompactOpen/CompactlyGeneratedCurry.lean).
 - **The ordinary based loop functor and based homotopy.** The compact-open loop
   space `Path x x`, based at its constant loop, is functorial for strict based maps.
   A homotopy relative to the selected point induces a jointly continuous homotopy
@@ -1152,6 +1163,7 @@ Both roots are default targets; `FundamentalGroupoidsTest` holds verification ex
 | [`Topology.Homeomorph.Subtype`](FundamentalGroupoids/Topology/Homeomorph/Subtype.lean) | Flattening nested subspaces using Mathlib's carrier equivalence, with forward/inverse coercion laws |
 | [`Topology.Homotopy.RelativePathSpace`](FundamentalGroupoids/Topology/Homotopy/RelativePathSpace.lean) | Ordinary compact-open paths from an arbitrary point to a subspace, with constructor, extensionality, evaluation, endpoint and functorial postcomposition APIs |
 | [`Topology.CompactOpen`](FundamentalGroupoids/Topology/CompactOpen.lean) | Joint partial evaluation and parameterized precomposition with a locally compact parameter; the curry operator under that hypothesis, with agreement with the locally compact product construction |
+| [`Topology.CompactOpen.CompactlyGeneratedCurryHomeomorph`](FundamentalGroupoids/Topology/CompactOpen/CompactlyGeneratedCurryHomeomorph.lean) | Currying homeomorphism for refined compact-open mapping spaces, retaining the scalar currying equivalence |
 | [`Topology.Homotopy.ContinuousMap`](FundamentalGroupoids/Topology/Homotopy/ContinuousMap.lean) | Homotopies and homotopic maps induce homotopic precomposition operators on compact-open mapping spaces, without local compactness or separation assumptions on the source and target spaces |
 | [`Topology.Homotopy.Fiber`](FundamentalGroupoids/Topology/Homotopy/Fiber.lean) | Retained-point ordinary homotopy fibers, maps of continuous squares, pullback and embedding/subspace homeomorphisms, with projection, evaluation, constant and naturality laws |
 | [`Topology.Homotopy.Fiber.Const`](FundamentalGroupoids/Topology/Homotopy/Fiber/Const.lean) | Constant-map fibers as source times fixed-endpoint Path, with coordinate laws, source naturality and a nonemptiness criterion |

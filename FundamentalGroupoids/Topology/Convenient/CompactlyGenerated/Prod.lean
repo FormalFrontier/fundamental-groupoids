@@ -4,7 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
-public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated
+public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated.Maps
 public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Prod
 
 /-!
@@ -20,6 +20,11 @@ comparison is recovered as an agreement of continuous maps.
 
 The carriers are unchanged by compact generation. Topology-sensitive combinators
 therefore receive the original and refined topologies as explicit arguments.
+
+Partial-factor comparisons remove either inner refinement without removing the
+outer one. Together with ordinary coordinate associativity they give reassociation
+between iterated refined products of arbitrary original spaces. Whole-function,
+counit and naturality laws retain all original topology dictionaries.
 -/
 
 @[expose] public section
@@ -1253,5 +1258,2296 @@ theorem compactlyGeneratedProdBackward_generatedBy (X : Type v) (Y : Type w)
         (fun K : CompHaus.{u} => K))
   intro p
   exact compactlyGeneratedProdBackward_compHaus.{u} X Y p
+
+end ContinuousMap
+
+-- Partial-factor comparisons retain the outer refinement and original factor topologies.
+
+namespace Homeomorph
+
+/-- Refining just the first original factor does not change the refined product. -/
+def compactlyGeneratedProdLeftComparison (X : Type v) (Y : Type w)
+    [tX : TopologicalSpace X] [tY : TopologicalSpace Y] :
+    @Homeomorph (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY)) := by
+  let forward :
+      @ContinuousMap (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY)) :=
+    (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+      (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@ContinuousMap.prodMap X X Y Y
+        (@compactlyGenerated.{u} X tX)
+        tX
+        tY
+        tY
+        (@ContinuousMap.compactlyGeneratedCounit.{u} X tX)
+        (@ContinuousMap.id Y tY)))
+  let backward :
+      @ContinuousMap (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)) :=
+    (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y
+          (@compactlyGenerated.{u} X tX)
+          (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+        (@instTopologicalSpaceProd X Y
+          (@compactlyGenerated.{u} X tX)
+          (@compactlyGenerated.{u} Y tY))
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+        (@ContinuousMap.prodMap X X Y Y
+          (@compactlyGenerated.{u} X tX)
+          (@compactlyGenerated.{u} X tX)
+          (@compactlyGenerated.{u} Y tY)
+          tY
+          (@ContinuousMap.id X (@compactlyGenerated.{u} X tX))
+          (@ContinuousMap.compactlyGeneratedCounit.{u} Y tY)))
+      (@ContinuousMap.compactlyGeneratedProdBackward.{u} X Y tX tY))
+  have hf (q : X × Y) :
+      (@ContinuousMap.toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        forward) q = q := by
+    rfl
+  have hb (q : X × Y) :
+      (@ContinuousMap.toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        backward) q = q := by
+    change (@ContinuousMap.toFun (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y
+          (@compactlyGenerated.{u} X tX) (@compactlyGenerated.{u} Y tY)))
+      (@ContinuousMap.compactlyGeneratedProdBackward.{u} X Y tX tY)) q = q
+    exact @ContinuousMap.compactlyGeneratedProdBackward_apply.{u} X Y tX tY q
+  exact (@Homeomorph.mk (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    { toFun := (@ContinuousMap.toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        forward)
+      invFun := (@ContinuousMap.toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        backward)
+      left_inv := fun q => (hb ((@ContinuousMap.toFun (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          forward) q)).trans (hf q)
+      right_inv := fun q => (hf ((@ContinuousMap.toFun (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+          backward) q)).trans (hb q) }
+    (@ContinuousMap.continuous (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      forward)
+    (@ContinuousMap.continuous (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      backward))
+
+/-- Refining just the second original factor does not change the refined product. -/
+def compactlyGeneratedProdRightComparison (X : Type v) (Y : Type w)
+    [tX : TopologicalSpace X] [tY : TopologicalSpace Y] :
+    @Homeomorph (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY)) := by
+  let forward :
+      @ContinuousMap (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY)) :=
+    (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+      (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@ContinuousMap.prodMap X X Y Y tX tX
+        (@compactlyGenerated.{u} Y tY)
+        tY
+        (@ContinuousMap.id X tX)
+        (@ContinuousMap.compactlyGeneratedCounit.{u} Y tY)))
+  let backward :
+      @ContinuousMap (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))) :=
+    (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y
+          (@compactlyGenerated.{u} X tX)
+          (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+        (@instTopologicalSpaceProd X Y
+          (@compactlyGenerated.{u} X tX)
+          (@compactlyGenerated.{u} Y tY))
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+        (@ContinuousMap.prodMap X X Y Y
+          (@compactlyGenerated.{u} X tX)
+          tX
+          (@compactlyGenerated.{u} Y tY)
+          (@compactlyGenerated.{u} Y tY)
+          (@ContinuousMap.compactlyGeneratedCounit.{u} X tX)
+          (@ContinuousMap.id Y (@compactlyGenerated.{u} Y tY))))
+      (@ContinuousMap.compactlyGeneratedProdBackward.{u} X Y tX tY))
+  have hf (q : X × Y) :
+      (@ContinuousMap.toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        forward) q = q := by
+    rfl
+  have hb (q : X × Y) :
+      (@ContinuousMap.toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        backward) q = q := by
+    change (@ContinuousMap.toFun (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y
+          (@compactlyGenerated.{u} X tX) (@compactlyGenerated.{u} Y tY)))
+      (@ContinuousMap.compactlyGeneratedProdBackward.{u} X Y tX tY)) q = q
+    exact @ContinuousMap.compactlyGeneratedProdBackward_apply.{u} X Y tX tY q
+  exact (@Homeomorph.mk (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    { toFun := (@ContinuousMap.toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        forward)
+      invFun := (@ContinuousMap.toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        backward)
+      left_inv := fun q => (hb ((@ContinuousMap.toFun (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          forward) q)).trans (hf q)
+      right_inv := fun q => (hf ((@ContinuousMap.toFun (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+          backward) q)).trans (hb q) }
+    (@ContinuousMap.continuous (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      forward)
+    (@ContinuousMap.continuous (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      backward))
+
+variable (X : Type v) (Y : Type w)
+variable [tX : TopologicalSpace X] [tY : TopologicalSpace Y]
+
+@[simp]
+theorem compactlyGeneratedProdLeftComparison_apply (q : X × Y) :
+    (@Homeomorph.toEquiv (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY)) q =
+      q := by
+  rfl
+
+@[simp]
+theorem compactlyGeneratedProdLeftComparison_symm_apply (q : X × Y) :
+    ((@Homeomorph.toEquiv (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY))).symm q =
+      q := by
+  change (@ContinuousMap.toFun (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y
+        (@compactlyGenerated.{u} X tX) (@compactlyGenerated.{u} Y tY)))
+    (@ContinuousMap.compactlyGeneratedProdBackward.{u} X Y tX tY)) q = q
+  exact @ContinuousMap.compactlyGeneratedProdBackward_apply.{u} X Y tX tY q
+
+/-- The whole first-factor comparison leaves the underlying pair unchanged. -/
+theorem coe_compactlyGeneratedProdLeftComparison :
+    ⇑(@Homeomorph.toEquiv (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY)) =
+      (_root_.id : X × Y → X × Y) := by
+  funext q
+  exact compactlyGeneratedProdLeftComparison_apply.{u} X Y q
+
+/-- The whole inverse first-factor comparison leaves the underlying pair unchanged. -/
+theorem coe_compactlyGeneratedProdLeftComparison_symm :
+    ⇑(((@Homeomorph.toEquiv (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY))).symm) =
+      (_root_.id : X × Y → X × Y) := by
+  funext q
+  exact compactlyGeneratedProdLeftComparison_symm_apply.{u} X Y q
+
+/-- The first-factor comparison is the refinement of the first-factor counit. -/
+theorem compactlyGeneratedProdLeftComparison_toContinuousMap :
+    (@ContinuousMap.mk (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@Homeomorph.toEquiv (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY))
+      (@Homeomorph.continuous_toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY))) =
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@ContinuousMap.prodMap X X Y Y
+          (@compactlyGenerated.{u} X tX)
+          tX
+          tY
+          tY
+          (@ContinuousMap.compactlyGeneratedCounit.{u} X tX)
+          (@ContinuousMap.id Y tY))) := by
+  apply (@ContinuousMap.ext (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY)))
+  intro q
+  exact compactlyGeneratedProdLeftComparison_apply.{u} X Y q
+
+/-- The inverse first-factor comparison forgets the other refinement after the full comparison. -/
+theorem compactlyGeneratedProdLeftComparison_symm_toContinuousMap :
+    (@ContinuousMap.mk (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (Equiv.symm
+        (@Homeomorph.toEquiv (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY)))
+      (@Homeomorph.continuous_invFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY))) =
+      (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y
+            (@compactlyGenerated.{u} X tX)
+            (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+          (@instTopologicalSpaceProd X Y
+            (@compactlyGenerated.{u} X tX)
+            (@compactlyGenerated.{u} Y tY))
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+          (@ContinuousMap.prodMap X X Y Y
+            (@compactlyGenerated.{u} X tX)
+            (@compactlyGenerated.{u} X tX)
+            (@compactlyGenerated.{u} Y tY)
+            tY
+            (@ContinuousMap.id X (@compactlyGenerated.{u} X tX))
+            (@ContinuousMap.compactlyGeneratedCounit.{u} Y tY)))
+        (@ContinuousMap.compactlyGeneratedProdBackward.{u} X Y tX tY)) := by
+  apply (@ContinuousMap.ext (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)))
+  intro q
+  exact compactlyGeneratedProdLeftComparison_symm_apply.{u} X Y q
+
+/-- The first-factor comparison commutes with forgetting the outer refinement. -/
+theorem compactlyGeneratedProdLeftComparison_counit :
+    (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@ContinuousMap.compactlyGeneratedCounit.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX tY))
+      (@ContinuousMap.mk (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@Homeomorph.toEquiv (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY))
+        (@Homeomorph.continuous_toFun (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY)))) =
+      (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@ContinuousMap.prodMap X X Y Y
+          (@compactlyGenerated.{u} X tX)
+          tX
+          tY
+          tY
+          (@ContinuousMap.compactlyGeneratedCounit.{u} X tX)
+          (@ContinuousMap.id Y tY))
+        (@ContinuousMap.compactlyGeneratedCounit.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))) := by
+  apply (@ContinuousMap.ext (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+    (@instTopologicalSpaceProd X Y tX tY))
+  intro q
+  exact compactlyGeneratedProdLeftComparison_apply.{u} X Y q
+
+/-- Forgetting the inverse comparison and its first-factor refinement gives the counit. -/
+theorem compactlyGeneratedProdLeftComparison_symm_counit :
+    (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@ContinuousMap.prodMap X X Y Y
+        (@compactlyGenerated.{u} X tX)
+        tX
+        tY
+        tY
+        (@ContinuousMap.compactlyGeneratedCounit.{u} X tX)
+        (@ContinuousMap.id Y tY))
+      (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+        (@ContinuousMap.compactlyGeneratedCounit.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@ContinuousMap.mk (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+          (Equiv.symm
+            (@Homeomorph.toEquiv (X × Y) (X × Y)
+              (@compactlyGenerated.{u} (X × Y)
+                (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+              (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+              (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY)))
+          (@Homeomorph.continuous_invFun (X × Y) (X × Y)
+            (@compactlyGenerated.{u} (X × Y)
+              (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+            (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+            (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY))))) =
+      (@ContinuousMap.compactlyGeneratedCounit.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX tY)) := by
+  apply (@ContinuousMap.ext (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    (@instTopologicalSpaceProd X Y tX tY))
+  intro q
+  exact compactlyGeneratedProdLeftComparison_symm_apply.{u} X Y q
+
+@[simp]
+theorem compactlyGeneratedProdRightComparison_apply (q : X × Y) :
+    (@Homeomorph.toEquiv (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGeneratedProdRightComparison.{u} X Y tX tY)) q =
+      q := by
+  rfl
+
+@[simp]
+theorem compactlyGeneratedProdRightComparison_symm_apply (q : X × Y) :
+    ((@Homeomorph.toEquiv (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGeneratedProdRightComparison.{u} X Y tX tY))).symm q =
+      q := by
+  change (@ContinuousMap.toFun (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y
+        (@compactlyGenerated.{u} X tX) (@compactlyGenerated.{u} Y tY)))
+    (@ContinuousMap.compactlyGeneratedProdBackward.{u} X Y tX tY)) q = q
+  exact @ContinuousMap.compactlyGeneratedProdBackward_apply.{u} X Y tX tY q
+
+/-- The whole second-factor comparison leaves the underlying pair unchanged. -/
+theorem coe_compactlyGeneratedProdRightComparison :
+    ⇑(@Homeomorph.toEquiv (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGeneratedProdRightComparison.{u} X Y tX tY)) =
+      (_root_.id : X × Y → X × Y) := by
+  funext q
+  exact compactlyGeneratedProdRightComparison_apply.{u} X Y q
+
+/-- The whole inverse second-factor comparison leaves the underlying pair unchanged. -/
+theorem coe_compactlyGeneratedProdRightComparison_symm :
+    ⇑(((@Homeomorph.toEquiv (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGeneratedProdRightComparison.{u} X Y tX tY))).symm) =
+      (_root_.id : X × Y → X × Y) := by
+  funext q
+  exact compactlyGeneratedProdRightComparison_symm_apply.{u} X Y q
+
+/-- The second-factor comparison is the refinement of the second-factor counit. -/
+theorem compactlyGeneratedProdRightComparison_toContinuousMap :
+    (@ContinuousMap.mk (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@Homeomorph.toEquiv (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGeneratedProdRightComparison.{u} X Y tX tY))
+      (@Homeomorph.continuous_toFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGeneratedProdRightComparison.{u} X Y tX tY))) =
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@ContinuousMap.prodMap X X Y Y tX tX
+          (@compactlyGenerated.{u} Y tY)
+          tY
+          (@ContinuousMap.id X tX)
+          (@ContinuousMap.compactlyGeneratedCounit.{u} Y tY))) := by
+  apply (@ContinuousMap.ext (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY)))
+  intro q
+  exact compactlyGeneratedProdRightComparison_apply.{u} X Y q
+
+/-- The inverse second-factor comparison forgets the other refinement after the full comparison. -/
+theorem compactlyGeneratedProdRightComparison_symm_toContinuousMap :
+    (@ContinuousMap.mk (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (Equiv.symm
+        (@Homeomorph.toEquiv (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGeneratedProdRightComparison.{u} X Y tX tY)))
+      (@Homeomorph.continuous_invFun (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGeneratedProdRightComparison.{u} X Y tX tY))) =
+      (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y
+            (@compactlyGenerated.{u} X tX)
+            (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+          (@instTopologicalSpaceProd X Y
+            (@compactlyGenerated.{u} X tX)
+            (@compactlyGenerated.{u} Y tY))
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+          (@ContinuousMap.prodMap X X Y Y
+            (@compactlyGenerated.{u} X tX)
+            tX
+            (@compactlyGenerated.{u} Y tY)
+            (@compactlyGenerated.{u} Y tY)
+            (@ContinuousMap.compactlyGeneratedCounit.{u} X tX)
+            (@ContinuousMap.id Y (@compactlyGenerated.{u} Y tY))))
+        (@ContinuousMap.compactlyGeneratedProdBackward.{u} X Y tX tY)) := by
+  apply (@ContinuousMap.ext (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))))
+  intro q
+  exact compactlyGeneratedProdRightComparison_symm_apply.{u} X Y q
+
+/-- The second-factor comparison commutes with forgetting the outer refinement. -/
+theorem compactlyGeneratedProdRightComparison_counit :
+    (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@ContinuousMap.compactlyGeneratedCounit.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX tY))
+      (@ContinuousMap.mk (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@Homeomorph.toEquiv (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGeneratedProdRightComparison.{u} X Y tX tY))
+        (@Homeomorph.continuous_toFun (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGeneratedProdRightComparison.{u} X Y tX tY)))) =
+      (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@ContinuousMap.prodMap X X Y Y tX tX
+          (@compactlyGenerated.{u} Y tY)
+          tY
+          (@ContinuousMap.id X tX)
+          (@ContinuousMap.compactlyGeneratedCounit.{u} Y tY))
+        (@ContinuousMap.compactlyGeneratedCounit.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))) := by
+  apply (@ContinuousMap.ext (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+    (@instTopologicalSpaceProd X Y tX tY))
+  intro q
+  exact compactlyGeneratedProdRightComparison_apply.{u} X Y q
+
+/-- Forgetting the inverse comparison and its second-factor refinement gives the counit. -/
+theorem compactlyGeneratedProdRightComparison_symm_counit :
+    (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@ContinuousMap.prodMap X X Y Y tX tX
+        (@compactlyGenerated.{u} Y tY)
+        tY
+        (@ContinuousMap.id X tX)
+        (@ContinuousMap.compactlyGeneratedCounit.{u} Y tY))
+      (@ContinuousMap.comp (X × Y) (X × Y) (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+        (@ContinuousMap.compactlyGeneratedCounit.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@ContinuousMap.mk (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+          (Equiv.symm
+            (@Homeomorph.toEquiv (X × Y) (X × Y)
+              (@compactlyGenerated.{u} (X × Y)
+                (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+              (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+              (@compactlyGeneratedProdRightComparison.{u} X Y tX tY)))
+          (@Homeomorph.continuous_invFun (X × Y) (X × Y)
+            (@compactlyGenerated.{u} (X × Y)
+              (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+            (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+            (@compactlyGeneratedProdRightComparison.{u} X Y tX tY))))) =
+      (@ContinuousMap.compactlyGeneratedCounit.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX tY)) := by
+  apply (@ContinuousMap.ext (X × Y) (X × Y)
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    (@instTopologicalSpaceProd X Y tX tY))
+  intro q
+  exact compactlyGeneratedProdRightComparison_symm_apply.{u} X Y q
+
+variable {X Y}
+variable {X' : Type v'} {Y' : Type w'}
+variable [tX' : TopologicalSpace X'] [tY' : TopologicalSpace Y']
+
+/-- The first-factor comparison is natural under arbitrary original factor maps. -/
+theorem compactlyGeneratedProdLeftComparison_naturality (f : C(X, X')) (g : C(Y, Y')) :
+    (@ContinuousMap.comp (X × Y) (X' × Y') (X' × Y')
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+      (@compactlyGenerated.{u} (X' × Y')
+        (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+      (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+      (@ContinuousMap.mk (X' × Y') (X' × Y')
+        (@compactlyGenerated.{u} (X' × Y')
+          (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@Homeomorph.toEquiv (X' × Y') (X' × Y')
+          (@compactlyGenerated.{u} (X' × Y')
+            (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+          (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+          (@compactlyGeneratedProdLeftComparison.{u} X' Y' tX' tY'))
+        (@Homeomorph.continuous_toFun (X' × Y') (X' × Y')
+          (@compactlyGenerated.{u} (X' × Y')
+            (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+          (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+          (@compactlyGeneratedProdLeftComparison.{u} X' Y' tX' tY')))
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+        (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+        (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY')
+        (@ContinuousMap.prodMap X X' Y Y'
+          (@compactlyGenerated.{u} X tX)
+          (@compactlyGenerated.{u} X' tX')
+          tY
+          tY'
+          (@ContinuousMap.compactlyGeneratedMap.{u} X X' tX tX' f)
+          g))) =
+      (@ContinuousMap.comp (X × Y) (X × Y) (X' × Y')
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y tX tY)
+          (@instTopologicalSpaceProd X' Y' tX' tY')
+          (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))
+        (@ContinuousMap.mk (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@Homeomorph.toEquiv (X × Y) (X × Y)
+            (@compactlyGenerated.{u} (X × Y)
+              (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+            (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+            (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY))
+          (@Homeomorph.continuous_toFun (X × Y) (X × Y)
+            (@compactlyGenerated.{u} (X × Y)
+              (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+            (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+            (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY)))) := by
+  apply (@ContinuousMap.ext (X × Y) (X' × Y')
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+    (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY')))
+  intro q
+  have hprod :
+      (@ContinuousMap.toFun (X × Y) (X' × Y')
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X' × Y')
+          (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+          (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY')
+          (@ContinuousMap.prodMap X X' Y Y'
+            (@compactlyGenerated.{u} X tX) (@compactlyGenerated.{u} X' tX') tY tY'
+            (@ContinuousMap.compactlyGeneratedMap.{u} X X' tX tX' f) g))) q = (f q.1, g q.2) := by
+    rfl
+  calc
+    _ = (f q.1, g q.2) :=
+      (compactlyGeneratedProdLeftComparison_apply.{u} X' Y' _).trans hprod
+    _ = _ :=
+      (congrArg (fun p : X × Y => (f p.1, g p.2))
+        (compactlyGeneratedProdLeftComparison_apply.{u} X Y q)).symm
+
+/-- The inverse first-factor comparison is natural under arbitrary original factor maps. -/
+theorem compactlyGeneratedProdLeftComparison_symm_naturality (f : C(X, X')) (g : C(Y, Y')) :
+    (@ContinuousMap.comp (X × Y) (X' × Y') (X' × Y')
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+      (@compactlyGenerated.{u} (X' × Y')
+        (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+      (@ContinuousMap.mk (X' × Y') (X' × Y')
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@compactlyGenerated.{u} (X' × Y')
+          (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+        (Equiv.symm
+          (@Homeomorph.toEquiv (X' × Y') (X' × Y')
+            (@compactlyGenerated.{u} (X' × Y')
+              (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+            (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+            (@compactlyGeneratedProdLeftComparison.{u} X' Y' tX' tY')))
+        (@Homeomorph.continuous_invFun (X' × Y') (X' × Y')
+          (@compactlyGenerated.{u} (X' × Y')
+            (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+          (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+          (@compactlyGeneratedProdLeftComparison.{u} X' Y' tX' tY')))
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@instTopologicalSpaceProd X' Y' tX' tY')
+        (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))) =
+      (@ContinuousMap.comp (X × Y) (X × Y) (X' × Y')
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+        (@compactlyGenerated.{u} (X' × Y')
+          (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY)
+          (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY')
+          (@ContinuousMap.prodMap X X' Y Y'
+            (@compactlyGenerated.{u} X tX)
+            (@compactlyGenerated.{u} X' tX')
+            tY
+            tY'
+            (@ContinuousMap.compactlyGeneratedMap.{u} X X' tX tX' f)
+            g))
+        (@ContinuousMap.mk (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+          (Equiv.symm
+            (@Homeomorph.toEquiv (X × Y) (X × Y)
+              (@compactlyGenerated.{u} (X × Y)
+                (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+              (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+              (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY)))
+          (@Homeomorph.continuous_invFun (X × Y) (X × Y)
+            (@compactlyGenerated.{u} (X × Y)
+              (@instTopologicalSpaceProd X Y (@compactlyGenerated.{u} X tX) tY))
+            (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+            (@compactlyGeneratedProdLeftComparison.{u} X Y tX tY)))) := by
+  apply (@ContinuousMap.ext (X × Y) (X' × Y')
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    (@compactlyGenerated.{u} (X' × Y')
+      (@instTopologicalSpaceProd X' Y' (@compactlyGenerated.{u} X' tX') tY')))
+  intro q
+  have hprod :
+      (@ContinuousMap.toFun (X × Y) (X' × Y')
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y tX tY)
+          (@instTopologicalSpaceProd X' Y' tX' tY')
+          (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))) q = (f q.1, g q.2) := by
+    rfl
+  calc
+    _ = (f q.1, g q.2) :=
+      (compactlyGeneratedProdLeftComparison_symm_apply.{u} X' Y' _).trans hprod
+    _ = _ :=
+      (congrArg (fun p : X × Y => (f p.1, g p.2))
+        (compactlyGeneratedProdLeftComparison_symm_apply.{u} X Y q)).symm
+
+/-- The second-factor comparison is natural under arbitrary original factor maps. -/
+theorem compactlyGeneratedProdRightComparison_naturality (f : C(X, X')) (g : C(Y, Y')) :
+    (@ContinuousMap.comp (X × Y) (X' × Y') (X' × Y')
+      (@compactlyGenerated.{u} (X × Y)
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+      (@compactlyGenerated.{u} (X' × Y')
+        (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+      (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+      (@ContinuousMap.mk (X' × Y') (X' × Y')
+        (@compactlyGenerated.{u} (X' × Y')
+          (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@Homeomorph.toEquiv (X' × Y') (X' × Y')
+          (@compactlyGenerated.{u} (X' × Y')
+            (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+          (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+          (@compactlyGeneratedProdRightComparison.{u} X' Y' tX' tY'))
+        (@Homeomorph.continuous_toFun (X' × Y') (X' × Y')
+          (@compactlyGenerated.{u} (X' × Y')
+            (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+          (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+          (@compactlyGeneratedProdRightComparison.{u} X' Y' tX' tY')))
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+        (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+        (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY'))
+        (@ContinuousMap.prodMap X X' Y Y' tX tX'
+          (@compactlyGenerated.{u} Y tY)
+          (@compactlyGenerated.{u} Y' tY')
+          f
+          (@ContinuousMap.compactlyGeneratedMap.{u} Y Y' tY tY' g)))) =
+      (@ContinuousMap.comp (X × Y) (X × Y) (X' × Y')
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y tX tY)
+          (@instTopologicalSpaceProd X' Y' tX' tY')
+          (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))
+        (@ContinuousMap.mk (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@Homeomorph.toEquiv (X × Y) (X × Y)
+            (@compactlyGenerated.{u} (X × Y)
+              (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+            (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+            (@compactlyGeneratedProdRightComparison.{u} X Y tX tY))
+          (@Homeomorph.continuous_toFun (X × Y) (X × Y)
+            (@compactlyGenerated.{u} (X × Y)
+              (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+            (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+            (@compactlyGeneratedProdRightComparison.{u} X Y tX tY)))) := by
+  apply (@ContinuousMap.ext (X × Y) (X' × Y')
+    (@compactlyGenerated.{u} (X × Y)
+      (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+    (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY')))
+  intro q
+  have hprod :
+      (@ContinuousMap.toFun (X × Y) (X' × Y')
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X' × Y')
+          (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+          (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY'))
+          (@ContinuousMap.prodMap X X' Y Y' tX tX'
+            (@compactlyGenerated.{u} Y tY) (@compactlyGenerated.{u} Y' tY') f
+            (@ContinuousMap.compactlyGeneratedMap.{u} Y Y' tY tY' g)))) q = (f q.1, g q.2) := by
+    rfl
+  calc
+    _ = (f q.1, g q.2) :=
+      (compactlyGeneratedProdRightComparison_apply.{u} X' Y' _).trans hprod
+    _ = _ :=
+      (congrArg (fun p : X × Y => (f p.1, g p.2))
+        (compactlyGeneratedProdRightComparison_apply.{u} X Y q)).symm
+
+/-- The inverse second-factor comparison is natural under arbitrary original factor maps. -/
+theorem compactlyGeneratedProdRightComparison_symm_naturality (f : C(X, X')) (g : C(Y, Y')) :
+    (@ContinuousMap.comp (X × Y) (X' × Y') (X' × Y')
+      (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+      (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+      (@compactlyGenerated.{u} (X' × Y')
+        (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+      (@ContinuousMap.mk (X' × Y') (X' × Y')
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@compactlyGenerated.{u} (X' × Y')
+          (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+        (Equiv.symm
+          (@Homeomorph.toEquiv (X' × Y') (X' × Y')
+            (@compactlyGenerated.{u} (X' × Y')
+              (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+            (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+            (@compactlyGeneratedProdRightComparison.{u} X' Y' tX' tY')))
+        (@Homeomorph.continuous_invFun (X' × Y') (X' × Y')
+          (@compactlyGenerated.{u} (X' × Y')
+            (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+          (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+          (@compactlyGeneratedProdRightComparison.{u} X' Y' tX' tY')))
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@instTopologicalSpaceProd X' Y' tX' tY')
+        (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))) =
+      (@ContinuousMap.comp (X × Y) (X × Y) (X' × Y')
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X × Y)
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+        (@compactlyGenerated.{u} (X' × Y')
+          (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY')))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY))
+          (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY'))
+          (@ContinuousMap.prodMap X X' Y Y' tX tX'
+            (@compactlyGenerated.{u} Y tY)
+            (@compactlyGenerated.{u} Y' tY')
+            f
+            (@ContinuousMap.compactlyGeneratedMap.{u} Y Y' tY tY' g)))
+        (@ContinuousMap.mk (X × Y) (X × Y)
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGenerated.{u} (X × Y)
+            (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+          (Equiv.symm
+            (@Homeomorph.toEquiv (X × Y) (X × Y)
+              (@compactlyGenerated.{u} (X × Y)
+                (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+              (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+              (@compactlyGeneratedProdRightComparison.{u} X Y tX tY)))
+          (@Homeomorph.continuous_invFun (X × Y) (X × Y)
+            (@compactlyGenerated.{u} (X × Y)
+              (@instTopologicalSpaceProd X Y tX (@compactlyGenerated.{u} Y tY)))
+            (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+            (@compactlyGeneratedProdRightComparison.{u} X Y tX tY)))) := by
+  apply (@ContinuousMap.ext (X × Y) (X' × Y')
+    (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+    (@compactlyGenerated.{u} (X' × Y')
+      (@instTopologicalSpaceProd X' Y' tX' (@compactlyGenerated.{u} Y' tY'))))
+  intro q
+  have hprod :
+      (@ContinuousMap.toFun (X × Y) (X' × Y')
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y tX tY)
+          (@instTopologicalSpaceProd X' Y' tX' tY')
+          (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))) q = (f q.1, g q.2) := by
+    rfl
+  calc
+    _ = (f q.1, g q.2) :=
+      (compactlyGeneratedProdRightComparison_symm_apply.{u} X' Y' _).trans hprod
+    _ = _ :=
+      (congrArg (fun p : X × Y => (f p.1, g p.2))
+        (compactlyGeneratedProdRightComparison_symm_apply.{u} X Y q)).symm
+
+end Homeomorph
+
+universe z z'
+
+namespace Homeomorph
+
+/-- Coordinate reassociation for refined products, retaining both inner refinements. -/
+def compactlyGeneratedProdAssoc (X : Type v) (P : Type w) (A : Type z)
+    [tX : TopologicalSpace X] [tP : TopologicalSpace P] [tA : TopologicalSpace A] :
+    @Homeomorph ((X × P) × A) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))) := by
+  let assoc :
+      @Homeomorph ((X × P) × A) (X × (P × A))
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)) :=
+    (@Homeomorph.prodAssoc X P A tX tP tA)
+  let forward :
+      @ContinuousMap ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))) :=
+    (@ContinuousMap.compactlyGeneratedMap.{u} ((X × P) × A) (X × (P × A))
+      (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+      (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+      (@ContinuousMap.mk ((X × P) × A) (X × (P × A))
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+        (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+          assoc)
+        (@Homeomorph.continuous_toFun ((X × P) × A) (X × (P × A))
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+          assoc)))
+  let backward :
+      @ContinuousMap (X × (P × A)) ((X × P) × A)
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)) :=
+    (@ContinuousMap.compactlyGeneratedMap.{u} (X × (P × A)) ((X × P) × A)
+      (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+      (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+      (@ContinuousMap.mk (X × (P × A)) ((X × P) × A)
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (Equiv.symm
+          (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+            assoc))
+        (@Homeomorph.continuous_invFun ((X × P) × A) (X × (P × A))
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+          assoc)))
+  have hf :
+      (@ContinuousMap.toFun ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+        forward) = ⇑(@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+        assoc) := by
+    rfl
+  have hb :
+      (@ContinuousMap.toFun (X × (P × A)) ((X × P) × A)
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+        backward) = ⇑(((@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+        assoc)).symm) := by
+    rfl
+  let refinedAssoc :
+      @Homeomorph ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))) :=
+    (@Homeomorph.mk ((X × P) × A) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+      (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+        assoc)
+      (by
+        exact Eq.mp (congrArg
+          (@Continuous ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))))
+          hf) (@ContinuousMap.continuous ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+        forward))
+      (by
+        exact Eq.mp (congrArg
+          (@Continuous (X × (P × A)) ((X × P) × A)
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)))
+          hb) (@ContinuousMap.continuous (X × (P × A)) ((X × P) × A)
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+        backward)))
+  exact (@Homeomorph.trans ((X × P) × A) ((X × P) × A) (X × (P × A))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+    (@compactlyGeneratedProdLeftComparison.{u} (X × P) A
+      (@instTopologicalSpaceProd X P tX tP)
+      tA)
+    (@Homeomorph.trans ((X × P) × A) (X × (P × A)) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      refinedAssoc
+      (@Homeomorph.symm (X × (P × A)) (X × (P × A))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+        (@compactlyGeneratedProdRightComparison.{u} X (P × A) tX
+          (@instTopologicalSpaceProd P A tP tA)))))
+
+variable (X : Type v) (P : Type w) (A : Type z)
+variable [tX : TopologicalSpace X] [tP : TopologicalSpace P] [tA : TopologicalSpace A]
+
+@[simp]
+theorem compactlyGeneratedProdAssoc_apply (q : (X × P) × A) :
+    (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)) q =
+      (q.1.1, (q.1.2, q.2)) := by
+  change ((@Homeomorph.toEquiv (X × (P × A)) (X × (P × A))
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+    (@compactlyGeneratedProdRightComparison.{u} X (P × A) tX
+      (@instTopologicalSpaceProd P A tP tA)))).symm
+    ((@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+    (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+    (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+    (@Homeomorph.prodAssoc X P A tX tP tA))
+      ((@Homeomorph.toEquiv ((X × P) × A) ((X × P) × A)
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+    (@compactlyGeneratedProdLeftComparison.{u} (X × P) A
+      (@instTopologicalSpaceProd X P tX tP)
+      tA)) q)) = (q.1.1, (q.1.2, q.2))
+  exact (compactlyGeneratedProdRightComparison_symm_apply.{u} X (P × A) _).trans
+    (congrArg (fun p : (X × P) × A => (p.1.1, (p.1.2, p.2)))
+      (compactlyGeneratedProdLeftComparison_apply.{u} (X × P) A q))
+
+/-- The whole refined associator is coordinate reassociation. -/
+theorem coe_compactlyGeneratedProdAssoc :
+    ⇑(@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)) =
+      (fun q : (X × P) × A => (q.1.1, (q.1.2, q.2))) := by
+  funext q
+  exact compactlyGeneratedProdAssoc_apply.{u} X P A q
+
+@[simp]
+theorem compactlyGeneratedProdAssoc_symm_apply (q : X × (P × A)) :
+    ((@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))).symm q =
+      ((q.1, q.2.1), q.2.2) := by
+  change ((@Homeomorph.toEquiv ((X × P) × A) ((X × P) × A)
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+    (@compactlyGeneratedProdLeftComparison.{u} (X × P) A
+      (@instTopologicalSpaceProd X P tX tP)
+      tA))).symm
+    (((@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+    (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+    (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+    (@Homeomorph.prodAssoc X P A tX tP tA))).symm
+      ((@Homeomorph.toEquiv (X × (P × A)) (X × (P × A))
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+    (@compactlyGeneratedProdRightComparison.{u} X (P × A) tX
+      (@instTopologicalSpaceProd P A tP tA))) q)) = ((q.1, q.2.1), q.2.2)
+  exact (compactlyGeneratedProdLeftComparison_symm_apply.{u} (X × P) A _).trans
+    (congrArg (fun p : X × (P × A) => ((p.1, p.2.1), p.2.2))
+      (compactlyGeneratedProdRightComparison_apply.{u} X (P × A) q))
+
+/-- The whole inverse refined associator is inverse coordinate reassociation. -/
+theorem coe_compactlyGeneratedProdAssoc_symm :
+    ⇑(((@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))).symm) =
+      (fun q : X × (P × A) => ((q.1, q.2.1), q.2.2)) := by
+  funext q
+  exact compactlyGeneratedProdAssoc_symm_apply.{u} X P A q
+
+/-- The forward refined associator is assembled from partial comparisons
+and refinement of ordinary associativity. -/
+theorem compactlyGeneratedProdAssoc_toContinuousMap :
+    (@ContinuousMap.mk ((X × P) × A) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))
+      (@Homeomorph.continuous_toFun ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))) =
+      (@ContinuousMap.comp ((X × P) × A) (X × (P × A)) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@ContinuousMap.mk (X × (P × A)) (X × (P × A))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (Equiv.symm
+            (@Homeomorph.toEquiv (X × (P × A)) (X × (P × A))
+              (@compactlyGenerated.{u} (X × (P × A))
+                (@instTopologicalSpaceProd X (P × A) tX
+                  (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+              (@compactlyGenerated.{u} (X × (P × A))
+                (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+              (@compactlyGeneratedProdRightComparison.{u} X (P × A) tX
+                (@instTopologicalSpaceProd P A tP tA))))
+          (@Homeomorph.continuous_invFun (X × (P × A)) (X × (P × A))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+            (@compactlyGeneratedProdRightComparison.{u} X (P × A) tX
+              (@instTopologicalSpaceProd P A tP tA))))
+        (@ContinuousMap.comp ((X × P) × A) ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+          (@ContinuousMap.compactlyGeneratedMap.{u} ((X × P) × A) (X × (P × A))
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+            (@ContinuousMap.mk ((X × P) × A) (X × (P × A))
+              (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+              (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+              (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+                (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+                (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+                (@Homeomorph.prodAssoc X P A tX tP tA))
+              (@Homeomorph.continuous_toFun ((X × P) × A) (X × (P × A))
+                (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+                (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+                (@Homeomorph.prodAssoc X P A tX tP tA))))
+          (@ContinuousMap.mk ((X × P) × A) ((X × P) × A)
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+            (@Homeomorph.toEquiv ((X × P) × A) ((X × P) × A)
+              (@compactlyGenerated.{u} ((X × P) × A)
+                (@instTopologicalSpaceProd (X × P) A
+                  (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                  tA))
+              (@compactlyGenerated.{u} ((X × P) × A)
+                (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+              (@compactlyGeneratedProdLeftComparison.{u} (X × P) A
+                (@instTopologicalSpaceProd X P tX tP)
+                tA))
+            (@Homeomorph.continuous_toFun ((X × P) × A) ((X × P) × A)
+              (@compactlyGenerated.{u} ((X × P) × A)
+                (@instTopologicalSpaceProd (X × P) A
+                  (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                  tA))
+              (@compactlyGenerated.{u} ((X × P) × A)
+                (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+              (@compactlyGeneratedProdLeftComparison.{u} (X × P) A
+                (@instTopologicalSpaceProd X P tX tP)
+                tA))))) := by
+  apply (@ContinuousMap.ext ((X × P) × A) (X × (P × A))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA))
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))))
+  intro q
+  calc
+    _ = (q.1.1, (q.1.2, q.2)) := compactlyGeneratedProdAssoc_apply.{u} X P A q
+    _ = _ :=
+      ((compactlyGeneratedProdRightComparison_symm_apply.{u} X (P × A) _).trans
+        (congrArg (fun p : (X × P) × A => (p.1.1, (p.1.2, p.2)))
+          (compactlyGeneratedProdLeftComparison_apply.{u} (X × P) A q))).symm
+
+/-- The inverse refined associator is assembled from partial comparisons
+and refinement of inverse ordinary associativity. -/
+theorem compactlyGeneratedProdAssoc_symm_toContinuousMap :
+    (@ContinuousMap.mk (X × (P × A)) ((X × P) × A)
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (Equiv.symm
+        (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))
+      (@Homeomorph.continuous_invFun ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))) =
+      (@ContinuousMap.comp (X × (P × A)) ((X × P) × A) ((X × P) × A)
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@ContinuousMap.mk ((X × P) × A) ((X × P) × A)
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (Equiv.symm
+            (@Homeomorph.toEquiv ((X × P) × A) ((X × P) × A)
+              (@compactlyGenerated.{u} ((X × P) × A)
+                (@instTopologicalSpaceProd (X × P) A
+                  (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                  tA))
+              (@compactlyGenerated.{u} ((X × P) × A)
+                (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+              (@compactlyGeneratedProdLeftComparison.{u} (X × P) A
+                (@instTopologicalSpaceProd X P tX tP)
+                tA)))
+          (@Homeomorph.continuous_invFun ((X × P) × A) ((X × P) × A)
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+            (@compactlyGeneratedProdLeftComparison.{u} (X × P) A
+              (@instTopologicalSpaceProd X P tX tP)
+              tA)))
+        (@ContinuousMap.comp (X × (P × A)) (X × (P × A)) ((X × P) × A)
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+          (@ContinuousMap.compactlyGeneratedMap.{u} (X × (P × A)) ((X × P) × A)
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+            (@ContinuousMap.mk (X × (P × A)) ((X × P) × A)
+              (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+              (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+              (Equiv.symm
+                (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+                  (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+                  (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+                  (@Homeomorph.prodAssoc X P A tX tP tA)))
+              (@Homeomorph.continuous_invFun ((X × P) × A) (X × (P × A))
+                (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+                (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+                (@Homeomorph.prodAssoc X P A tX tP tA))))
+          (@ContinuousMap.mk (X × (P × A)) (X × (P × A))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+            (@Homeomorph.toEquiv (X × (P × A)) (X × (P × A))
+              (@compactlyGenerated.{u} (X × (P × A))
+                (@instTopologicalSpaceProd X (P × A) tX
+                  (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+              (@compactlyGenerated.{u} (X × (P × A))
+                (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+              (@compactlyGeneratedProdRightComparison.{u} X (P × A) tX
+                (@instTopologicalSpaceProd P A tP tA)))
+            (@Homeomorph.continuous_toFun (X × (P × A)) (X × (P × A))
+              (@compactlyGenerated.{u} (X × (P × A))
+                (@instTopologicalSpaceProd X (P × A) tX
+                  (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+              (@compactlyGenerated.{u} (X × (P × A))
+                (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+              (@compactlyGeneratedProdRightComparison.{u} X (P × A) tX
+                (@instTopologicalSpaceProd P A tP tA)))))) := by
+  apply (@ContinuousMap.ext (X × (P × A)) ((X × P) × A)
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA)))
+  intro q
+  calc
+    _ = ((q.1, q.2.1), q.2.2) := compactlyGeneratedProdAssoc_symm_apply.{u} X P A q
+    _ = _ :=
+      ((compactlyGeneratedProdLeftComparison_symm_apply.{u} (X × P) A _).trans
+        (congrArg (fun p : X × (P × A) => ((p.1, p.2.1), p.2.2))
+          (compactlyGeneratedProdRightComparison_apply.{u} X (P × A) q))).symm
+
+/-- The refined associator inverse and associator compose to the whole identity map. -/
+theorem compactlyGeneratedProdAssoc_symm_comp :
+    (@ContinuousMap.comp ((X × P) × A) (X × (P × A)) ((X × P) × A)
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@ContinuousMap.mk (X × (P × A)) ((X × P) × A)
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (Equiv.symm
+          (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))
+        (@Homeomorph.continuous_invFun ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))
+      (@ContinuousMap.mk ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))
+        (@Homeomorph.continuous_toFun ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))) =
+      (@ContinuousMap.id ((X × P) × A)
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))) := by
+  apply (@ContinuousMap.ext ((X × P) × A) ((X × P) × A)
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA)))
+  intro q
+  exact Equiv.symm_apply_apply (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+  (@compactlyGenerated.{u} ((X × P) × A)
+    (@instTopologicalSpaceProd (X × P) A
+      (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+      tA))
+  (@compactlyGenerated.{u} (X × (P × A))
+    (@instTopologicalSpaceProd X (P × A) tX
+      (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+  (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)) q
+
+/-- The refined associator and its inverse compose to the whole identity map. -/
+theorem compactlyGeneratedProdAssoc_comp_symm :
+    (@ContinuousMap.comp (X × (P × A)) ((X × P) × A) (X × (P × A))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@ContinuousMap.mk ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))
+        (@Homeomorph.continuous_toFun ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))
+      (@ContinuousMap.mk (X × (P × A)) ((X × P) × A)
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (Equiv.symm
+          (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))
+        (@Homeomorph.continuous_invFun ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))) =
+      (@ContinuousMap.id (X × (P × A))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))) := by
+  apply (@ContinuousMap.ext (X × (P × A)) (X × (P × A))
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))))
+  intro q
+  exact Equiv.apply_symm_apply (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+  (@compactlyGenerated.{u} ((X × P) × A)
+    (@instTopologicalSpaceProd (X × P) A
+      (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+      tA))
+  (@compactlyGenerated.{u} (X × (P × A))
+    (@instTopologicalSpaceProd X (P × A) tX
+      (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+  (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)) q
+
+/-- Forgetting the refinements identifies the refined associator
+with ordinary associativity. -/
+theorem compactlyGeneratedProdAssoc_counit :
+    (@ContinuousMap.comp ((X × P) × A) (X × (P × A)) (X × (P × A))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))
+      (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+      (@ContinuousMap.prodMap X X (P × A) (P × A) tX tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))
+        (@instTopologicalSpaceProd P A tP tA)
+        (@ContinuousMap.id X tX)
+        (@ContinuousMap.compactlyGeneratedCounit.{u} (P × A)
+          (@instTopologicalSpaceProd P A tP tA)))
+      (@ContinuousMap.comp ((X × P) × A) (X × (P × A)) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))
+        (@ContinuousMap.compactlyGeneratedCounit.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@ContinuousMap.mk ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))
+          (@Homeomorph.continuous_toFun ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))))) =
+      (@ContinuousMap.comp ((X × P) × A) ((X × P) × A) (X × (P × A))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+        (@ContinuousMap.mk ((X × P) × A) (X × (P × A))
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+          (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+            (@Homeomorph.prodAssoc X P A tX tP tA))
+          (@Homeomorph.continuous_toFun ((X × P) × A) (X × (P × A))
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+            (@Homeomorph.prodAssoc X P A tX tP tA)))
+        (@ContinuousMap.comp ((X × P) × A) ((X × P) × A) ((X × P) × A)
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA)
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+          (@ContinuousMap.prodMap (X × P) (X × P) A A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            (@instTopologicalSpaceProd X P tX tP)
+            tA
+            tA
+            (@ContinuousMap.compactlyGeneratedCounit.{u} (X × P)
+              (@instTopologicalSpaceProd X P tX tP))
+            (@ContinuousMap.id A tA))
+          (@ContinuousMap.compactlyGeneratedCounit.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA)))) := by
+  apply (@ContinuousMap.ext ((X × P) × A) (X × (P × A))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA))
+    (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA)))
+  intro q
+  have hforget (p : X × (P × A)) :
+      (@ContinuousMap.toFun (X × (P × A)) (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+        (@ContinuousMap.prodMap X X (P × A) (P × A) tX tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))
+          (@instTopologicalSpaceProd P A tP tA) (@ContinuousMap.id X tX)
+          (@ContinuousMap.compactlyGeneratedCounit.{u} (P × A)
+            (@instTopologicalSpaceProd P A tP tA)))) p = p := by
+    rfl
+  exact (hforget _).trans (compactlyGeneratedProdAssoc_apply.{u} X P A q)
+
+/-- Forgetting the refinements identifies the inverse refined associator
+with inverse ordinary associativity. -/
+theorem compactlyGeneratedProdAssoc_symm_counit :
+    (@ContinuousMap.comp (X × (P × A)) ((X × P) × A) ((X × P) × A)
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA)
+      (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+      (@ContinuousMap.prodMap (X × P) (X × P) A A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        (@instTopologicalSpaceProd X P tX tP)
+        tA
+        tA
+        (@ContinuousMap.compactlyGeneratedCounit.{u} (X × P)
+          (@instTopologicalSpaceProd X P tX tP))
+        (@ContinuousMap.id A tA))
+      (@ContinuousMap.comp (X × (P × A)) ((X × P) × A) ((X × P) × A)
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA)
+        (@ContinuousMap.compactlyGeneratedCounit.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@ContinuousMap.mk (X × (P × A)) ((X × P) × A)
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (Equiv.symm
+            (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+              (@compactlyGenerated.{u} ((X × P) × A)
+                (@instTopologicalSpaceProd (X × P) A
+                  (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                  tA))
+              (@compactlyGenerated.{u} (X × (P × A))
+                (@instTopologicalSpaceProd X (P × A) tX
+                  (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+              (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))
+          (@Homeomorph.continuous_invFun ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))))) =
+      (@ContinuousMap.comp (X × (P × A)) (X × (P × A)) ((X × P) × A)
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (@ContinuousMap.mk (X × (P × A)) ((X × P) × A)
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+          (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+          (Equiv.symm
+            (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+              (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+              (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+              (@Homeomorph.prodAssoc X P A tX tP tA)))
+          (@Homeomorph.continuous_invFun ((X × P) × A) (X × (P × A))
+            (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+            (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+            (@Homeomorph.prodAssoc X P A tX tP tA)))
+        (@ContinuousMap.comp (X × (P × A)) (X × (P × A)) (X × (P × A))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))
+          (@instTopologicalSpaceProd X (P × A) tX (@instTopologicalSpaceProd P A tP tA))
+          (@ContinuousMap.prodMap X X (P × A) (P × A) tX tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))
+            (@instTopologicalSpaceProd P A tP tA)
+            (@ContinuousMap.id X tX)
+            (@ContinuousMap.compactlyGeneratedCounit.{u} (P × A)
+              (@instTopologicalSpaceProd P A tP tA)))
+          (@ContinuousMap.compactlyGeneratedCounit.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))))) := by
+  apply (@ContinuousMap.ext (X × (P × A)) ((X × P) × A)
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+    (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA))
+  intro q
+  have hforget (p : (X × P) × A) :
+      (@ContinuousMap.toFun ((X × P) × A) ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP)) tA)
+        (@instTopologicalSpaceProd (X × P) A (@instTopologicalSpaceProd X P tX tP) tA)
+        (@ContinuousMap.prodMap (X × P) (X × P) A A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          (@instTopologicalSpaceProd X P tX tP) tA tA
+          (@ContinuousMap.compactlyGeneratedCounit.{u} (X × P)
+            (@instTopologicalSpaceProd X P tX tP)) (@ContinuousMap.id A tA))) p = p := by
+    rfl
+  exact (hforget _).trans (compactlyGeneratedProdAssoc_symm_apply.{u} X P A q)
+
+variable {X P A}
+variable {X' : Type v'} {P' : Type w'} {A' : Type z'}
+variable [tX' : TopologicalSpace X'] [tP' : TopologicalSpace P'] [tA' : TopologicalSpace A']
+
+/-- Refined associativity is natural under arbitrary maps in all original factors. -/
+theorem compactlyGeneratedProdAssoc_naturality
+    (f : C(X, X')) (g : C(P, P')) (h : C(A, A')) :
+    (@ContinuousMap.comp ((X × P) × A) ((X' × P') × A') (X' × (P' × A'))
+      (@compactlyGenerated.{u} ((X × P) × A)
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA))
+      (@compactlyGenerated.{u} ((X' × P') × A')
+        (@instTopologicalSpaceProd (X' × P') A'
+          (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+          tA'))
+      (@compactlyGenerated.{u} (X' × (P' × A'))
+        (@instTopologicalSpaceProd X' (P' × A') tX'
+          (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+      (@ContinuousMap.mk ((X' × P') × A') (X' × (P' × A'))
+        (@compactlyGenerated.{u} ((X' × P') × A')
+          (@instTopologicalSpaceProd (X' × P') A'
+            (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+            tA'))
+        (@compactlyGenerated.{u} (X' × (P' × A'))
+          (@instTopologicalSpaceProd X' (P' × A') tX'
+            (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+        (@Homeomorph.toEquiv ((X' × P') × A') (X' × (P' × A'))
+          (@compactlyGenerated.{u} ((X' × P') × A')
+            (@instTopologicalSpaceProd (X' × P') A'
+              (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+              tA'))
+          (@compactlyGenerated.{u} (X' × (P' × A'))
+            (@instTopologicalSpaceProd X' (P' × A') tX'
+              (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+          (@compactlyGeneratedProdAssoc.{u} X' P' A' tX' tP' tA'))
+        (@Homeomorph.continuous_toFun ((X' × P') × A') (X' × (P' × A'))
+          (@compactlyGenerated.{u} ((X' × P') × A')
+            (@instTopologicalSpaceProd (X' × P') A'
+              (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+              tA'))
+          (@compactlyGenerated.{u} (X' × (P' × A'))
+            (@instTopologicalSpaceProd X' (P' × A') tX'
+              (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+          (@compactlyGeneratedProdAssoc.{u} X' P' A' tX' tP' tA')))
+      (@ContinuousMap.compactlyGeneratedMap.{u} ((X × P) × A) ((X' × P') × A')
+        (@instTopologicalSpaceProd (X × P) A
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          tA)
+        (@instTopologicalSpaceProd (X' × P') A'
+          (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+          tA')
+        (@ContinuousMap.prodMap (X × P) (X' × P') A A'
+          (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+          (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+          tA
+          tA'
+          (@ContinuousMap.compactlyGeneratedMap.{u} (X × P) (X' × P')
+            (@instTopologicalSpaceProd X P tX tP)
+            (@instTopologicalSpaceProd X' P' tX' tP')
+            (@ContinuousMap.prodMap X X' P P' tX tX' tP tP' f g))
+          h))) =
+      (@ContinuousMap.comp ((X × P) × A) (X × (P × A)) (X' × (P' × A'))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGenerated.{u} (X' × (P' × A'))
+          (@instTopologicalSpaceProd X' (P' × A') tX'
+            (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × (P × A)) (X' × (P' × A'))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))
+          (@instTopologicalSpaceProd X' (P' × A') tX'
+            (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA')))
+          (@ContinuousMap.prodMap X X' (P × A) (P' × A') tX tX'
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))
+            (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))
+            f
+            (@ContinuousMap.compactlyGeneratedMap.{u} (P × A) (P' × A')
+              (@instTopologicalSpaceProd P A tP tA)
+              (@instTopologicalSpaceProd P' A' tP' tA')
+              (@ContinuousMap.prodMap P P' A A' tP tP' tA tA' g h))))
+        (@ContinuousMap.mk ((X × P) × A) (X × (P × A))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA))
+          (@Homeomorph.continuous_toFun ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))) := by
+  apply (@ContinuousMap.ext ((X × P) × A) (X' × (P' × A'))
+    (@compactlyGenerated.{u} ((X × P) × A)
+      (@instTopologicalSpaceProd (X × P) A
+        (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+        tA))
+    (@compactlyGenerated.{u} (X' × (P' × A'))
+      (@instTopologicalSpaceProd X' (P' × A') tX'
+        (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA')))))
+  intro q
+  have hprod :
+      (@ContinuousMap.toFun ((X × P) × A) ((X' × P') × A')
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP)) tA))
+        (@compactlyGenerated.{u} ((X' × P') × A')
+          (@instTopologicalSpaceProd (X' × P') A'
+            (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP')) tA'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} ((X × P) × A) ((X' × P') × A')
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP)) tA)
+          (@instTopologicalSpaceProd (X' × P') A'
+            (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP')) tA')
+          (@ContinuousMap.prodMap (X × P) (X' × P') A A'
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP')) tA tA'
+            (@ContinuousMap.compactlyGeneratedMap.{u} (X × P) (X' × P')
+              (@instTopologicalSpaceProd X P tX tP)
+              (@instTopologicalSpaceProd X' P' tX' tP')
+              (@ContinuousMap.prodMap X X' P P' tX tX' tP tP' f g)) h))) q =
+        ((f q.1.1, g q.1.2), h q.2) := by
+    rfl
+  calc
+    _ = (f q.1.1, (g q.1.2, h q.2)) :=
+      (compactlyGeneratedProdAssoc_apply.{u} X' P' A' _).trans
+        (congrArg (fun p : (X' × P') × A' => (p.1.1, (p.1.2, p.2))) hprod)
+    _ = _ :=
+      (congrArg (fun p : X × (P × A) => (f p.1, (g p.2.1, h p.2.2)))
+        (compactlyGeneratedProdAssoc_apply.{u} X P A q)).symm
+
+/-- Inverse refined associativity is natural under arbitrary maps in all original factors. -/
+theorem compactlyGeneratedProdAssoc_symm_naturality
+    (f : C(X, X')) (g : C(P, P')) (h : C(A, A')) :
+    (@ContinuousMap.comp (X × (P × A)) (X' × (P' × A')) ((X' × P') × A')
+      (@compactlyGenerated.{u} (X × (P × A))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+      (@compactlyGenerated.{u} (X' × (P' × A'))
+        (@instTopologicalSpaceProd X' (P' × A') tX'
+          (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+      (@compactlyGenerated.{u} ((X' × P') × A')
+        (@instTopologicalSpaceProd (X' × P') A'
+          (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+          tA'))
+      (@ContinuousMap.mk (X' × (P' × A')) ((X' × P') × A')
+        (@compactlyGenerated.{u} (X' × (P' × A'))
+          (@instTopologicalSpaceProd X' (P' × A') tX'
+            (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+        (@compactlyGenerated.{u} ((X' × P') × A')
+          (@instTopologicalSpaceProd (X' × P') A'
+            (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+            tA'))
+        (Equiv.symm
+          (@Homeomorph.toEquiv ((X' × P') × A') (X' × (P' × A'))
+            (@compactlyGenerated.{u} ((X' × P') × A')
+              (@instTopologicalSpaceProd (X' × P') A'
+                (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+                tA'))
+            (@compactlyGenerated.{u} (X' × (P' × A'))
+              (@instTopologicalSpaceProd X' (P' × A') tX'
+                (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+            (@compactlyGeneratedProdAssoc.{u} X' P' A' tX' tP' tA')))
+        (@Homeomorph.continuous_invFun ((X' × P') × A') (X' × (P' × A'))
+          (@compactlyGenerated.{u} ((X' × P') × A')
+            (@instTopologicalSpaceProd (X' × P') A'
+              (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+              tA'))
+          (@compactlyGenerated.{u} (X' × (P' × A'))
+            (@instTopologicalSpaceProd X' (P' × A') tX'
+              (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+          (@compactlyGeneratedProdAssoc.{u} X' P' A' tX' tP' tA')))
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × (P × A)) (X' × (P' × A'))
+        (@instTopologicalSpaceProd X (P × A) tX
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))
+        (@instTopologicalSpaceProd X' (P' × A') tX'
+          (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA')))
+        (@ContinuousMap.prodMap X X' (P × A) (P' × A') tX tX'
+          (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))
+          (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))
+          f
+          (@ContinuousMap.compactlyGeneratedMap.{u} (P × A) (P' × A')
+            (@instTopologicalSpaceProd P A tP tA)
+            (@instTopologicalSpaceProd P' A' tP' tA')
+            (@ContinuousMap.prodMap P P' A A' tP tP' tA tA' g h))))) =
+      (@ContinuousMap.comp (X × (P × A)) ((X × P) × A) ((X' × P') × A')
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGenerated.{u} ((X × P) × A)
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA))
+        (@compactlyGenerated.{u} ((X' × P') × A')
+          (@instTopologicalSpaceProd (X' × P') A'
+            (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+            tA'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} ((X × P) × A) ((X' × P') × A')
+          (@instTopologicalSpaceProd (X × P) A
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            tA)
+          (@instTopologicalSpaceProd (X' × P') A'
+            (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+            tA')
+          (@ContinuousMap.prodMap (X × P) (X' × P') A A'
+            (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+            (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+            tA
+            tA'
+            (@ContinuousMap.compactlyGeneratedMap.{u} (X × P) (X' × P')
+              (@instTopologicalSpaceProd X P tX tP)
+              (@instTopologicalSpaceProd X' P' tX' tP')
+              (@ContinuousMap.prodMap X X' P P' tX tX' tP tP' f g))
+            h))
+        (@ContinuousMap.mk (X × (P × A)) ((X × P) × A)
+          (@compactlyGenerated.{u} (X × (P × A))
+            (@instTopologicalSpaceProd X (P × A) tX
+              (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+          (@compactlyGenerated.{u} ((X × P) × A)
+            (@instTopologicalSpaceProd (X × P) A
+              (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+              tA))
+          (Equiv.symm
+            (@Homeomorph.toEquiv ((X × P) × A) (X × (P × A))
+              (@compactlyGenerated.{u} ((X × P) × A)
+                (@instTopologicalSpaceProd (X × P) A
+                  (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                  tA))
+              (@compactlyGenerated.{u} (X × (P × A))
+                (@instTopologicalSpaceProd X (P × A) tX
+                  (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+              (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))
+          (@Homeomorph.continuous_invFun ((X × P) × A) (X × (P × A))
+            (@compactlyGenerated.{u} ((X × P) × A)
+              (@instTopologicalSpaceProd (X × P) A
+                (@compactlyGenerated.{u} (X × P) (@instTopologicalSpaceProd X P tX tP))
+                tA))
+            (@compactlyGenerated.{u} (X × (P × A))
+              (@instTopologicalSpaceProd X (P × A) tX
+                (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+            (@compactlyGeneratedProdAssoc.{u} X P A tX tP tA)))) := by
+  apply (@ContinuousMap.ext (X × (P × A)) ((X' × P') × A')
+    (@compactlyGenerated.{u} (X × (P × A))
+      (@instTopologicalSpaceProd X (P × A) tX
+        (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+    (@compactlyGenerated.{u} ((X' × P') × A')
+      (@instTopologicalSpaceProd (X' × P') A'
+        (@compactlyGenerated.{u} (X' × P') (@instTopologicalSpaceProd X' P' tX' tP'))
+        tA')))
+  intro q
+  have hprod :
+      (@ContinuousMap.toFun (X × (P × A)) (X' × (P' × A'))
+        (@compactlyGenerated.{u} (X × (P × A))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))))
+        (@compactlyGenerated.{u} (X' × (P' × A'))
+          (@instTopologicalSpaceProd X' (P' × A') tX'
+            (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA'))))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × (P × A)) (X' × (P' × A'))
+          (@instTopologicalSpaceProd X (P × A) tX
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA)))
+          (@instTopologicalSpaceProd X' (P' × A') tX'
+            (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA')))
+          (@ContinuousMap.prodMap X X' (P × A) (P' × A') tX tX'
+            (@compactlyGenerated.{u} (P × A) (@instTopologicalSpaceProd P A tP tA))
+            (@compactlyGenerated.{u} (P' × A') (@instTopologicalSpaceProd P' A' tP' tA')) f
+            (@ContinuousMap.compactlyGeneratedMap.{u} (P × A) (P' × A')
+              (@instTopologicalSpaceProd P A tP tA)
+              (@instTopologicalSpaceProd P' A' tP' tA')
+              (@ContinuousMap.prodMap P P' A A' tP tP' tA tA' g h))))) q =
+        (f q.1, (g q.2.1, h q.2.2)) := by
+    rfl
+  calc
+    _ = ((f q.1, g q.2.1), h q.2.2) :=
+      (compactlyGeneratedProdAssoc_symm_apply.{u} X' P' A' _).trans
+        (congrArg (fun p : X' × (P' × A') => ((p.1, p.2.1), p.2.2)) hprod)
+    _ = _ :=
+      (congrArg (fun p : (X × P) × A => ((f p.1.1, g p.1.2), h p.2))
+        (compactlyGeneratedProdAssoc_symm_apply.{u} X P A q)).symm
+
+end Homeomorph
+
+universe v'' w''
+
+namespace ContinuousMap
+
+/-- Refining a product of identity maps gives the identity of the refined product. -/
+theorem compactlyGeneratedProdMap_id
+    (X : Type v) (Y : Type w) [tX : TopologicalSpace X] [tY : TopologicalSpace Y] :
+    (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@ContinuousMap.prodMap X X Y Y tX tX tY tY (@ContinuousMap.id X tX)
+        (@ContinuousMap.id Y tY))) =
+      (@ContinuousMap.id (X × Y)
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))) := by
+  have hprod :
+      (@ContinuousMap.prodMap X X Y Y tX tX tY tY (@ContinuousMap.id X tX)
+        (@ContinuousMap.id Y tY)) =
+        (@ContinuousMap.id (X × Y) (@instTopologicalSpaceProd X Y tX tY)) := by
+    apply (@ContinuousMap.ext (X × Y) (X × Y)
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@instTopologicalSpaceProd X Y tX tY))
+    intro q
+    rfl
+  have hid :
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X × Y)
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@ContinuousMap.id (X × Y) (@instTopologicalSpaceProd X Y tX tY))) =
+        (@ContinuousMap.id (X × Y)
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))) := by
+    apply compactlyGeneratedMap_id
+  exact (congrArg
+    (@compactlyGeneratedMap.{u} (X × Y) (X × Y)
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@instTopologicalSpaceProd X Y tX tY))
+    hprod).trans hid
+
+/-- Refining products of composites agrees with composing the refined product maps.
+The factor topologies may themselves already be refinements. -/
+theorem compactlyGeneratedProdMap_comp
+    {X : Type v} {Y : Type w} {X' : Type v'} {Y' : Type w'}
+    {X'' : Type v''} {Y'' : Type w''}
+    [tX : TopologicalSpace X] [tY : TopologicalSpace Y]
+    [tX' : TopologicalSpace X'] [tY' : TopologicalSpace Y']
+    [tX'' : TopologicalSpace X''] [tY'' : TopologicalSpace Y'']
+    (f : C(X, X')) (g : C(Y, Y')) (f' : C(X', X'')) (g' : C(Y', Y'')) :
+    (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X'' × Y'')
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@instTopologicalSpaceProd X'' Y'' tX'' tY'')
+      (@ContinuousMap.prodMap X X'' Y Y'' tX tX'' tY tY''
+        (@ContinuousMap.comp X X' X'' tX tX' tX'' f' f)
+        (@ContinuousMap.comp Y Y' Y'' tY tY' tY'' g' g))) =
+      (@ContinuousMap.comp (X × Y) (X' × Y') (X'' × Y'')
+        (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+        (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+        (@compactlyGenerated.{u} (X'' × Y'') (@instTopologicalSpaceProd X'' Y'' tX'' tY''))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X' × Y') (X'' × Y'')
+          (@instTopologicalSpaceProd X' Y' tX' tY')
+          (@instTopologicalSpaceProd X'' Y'' tX'' tY'')
+          (@ContinuousMap.prodMap X' X'' Y' Y'' tX' tX'' tY' tY'' f' g'))
+        (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+          (@instTopologicalSpaceProd X Y tX tY)
+          (@instTopologicalSpaceProd X' Y' tX' tY')
+          (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))) := by
+  have hprod :
+      (@ContinuousMap.prodMap X X'' Y Y'' tX tX'' tY tY''
+        (@ContinuousMap.comp X X' X'' tX tX' tX'' f' f)
+        (@ContinuousMap.comp Y Y' Y'' tY tY' tY'' g' g)) =
+        (@ContinuousMap.comp (X × Y) (X' × Y') (X'' × Y'')
+          (@instTopologicalSpaceProd X Y tX tY)
+          (@instTopologicalSpaceProd X' Y' tX' tY')
+          (@instTopologicalSpaceProd X'' Y'' tX'' tY'')
+          (@ContinuousMap.prodMap X' X'' Y' Y'' tX' tX'' tY' tY'' f' g')
+          (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g)) := by
+    apply (@ContinuousMap.ext (X × Y) (X'' × Y'')
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@instTopologicalSpaceProd X'' Y'' tX'' tY''))
+    intro q
+    rfl
+  have hcomp :
+      (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X'' × Y'')
+        (@instTopologicalSpaceProd X Y tX tY)
+        (@instTopologicalSpaceProd X'' Y'' tX'' tY'')
+        (@ContinuousMap.comp (X × Y) (X' × Y') (X'' × Y'')
+          (@instTopologicalSpaceProd X Y tX tY)
+          (@instTopologicalSpaceProd X' Y' tX' tY')
+          (@instTopologicalSpaceProd X'' Y'' tX'' tY'')
+          (@ContinuousMap.prodMap X' X'' Y' Y'' tX' tX'' tY' tY'' f' g')
+          (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))) =
+        (@ContinuousMap.comp (X × Y) (X' × Y') (X'' × Y'')
+          (@compactlyGenerated.{u} (X × Y) (@instTopologicalSpaceProd X Y tX tY))
+          (@compactlyGenerated.{u} (X' × Y') (@instTopologicalSpaceProd X' Y' tX' tY'))
+          (@compactlyGenerated.{u} (X'' × Y'') (@instTopologicalSpaceProd X'' Y'' tX'' tY''))
+          (@ContinuousMap.compactlyGeneratedMap.{u} (X' × Y') (X'' × Y'')
+            (@instTopologicalSpaceProd X' Y' tX' tY')
+            (@instTopologicalSpaceProd X'' Y'' tX'' tY'')
+            (@ContinuousMap.prodMap X' X'' Y' Y'' tX' tX'' tY' tY'' f' g'))
+          (@ContinuousMap.compactlyGeneratedMap.{u} (X × Y) (X' × Y')
+            (@instTopologicalSpaceProd X Y tX tY)
+            (@instTopologicalSpaceProd X' Y' tX' tY')
+            (@ContinuousMap.prodMap X X' Y Y' tX tX' tY tY' f g))) := by
+    apply compactlyGeneratedMap_comp
+  exact (congrArg
+    (@compactlyGeneratedMap.{u} (X × Y) (X'' × Y'')
+      (@instTopologicalSpaceProd X Y tX tY)
+      (@instTopologicalSpaceProd X'' Y'' tX'' tY''))
+    hprod).trans hcomp
 
 end ContinuousMap
