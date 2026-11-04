@@ -4,7 +4,7 @@ Authors: Formal Frontier Agents
 -/
 module
 
-public import Mathlib.Topology.Convenient.ContinuousMapGeneratedBy
+public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Basic
 public import Mathlib.Topology.Convenient.OpenClosed
 
 /-!
@@ -37,18 +37,6 @@ open Topology
 namespace Topology.WithGeneratedByTopology
 
 variable {ι : Type t} (X : ι → Type u) [∀ i, TopologicalSpace (X i)]
-
-/-- The ordinary continuous counit of the stock generated-by refinement. -/
-def counitContinuousMap (Y : Type v) [TopologicalSpace Y] :
-    C(WithGeneratedByTopology X Y, Y) := by
-  refine ⟨equiv, (continuous_from_iff _).2 ?_⟩
-  intro i f
-  simpa only [Function.comp_def, Equiv.apply_symm_apply] using f.continuous
-
-@[simp]
-theorem counitContinuousMap_apply (Y : Type v) [TopologicalSpace Y]
-    (y : WithGeneratedByTopology X Y) :
-    counitContinuousMap X Y y = equiv y := rfl
 
 variable {Y : Type v} [TopologicalSpace Y] {Z : Type w} [TopologicalSpace Z]
 

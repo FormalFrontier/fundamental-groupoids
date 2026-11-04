@@ -143,3 +143,5 @@ public import FundamentalGroupoids.Topology.Homotopy.ComplexPuncturedBall
 public import FundamentalGroupoids.FundamentalGroup.ComplexPuncturedBall
 public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Subtype
 public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated
+public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Prod
+public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated.Prod
