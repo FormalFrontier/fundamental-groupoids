@@ -147,3 +147,9 @@ public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Prod
 public import FundamentalGroupoids.Topology.Convenient.GeneratedBy.Pi
 public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated.Prod
 public import FundamentalGroupoids.Topology.Convenient.CompactlyGenerated.Pi
+
+public import FundamentalGroupoids.Topology.CompactOpen.CompactlyGeneratedCurry
+public import FundamentalGroupoids.Topology.CompactOpen.GeneratedBy
+public import FundamentalGroupoids.Topology.CompactOpen.GeneratedByHomeomorph
+public import FundamentalGroupoids.Topology.CompactOpen.GeneratedByMaps
+public import FundamentalGroupoids.Topology.CompactOpen.GeneratedByNaturality

@@ -7,11 +7,15 @@ module
 public import Mathlib.Topology.Convenient.ContinuousMapGeneratedBy
 
 /-!
-# Continuous maps for generated-by refinement
+# Continuous maps and homeomorphisms for generated-by refinement
 
-The stock generated-by refinement acts on continuous maps and admits the canonical
-lift of a continuous map from a generated source. The probe family, its index, and
-all original carrier universes remain independent.
+Generated-by refinement preserves continuity on the original carriers. It acts on
+bundled continuous maps and homeomorphisms without changing their underlying
+functions, and preserves identities and composition.
+
+The refinement type synonym also admits the canonical lift of a continuous map
+from a generated source. Its counit is natural, and determines such lifts uniquely.
+The probe family, its index, and all original carrier universes remain independent.
 -/
 
 @[expose] public section
@@ -26,7 +30,7 @@ namespace Topology.WithGeneratedByTopology
 
 variable {ι : Type t} (X : ι → Type u) [∀ i, TopologicalSpace (X i)]
 
-/-- The ordinary continuous counit of the stock generated-by refinement. -/
+/-- The ordinary continuous counit of the generated-by refinement. -/
 def counitContinuousMap (Y : Type v) [TopologicalSpace Y] :
     C(WithGeneratedByTopology X Y, Y) := by
   refine ⟨equiv, (continuous_from_iff _).2 ?_⟩
@@ -40,7 +44,7 @@ theorem counitContinuousMap_apply (Y : Type v) [TopologicalSpace Y]
 
 variable {Y : Type v} [TopologicalSpace Y] {Z : Type w} [TopologicalSpace Z]
 
-/-- The stock refinement of an ordinary continuous map. -/
+/-- The generated-by refinement of an ordinary continuous map. -/
 def mapContinuousMap (f : C(Y, Z)) :
     C(WithGeneratedByTopology X Y, WithGeneratedByTopology X Z) :=
   (f.continuous.continuousGeneratedBy (X := X)).continuousMap
@@ -117,3 +121,157 @@ theorem generatedSourceLift_unique [IsGeneratedBy X Y] (f : C(Y, Z))
     generatedSourceLift_apply, Equiv.apply_symm_apply] using hy
 
 end Topology.WithGeneratedByTopology
+
+namespace Continuous
+
+variable {ι : Type t} (Φ : ι → Type u) [tΦ : ∀ i, TopologicalSpace (Φ i)]
+  {A : Type v} [tA : TopologicalSpace A] {B : Type w} [tB : TopologicalSpace B]
+
+/-- A continuous map is continuous between the generated refinements of its
+original source and target topologies, on the same carriers. -/
+theorem generatedByTopology {f : A → B} (hf : @Continuous A B tA tB f) :
+    @Continuous A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+      (@TopologicalSpace.generatedBy ι Φ tΦ B tB) f := by
+  let τA : TopologicalSpace A := @TopologicalSpace.generatedBy ι Φ tΦ A tA
+  have hidem : @TopologicalSpace.generatedBy ι Φ tΦ A τA = τA := by
+    exact @TopologicalSpace.generatedBy_generatedBy ι Φ tΦ A tA
+  let hgenA : @IsGeneratedBy ι Φ tΦ A τA :=
+    (@IsGeneratedBy.iff_le_generatedBy ι Φ tΦ A τA).2 (le_of_eq hidem.symm)
+  have hsource : @Continuous A A τA tA id :=
+    (@continuous_id_iff_le A τA tA).2
+      (@TopologicalSpace.generatedBy_le ι Φ tΦ A tA)
+  have hf' : @Continuous A B τA tB f :=
+    @Continuous.comp A A B τA tA tB id f hf hsource
+  have hcoinduced : TopologicalSpace.coinduced f τA ≤ tB := by
+    exact (show @Continuous A B τA tB f ↔
+      TopologicalSpace.coinduced f τA ≤ tB from continuous_iff_coinduced_le).1 hf'
+  have hgen : @IsGeneratedBy ι Φ tΦ B (TopologicalSpace.coinduced f τA) := by
+    let : TopologicalSpace A := τA
+    exact IsGeneratedBy.coinduced f
+  have heq :
+      @TopologicalSpace.generatedBy ι Φ tΦ B (TopologicalSpace.coinduced f τA) =
+        TopologicalSpace.coinduced f τA := by
+    exact @IsGeneratedBy.generatedBy_eq ι Φ tΦ B
+      (TopologicalSpace.coinduced f τA) hgen
+  have hle : TopologicalSpace.coinduced f τA ≤
+      @TopologicalSpace.generatedBy ι Φ tΦ B tB := by
+    calc
+      TopologicalSpace.coinduced f τA =
+          @TopologicalSpace.generatedBy ι Φ tΦ B
+            (TopologicalSpace.coinduced f τA) := heq.symm
+      _ ≤ @TopologicalSpace.generatedBy ι Φ tΦ B tB :=
+        @TopologicalSpace.generatedBy_mono ι Φ tΦ B
+          (TopologicalSpace.coinduced f τA) tB hcoinduced
+  exact (show @Continuous A B τA (@TopologicalSpace.generatedBy ι Φ tΦ B tB) f ↔
+    TopologicalSpace.coinduced f τA ≤ @TopologicalSpace.generatedBy ι Φ tΦ B tB
+      from continuous_iff_coinduced_le).2 hle
+
+end Continuous
+
+namespace Homeomorph
+
+variable {ι : Type t} (Φ : ι → Type u) [tΦ : ∀ i, TopologicalSpace (Φ i)]
+  {A : Type v} [tA : TopologicalSpace A] {B : Type w} [tB : TopologicalSpace B]
+
+/-- Refine the topology dictionaries of a homeomorphism without changing its
+underlying equivalence. -/
+def generatedByTopology (e : @Homeomorph A B tA tB) :
+    @Homeomorph A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+      (@TopologicalSpace.generatedBy ι Φ tΦ B tB) :=
+  @Homeomorph.mk A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+    (@TopologicalSpace.generatedBy ι Φ tΦ B tB) (@Homeomorph.toEquiv A B tA tB e)
+    (@Continuous.generatedByTopology ι Φ tΦ A tA B tB
+      (@Homeomorph.toEquiv A B tA tB e)
+      (@Homeomorph.continuous_toFun A B tA tB e))
+    (@Continuous.generatedByTopology ι Φ tΦ B tB A tA
+      (@Homeomorph.toEquiv A B tA tB e).symm
+      (@Homeomorph.continuous_invFun A B tA tB e))
+
+/-- Refining a homeomorphism preserves its whole underlying function. -/
+theorem coe_generatedByTopology (e : @Homeomorph A B tA tB) :
+    ⇑(generatedByTopology Φ e) = ⇑e := rfl
+
+/-- Refining a homeomorphism preserves its values. -/
+@[simp]
+theorem generatedByTopology_apply (e : @Homeomorph A B tA tB) (a : A) :
+    generatedByTopology Φ e a = e a := rfl
+
+/-- Refining a homeomorphism preserves the values of its inverse. -/
+@[simp]
+theorem generatedByTopology_symm_apply (e : @Homeomorph A B tA tB) (b : B) :
+    (@Homeomorph.symm A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+      (@TopologicalSpace.generatedBy ι Φ tΦ B tB) (generatedByTopology Φ e)) b =
+      (@Homeomorph.symm A B tA tB e) b := rfl
+
+/-- Generated refinement preserves the identity homeomorphism. -/
+@[simp]
+theorem generatedByTopology_refl (A : Type v) [tA : TopologicalSpace A] :
+    generatedByTopology Φ (Homeomorph.refl A) =
+      @Homeomorph.refl A (@TopologicalSpace.generatedBy ι Φ tΦ A tA) := rfl
+
+/-- Generated refinement preserves composition of homeomorphisms. -/
+theorem generatedByTopology_trans {D : Type z} [tD : TopologicalSpace D]
+    (e : @Homeomorph A B tA tB) (d : @Homeomorph B D tB tD) :
+    generatedByTopology Φ (e.trans d) =
+      @Homeomorph.trans A B D (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+        (@TopologicalSpace.generatedBy ι Φ tΦ B tB)
+        (@TopologicalSpace.generatedBy ι Φ tΦ D tD)
+        (generatedByTopology Φ e) (generatedByTopology Φ d) := rfl
+
+end Homeomorph
+
+namespace ContinuousMap
+
+section Refinement
+
+variable {ι : Type t} (Φ : ι → Type u) [tΦ : ∀ i, TopologicalSpace (Φ i)]
+  {A : Type v} [tA : TopologicalSpace A] {B : Type w} [tB : TopologicalSpace B]
+
+/-- Refine the topology dictionaries of a continuous map, preserving its function. -/
+def generatedByTopology (f : @ContinuousMap A B tA tB) :
+    @ContinuousMap A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+      (@TopologicalSpace.generatedBy ι Φ tΦ B tB) :=
+  @ContinuousMap.mk A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+    (@TopologicalSpace.generatedBy ι Φ tΦ B tB) (@ContinuousMap.toFun A B tA tB f)
+    (@Continuous.generatedByTopology ι Φ tΦ A tA B tB
+      (@ContinuousMap.toFun A B tA tB f) (@ContinuousMap.continuous A B tA tB f))
+
+/-- Generated refinement does not change the whole underlying function. -/
+theorem coe_generatedByTopology (f : @ContinuousMap A B tA tB) :
+    @ContinuousMap.toFun A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+      (@TopologicalSpace.generatedBy ι Φ tΦ B tB)
+      (@ContinuousMap.generatedByTopology ι Φ tΦ A tA B tB f) =
+        @ContinuousMap.toFun A B tA tB f := rfl
+
+/-- Generated refinement preserves the value of a continuous map at each point. -/
+@[simp]
+theorem generatedByTopology_apply (f : @ContinuousMap A B tA tB) (a : A) :
+    @ContinuousMap.toFun A B (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+      (@TopologicalSpace.generatedBy ι Φ tΦ B tB)
+      (@ContinuousMap.generatedByTopology ι Φ tΦ A tA B tB f) a =
+        @ContinuousMap.toFun A B tA tB f a := rfl
+
+/-- Generated refinement preserves the identity continuous map. -/
+@[simp]
+theorem generatedByTopology_id :
+    @ContinuousMap.generatedByTopology ι Φ tΦ A tA A tA (@ContinuousMap.id A tA) =
+      @ContinuousMap.id A (@TopologicalSpace.generatedBy ι Φ tΦ A tA) := rfl
+
+/-- Generated refinement preserves composition of continuous maps. -/
+theorem generatedByTopology_comp {D : Type z} [tD : TopologicalSpace D]
+    (g : @ContinuousMap B D tB tD) (f : @ContinuousMap A B tA tB) :
+    @ContinuousMap.generatedByTopology ι Φ tΦ A tA D tD
+      (@ContinuousMap.comp A B D tA tB tD g f) =
+      @ContinuousMap.comp A B D (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+        (@TopologicalSpace.generatedBy ι Φ tΦ B tB)
+        (@TopologicalSpace.generatedBy ι Φ tΦ D tD)
+        (@ContinuousMap.generatedByTopology ι Φ tΦ B tB D tD g)
+        (@ContinuousMap.generatedByTopology ι Φ tΦ A tA B tB f) := by
+  apply @ContinuousMap.ext A D (@TopologicalSpace.generatedBy ι Φ tΦ A tA)
+    (@TopologicalSpace.generatedBy ι Φ tΦ D tD)
+  intro a
+  rfl
+
+end Refinement
+
+end ContinuousMap
