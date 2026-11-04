@@ -944,3 +944,168 @@ theorem loopMap_comp_symmTransHomotopy (f : C(X, Y))
 end ContinuousMap
 
 end PathInverseCancellation
+
+/-- The standard left-unit homotopy on a fixed-endpoint path space.
+Mathlib's `Path.Homotopy.reflTrans` supplies its time slices; continuity follows by
+reversing paths before and after `Path.transReflHomotopy`. -/
+noncomputable def Path.reflTransHomotopy.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y : X) :
+    ContinuousMap.Homotopy
+      ((Path.transContinuousMap x x y).comp
+        ((ContinuousMap.const (Path x y) (Path.refl x)).prodMk
+          (ContinuousMap.id (Path x y))))
+      (ContinuousMap.id (Path x y)) where
+  toFun v := (Path.Homotopy.reflTrans v.2).eval v.1
+  continuous_toFun := by
+    change Continuous (fun v : unitInterval × Path x y =>
+      (Path.transReflHomotopy y x (v.1, v.2.symm)).symm)
+    exact Path.continuous_symm.comp
+      ((Path.transReflHomotopy y x).toContinuousMap.continuous.comp
+        (continuous_fst.prodMk (Path.continuous_symm.comp continuous_snd)))
+  map_zero_left p := (Path.Homotopy.reflTrans p).eval_zero
+  map_one_left p := (Path.Homotopy.reflTrans p).eval_one
+
+/-- Evaluate the left-unit path-space homotopy as Mathlib's standard path homotopy. -/
+@[simp] theorem Path.reflTransHomotopy_apply.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y : X)
+    (s : unitInterval) (p : Path x y) :
+    Path.reflTransHomotopy x y (s, p) =
+      (Path.Homotopy.reflTrans p).eval s := rfl
+
+/-- Inner-time evaluation agrees with the standard left-unit path homotopy. -/
+theorem Path.reflTransHomotopy_apply_apply.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y : X)
+    (s : unitInterval) (p : Path x y) (t : unitInterval) :
+    Path.reflTransHomotopy x y (s, p) t =
+      Path.Homotopy.reflTrans p (s, t) := rfl
+
+/-- The left-unit homotopy starts at concatenation with the constant path. -/
+theorem Path.reflTransHomotopy_zero.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y : X) (p : Path x y) :
+    Path.reflTransHomotopy x y (0, p) = (Path.refl x).trans p :=
+  (Path.reflTransHomotopy x y).apply_zero p
+
+/-- The left-unit homotopy ends at the original path. -/
+theorem Path.reflTransHomotopy_one.{uX}
+    {X : Type uX} [TopologicalSpace X] (x y : X) (p : Path x y) :
+    Path.reflTransHomotopy x y (1, p) = p :=
+  (Path.reflTransHomotopy x y).apply_one p
+
+/-- The left-unit homotopy fixes the constant input path at every time. -/
+theorem Path.reflTransHomotopy_refl.{uX}
+    {X : Type uX} [TopologicalSpace X] (x : X) (s : unitInterval) :
+    Path.reflTransHomotopy x x (s, Path.refl x) = Path.refl x := by
+  rw [Path.reflTransHomotopy_apply]
+  rfl
+
+/-- Precomposition gives the standard left-unit homotopy for an arbitrary path family. -/
+theorem Path.reflTransHomotopy_family_apply.{uX, uP}
+    {X : Type uX} {P : Type uP} [TopologicalSpace X] [TopologicalSpace P]
+    {x y : X} (a : C(P, Path x y)) (s : unitInterval) (p : P) :
+    ((Path.reflTransHomotopy x y).compContinuousMap a) (s, p) =
+      (Path.Homotopy.reflTrans (a p)).eval s := rfl
+
+/-- Inner-time evaluation of a left-unit homotopy family is the stock path homotopy. -/
+theorem Path.reflTransHomotopy_family_apply_apply.{uX, uP}
+    {X : Type uX} {P : Type uP} [TopologicalSpace X] [TopologicalSpace P]
+    {x y : X} (a : C(P, Path x y))
+    (s : unitInterval) (p : P) (t : unitInterval) :
+    ((Path.reflTransHomotopy x y).compContinuousMap a) (s, p) t =
+      Path.Homotopy.reflTrans (a p) (s, t) := rfl
+
+/-- A parameter whose path is constant remains fixed throughout the left-unit family. -/
+theorem Path.reflTransHomotopy_family_point.{uX, uP}
+    {X : Type uX} {P : Type uP} [TopologicalSpace X] [TopologicalSpace P]
+    {x : X} (a : C(P, Path x x)) (p₀ : P)
+    (ha : a p₀ = Path.refl x) (s : unitInterval) :
+    ((Path.reflTransHomotopy x x).compContinuousMap a) (s, p₀) = Path.refl x := by
+  change Path.reflTransHomotopy x x (s, a p₀) = Path.refl x
+  rw [ha, Path.reflTransHomotopy_refl]
+
+/-- The left-unit loop-space homotopy relative to the constant loop. -/
+noncomputable def Path.reflTransHomotopyRel.{uX}
+    {X : Type uX} [TopologicalSpace X] (x : X) :
+    ContinuousMap.HomotopyRel
+      ((Path.transContinuousMap x x x).comp
+        ((ContinuousMap.const (Path x x) (Path.refl x)).prodMk
+          (ContinuousMap.id (Path x x))))
+      (ContinuousMap.id (Path x x)) {Path.refl x} where
+  toHomotopy := Path.reflTransHomotopy x x
+  prop' s p hp := by
+    rcases Set.mem_singleton_iff.mp hp with rfl
+    change Path.reflTransHomotopy x x (s, Path.refl x) =
+      (Path.refl x).trans (Path.refl x)
+    rw [Path.reflTransHomotopy_refl, Path.refl_trans_refl]
+
+/-- Forgetting the relative condition recovers the left-unit path-space homotopy. -/
+@[simp] theorem Path.reflTransHomotopyRel_toHomotopy.{uX}
+    {X : Type uX} [TopologicalSpace X] (x : X) :
+    (Path.reflTransHomotopyRel x).toHomotopy = Path.reflTransHomotopy x x := rfl
+
+/-- The relative left-unit homotopy has the same values as its underlying homotopy. -/
+theorem Path.reflTransHomotopyRel_apply.{uX}
+    {X : Type uX} [TopologicalSpace X] (x : X)
+    (s : unitInterval) (p : Path x x) :
+    Path.reflTransHomotopyRel x (s, p) = Path.reflTransHomotopy x x (s, p) := rfl
+
+/-- Postcomposition commutes with the entire left-unit homotopy at the same time. -/
+theorem Path.mapContinuousMap_comp_reflTransHomotopy.{uX, uY}
+    {X : Type uX} {Y : Type uY} [TopologicalSpace X] [TopologicalSpace Y]
+    (f : C(X, Y)) (x y : X) :
+    (Path.mapContinuousMap f x y).comp
+      (Path.reflTransHomotopy x y).toContinuousMap =
+    (Path.reflTransHomotopy (f x) (f y)).toContinuousMap.comp
+      ((ContinuousMap.id unitInterval).prodMap (Path.mapContinuousMap f x y)) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  change Path.mapContinuousMap f x y (Path.reflTransHomotopy x y (s, p)) =
+    Path.reflTransHomotopy (f x) (f y) (s, Path.mapContinuousMap f x y p)
+  rw [Path.reflTransHomotopy_apply, Path.reflTransHomotopy_apply]
+  apply Path.ext
+  funext t
+  rfl
+
+/-- The original endpoint-transported loop map commutes with the left-unit homotopy. -/
+theorem ContinuousMap.loopMap_comp_reflTransHomotopy.{uX, uY}
+    {X : Type uX} {Y : Type uY} [TopologicalSpace X] [TopologicalSpace Y]
+    (f : C(X, Y)) (x : X) (y : Y) (h : f x = y) :
+    (f.loopMap x y h).comp (Path.reflTransHomotopy x x).toContinuousMap =
+    (Path.reflTransHomotopy y y).toContinuousMap.comp
+      ((ContinuousMap.id unitInterval).prodMap (f.loopMap x y h)) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  change f.loopMap x y h (Path.reflTransHomotopy x x (s, p)) =
+    Path.reflTransHomotopy y y (s, f.loopMap x y h p)
+  rw [Path.reflTransHomotopy_apply, Path.reflTransHomotopy_apply]
+  apply Path.ext
+  funext t
+  rfl
+
+/-- Postcomposition commutes with left-unit homotopies of arbitrary path families. -/
+theorem Path.mapContinuousMap_comp_reflTransHomotopy_family.{uX, uP, uY}
+    {X : Type uX} {P : Type uP} {Y : Type uY}
+    [TopologicalSpace X] [TopologicalSpace P] [TopologicalSpace Y]
+    {x y : X} (a : C(P, Path x y)) (f : C(X, Y)) :
+    (Path.mapContinuousMap f x y).comp
+      ((Path.reflTransHomotopy x y).compContinuousMap a).toContinuousMap =
+    ((Path.reflTransHomotopy (f x) (f y)).compContinuousMap
+      ((Path.mapContinuousMap f x y).comp a)).toContinuousMap := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  exact congrArg (fun g : C(unitInterval × Path x y, Path (f x) (f y)) =>
+    g (s, a p)) (Path.mapContinuousMap_comp_reflTransHomotopy f x y)
+
+/-- Endpoint-transported loop maps commute with left-unit homotopies of loop families. -/
+theorem ContinuousMap.loopMap_comp_reflTransHomotopy_family.{uX, uP, uY}
+    {X : Type uX} {P : Type uP} {Y : Type uY}
+    [TopologicalSpace X] [TopologicalSpace P] [TopologicalSpace Y]
+    (f : C(X, Y)) (x : X) (y : Y) (h : f x = y)
+    (a : C(P, Path x x)) :
+    (f.loopMap x y h).comp
+      ((Path.reflTransHomotopy x x).compContinuousMap a).toContinuousMap =
+    ((Path.reflTransHomotopy y y).compContinuousMap
+      ((f.loopMap x y h).comp a)).toContinuousMap := by
+  apply ContinuousMap.ext
+  rintro ⟨s, p⟩
+  exact congrArg (fun g : C(unitInterval × Path x x, Path y y) =>
+    g (s, a p)) (ContinuousMap.loopMap_comp_reflTransHomotopy f x y h)

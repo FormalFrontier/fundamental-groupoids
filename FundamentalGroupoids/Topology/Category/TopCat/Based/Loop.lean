@@ -783,3 +783,83 @@ theorem loopConcatAssocHomotopy_naturality
   exact htransport (point Y) (map_point f)
 
 end BasedTopCat
+
+namespace BasedTopCat
+
+/-- The left-unit deformation of a based loop family, fixing its selected parameter.
+Its time slices are Mathlib's `Path.Homotopy.reflTrans`, precomposed with the family. -/
+noncomputable def constLoopConcatHomotopy
+    {P X : BasedTopCat.{u}} (a : P ⟶ BasedTopCat.loopFunctor.obj X) :
+    ContinuousMap.HomotopyRel
+      (BasedTopCat.loopConcat
+        (BasedTopCat.const P (BasedTopCat.loopFunctor.obj X)) a).right.hom
+      a.right.hom {BasedTopCat.point P} := by
+  refine ((Path.reflTransHomotopyRel (point X)).precomp a.right.hom ?_).cast ?_ ?_
+  · intro p hp
+    obtain rfl : p = point P := Set.mem_singleton_iff.mp hp
+    exact Set.mem_singleton_iff.mpr ((map_point a).trans (point_loopFunctor_obj X))
+  · apply ContinuousMap.ext
+    intro p
+    change (Path.refl (point X)).trans (a.right.hom p) =
+      (loopConcat (const P (loopFunctor.obj X)) a).right.hom p
+    rw [loopConcat_apply, const_apply, point_loopFunctor_obj]
+  · apply ContinuousMap.ext
+    intro p
+    rfl
+
+/-- Evaluate the left-unit deformation at a parameter and outer time. -/
+@[simp]
+theorem constLoopConcatHomotopy_apply
+    {P X : BasedTopCat.{u}} (a : P ⟶ BasedTopCat.loopFunctor.obj X)
+    (s : unitInterval) (p : P.right) :
+    BasedTopCat.constLoopConcatHomotopy a (s, p) =
+      (Path.Homotopy.reflTrans (a.right.hom p)).eval s := by
+  let γ : C(P.right, Path (point X) (point X)) := a.right.hom
+  exact (Path.reflTransHomotopyRel_apply (point X) s (γ p)).trans
+    (Path.reflTransHomotopy_apply (point X) (point X) s (γ p))
+
+/-- The inner-time left-unit value is Mathlib's standard square. -/
+theorem constLoopConcatHomotopy_apply_apply
+    {P X : BasedTopCat.{u}} (a : P ⟶ BasedTopCat.loopFunctor.obj X)
+    (s : unitInterval) (p : P.right) (t : unitInterval) :
+    Path.toContinuousMap (x := BasedTopCat.point X) (y := BasedTopCat.point X)
+      (BasedTopCat.constLoopConcatHomotopy a (s, p)) t =
+      Path.Homotopy.reflTrans (a.right.hom p) (s, t) := by
+  exact congrArg (fun γ : Path (point X) (point X) ↦ γ t)
+    (constLoopConcatHomotopy_apply a s p)
+
+/-- The left-unit deformation fixes the selected constant-loop parameter at every time. -/
+theorem constLoopConcatHomotopy_point
+    {P X : BasedTopCat.{u}} (a : P ⟶ BasedTopCat.loopFunctor.obj X)
+    (s : unitInterval) :
+    BasedTopCat.constLoopConcatHomotopy a (s, BasedTopCat.point P) =
+      Path.refl (BasedTopCat.point X) :=
+  ((constLoopConcatHomotopy a).eq_snd s (Set.mem_singleton (point P))).trans
+    ((map_point a).trans (point_loopFunctor_obj X))
+
+/-- Concatenating the constant family on the left is based homotopic to the family. -/
+theorem homotopyRel_const_loopConcat
+    {P X : BasedTopCat.{u}} (a : P ⟶ BasedTopCat.loopFunctor.obj X) :
+    BasedTopCat.homotopyRel
+      (BasedTopCat.loopConcat
+        (BasedTopCat.const P (BasedTopCat.loopFunctor.obj X)) a) a :=
+  ⟨constLoopConcatHomotopy a⟩
+
+/-- Based postcomposition commutes with the entire left-unit deformation. -/
+theorem constLoopConcatHomotopy_naturality
+    {P X Y : BasedTopCat.{u}} (a : P ⟶ BasedTopCat.loopFunctor.obj X)
+    (f : X ⟶ Y) :
+    (BasedTopCat.loopFunctor.map f).right.hom.comp
+      (BasedTopCat.constLoopConcatHomotopy a).toHomotopy.toContinuousMap =
+    (BasedTopCat.constLoopConcatHomotopy
+      (a ≫ BasedTopCat.loopFunctor.map f)).toHomotopy.toContinuousMap := by
+  let γ : C(P.right, Path (point X) (point X)) := a.right.hom
+  change
+    (f.right.hom.loopMap (point X) (point Y) (map_point f)).comp
+        ((Path.reflTransHomotopy (point X) (point X)).compContinuousMap γ).toContinuousMap =
+      ((Path.reflTransHomotopy (point Y) (point Y)).compContinuousMap
+        ((f.right.hom.loopMap (point X) (point Y) (map_point f)).comp γ)).toContinuousMap
+  exact ContinuousMap.loopMap_comp_reflTransHomotopy_family
+    f.right.hom (point X) (point Y) (map_point f) γ
+
+end BasedTopCat
