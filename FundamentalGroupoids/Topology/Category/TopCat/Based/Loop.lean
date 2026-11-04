@@ -20,6 +20,14 @@ functor descends uniquely to the based-homotopy category. Applying the descended
 functor to the isomorphism given by based homotopy inverses yields an isomorphism
 whose arrows are the classes of the induced loop maps.
 
+Mathlib's `Path.symm` and `Path.continuous_symm` supply ordinary time reversal
+on these same loop spaces: the reversed loop has value `γ (unitInterval.symm t)`,
+or `γ (1 − t)`. The natural isomorphism `BasedTopCat.loopReversal` uses this map
+in both directions. Mathlib's path involution and compatibility with mapping and
+endpoint transport give its involution law and strict naturality. In particular,
+reversal followed by an induced loop map agrees with the induced loop map followed
+by reversal, with value `f (γ (1 − t))` at every time.
+
 No local compactness or separation condition on the original spaces is required.
 
 ## References
@@ -109,6 +117,73 @@ theorem loopFunctor_map_homotopyRel {X Y : BasedTopCat.{u}} (f g : X ⟶ Y)
     (f.right.hom.loopMap (point X) (point Y) (map_point f))
     (g.right.hom.loopMap (point X) (point Y) (map_point g)) {Path.refl (point X)}
   exact ((homotopyRel_iff f g).1 H).loopMap (point Y) (map_point f) (map_point g)
+
+/-- Ordinary time reversal as an involutive natural automorphism of the based loop functor.
+Both directions use Mathlib's `Path.symm`, continuous by `Path.continuous_symm`,
+and preserve the constant loop. Naturality says that applying a based map commutes
+with reversing the path parameter. -/
+def loopReversal : loopFunctor.{u} ≅ loopFunctor.{u} :=
+  NatIso.ofComponents (fun X ↦
+    { hom := ofHom
+        (⟨Path.symm, Path.continuous_symm⟩ :
+          C(Path (point X) (point X), Path (point X) (point X)))
+        (Path.refl_symm (a := point X))
+      inv := ofHom
+        (⟨Path.symm, Path.continuous_symm⟩ :
+          C(Path (point X) (point X), Path (point X) (point X)))
+        (Path.refl_symm (a := point X))
+      hom_inv_id := by
+        apply Under.UnderMorphism.ext
+        apply TopCat.ext
+        intro γ
+        exact Path.symm_symm γ
+      inv_hom_id := by
+        apply Under.UnderMorphism.ext
+        apply TopCat.ext
+        intro γ
+        exact Path.symm_symm γ }) (by
+    intro X Y f
+    apply Under.UnderMorphism.ext
+    apply TopCat.ext
+    intro γ
+    exact (ContinuousMap.loopMap_symm f.right.hom (point X) (point Y) (map_point f) γ).symm)
+
+/-- The whole continuous map underlying a reversal component is path reversal. -/
+theorem loopReversal_hom_app_right_hom (X : BasedTopCat.{u}) :
+    (loopReversal.hom.app X).right.hom =
+      (⟨Path.symm, Path.continuous_symm⟩ :
+        C(Path (point X) (point X), Path (point X) (point X))) := rfl
+
+/-- A reversal component sends each whole loop to its reversed path. -/
+theorem loopReversal_hom_app_apply (X : BasedTopCat.{u})
+    (γ : Path (point X) (point X)) :
+    (loopReversal.hom.app X).right.hom γ = γ.symm := rfl
+
+/-- Evaluation of a reversed loop is evaluation at the reversed interval parameter. -/
+@[simp]
+theorem loopReversal_hom_app_apply_apply (X : BasedTopCat.{u})
+    (γ : Path (point X) (point X)) (t : unitInterval) :
+    Path.toContinuousMap (x := point X) (y := point X)
+        ((loopReversal.hom.app X).right.hom γ) t =
+      γ (unitInterval.symm t) := rfl
+
+/-- A reversal component fixes the whole constant loop. -/
+@[simp]
+theorem loopReversal_hom_app_refl (X : BasedTopCat.{u}) :
+    (loopReversal.hom.app X).right.hom (Path.refl (point X)) =
+      Path.refl (point X) := by
+  rw [loopReversal_hom_app_apply, Path.refl_symm]
+
+/-- The inverse natural transformation is the same path reversal. -/
+theorem loopReversal_inv_eq_hom :
+    loopReversal.{u}.inv = loopReversal.{u}.hom := rfl
+
+/-- Applying the reversal natural transformation twice is the identity. -/
+@[simp]
+theorem loopReversal_hom_comp_self :
+    loopReversal.{u}.hom ≫ loopReversal.{u}.hom =
+      𝟙 (loopFunctor.{u}) := by
+  simpa only [loopReversal_inv_eq_hom] using loopReversal.{u}.hom_inv_id
 
 namespace HomotopyCategory
 

@@ -172,6 +172,15 @@ theorem loopMap_apply_apply.{u, v} {E : Type u} {B : Type v}
     (f : C(E, B)) (e₀ : E) (b : B) (h : f e₀ = b) (γ : Path e₀ e₀) (t : unitInterval) :
     f.loopMap e₀ b h γ t = f (γ t) := rfl
 
+/-- Loop maps commute with reversal of the whole path. -/
+@[simp]
+theorem loopMap_symm.{u, v} {E : Type u} {B : Type v}
+    [TopologicalSpace E] [TopologicalSpace B]
+    (f : C(E, B)) (e₀ : E) (b : B) (h : f e₀ = b)
+    (γ : Path e₀ e₀) :
+    f.loopMap e₀ b h γ.symm = (f.loopMap e₀ b h γ).symm := by
+  simp only [loopMap_apply, ← Path.map_symm, Path.cast_symm]
+
 /-- The loop map preserves the constant loop. -/
 @[simp]
 theorem loopMap_refl.{u, v} {E : Type u} {B : Type v}
