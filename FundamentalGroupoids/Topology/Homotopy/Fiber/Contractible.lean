@@ -44,7 +44,7 @@ open scoped Topology
 
 namespace ContinuousMap.HomotopyFiber
 
-universe u
+universe u v
 
 variable {B : Type u} [TopologicalSpace B]
 
@@ -147,6 +147,27 @@ theorem idContraction_const (b : B) (t : I) :
     idContraction b (t, const (f := ContinuousMap.id B) b rfl) =
       const (f := ContinuousMap.id B) b rfl := by
   exact (idContraction b).eq_fst t (Set.mem_singleton _)
+
+/-- Postcomposition by a fixed continuous map commutes with the chosen contraction
+of identity homotopy fibers at every time. -/
+theorem idContraction_naturality {B' : Type v} [TopologicalSpace B'] (G : C(B, B'))
+    (b : B) (b' : B') (hb : G b = b') (s : I)
+    (z : HomotopyFiber (ContinuousMap.id B) b) :
+    map (f := ContinuousMap.id B) (f' := ContinuousMap.id B')
+        G G (fun _ => rfl) hb (idContraction b (s, z)) =
+      idContraction b' (s,
+        map (f := ContinuousMap.id B) (f' := ContinuousMap.id B')
+          G G (fun _ => rfl) hb z) := by
+  apply ext
+  · simp only [point_map (f := ContinuousMap.id B) (f' := ContinuousMap.id B')
+      (b := b) (b' := b') G G (fun _ => rfl) hb, point_idContraction,
+      eval_map (f := ContinuousMap.id B) (f' := ContinuousMap.id B')
+        (b := b) (b' := b') G G (fun _ => rfl) hb]
+  · apply ContinuousMap.ext
+    intro t
+    simp only [path_map (f := ContinuousMap.id B) (f' := ContinuousMap.id B')
+      (b := b) (b' := b') G G (fun _ => rfl) hb,
+      ContinuousMap.comp_apply, path_idContraction_apply]
 
 /-- The ordinary homotopy fiber of the identity is contractible, with no restriction
 on the target topology, via `idContraction` and May's time-shortening deformation
