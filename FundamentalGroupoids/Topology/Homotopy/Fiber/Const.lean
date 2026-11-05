@@ -5,6 +5,7 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Homotopy.Fiber
+public import FundamentalGroupoids.Topology.Path
 public import Mathlib.Topology.Path
 
 /-!
@@ -15,9 +16,11 @@ source point together with a path from `b` to `c`. Its comparison with the produ
 uses Mathlib's existing `Path b c`, with the topology induced from compact-open
 continuous maps. In particular, the source point is not recovered from the path.
 
-The comparison is natural in arbitrary continuous maps of source spaces. It also
-characterizes nonemptiness: both a source point and a path from `b` to `c` are
-needed. When `b = c`, the entire loop-space factor is retained.
+The comparison is natural in arbitrary continuous maps of source and target
+spaces, as an equality of bundled continuous maps. Target maps postcompose the
+entire path without changing its time parameter. The comparison also characterizes
+nonemptiness: both a source point and a path from `b` to `c` are needed. When
+`b = c`, the entire loop-space factor is retained.
 
 ## Implementation notes
 
@@ -40,7 +43,7 @@ open scoped Topology
 
 namespace ContinuousMap.HomotopyFiber
 
-universe uE uX uF
+universe uE uX uF uX'
 
 variable {E : Type uE} {X : Type uX}
 variable [TopologicalSpace E] [TopologicalSpace X]
@@ -112,6 +115,62 @@ theorem constHomeomorph_naturality {F : Type uF} [TopologicalSpace F]
       ((path_map (f := ContinuousMap.const E c) (f' := ContinuousMap.const F c)
         (b := b) (b' := b) u (ContinuousMap.id X) (fun _ => rfl) rfl z).trans
         (ContinuousMap.id_comp (path z))) t
+
+/-- The constant-map comparison commutes with simultaneous continuous maps of
+source and target spaces, with postcomposition on the fixed-endpoint path factor. -/
+theorem constHomeomorph_naturality_map {E' : Type uF} {X' : Type uX'}
+    [TopologicalSpace E'] [TopologicalSpace X']
+    (F : C(E, E')) (G : C(X, X')) (b b0 : X) :
+    (constHomeomorph E' (G b) (G b0) :
+        C(HomotopyFiber (ContinuousMap.const E' (G b0)) (G b),
+          E' × Path (G b) (G b0))).comp
+      (map (f := ContinuousMap.const E b0) (f' := ContinuousMap.const E' (G b0))
+        (b := b) (b' := G b) F G (fun _ => rfl) rfl) =
+      (F.prodMap (Path.mapContinuousMap G b b0)).comp
+        (constHomeomorph E b b0 :
+          C(HomotopyFiber (ContinuousMap.const E b0) b, E × Path b b0)) := by
+  apply ContinuousMap.ext
+  intro z
+  apply Prod.ext
+  · exact point_map (f := ContinuousMap.const E b0)
+      (f' := ContinuousMap.const E' (G b0))
+      (b := b) (b' := G b) F G (fun _ => rfl) rfl z
+  · apply Path.ext
+    funext t
+    exact DFunLike.congr_fun
+      (path_map (f := ContinuousMap.const E b0)
+        (f' := ContinuousMap.const E' (G b0))
+        (b := b) (b' := G b) F G (fun _ => rfl) rfl z) t
+
+/-- A continuous map of source spaces acts on the source factor of the
+constant-map comparison and leaves the fixed-endpoint path factor unchanged. -/
+theorem constHomeomorph_naturality_source {E' : Type uF} [TopologicalSpace E']
+    (F : C(E, E')) (b b0 : X) :
+    (constHomeomorph E' b b0 :
+        C(HomotopyFiber (ContinuousMap.const E' b0) b, E' × Path b b0)).comp
+      (map (f := ContinuousMap.const E b0) (f' := ContinuousMap.const E' b0)
+        (b := b) (b' := b) F (ContinuousMap.id X) (fun _ => rfl) rfl) =
+      (F.prodMap (ContinuousMap.id (Path b b0))).comp
+        (constHomeomorph E b b0 :
+          C(HomotopyFiber (ContinuousMap.const E b0) b, E × Path b b0)) := by
+  apply ContinuousMap.ext
+  intro z
+  simpa only [ContinuousMap.comp_apply, ContinuousMap.prodMap_apply,
+    ContinuousMap.coe_id, ContinuousMap.coe_coe] using constHomeomorph_naturality F b b0 z
+
+/-- A continuous map of target spaces acts by postcomposition on the
+fixed-endpoint path factor of the constant-map comparison. -/
+theorem constHomeomorph_naturality_target {X' : Type uX'} [TopologicalSpace X']
+    (G : C(X, X')) (b b0 : X) :
+    (constHomeomorph E (G b) (G b0) :
+        C(HomotopyFiber (ContinuousMap.const E (G b0)) (G b),
+          E × Path (G b) (G b0))).comp
+      (map (f := ContinuousMap.const E b0) (f' := ContinuousMap.const E (G b0))
+        (b := b) (b' := G b) (ContinuousMap.id E) G (fun _ => rfl) rfl) =
+      ((ContinuousMap.id E).prodMap (Path.mapContinuousMap G b b0)).comp
+        (constHomeomorph E b b0 :
+          C(HomotopyFiber (ContinuousMap.const E b0) b, E × Path b b0)) := by
+  exact constHomeomorph_naturality_map (ContinuousMap.id E) G b b0
 
 /-- A constant-map homotopy fiber is inhabited exactly when its source and its
 fixed-endpoint path space are inhabited. Neither condition is assumed. -/
