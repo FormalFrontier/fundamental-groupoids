@@ -6,6 +6,7 @@ module
 
 public import FundamentalGroupoids.Topology.Homotopy.Fiber
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homeomorph
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homotopy
 public import Mathlib.Topology.Homeomorph.Lemmas
 
 /-!
@@ -607,6 +608,10 @@ the dependent product of the coordinate fibers. The comparison retains every
 source coordinate and the entire path at the original time. It preserves the
 specified original constant points, is natural for arbitrary families of
 commuting squares, and agrees with the binary comparison through `piFinTwo`.
+
+* The comparison commutes with transport by a family of homotopies, its reverse,
+  and the chosen left and right inverse homotopies as whole continuous maps,
+  preserving every outer homotopy time and inner path time.
 -/
 
 namespace ContinuousMap.HomotopyFiber
@@ -784,6 +789,176 @@ theorem piHomeomorph_symm_const (e₀ : ∀ k, E k) (h : ∀ k, f k (e₀ k) = b
       const e₀ (funext h) := by
   rw [← piHomeomorph_const f b e₀ h]
   exact (piHomeomorph f b).symm_apply_apply (const e₀ (funext h))
+
+section Homotopy
+
+variable {f b} {g : ∀ i, C(E i, B i)}
+
+/-- The dependent-product comparison commutes with transport by a family of homotopies
+as an equality of whole continuous maps of homotopy fibers. -/
+theorem piHomeomorph_comp_homotopyMap
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) :
+    (piHomeomorph g b :
+        C(HomotopyFiber (ContinuousMap.piMap g) b, ∀ i, HomotopyFiber (g i) (b i))).comp
+      (homotopyMap (ContinuousMap.Homotopy.piMap H) b) =
+      (ContinuousMap.piMap (fun i => homotopyMap (H i) (b i))).comp
+        (piHomeomorph f b :
+          C(HomotopyFiber (ContinuousMap.piMap f) b, ∀ i, HomotopyFiber (f i) (b i))) := by
+  apply ContinuousMap.ext
+  intro z
+  funext i
+  have h := congrArg (fun M : C(_, _) => M z)
+    (map_comp_homotopyMap (b := b) (b' := b i)
+      (ContinuousMap.Homotopy.piMap H) (H i)
+      (ContinuousMap.eval i) (ContinuousMap.eval i)
+      (fun _ => rfl) (fun _ => rfl) rfl (fun _ _ => rfl))
+  exact (piHomeomorph_apply g b _ i).trans
+    (h.trans (congrArg (homotopyMap (H i) (b i))
+      (piHomeomorph_apply f b z i).symm))
+
+/-- The dependent-product comparison commutes with transport by the reversed family
+of homotopies, using the reverse of the product homotopy. -/
+theorem piHomeomorph_comp_homotopyMap_symm
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) :
+    (piHomeomorph f b :
+        C(HomotopyFiber (ContinuousMap.piMap f) b, ∀ i, HomotopyFiber (f i) (b i))).comp
+      (homotopyMap (ContinuousMap.Homotopy.piMap H).symm b) =
+      (ContinuousMap.piMap (fun i => homotopyMap (H i).symm (b i))).comp
+        (piHomeomorph g b :
+          C(HomotopyFiber (ContinuousMap.piMap g) b, ∀ i, HomotopyFiber (g i) (b i))) := by
+  apply ContinuousMap.ext
+  intro z
+  funext i
+  have h := congrArg (fun M : C(_, _) => M z)
+    (map_comp_homotopyMap (b := b) (b' := b i)
+      (ContinuousMap.Homotopy.piMap H).symm (H i).symm
+      (ContinuousMap.eval i) (ContinuousMap.eval i)
+      (fun _ => rfl) (fun _ => rfl) rfl (fun _ _ => rfl))
+  exact (piHomeomorph_apply f b _ i).trans
+    (h.trans (congrArg (homotopyMap (H i).symm (b i))
+      (piHomeomorph_apply g b z i).symm))
+
+/-- The dependent-product comparison intertwines the chosen left inverse homotopy
+with the product of the coordinate left inverse homotopies at every time. -/
+theorem piHomeomorph_comp_homotopyMapLeftHomotopy
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) :
+    (piHomeomorph f b :
+        C(HomotopyFiber (ContinuousMap.piMap f) b, ∀ i, HomotopyFiber (f i) (b i))).comp
+      (homotopyMapLeftHomotopy (ContinuousMap.Homotopy.piMap H) b).toContinuousMap =
+      (ContinuousMap.Homotopy.piMap (fun i =>
+        homotopyMapLeftHomotopy (H i) (b i))).toContinuousMap.comp
+          ((ContinuousMap.id I).prodMap
+            (piHomeomorph f b :
+              C(HomotopyFiber (ContinuousMap.piMap f) b,
+                ∀ i, HomotopyFiber (f i) (b i)))) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, z⟩
+  funext i
+  have h := congrArg (fun M : C(_, _) => M (s, z))
+    (map_comp_homotopyMapLeftHomotopy (b := b) (b' := b i)
+      (ContinuousMap.Homotopy.piMap H) (H i)
+      (ContinuousMap.eval i) (ContinuousMap.eval i)
+      (fun _ => rfl) (fun _ => rfl) rfl (fun _ _ => rfl))
+  exact (piHomeomorph_apply f b _ i).trans
+    (h.trans (congrArg (fun w => homotopyMapLeftHomotopy (H i) (b i) (s, w))
+      (piHomeomorph_apply f b z i).symm))
+
+/-- The dependent-product comparison intertwines the chosen right inverse homotopy
+with the product of the coordinate right inverse homotopies at every time. -/
+theorem piHomeomorph_comp_homotopyMapRightHomotopy
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) :
+    (piHomeomorph g b :
+        C(HomotopyFiber (ContinuousMap.piMap g) b, ∀ i, HomotopyFiber (g i) (b i))).comp
+      (homotopyMapRightHomotopy (ContinuousMap.Homotopy.piMap H) b).toContinuousMap =
+      (ContinuousMap.Homotopy.piMap (fun i =>
+        homotopyMapRightHomotopy (H i) (b i))).toContinuousMap.comp
+          ((ContinuousMap.id I).prodMap
+            (piHomeomorph g b :
+              C(HomotopyFiber (ContinuousMap.piMap g) b,
+                ∀ i, HomotopyFiber (g i) (b i)))) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, z⟩
+  funext i
+  have h := congrArg (fun M : C(_, _) => M (s, z))
+    (map_comp_homotopyMapRightHomotopy (b := b) (b' := b i)
+      (ContinuousMap.Homotopy.piMap H) (H i)
+      (ContinuousMap.eval i) (ContinuousMap.eval i)
+      (fun _ => rfl) (fun _ => rfl) rfl (fun _ _ => rfl))
+  exact (piHomeomorph_apply g b _ i).trans
+    (h.trans (congrArg (fun w => homotopyMapRightHomotopy (H i) (b i) (s, w))
+      (piHomeomorph_apply g b z i).symm))
+
+/-- Each coordinate of the chosen left inverse homotopy is the chosen coordinate
+homotopy on the corresponding whole fiber element. -/
+theorem piHomeomorph_homotopyMapLeftHomotopy_apply
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) (s : I)
+    (z : HomotopyFiber (ContinuousMap.piMap f) b) (i : κ) :
+    piHomeomorph f b
+        (homotopyMapLeftHomotopy (ContinuousMap.Homotopy.piMap H) b (s, z)) i =
+      homotopyMapLeftHomotopy (H i) (b i) (s, piHomeomorph f b z i) := by
+  exact congrArg
+    (fun M : C(I × HomotopyFiber (ContinuousMap.piMap f) b,
+        ∀ j, HomotopyFiber (f j) (b j)) => M (s, z) i)
+    (piHomeomorph_comp_homotopyMapLeftHomotopy H)
+
+/-- Each coordinate of the chosen right inverse homotopy is the chosen coordinate
+homotopy on the corresponding whole fiber element. -/
+theorem piHomeomorph_homotopyMapRightHomotopy_apply
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) (s : I)
+    (z : HomotopyFiber (ContinuousMap.piMap g) b) (i : κ) :
+    piHomeomorph g b
+        (homotopyMapRightHomotopy (ContinuousMap.Homotopy.piMap H) b (s, z)) i =
+      homotopyMapRightHomotopy (H i) (b i) (s, piHomeomorph g b z i) := by
+  exact congrArg
+    (fun M : C(I × HomotopyFiber (ContinuousMap.piMap g) b,
+        ∀ j, HomotopyFiber (g j) (b j)) => M (s, z) i)
+    (piHomeomorph_comp_homotopyMapRightHomotopy H)
+
+/-- The left inverse comparison preserves the entire retained coordinate path
+at every outer homotopy time. -/
+theorem path_piHomeomorph_homotopyMapLeftHomotopy
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) (s : I)
+    (z : HomotopyFiber (ContinuousMap.piMap f) b) (i : κ) :
+    path (piHomeomorph f b
+        (homotopyMapLeftHomotopy (ContinuousMap.Homotopy.piMap H) b (s, z)) i) =
+      path (homotopyMapLeftHomotopy (H i) (b i) (s, piHomeomorph f b z i)) := by
+  exact congrArg (path (f := f i) (b := b i))
+    (piHomeomorph_homotopyMapLeftHomotopy_apply H s z i)
+
+/-- The right inverse comparison preserves the entire retained coordinate path
+at every outer homotopy time. -/
+theorem path_piHomeomorph_homotopyMapRightHomotopy
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) (s : I)
+    (z : HomotopyFiber (ContinuousMap.piMap g) b) (i : κ) :
+    path (piHomeomorph g b
+        (homotopyMapRightHomotopy (ContinuousMap.Homotopy.piMap H) b (s, z)) i) =
+      path (homotopyMapRightHomotopy (H i) (b i) (s, piHomeomorph g b z i)) := by
+  exact congrArg (path (f := g i) (b := b i))
+    (piHomeomorph_homotopyMapRightHomotopy_apply H s z i)
+
+/-- The left inverse comparison preserves each coordinate path value at arbitrary
+outer homotopy time and inner path time. -/
+theorem eval_piHomeomorph_homotopyMapLeftHomotopy
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) (s : I)
+    (z : HomotopyFiber (ContinuousMap.piMap f) b) (i : κ) (t : I) :
+    eval t (piHomeomorph f b
+        (homotopyMapLeftHomotopy (ContinuousMap.Homotopy.piMap H) b (s, z)) i) =
+      eval t (homotopyMapLeftHomotopy (H i) (b i) (s, piHomeomorph f b z i)) := by
+  exact congrArg (fun γ : C(I, B i) => γ t)
+    (path_piHomeomorph_homotopyMapLeftHomotopy H s z i)
+
+/-- The right inverse comparison preserves each coordinate path value at arbitrary
+outer homotopy time and inner path time. -/
+theorem eval_piHomeomorph_homotopyMapRightHomotopy
+    (H : ∀ i, ContinuousMap.Homotopy (f i) (g i)) (s : I)
+    (z : HomotopyFiber (ContinuousMap.piMap g) b) (i : κ) (t : I) :
+    eval t (piHomeomorph g b
+        (homotopyMapRightHomotopy (ContinuousMap.Homotopy.piMap H) b (s, z)) i) =
+      eval t (homotopyMapRightHomotopy (H i) (b i) (s, piHomeomorph g b z i)) := by
+  exact congrArg (fun γ : C(I, B i) => γ t)
+    (path_piHomeomorph_homotopyMapRightHomotopy H s z i)
+
+end Homotopy
 
 section Naturality
 

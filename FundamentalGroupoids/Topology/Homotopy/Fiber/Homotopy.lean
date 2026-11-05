@@ -27,6 +27,10 @@ is an unbased homotopy equivalence, not a strict inverse or a homeomorphism.
 The target point `b` is arbitrary and does not select a point of the fiber;
 preservation of arbitrarily chosen fiber-basepoints is not asserted.
 
+Transport and its left and right inverse homotopies commute with maps of
+homotopy fibers induced by squares compatible with the whole supplied homotopies.
+The comparisons preserve both the outer homotopy time and the inner path time.
+
 ## Implementation notes
 
 The carrier and path direction are those of `ContinuousMap.HomotopyFiber`:
@@ -473,6 +477,198 @@ theorem eval_homotopyMapRightHomotopy (H : ContinuousMap.Homotopy f g) (b : B)
           (Path.Homotopy.transRefl p))) (s, t) := by
   exact congrArg (fun γ : C(I, B) => γ t)
     (path_homotopyMapRightHomotopy (f := f) (g := g) H b s z)
+
+section Naturality
+
+universe vE vB
+
+variable {E' : Type vE} {B' : Type vB}
+variable [TopologicalSpace E'] [TopologicalSpace B']
+variable {f' g' : C(E', B')} {b : B} {b' : B'}
+
+private theorem retainedPath_map (F : C(E, E')) (G : C(B, B'))
+    (wf : ∀ e, f' (F e) = G (f e)) (hb : G b = b')
+    (z : HomotopyFiber f b) :
+    retainedPath (map F G wf hb z) =
+      ((retainedPath z).map G.continuous).cast hb.symm (wf (point z)) := by
+  apply Path.ext
+  funext t
+  exact congrArg (fun p : C(I, B') => p t) (path_map F G wf hb z)
+
+private theorem evalAt_map_cast
+    (H : ContinuousMap.Homotopy f g) (H' : ContinuousMap.Homotopy f' g')
+    (F : C(E, E')) (G : C(B, B'))
+    (wf : ∀ e, f' (F e) = G (f e)) (wg : ∀ e, g' (F e) = G (g e))
+    (hH : ∀ (s : I) (e : E), H' (s, F e) = G (H (s, e))) (e : E) :
+    H'.evalAt (F e) = ((H.evalAt e).map G.continuous).cast (wf e) (wg e) := by
+  apply Path.ext
+  funext s
+  exact hH s e
+
+private theorem path_trans_map_cast (G : C(B, B'))
+    {x y z : B} {x' y' z' : B'} (p : Path x y) (q : Path y z)
+    (hx : x' = G x) (hy : y' = G y) (hz : z' = G z) (t : I) :
+    G ((p.trans q) t) =
+      (((p.map G.continuous).cast hx hy).trans
+        ((q.map G.continuous).cast hy hz)) t := by
+  rw [← Path.cast_trans, ← Path.map_trans]
+  rfl
+
+private theorem pathHomotopy_trans_naturality (G : C(B, B'))
+    {x y : B} {x' y' : B'} {p q r : Path x y} {p' q' r' : Path x' y'}
+    (K : Path.Homotopy p q) (L : Path.Homotopy q r)
+    (K' : Path.Homotopy p' q') (L' : Path.Homotopy q' r')
+    (hK : ∀ s t, G (K (s, t)) = K' (s, t))
+    (hL : ∀ s t, G (L (s, t)) = L' (s, t)) (s t : I) :
+    G ((K.trans L) (s, t)) = (K'.trans L') (s, t) := by
+  simp only [Path.Homotopy.trans_apply]
+  split_ifs
+  · exact hK _ _
+  · exact hL _ _
+
+private theorem pathHomotopy_hcomp_naturality (G : C(B, B'))
+    {x y z : B} {x' y' z' : B'}
+    {p q : Path x y} {r v : Path y z}
+    {p' q' : Path x' y'} {r' v' : Path y' z'}
+    (K : Path.Homotopy p q) (L : Path.Homotopy r v)
+    (K' : Path.Homotopy p' q') (L' : Path.Homotopy r' v')
+    (hK : ∀ s t, G (K (s, t)) = K' (s, t))
+    (hL : ∀ s t, G (L (s, t)) = L' (s, t)) (s t : I) :
+    G ((K.hcomp L) (s, t)) = (K'.hcomp L') (s, t) := by
+  simp only [Path.Homotopy.hcomp_apply]
+  split_ifs
+  · exact hK _ _
+  · exact hL _ _
+
+-- Endpoint casts leave the path values unchanged. The three stage comparisons
+-- come from naturality of association, cancellation, and the right unit.
+private theorem leftPathHomotopy_map_cast (G : C(B, B'))
+    {x y z : B} {x' y' z' : B'} (p : Path x y) (q : Path y z)
+    (hx : x' = G x) (hy : y' = G y) (hz : z' = G z) (s t : I) :
+    G (((Path.Homotopy.transAssoc p q q.symm).trans
+      (((Path.Homotopy.refl p).hcomp (Path.Homotopy.reflTransSymm q).symm).trans
+        (Path.Homotopy.transRefl p))) (s, t)) =
+      let p' := (p.map G.continuous).cast hx hy
+      let q' := (q.map G.continuous).cast hy hz
+      ((Path.Homotopy.transAssoc p' q' q'.symm).trans
+        (((Path.Homotopy.refl p').hcomp
+          (Path.Homotopy.reflTransSymm q').symm).trans
+            (Path.Homotopy.transRefl p'))) (s, t) := by
+  subst x'
+  subst y'
+  subst z'
+  simp only [Path.cast_rfl_rfl]
+  apply pathHomotopy_trans_naturality G
+  · intro s t
+    have h := DFunLike.congr_fun
+      (Path.mapContinuousMap_comp_transAssocHomotopy G x y z y)
+      (s, (p, (q, q.symm)))
+    -- Compare whole slices, normalizing reversal before evaluating the paths.
+    have hpaths :
+        ((Path.Homotopy.transAssoc p q q.symm).eval s).map G.continuous =
+          (Path.Homotopy.transAssoc (p.map G.continuous) (q.map G.continuous)
+            (q.map G.continuous).symm).eval s := by
+      simpa only [ContinuousMap.comp_apply, ContinuousMap.prodMap_apply,
+        Prod.map_apply, ContinuousMap.id_apply, ContinuousMap.Homotopy.coe_toContinuousMap,
+        Path.mapContinuousMap_apply, Path.transAssocHomotopy_apply,
+        ← Path.map_symm] using h
+    simpa only [Path.map_coe, Function.comp_apply, Path.Homotopy.eval_apply,
+      ContinuousMap.Homotopy.curry_apply, ContinuousMap.HomotopyWith.coe_toHomotopy] using
+        congrArg (fun r : Path (G x) (G y) => r t) hpaths
+  · intro s t
+    apply pathHomotopy_trans_naturality G
+    · intro s t
+      apply pathHomotopy_hcomp_naturality G
+      · intro s t
+        rfl
+      · intro s t
+        have h := DFunLike.congr_fun
+          (Path.mapContinuousMap_comp_transSymmHomotopy G y z) (s, q)
+        simpa only [ContinuousMap.comp_apply, ContinuousMap.prodMap_apply,
+          Prod.map_apply, ContinuousMap.id_apply, ContinuousMap.Homotopy.coe_toContinuousMap,
+          Path.mapContinuousMap_apply, Path.map_coe, Function.comp_apply,
+          Path.transSymmHomotopy_apply_apply] using
+            congrArg (fun r : Path (G y) (G y) => r t) h
+    · intro s t
+      have h := DFunLike.congr_fun
+        (Path.mapContinuousMap_comp_transReflHomotopy G x y) (s, p)
+      simpa only [ContinuousMap.comp_apply, ContinuousMap.prodMap_apply,
+        Prod.map_apply, ContinuousMap.id_apply, ContinuousMap.Homotopy.coe_toContinuousMap,
+        Path.mapContinuousMap_apply, Path.map_coe, Function.comp_apply,
+        Path.transReflHomotopy_apply, Path.Homotopy.eval_apply,
+        ContinuousMap.Homotopy.curry_apply, ContinuousMap.HomotopyWith.coe_toHomotopy] using
+          congrArg (fun r : Path (G x) (G y) => r t) h
+
+/-- A square of homotopies commutes with transport on ordinary homotopy fibers. -/
+theorem map_comp_homotopyMap
+    (H : ContinuousMap.Homotopy f g) (H' : ContinuousMap.Homotopy f' g')
+    (F : C(E, E')) (G : C(B, B'))
+    (wf : ∀ e, f' (F e) = G (f e))
+    (wg : ∀ e, g' (F e) = G (g e)) (hb : G b = b')
+    (hH : ∀ (s : I) (e : E), H' (s, F e) = G (H (s, e))) :
+    (map (f := g) (f' := g') F G wg hb).comp (homotopyMap H b) =
+      (homotopyMap H' b').comp (map (f := f) (f' := f') F G wf hb) := by
+  apply ContinuousMap.ext
+  intro z
+  apply ext
+  · simp only [ContinuousMap.comp_apply, point_map, point_homotopyMap]
+  · simp only [ContinuousMap.comp_apply, path_map, path_homotopyMap]
+    apply ContinuousMap.ext
+    intro t
+    have h := path_trans_map_cast G (retainedPath z) (H.evalAt (point z))
+      hb.symm (wf (point z)) (wg (point z)) t
+    rw [← retainedPath_map F G wf hb z,
+      ← evalAt_map_cast H H' F G wf wg hH (point z)] at h
+    exact h
+
+/-- A square of homotopies commutes with the entire left inverse homotopy
+of transport, at the same outer and inner path parameters. -/
+theorem map_comp_homotopyMapLeftHomotopy
+    (H : ContinuousMap.Homotopy f g) (H' : ContinuousMap.Homotopy f' g')
+    (F : C(E, E')) (G : C(B, B'))
+    (wf : ∀ e, f' (F e) = G (f e))
+    (wg : ∀ e, g' (F e) = G (g e)) (hb : G b = b')
+    (hH : ∀ (s : I) (e : E), H' (s, F e) = G (H (s, e))) :
+    (map (f := f) (f' := f') F G wf hb).comp
+        (homotopyMapLeftHomotopy H b).toContinuousMap =
+      (homotopyMapLeftHomotopy H' b').toContinuousMap.comp
+        ((ContinuousMap.id I).prodMap
+          (map (f := f) (f' := f') F G wf hb)) := by
+  apply ContinuousMap.ext
+  rintro ⟨s, z⟩
+  apply ext
+  · simp only [ContinuousMap.comp_apply, ContinuousMap.prodMap_apply, Prod.map_apply,
+      ContinuousMap.id_apply, ContinuousMap.Homotopy.coe_toContinuousMap,
+      point_map, point_homotopyMapLeftHomotopy]
+  · simp only [ContinuousMap.comp_apply, ContinuousMap.prodMap_apply, Prod.map_apply,
+      ContinuousMap.id_apply, ContinuousMap.Homotopy.coe_toContinuousMap,
+      path_map, path_homotopyMapLeftHomotopy]
+    apply ContinuousMap.ext
+    intro t
+    have h := leftPathHomotopy_map_cast G (retainedPath z) (H.evalAt (point z))
+      hb.symm (wf (point z)) (wg (point z)) s t
+    rw [← retainedPath_map F G wf hb z,
+      ← evalAt_map_cast H H' F G wf wg hH (point z)] at h
+    exact h
+
+/-- A square of homotopies commutes with the entire right inverse homotopy
+of transport, at the same outer and inner path parameters. -/
+theorem map_comp_homotopyMapRightHomotopy
+    (H : ContinuousMap.Homotopy f g) (H' : ContinuousMap.Homotopy f' g')
+    (F : C(E, E')) (G : C(B, B'))
+    (wf : ∀ e, f' (F e) = G (f e))
+    (wg : ∀ e, g' (F e) = G (g e)) (hb : G b = b')
+    (hH : ∀ (s : I) (e : E), H' (s, F e) = G (H (s, e))) :
+    (map (f := g) (f' := g') F G wg hb).comp
+        (homotopyMapRightHomotopy H b).toContinuousMap =
+      (homotopyMapRightHomotopy H' b').toContinuousMap.comp
+        ((ContinuousMap.id I).prodMap
+          (map (f := g) (f' := g') F G wg hb)) := by
+  -- Both boundary identifications in the right homotopy's cast preserve its map.
+  exact map_comp_homotopyMapLeftHomotopy H.symm H'.symm F G wg wf hb
+    (fun s e => hH (unitInterval.symm s) e)
+
+end Naturality
 
 /-- The forward continuous map of the homotopy equivalence is the append map. -/
 theorem homotopyEquiv_toFun (H : ContinuousMap.Homotopy f g) (b : B) :
