@@ -26,10 +26,14 @@ relative to any set mapped into `S`. If the identity deforms onto a subset while
 fixing that subset, maps agreeing there admit a relative homotopy, obtained by
 postcomposition and concatenation.
 
+Relative homotopies into a dependent product correspond to families of coordinate
+relative homotopies on the same source and fixed set. This correspondence preserves
+constant homotopies, reversal and concatenation.
+
 ## References
 
 * Mathlib's `Mathlib.Topology.Homotopy.Basic` supplies relative homotopies,
-  currying and precomposition of their underlying homotopies;
+  product assembly, currying and precomposition of their underlying homotopies;
   `Mathlib.Topology.CompactOpen` supplies uncurrying, and
   `Mathlib.Topology.Connected.PathConnected` supplies paths in subtypes.
 -/
@@ -87,6 +91,79 @@ theorem ofSpecializes_apply (h : ∀ a, f₀ a ⤳ f₁ a) (h₀ : P f₀) (h₁
   rfl
 
 end HomotopyWith
+
+namespace HomotopyRel
+
+section Pi
+
+universe uA uι uX
+
+variable {A : Type uA} [TopologicalSpace A] {ι : Type uι} {X : ι → Type uX}
+  [∀ i, TopologicalSpace (X i)]
+
+/-- Relative homotopies into a dependent product are equivalent to families of
+coordinate relative homotopies on the same source and fixed set. -/
+noncomputable def piEquiv (f₀ f₁ : C(A, ∀ i, X i)) (S : Set A) :
+    f₀.HomotopyRel f₁ S ≃
+      (∀ i, ((ContinuousMap.eval i).comp f₀).HomotopyRel
+        ((ContinuousMap.eval i).comp f₁) S) where
+  toFun H i := H.compContinuousMap (ContinuousMap.eval i)
+  invFun K :=
+    { toHomotopy := (Homotopy.pi (fun i ↦ (K i).toHomotopy)).cast
+        (ContinuousMap.ext (fun _ ↦ rfl)) (ContinuousMap.ext (fun _ ↦ rfl))
+      prop' t _ ha := funext fun i ↦ (K i).eq_fst t ha }
+  left_inv _ := HomotopyWith.ext (fun _ ↦ rfl)
+  right_inv _ := funext fun _ ↦ HomotopyWith.ext (fun _ ↦ rfl)
+
+/-- The coordinate of a relative homotopy is its postcomposition with evaluation. -/
+@[simp]
+theorem piEquiv_apply (f₀ f₁ : C(A, ∀ i, X i)) (S : Set A)
+    (H : f₀.HomotopyRel f₁ S) (i : ι) :
+    piEquiv f₀ f₁ S H i = H.compContinuousMap (ContinuousMap.eval i) :=
+  rfl
+
+/-- Evaluation of a coordinate relative homotopy is the corresponding coordinate
+of the original homotopy. -/
+theorem piEquiv_apply_apply (f₀ f₁ : C(A, ∀ i, X i)) (S : Set A)
+    (H : f₀.HomotopyRel f₁ S) (i : ι) (st : I × A) :
+    piEquiv f₀ f₁ S H i st = H st i :=
+  rfl
+
+/-- Reconstructing a relative homotopy from its coordinates preserves every value. -/
+@[simp]
+theorem piEquiv_symm_apply (f₀ f₁ : C(A, ∀ i, X i)) (S : Set A)
+    (K : ∀ i, ((ContinuousMap.eval i).comp f₀).HomotopyRel
+      ((ContinuousMap.eval i).comp f₁) S) (st : I × A) :
+    (piEquiv f₀ f₁ S).symm K st = (fun i ↦ K i st) :=
+  rfl
+
+/-- Taking a coordinate preserves the constant relative homotopy. -/
+theorem piEquiv_refl (f₀ : C(A, ∀ i, X i)) (S : Set A) (i : ι) :
+    piEquiv f₀ f₀ S (ContinuousMap.HomotopyRel.refl f₀ S) i =
+      ContinuousMap.HomotopyRel.refl ((ContinuousMap.eval i).comp f₀) S :=
+  HomotopyWith.ext (fun st ↦ piEquiv_apply_apply f₀ f₀ S (refl f₀ S) i st)
+
+/-- Taking a coordinate commutes with reversal of homotopy time. -/
+theorem piEquiv_symm (f₀ f₁ : C(A, ∀ i, X i)) (S : Set A)
+    (H : f₀.HomotopyRel f₁ S) (i : ι) :
+    piEquiv f₁ f₀ S H.symm i = (piEquiv f₀ f₁ S H i).symm := by
+  apply HomotopyWith.ext
+  intro st
+  simp only [piEquiv_apply_apply, symm_apply]
+
+/-- Taking a coordinate preserves concatenation with the same homotopy-time clock. -/
+theorem piEquiv_trans (f₀ f₁ f₂ : C(A, ∀ i, X i)) (S : Set A)
+    (H : f₀.HomotopyRel f₁ S) (G : f₁.HomotopyRel f₂ S) (i : ι) :
+    piEquiv f₀ f₂ S (H.trans G) i =
+      (piEquiv f₀ f₁ S H i).trans (piEquiv f₁ f₂ S G i) := by
+  apply HomotopyWith.ext
+  intro st
+  simp only [piEquiv_apply_apply, trans_apply]
+  split_ifs <;> rfl
+
+end Pi
+
+end HomotopyRel
 
 variable {X : Type u} {Y : Type v} {Z : Type w}
   [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
@@ -195,3 +272,79 @@ theorem contractibleSpace_of_specializes {Y : Type w} [TopologicalSpace Y]
   exact ⟨(ContinuousMap.HomotopyWith.ofSpecializes
     (f₀ := ContinuousMap.const Y p) (f₁ := ContinuousMap.id Y)
     (P := fun _ ↦ True) h trivial trivial).toHomotopy.symm⟩
+
+namespace ContinuousMap
+
+section PiNaturality
+
+universe uA uι uX uY uκ
+
+variable {A : Type uA} [TopologicalSpace A]
+  {ι : Type uι} {X : ι → Type uX} {Y : ι → Type uY}
+  [∀ i, TopologicalSpace (X i)] [∀ i, TopologicalSpace (Y i)]
+  {κ : Type uκ}
+
+namespace HomotopyRel
+
+/-- Taking coordinates of a relative homotopy commutes with coordinatewise
+postcomposition, after transporting both endpoint maps. -/
+theorem piEquiv_compContinuousMap
+    (f₀ f₁ : C(A, ∀ i, X i)) (S : Set A)
+    (H : f₀.HomotopyRel f₁ S) (f : ∀ i, C(X i, Y i)) (i : ι) :
+    (piEquiv ((ContinuousMap.piMap f).comp f₀)
+        ((ContinuousMap.piMap f).comp f₁) S
+        (H.compContinuousMap (ContinuousMap.piMap f)) i).cast
+      (show (ContinuousMap.eval i : C(∀ j, Y j, Y i)).comp
+          ((ContinuousMap.piMap f).comp f₀) =
+          (f i).comp ((ContinuousMap.eval i : C(∀ j, X j, X i)).comp f₀) from
+        ContinuousMap.ext (fun _ => rfl))
+      (show (ContinuousMap.eval i : C(∀ j, Y j, Y i)).comp
+          ((ContinuousMap.piMap f).comp f₁) =
+          (f i).comp ((ContinuousMap.eval i : C(∀ j, X j, X i)).comp f₁) from
+        ContinuousMap.ext (fun _ => rfl)) =
+      (piEquiv f₀ f₁ S H i).compContinuousMap (f i) := by
+  apply HomotopyWith.ext
+  intro st
+  simp only [cast_apply, piEquiv_apply_apply, compContinuousMap_apply]
+  rfl
+
+/-- Taking coordinates of a relative homotopy commutes with arbitrary reindexing,
+after transporting both endpoint maps. -/
+theorem piEquiv_reindex
+    (f₀ f₁ : C(A, ∀ i, X i)) (S : Set A)
+    (H : f₀.HomotopyRel f₁ S) (ρ : κ → ι) (k : κ) :
+    (piEquiv ((ContinuousMap.precomp ρ).comp f₀)
+        ((ContinuousMap.precomp ρ).comp f₁) S
+        (H.compContinuousMap (ContinuousMap.precomp ρ)) k).cast
+      (show (ContinuousMap.eval k : C(∀ j : κ, X (ρ j), X (ρ k))).comp
+          ((ContinuousMap.precomp ρ).comp f₀) =
+          (ContinuousMap.eval (ρ k) : C(∀ j, X j, X (ρ k))).comp f₀ from
+        ContinuousMap.ext (fun _ => rfl))
+      (show (ContinuousMap.eval k : C(∀ j : κ, X (ρ j), X (ρ k))).comp
+          ((ContinuousMap.precomp ρ).comp f₁) =
+          (ContinuousMap.eval (ρ k) : C(∀ j, X j, X (ρ k))).comp f₁ from
+        ContinuousMap.ext (fun _ => rfl)) =
+      piEquiv f₀ f₁ S H (ρ k) := by
+  apply HomotopyWith.ext
+  intro st
+  simp only [cast_apply, piEquiv_apply_apply, compContinuousMap_apply]
+  rfl
+
+end HomotopyRel
+
+/-- Maps into a dependent product are homotopic relative to a set exactly when
+all their coordinate maps are homotopic relative to the same set. -/
+theorem homotopicRel_pi_iff (f₀ f₁ : C(A, ∀ i, X i)) (S : Set A) :
+    f₀.HomotopicRel f₁ S ↔
+      ∀ i, ((ContinuousMap.eval i : C(∀ j, X j, X i)).comp f₀).HomotopicRel
+        ((ContinuousMap.eval i : C(∀ j, X j, X i)).comp f₁) S := by
+  constructor
+  · rintro ⟨H⟩ i
+    exact ⟨HomotopyRel.piEquiv f₀ f₁ S H i⟩
+  · intro h
+    classical
+    exact ⟨(HomotopyRel.piEquiv f₀ f₁ S).symm (fun i => Classical.choice (h i))⟩
+
+end PiNaturality
+
+end ContinuousMap

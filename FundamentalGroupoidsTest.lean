@@ -25,6 +25,7 @@ import FundamentalGroupoidsTest.HomotopyFiberHomotopy
 import FundamentalGroupoidsTest.GenLoopFiberData
 import FundamentalGroupoidsTest.HomotopyFiberProd
 import FundamentalGroupoidsTest.HomotopyFiberSequence
+import FundamentalGroupoidsTest.HomotopyPi
 import FundamentalGroupoidsTest.LoopConcat
 import FundamentalGroupoidsTest.LoopIteration
 import FundamentalGroupoidsTest.LoopReversal
