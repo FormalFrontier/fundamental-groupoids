@@ -107,6 +107,7 @@ public import FundamentalGroupoids.Topology.Homotopy.Fiber.Homotopy
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Loop
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.PathComponent
 public import FundamentalGroupoids.Topology.Homotopy.Fiber.Prod
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.Projection
 public import FundamentalGroupoids.Topology.Homotopy.GenLoop.OnePoint
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Action
 public import FundamentalGroupoids.Topology.Homotopy.HomotopyGroup.Affine
