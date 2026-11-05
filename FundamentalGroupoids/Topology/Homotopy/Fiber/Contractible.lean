@@ -5,11 +5,12 @@ Authors: Formal Frontier Agents
 module
 
 public import FundamentalGroupoids.Topology.Homotopy.Fiber
+public import FundamentalGroupoids.Topology.Homotopy.Fiber.HomotopyEquiv
 public import FundamentalGroupoids.Topology.Homotopy.RelativePathSpace.Contractible
 public import FundamentalGroupoids.Topology.Homotopy.Relative
 
 /-!
-# Contractibility of identity homotopy fibers
+# Contractibility of homotopy fibers
 
 The ordinary homotopy fiber of the identity contracts to its specified
 constant-path point. The contraction is transported from
@@ -17,6 +18,10 @@ constant-path point. The contraction is transported from
 `ContinuousMap.HomotopyFiber.endpointHomeomorph`, using the identity map's full
 range. The source point moves along the shortened path: at contraction time `t`,
 it is the original path evaluated at `1 - t`.
+
+The fiber of a homotopy equivalence is also contractible. Its contraction is
+obtained from the identity fiber through the induced fiber homotopy equivalence
+and its named inverse homotopies.
 
 ## Implementation notes
 
@@ -176,5 +181,26 @@ instance instContractibleSpaceId (b : B) :
     ContractibleSpace (HomotopyFiber (ContinuousMap.id B) b) := by
   exact (contractible_iff_id_nullhomotopic (HomotopyFiber (ContinuousMap.id B) b)).2
     ⟨const (f := ContinuousMap.id B) b rfl, ⟨(idContraction b).toHomotopy⟩⟩
+
+variable {E : Type v} [TopologicalSpace E]
+
+/-- The ordinary homotopy fiber of a homotopy equivalence is contractible.
+May's time-shortening deformation (*A Concise Course in Algebraic Topology*,
+Chapter 7, §3, p. 50) is transported through `precompHomotopyEquiv`, using its
+named left inverse homotopy. -/
+theorem contractibleSpace_of_homotopyEquiv
+    (e : ContinuousMap.HomotopyEquiv E B) (b : B) :
+    ContractibleSpace (HomotopyFiber e.toFun b) := by
+  let P := precompHomotopyEquiv (ContinuousMap.id B) e b
+  let F := P.toFun
+  let T := P.symm.toFun
+  let c := const (f := ContinuousMap.id B) b rfl
+  let U := precompLeftHomotopy (ContinuousMap.id B) e b
+  let H : (T.comp F).Homotopy
+      (ContinuousMap.const (HomotopyFiber e.toFun b) (T c)) :=
+    (ContinuousMap.Homotopy.refl T).comp
+      ((idContraction b).toHomotopy.compContinuousMap F)
+  exact (contractible_iff_id_nullhomotopic (HomotopyFiber e.toFun b)).2
+    ⟨T c, ⟨U.symm.trans H⟩⟩
 
 end ContinuousMap.HomotopyFiber
